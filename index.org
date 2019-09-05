@@ -1,0 +1,3566 @@
+# -*- mode: org; geiser-scheme-implementation: chibi;  -*-
+# Time-stamp: <2019-09-05 10:20:30 lockywolf>
+# Created   : [2019-08-18 Sun 20:11]
+# Author    : lockywolf gmail.com
+
+#+STARTUP: inlineimages
+#+STARTUP: latexpreview
+#+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
+#+HTML_MATHJAX: cancel.js noErrors.js
+#+OPTIONS: tex:imagemagick
+
+
+* noweb + common
+** Setting chibi arguments. DANGEROUS                       :dangerous:elisp:
+
+#+begin_src elisp :export both :results value
+(setq geiser-chibi-extra-command-line-parameters
+   '("-m" "chibi" "-m" "chibi show" "-m" "chibi show pretty"
+     "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27"))
+#+end_src
+
+#+RESULTS:
+| -m | chibi | -m | chibi show | -m | chibi show pretty | -m | chibi ast | -m | chibi time | -m | srfi 27 |
+
+** Some common code blocks
+
+#+name: common
+#+begin_src scheme :results output :exportss none
+  (import (chibi ast))
+  (import (chibi show))
+   (define (disp sexp)
+     (display sexp)
+     (newline))
+#+end_src
+
+#+RESULTS: common
+
+* SICP [15%]
+:PROPERTIES:
+:header-args: :noweb yes
+:END:
+
+** TODO Chapter 1: Building abstractions with procedures [57/61]
+*** Snippet
+ #+BEGIN_SRC scheme :exports both :results value :session
+   (* (+ 2 (* 4 6))
+      (+ 3 5 7))
+ #+END_SRC
+
+ #+RESULTS:
+ : 390
+
+*** Thought
+ Tree accumulation is the process of computing a thing by traversing a tree.
+
+*** DONE Figure 1.1 Tree representation, showing the value of each subcombination
+    CLOSED: [2019-08-20 Tue 14:35]
+ For the sake of pedagogical clarity, I have formatted it as a picture.
+ #+BEGIN_SRC plantuml :exports both :file figure-1-1-mm.png
+ @startmindmap
+ skinparam monochrome true
+ +_ 390
+ ++_ *
+ ++_ 26
+ +++_ +
+ +++_ 2
+ +++_ 24
+ ++++_ *
+ ++++_ 4
+ ++++_ 6
+ ++_ 15
+ +++_ +
+ +++_ 3
+ +++_ 5
+ +++_ 7
+ @endmindmap
+ #+END_SRC
+
+ #+RESULTS:
+ [[file:figure-1-1-mm.png]]
+ ;
+ # Then next line is the same diagram verbose, using DOT.
+ #+begin_src plantuml :exports both :file figure-1-1-dot.png
+ @startdot
+ graph g {
+	 node [shape=plaintext];
+	 A1 [label="390"];
+
+	 B1 [label="*"];
+	 B2 [label="26"];
+	 B3 [label="15"];
+
+	 C1 [label="+"];
+	 C2 [label="2"];
+	 C3 [label="24"];
+
+	 D1 [label="*"];
+	 D2 [label="4"];
+	 D3 [label="6"];
+
+	 E1 [label="+"];
+	 E2 [label="3"];
+	 E3 [label="5"];
+	 E4 [label="7"];
+
+ // edges
+	 A1 -- B1;
+	 A1 -- B2;
+	 A1 -- B3;
+	
+	 B2 -- C1;
+	 B2 -- C2;
+	 B2 -- C3;
+
+	 C3 -- D1;
+	 C3 -- D2;
+	 C3 -- D3;
+
+	 B3 -- E1;
+	 B3 -- E2;
+	 B3 -- E3;
+	 B3 -- E4;
+
+ //	B1 -> B3 [label="(g o f)'" tailport=s headport=s];
+
+	 { rank=same; A1 }
+	 { rank=same; B1 B2 B3 } 
+	 { rank=same; C1 C2 C3 }
+	 { rank=same; D1 D2 D3 }
+	 { rank=same; E1 E2 E3 E4 }
+ } 
+ @enddot
+ #+end_src 
+
+ #+RESULTS:
+ [[file:figure-1-1-dot.png]]
+
+*** Snippet
+#+name square
+#+begin_src scheme :exports both :results value :session
+  (define (square x) (* x x))
+  (define (sum-of-squares x y)
+    (+ (square x) (square y)))
+  (sum-of-squares 3 4)
+#+end_src
+
+#+RESULTS:
+: 25
+
+*** DONE Exercise 1.1 Interpreter result
+    CLOSED: [2019-08-20 Tue 14:23]
+ #+begin_src scheme :exports both :results output :session
+   (define (disp sexp)
+     (display sexp)
+     (newline))
+   (disp 10)
+   (disp (+ 2 3 4))
+   (disp (- 9 1))
+   (disp (/ 6 2))
+   (disp (+ (* 2 4) (- 4 6)))
+   (define a 3)
+   (define b (+ a 1))
+   (disp (+ a b (* a b)))
+   (disp (= a b))
+   (disp
+    (if (and (> b a) (< b (* a b )))
+	b
+	a))
+   (disp (cond ((= a 4) 6)
+	((= b 4) (+ 6 7 a))
+	(else 25)))
+   (disp (+ 2 (if (< b a) b a)))
+   (disp (* (cond ((> a b) a)
+               ((< a b) b)
+               (else -1)) 
+            (+ a 1)))
+ #+end_src
+
+ #+RESULTS:
+ #+begin_example
+ 10
+ 9
+ 8
+ 3
+ 6
+ 19
+ #f
+ 4
+ 16
+ 5
+ 16
+ #+end_example
+
+*** DONE Exercise 1.2 Prefix form
+    CLOSED: [2019-08-20 Tue 14:25]
+ #+begin_src scheme :exports both :results value :session
+ (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5))))) (* 3 (- 6 2) (- 2 7)))
+ #+end_src
+
+ #+RESULTS:
+ : -37/150
+
+*** DONE Exercise 1.3 Sum of squares
+    CLOSED: [2019-08-20 Tue 14:35]
+ #+begin_src scheme :exports both :results value :session
+ (define (sum-of-squares x y)
+   (+ (square x) (square y)))
+ (import (srfi 95))
+ (define (sum-of-two-max a b c)
+   (let ((num_list (sort (list a b c) (lambda (a b) (if (> a b) a b)))))
+    (sum-of-squares (car num_list) (cadr num_list))))
+ (sum-of-two-max 1 2 3)
+ #+end_src
+
+ #+RESULTS:
+ : 13
+
+*** DONE Exercise 1.4 Compound expressions
+    CLOSED: [2019-08-20 Tue 14:39]
+ #+begin_src scheme :exports both :results output :session
+ (define (a-plus-abs-b a b)
+   ((if (> b 0) + -) a b))
+ (disp (a-plus-abs-b  3 4))
+ (disp (a-plus-abs-b  3 -4))
+ #+end_src
+
+ #+RESULTS:
+ : 7
+ : 7
+
+*** DONE Exercise 1.5 Ben's test
+    CLOSED: [2019-08-20 Tue 14:50]
+ #+begin_src scheme :exports both :results value
+ (define (p) (p))
+ (define (test x y)
+   (if (= x 0) 0 y))
+ (test 0 (p))
+ #+end_src
+
+ On my interpreter this code goes into an infinite recursion, which
+ makes sense, I guess, since the second argument to (test) is evaluated
+ before executing (test). However, if we only substitute /p/ into the
+ application of test and try to traverse the tree depth-first, this
+ code should be able to terminate successfully?
+
+*** DONE Exercise 1.6 If is a special form
+    CLOSED: [2019-08-21 Wed 14:05]
+The problem with this Alyssa's (new-if) is that both arguments would
+be computed, so this (new-if) would be either very inefficient or even
+not working at all in the case when one of the arguments is
+infeasible.
+Consider:
+
+#+begin_src scheme :exports both :results output :session
+<<common>>
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))
+(define a 1)
+(define b 0)
+(disp (if (not (= b 0)) (/ a b) a))
+(new-if (not (= b 0)) (/ a b) a)
+#+end_src
+
+#+RESULTS:
+: 1
+: {Exception #19 user "divide by zero" () #<procedure #f> (#f . 127)}
+
+However, this issue can be solved using scheme macros.
+
+#+begin_src scheme :exports both :results output :session
+  <<common>>
+  (define-syntax new-if
+    (syntax-rules ()
+      ( (new-if predicate then-clause else-clause)
+	(cond (predicate then-clause)
+	      (else else-clause))
+      )
+    )
+  )
+  (define a 1)
+  (define b 0)
+  (disp (if (not (= b 0)) (/ a b) a))
+  (disp (new-if (not (= b 0)) (/ a b) a))
+
+#+end_src
+
+#+RESULTS:
+: 1
+: 1
+
+The code above works as expected, because the macro does not evaluate
+its arguments, and (cond) is a special form.
+
+*** DONE Exercise 1.7 Good enough?
+    CLOSED: [2019-08-22 Thu 12:52]
+This exercise is a very misleading one. On the first glance is seems
+that this is just about formulating a good criterion. Make no mistake,
+practically solving this task means really writing all this code
+carefully.
+
+The function we are interested in is:
+\begin{equation}
+\label{eq:5}
+f(x) = \sqrt{x}
+\end{equation}
+
+The code given in the chapter before is equivalent to the following
+Newton's method formula, where $f_i$ denotes the next guess:
+\begin{equation}
+\label{eq:1} 
+f_{i+1}_{} = \frac{f_i + \frac{x}{f_i}}{2}
+\end{equation}
+
+How on Earth does this formula even appear? Let's remember some
+mathematics, namely, the Taylor series (variables unbound):
+\begin{equation}
+\label{eq:2}
+ f(x) = f(x_{0}_{}) + f'(x_{0})(x-x_{0}) + o(x)
+\end{equation}
+
+Let us call `true' value of $\sqrt{x}=f$. Let us call our first guess
+$f_{0}$. What is the value of the difference (error) between them?
+Clearly, $f-f_0$. Well, the problem is — we don't know $f$. But we do
+know $f^2$. Therefore $f^2-f^2_0$ is a number we know. What will be the
+error on the next step of the algorithm? Let's find $f_1$ as
+$f_1=f_0+\delta$. If $\delta$ is not too big, we can use the Taylor
+expansion from ref:eq:1 $\delta$.
+\begin{equation}
+\label{eq:8}
+E = f^2 - f_0^2 = f^2 - (f_0 + \delta)^2 \approx f^2 - f_0^2 - 2f_0\delta
+\end{equation}
+
+
+Be careful. What I expanded here is not the function value. It is the
+_error_ value. Now, clearly we want our error to be as small as
+possible, desirably as little as machine precision would allow. So
+assuming $E=0$, we get an equation to solve:
+\begin{align}
+\label{eq:9}
+E=0 \leftrightarrow& f^2-f_0^2-2f_0\delta=0 \\
+\delta =& \frac{f_0^2 -f^2 }{2f_0}
+\end{align}
+
+Remember though that we don't need just $\delta$ here. We actually need
+$f_1$. But $f_1$ is just $f_0+\delta$.
+\begin{align}
+\label{eq:10}
+f_1 = \frac{f^2 - f_0^2}{2f_0} + f_0
+\end{align}
+Now if you rearrange this formula, you will get exactly the formula
+ref:eq:1.
+
+The code below is copied from SICP verbatim and implements the
+algorithm above.
+
+#+begin_src scheme :exports both :results value :session :noweb-ref simple-sqrt-iter
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+	guess
+	(sqrt-iter (improve guess x) x)))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value :noweb-ref square-improve
+  (define (improve guess x)
+    (average guess (/ x guess)))
+#+end_src
+
+#+begin_src scheme :exports both :results value :session :noweb-ref simple-newton-recursion
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) 0.001))
+  <<square-improve>>
+  (define (average x y)
+    (/ (+ x y) 2))
+  (define (sqrt x)
+    (sqrt-iter 1.0 x))
+
+#+end_src
+
+#+name simple-newton
+#+begin_src scheme :exports both :results value :session
+  <<common>>
+  <<square>>
+  <<simple-sqrt-iter>>
+  <<simple-newton-recursion>>
+  (sqrt 9)
+#+end_src
+
+#+RESULTS:
+: 3.00009155413138
+
+An example of how this fails on small numbers:
+
+#+begin_src scheme :exports both :results value
+<<simple-newton>>
+(square (sqrt 0.0004))
+#+end_src
+
+#+RESULTS:
+: 0.0012532224857331766
+
+An example of why this fails on big numbers I didn't manage to
+craft. Perhaps chibi-scheme has some clever way to deal with rounding?
+Anyway — here is the code:
+#+begin_src scheme :exports both :results value
+  <<simple-newton>>
+  (square (sqrt 9999999999.0))
+#+end_src
+
+#+RESULTS:
+: 9999999999.0
+
+Why exactly this is not very good algorithms is a good question. The
+derivative of the square is well-defined near the 0, although the
+derivative of the square root is not. Therefore, the equation ref:eq:8
+become very imprecise. As we see, big number seem to be working fine
+in my scheme implementation.
+
+Let us write a better sqrt-iter?.
+
+#+begin_src scheme :exports both :results value :noweb-ref better-sqrt-iter
+  (define (sqrt-iter guess x)
+   (let ((better-guess (improve guess x)))
+    (if (good-enough? guess (square better-guess))
+	better-guess
+	(sqrt-iter better-guess x))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref better-newton
+<<common>>
+<<square>>
+<<better-sqrt-iter>>
+<<simple-newton-recursion>>
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value
+<<better-newton>>
+(square (sqrt 0.0004))
+#+end_src
+
+#+RESULTS:
+: 0.0005452233379244715
+
+Works faster and gives a better result. Seemingly. QED[fn:1].
+
+*** DONE Exercise 1.8 Newton's method
+    CLOSED: [2019-08-22 Thu 17:36]
+
+This exercise is not very hard. The only difference is that the
+`improve' function is not derived from a derivative of a square but
+rather from a derivative of a cube.
+
+
+#+name: cube-improve
+#+begin_src scheme :exports both :results value
+(define (cube-improve guess x)
+    (/ (+ (/ x (* guess guess)) (* 2 guess)) 3))
+#+end_src
+
+#+RESULTS: cube-improve
+: #<undef>
+
+#+name: cube-good-enough
+#+begin_src scheme :exports both :results value
+(define (cube-good-enough? guess x)
+  (< (abs (- (cube guess) x)) 0.001))
+#+end_src
+
+#+RESULTS: cube-good-enough
+: #<undef>
+
+#+name: cube-root-iter
+#+begin_src scheme :exports both :results value
+  (define (cube-root-iter guess x)
+    (let ((better-guess (cube-improve guess x)))
+      (disp better-guess)
+      (if (cube-good-enough? better-guess (cube guess))
+	  better-guess
+	  (cube-root-iter better-guess x))))
+#+end_src
+
+#+RESULTS: cube-root-iter
+: #<undef>
+
+#+name: cube-simple
+#+begin_src scheme :exports both :results output
+<<common>>
+<<cube>>
+<<cube-improve>>
+<<cube-good-enough>>
+<<cube-root-iter>>
+(cube-root-iter 1.0 27.0)
+#+end_src
+
+#+RESULTS: cube-simple
+: 9.666666666666666
+: 6.540758356453956
+: 4.570876778578707
+: 3.4780192333867963
+: 3.0626891086275365
+: 3.001274406506175
+: 3.0000005410641766
+: 3.0000000000000977
+
+*** TODO Figure 1.2 Procedural decomposition of the sqrt program
+TODO
+*** TODO Figure 1.3 A linear recursive process for computing \(6!\).
+TODO
+*** TODO Figure 1.4 A linear iterative process for computing \(6!\).
+TODO
+*** DONE Exercise 1.9 Iterative or recursive? :macro:er_macro_transformer:chicken:
+    CLOSED: [2019-08-29 Thu 15:14]
+
+I didn't find (inc) and (dec) in my scheme, so I define them myself.
+
+I still don't want to overload the "+" and "-" symbols, so I will call
+them `plus' and `minus'.
+
+#+name: example-substitution-first
+#+begin_src scheme :exports both :results value
+  (define (inc x)
+    (+ 1 x))
+  (define (dec x)
+    (- x 1))
+  (define-syntax plusF
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((a (cadr form))
+	     (b (caddr form)))
+n	 (if (= a 0) b `(inc (plusF ,(dec a) ,b)))))))
+  (macroexpand '(plusF 4 5))
+#+end_src
+
+#+RESULTS: example-substitution-first
+| inc | (inc (inc (inc 5))) |
+
+We can see that the macro expander has expanded the computation in to
+a tree of length 4. This happens because the algorithm is genuinely
+recursive, the return value is not produced by a call to itself, and
+therefore recursion cannot be tail-optimized. 
+
+#+name: example-substitution-second
+#+begin_src scheme :exports both :results value
+  (define (inc x)
+    (+ 1 x))
+  (define (dec x)
+    (- x 1))
+  (define-syntax plusS
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((a (cadr form))
+	     (b (caddr form)))
+	 (if (= a 0) b `(plusS ,(dec a) ,(inc b)))))))
+  (macroexpand '(plusS 4 5))
+#+end_src
+
+#+RESULTS: example-substitution-second
+: 9
+
+
+We can clearly see the difference. The first macro is genuinely
+recursive, it expands to a series of calls, and needs to keep the
+information about this calls on the stack. The second one is actually
+iterative. The macro call only happens as the last step, and no
+information is kept, as the return value will be just the last result,
+so this macro is expanded until it's just a number.
+
+*** DONE Exercise 1.10 Ackermann's function
+    CLOSED: [2019-08-25 Sun 18:31]
+Let's run the demos first:
+#+name: ackerman
+#+begin_src scheme :exports both :results output :session
+  <<common>>
+  (define (A x y)
+    (cond ((= y 0.0) 0.0)
+	  ((= x 0.0) (* 2.0 y))
+	  ((= y 1.0) 2.0)
+	  (else (A (- x 1.0) (A x (- y 1.0))))))
+  (disp (A 1 10))
+  (disp (A 2 4))
+  (disp (A 3 3))
+#+end_src
+
+#+RESULTS: ackermann
+: 1024.0
+: 65536.0
+: 65536.0
+
+The values of these expressions are listed above.
+
+#+begin_src scheme :exports both :results value :session
+  (define (f n) (A 0 n))
+  (define (g n) (A 1 n))
+  (define (h n) (A 2 n))
+  (define (k n) (* 5 n n))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+The mathematical expressions for these formulae are:
+\begin{eqnarray}
+\label{eq:3}
+f(n) & = & 2y\\
+g(n) & = & 2^y \\
+h(n) & = & 2^{2^n}\\
+k(n) & = & 5n^2\\
+\end{eqnarray}
+
+Actually this is not the Ackermann's function as it is most often
+defined, for example, see
+[[http://mathworld.wolfram.com/AckermannFunction.html]]. But the
+recurrent relation is the same. This version of the Ackermann's
+function seems to be equivalent to the powers tower.
+
+I may have lied with the coefficients, but essentially, the
+Ackermann's function with parameters $n$ and $m$ works by applying the
+n-the hyperoperator m times to 2. A hyperoperator is a generalization
+of the standard matematical operator sequence `+', `*', `^', see
+[[https://googology.wikia.org/wiki/Hyper_operator]]
+
+*** TODO Figure 1.5 The tree-recursive process generated in computing (fib 5)
+*** DONE Exercise 1.11 Recursive vs iterative
+    CLOSED: [2019-08-25 Sun 19:25]
+
+\begin{equation}
+\label{eq:4}
+f(n)=\left\{
+\begin{array}{l@{\quad:\quad}l}
+n & n<3\\
+f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
+\end{array}\right.
+\end{equation}
+
+#+begin_src scheme :exports both :results value :session
+    (define (f-recursive n)
+      (cond ((< n 3) n)
+	    (else
+	     (+
+	      (f-recursive (- n 1))
+	      (* 2 (f-recursive (- n 2)))
+	      (* 3 (f-recursive (- n 3)))))))
+    (f-recursive 7)
+#+end_src
+
+#+RESULTS:
+: 142
+
+#+begin_src scheme :exports both :results value :session
+  (define (f-iter m n fn-1 fn-2 fn-3)
+    (let ((fn (+ fn-1 (* 2 fn-2) (* 3 fn-3))))
+      (cond ((= m n) fn)
+	     (else (f-iter m (+ n 1) fn fn-1 fn-2)))))
+
+  (define (f-iterative n)
+    (cond ((< n 3) n)
+	  (else (f-iter n 3 2 1 0))))
+
+  (f-iterative 7)
+#+end_src
+
+#+RESULTS:
+: 142
+
+*** DONE Exercise 1.12 Recursive Pascal's triangle
+    CLOSED: [2019-08-25 Sun 19:42]
+
+\begin{tabular}{rcccccccccc}
+ &    &    &    &    &  1\\\noalign{\smallskip\smallskip}
+ &    &    &    &  1 &    &  1\\\noalign{\smallskip\smallskip}
+ &    &    &  1 &    &  2 &    &  1\\\noalign{\smallskip\smallskip}
+ &    &  1 &    &  3 &    &  3 &    &  1\\\noalign{\smallskip\smallskip}
+ &  1 &    &  4 &    &  6 &    &  4 &    &  1\\\noalign{\smallskip\smallskip}
+ &    &    &    &  . &  . &  . &    &    &   &   \\\noalign{\smallskip\smallskip}
+\end{tabular}
+
+#+BEGIN_SRC scheme
+    (define (pascal-number line-number column-number)
+      (cond ((= line-number 1) 1)
+	    ((= line-number 2) 1)
+	    ((= column-number 1) 1)
+	    ((= column-number line-number) 1)
+	    (else (+
+		   (pascal-number (- line-number 1) (- column-number 1))
+		   (pascal-number (- line-number 1) column-number)))))
+    (pascal-number 5 3)
+#+END_SRC
+
+#+RESULTS:
+: 6
+
+*** DONE Exercise 1.13 Fibonacci
+    CLOSED: [2019-08-25 Sun 23:04]
+
+\begin{equation}
+\label{eq:6}
+\mbox{Fib}(n)=\left\{ 
+\begin{array}{l@{\quad:\quad}l}
+0 & n=0\\
+1 & n=1\\
+\mbox{Fib}(n-1) + \mbox{Fib}(n-2) & \mbox{otherwise}}
+\end{array}\right.
+\end{equation}
+
+Abelson and Sussman define \(\varphi=(1+\sqrt{5})/2\) and \(\psi=(1-\sqrt{5})/2\).
+
+Knowing that \( \mbox{Fib}(n) = (\varphi^{n} - \psi^n)/\sqrt{5}\) is almost all the
+problem done, because \(\psi\) is clearly less than \(1\), so for large
+\(n\) it will be exponentially close to \(0\), and this is where the
+``closest integer'' comes from.
+
+Let us prove the rest by induction.
+\begin{eqnarray}
+\label{eq:13}
+\frac{\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2}}{\sqrt{5}} &=& \frac{\varphi^{n} - \psi^{n}}{\sqrt{5}}\\
+\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2} &=& \varphi^{n} - \psi^{n} \\
+(\varphi + 1)\varphi^{n-2} - (\psi + 1)\psi^{n-2} &=&  \varphi^{n} - \psi^{n}\\
+(\varphi + 1 - \varphi^2)\varphi^{n-2} &=&  (\psi + 1 - \psi^2)\psi^{n-2}\\
+(\frac{1+\sqrt{5}}{2} + 1 - (\frac{1+\sqrt{5}}{2})^2)\varphi^{n-2} &=&
+(\frac{1-\sqrt{5}}{2} + 1 - (\frac{1-\sqrt{5}}{2}))\psi^{n-2} \\
+(\frac{2+2\sqrt{5}}{4} + \frac{4}{4} - \frac{1+2\sqrt{5}+5}{4})\varphi^{n-2} &=&
+(\frac{2-2\sqrt{5}}{4} + \frac{4}{4} - \frac{1-2\sqrt{5}+5}{4})\psi^{n-2}\\
+0&=&0
+\end{eqnarray}
+
+This proves that the recurrent relation for \(\frac{\varphi^n-\psi^n}{\sqrt{5}}\) is the
+same as for the Fibonacci sequence. Then if we prove that there exist
+such \(n\) and \(n-1\) so that \(\mbox{Fib}(n) =
+\frac{\varphi^n-\psi^n}{\sqrt{5}}\), then we're done.
+
+Indeed, let's have a look at \(n=1\): \(\frac{1+\sqrt{5}}{2
+\sqrt{5}} - \frac{1-\sqrt{5}}{2 \sqrt{5}} = 1\); and \(n=0\): \(
+\frac{1-1}{\sqrt{5}} = 0\).
+
+*** DONE Exercise 1.14 count-change              :macro:er_macro_transformer:
+    CLOSED: [2019-08-30 Fri 16:09]
+
+Let us use the non-standard but common er-macro-transformer to plot
+the execution tree.
+
+#+begin_src scheme :exports both :results output
+  (define-syntax cc
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((amount (cadr form))
+	     (kinds-of-coins (caddr form)))
+	 (cond ((= amount 0) 1)
+	       ((or (< amount 0) (= kinds-of-coins 0)) 0)
+	       (`(+ (cc ,amount
+			,(- kinds-of-coins 1))
+		    (cc ,(- amount
+			    (first-denomination
+			     kinds-of-coins))
+			,kinds-of-coins))))))))
+  (define (first-denomination kinds-of-coins)
+    (cond ((= kinds-of-coins 1) 1)
+	  ((= kinds-of-coins 2) 5)
+	  ((= kinds-of-coins 3) 10)
+	  ((= kinds-of-coins 4) 25)
+	  ((= kinds-of-coins 5) 50)))
+(show #t " "(pretty (macroexpand '(cc 11 5))))
+#+end_src
+
+#+RESULTS:
+:  (+
+:   (+
+:    (+
+:     (+ (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 1)))))))))))
+:        (+ (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 (+ 0 1)))))) (+ (+ 0 1) 0)))
+:     (+ (+ (+ 0 1) 0) 0))
+:    0)
+:   0)
+
+Initially I wrote the same code in Emacs Lisp, I am leaving it here
+for future reference.
+
+#+begin_src elisp :exports both :results output
+    (defmacro cc (amount kinds-of-coins)
+      (cond ((= amount 0) 1)
+	    ((or (< amount 0) (= kinds-of-coins 0)) 0)
+	    (`(+ (cc ,amount
+		    ,(- kinds-of-coins 1))
+		(cc ,(- amount
+		       (first-denomination
+			kinds-of-coins))
+		    ,kinds-of-coins)))))
+  (defun first-denomination (kinds-of-coins)
+    (cond ((= kinds-of-coins 1) 1)
+	  ((= kinds-of-coins 2) 5)
+	  ((= kinds-of-coins 3) 10)
+	  ((= kinds-of-coins 4) 25)
+	  ((= kinds-of-coins 5) 50)))
+  (pp (macroexpand-all '(cc 11 5)))
+
+#+end_src
+
+#+RESULTS: ?
+#+begin_example
+(+
+ (+
+  (+
+   (+
+    (+ 0
+       (+ 0
+	  (+ 0
+	     (+ 0
+		(+ 0
+		   (+ 0
+		      (+ 0
+			 (+ 0
+			    (+ 0
+			       (+ 0
+				  (+ 0 1)))))))))))
+    (+
+     (+ 0
+	(+ 0
+	   (+ 0
+	      (+ 0
+		 (+ 0
+		    (+ 0 1))))))
+     (+
+      (+ 0 1)
+      0)))
+   (+
+    (+
+     (+ 0 1)
+     0)
+    0))
+  0)
+ 0)
+#+end_example
+
+The space complexity of the algorithm will be dominated by the depth
+of the tree — that is the value to be changed, as there is no need to
+keep any additional information.
+
+The time complexity can be estimated as follows: for every additional
+value the algorithm will have to go through all passes of the
+algorithm without an additional denomination, times the amount divided
+by the value of an additional denomination. We can consider the
+additional denomination value as a constant, and the amount of steps
+for the simplest case of only one denomination is the
+amount. Therefore, the algorithm is linear in amount and exponential
+in the number of denominations.
+
+\begin{equation}
+\label{eq:14}
+C = \Theta(n^a)
+\end{equation}
+
+*** I found a bug in ob-scheme while doing this Exercise.
+ _In process I have found a bug in org-babel!_
+#+begin_src scheme :exports both :results output
+(display "(+ 0) ")
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src scheme :exports both :results output
+(display "(+ 0)")
+#+end_src
+
+#+RESULTS:
+| + | 0 |
+
+(org-babel-script-escape "(+ 0)") (org-babel-script-escape "(+ 0) ")
+
+*** DONE Exercise 1.15 sine                      :macro:er_macro_transformer:
+    CLOSED: [2019-08-30 Fri 22:34]
+
+First let us code this thing:
+
+Loop version:
+
+#+begin_src scheme :exports both :results output
+  (define niter 0)
+  (define (cube x) (* x x x))
+  (define (p x)
+    (set! niter (+ niter 1))
+    (- (* 3 x) (* 4 (cube x))))
+  (define (sine angle)
+    (if (not (> (abs angle) 0.1))
+	angle
+	(p (sine (/ angle 3.0)))))
+  (display "sine=" )
+  (display (sine 12.15))
+  (display " niter=")
+  (display niter)
+#+end_src
+
+#+RESULTS:
+: sine=-0.39980345741334 niter=5
+
+Let's have the macro system expand this for us.
+
+#+begin_src scheme :exports both :results output
+  (define (cube x)
+    (* x x x))
+  (define (p x)
+    (- (* 3  x)
+       (* 4 (cube x))))
+  (define-syntax sine
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((a (cadr form)))
+	 (if (< (abs a) 0.1)
+	     a
+	     `(p (sine ,(/ a 3))))))))
+  (show #t " " (pretty (macroexpand '(sine 12.15))))
+
+#+end_src
+
+#+RESULTS:
+:  (p (p (p (p (p 0.05)))))
+
+Theoretically, we can expand everything at once. 
+
+#+begin_src scheme :exports both :results output
+  (define-syntax cube
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((x (cadr form)))
+	 `(* ,x ,x ,x)))))
+  (define-syntax p
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((x (cadr form)))
+	 `(- (* 3 ,x)
+	     (* 4 (cube ,x)))))))
+  (define-syntax sine
+    (er-macro-transformer
+     (lambda (form rename compare?)
+       (let ((a (cadr form)))
+	 (if (< (abs a) 0.1)
+	     a
+	     `(p (sine ,(/ a 3))))))))
+  (show #t " " (pretty (macroexpand '(sine 12.15))))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+ (-
+  (* 3
+     (-
+      (* 3
+         (-
+          (* 3
+             (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                (* 4
+                   (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                      (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                      (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+          (* 4
+             (*
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))))))
+      (* 4
+         (*
+          (-
+           (* 3
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+           (* 4
+              (*
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+          (-
+           (* 3
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+           (* 4
+              (*
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+          (-
+           (* 3
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+           (* 4
+              (*
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))))))
+  (* 4
+     (*
+      (-
+       (* 3
+          (-
+           (* 3
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+           (* 4
+              (*
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))))))
+       (* 4
+          (*
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))))))))
+      (-
+       (* 3
+          (-
+           (* 3
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+           (* 4
+              (*
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))))))
+       (* 4
+          (*
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))))))))
+      (-
+       (* 3
+          (-
+           (* 3
+              (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                 (* 4
+                    (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                       (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+           (* 4
+              (*
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))))))
+       (* 4
+          (*
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))
+           (-
+            (* 3
+               (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                  (* 4
+                     (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                        (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))
+            (* 4
+               (*
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))))
+                (- (* 3 (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05))))
+                   (* 4
+                      (* (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))
+                         (- (* 3 0.05) (* 4 (* 0.05 0.05 0.05)))))))))))))))
+#+end_example
+
+As seen from the code above, the amount of steps is 5. It is easily
+seen from the fact that the application of ~p~ starts when *x* is
+sufficiently small, and that requires \(0.1 > 12.15\cdot(\frac{1}{3})^n \Rightarrow n
+= O(\log_3 121.5)\) steps.
+
+~(sine x)~ is expandable in constant space and time, ~(cube x)~ is
+expandable in constant space and time if multiplication is an
+elementary operation. Therefore the only operation left is
+~p~. Therefore, time and space are of equal order of magnitude.
+
+ - \(\left\lceil \log_3 121.5 \right\rceil = 5\)
+ - \(O(\ln(a\cdot b))\) where \(a\) is the angle and \(b\) is precision
+
+*** DONE Exercise 1.16 Iterative exponentiation
+    CLOSED: [2019-08-30 Fri 23:20]
+
+For the start, let's input the code.
+
+#+begin_src scheme :exports both :results value
+  (define (expt b n)
+    (if (= n 0)
+	1
+	(* b (expt b (- n 1)))))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value
+  (define (expt b n)
+    (expt-iter b n 1))
+  (define (expt-iter b counter product)
+    (if (= counter 0)
+	product
+	(expt-iter b
+		   (- counter 1)
+		   (* b counter product))))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+  (define (fast-expt b n)
+    (cond ((= n 0) 1)
+	  ((even? n) (square (fast-expt b (/ n 2))))
+	  (else (* b (fast-expt b (- n 1))))))
+  (define (even? n)
+    (= (remainder n 2) 0))
+  (fast-expt 2 10)
+#+end_src
+
+#+RESULTS:
+: 1024
+
+#+begin_src scheme :exports both :results value
+    (define (fast-expt b n a)
+      (cond ((= n 0) a)
+	    ((even? n)  (fast-expt (square b) (/ n 2) a))
+	    (else (fast-expt b (- n 1) (* a b)))))
+    (define (even? n)
+      (= (remainder n 2) 0))
+    (define (faster-expt b n)
+      (fast-expt b n 1))
+    (faster-expt 2 10)
+#+end_src
+
+#+RESULTS:
+: 1024
+
+The answer is the code block above. We just collect some data and put
+it into the state variable *a*.
+
+*** DONE Exercise 1.17 Fast multiplication
+    CLOSED: [2019-08-30 Fri 23:48]
+#+begin_src scheme :exports both :results value
+  (define (double a)
+    (* 2 a))
+  (define (halve a)
+    (if (even? a)
+	(/ a 2)
+	(raise "Error: a not even.")))
+  (define (even? n)
+	(= (remainder n 2) 0))
+  (define (* a b)
+    (cond 
+     ((= b 0) 0)
+     ((even? b) (double (* a (halve b))))
+     (else (+ a (* a (- b 1))))))
+  (* 137 17)
+#+end_src
+
+#+RESULTS:
+: 2329
+
+The procedure above uses logarithmic time and space, because for every
+subtraction there is also at least one division, so the total
+convergence speed is exponential. This could be reformulated as an
+iterative procedure, with an accumulator variable, but I am too lazy.
+
+*** DONE Exercise 1.18 Iterative multiplication
+    CLOSED: [2019-08-31 Sat 11:43]
+
+In Exercise 1.17 I said that I was too lazy to design an iterative
+procedure. Well, now I do it in this exercise.
+
+#+begin_src scheme :exports both :results value
+  (define (double a)
+    (* 2 a))
+  (define (halve a)
+    (if (even? a)
+	(/ a 2)
+	(raise "Error: a not even.")))
+  (define (even? n)
+	(= (remainder n 2) 0))
+  (define (mul a b accumulator)
+    (cond 
+     ((= b 0) accumulator)
+     ((even? b) (mul (double a) (halve b)))
+     (else (mul a (- b 1) (+ a accumulator)))))
+  (* 137 17)
+#+end_src
+
+#+RESULTS:
+: 2329
+
+The idea here is exactly the same as in the previous Exercise 1.18.
+
+*** DONE Exercise 1.19 Logarithmic Fibonacci
+    CLOSED: [2019-09-01 Sun 20:42]
+
+As usualy, let's first copy the code of ~fib-iter~.
+
+#+begin_src scheme :exports both :results value
+  (define (fib n)
+    (fib-iter 1 0 n))
+  (define (fib-iter a b count)
+    (if (= count 0)
+	b
+	(fib-iter (+ a b) a (- count 1))))
+  (fib 10)
+#+end_src
+
+#+RESULTS:
+: 55
+
+The formula for \(T\) is the following:
+
+\begin{eqnarray}
+T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix} aq+bq+ap \\ bp + aq \end{pmatrix} &\\ 
+T_{pq} \left( T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} \right) & = & \begin{pmatrix} (aq+bq+ap)q+(bp + aq)q+(aq+bq+ap)p \\ (bp + aq)p + (aq+bq+ap)q \end{pmatrix} &\\
+T_{p'q'}\begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix}a(2pq + qq) + a(pp+qq) + b(2pq + qq)\\ a(2pq + qq) + b(pp + qq) \end{pmatrix}& \\
+\end{eqnarray}
+From here we can easily see the values for \(p\prime\) and \(q'\):
+# \(a(2pq + qq) + a(pp+qq) + b(2pq + qq)\)
+# \(a(2pq + qq) + b(pp + qq)\)
+
+\(p'=pp+qq\), \(q' = 2pq+qq\)
+
+Let us substitute them into the code given by Abelson and Sussman.
+
+#+begin_src scheme :exports both :results value
+  (define (fib n)
+    (fib-iter 1 0 0 1 n))
+  (define (fib-iter a b p q count)
+    (cond ((= count 0) b)
+	  ((even? count)
+	   (fib-iter a
+		     b
+		     (+ (* p p) (* q q))
+		     (+ (* 2 p q) (* q q))
+		     (/ count 2)))
+	  (else (fib-iter (+ (* b q) (* a q) (* a p))
+			  (+ (* b p) (* a q))
+			  p
+			  q
+			  (- count 1)))))
+  (fib 10)
+#+end_src
+
+#+RESULTS:
+: 55
+
+Works.
+
+*** *Interjection* ir-macro-transformer.
+
+#+begin_src scheme :exports both :results value
+  (define-syntax swap!
+    (ir-macro-transformer
+     (lambda (form inject compare?)
+       (let ((a (cadr form))
+	     (b (caddr form))
+	     (tmp (cadr form)))
+	     (set! a b)
+	     (set! b tmp)))))
+  (define x 4)
+  (define y 5)
+  (swap! x y)
+  (list x y)
+#+end_src
+
+#+RESULTS:
+: "{Exception #19 user \"undefined variable\" (ir-macro-transformer) #<procedure #f> (#f . 3)}"
+
+*** DONE Exercise 1.20 GCD applicative vs normal :er_macro_transformer:macro:
+    CLOSED: [2019-09-01 Sun 23:04]
+The exercise urges us to recall the difference between the normal
+order and the applicative order of evaluation.
+
+ *Normal*: fully expand the computation tree until obtained an
+expression involving only primitive operators.
+
+ *Applicative*: evaluate the arguments and then apply.
+
+First let us print the execution tree of the normal order.
+#+begin_src scheme :exports both :results output
+    (define-syntax gcd-normal
+      (er-macro-transformer
+       (lambda (form rename compare?)
+	 (let ((a (cadr form))
+	       (b (caddr form)))
+	   (if (= b 0)
+		`(if (= ,b 0)
+                     ,a
+                     (remainder ,a ,b))
+		`(if (= ,b 0)
+		     (,a (remainder ,a ,b))
+		     (gcd-normal ,b ,(remainder a b))))))))
+      (display (show #f " " (pretty (macroexpand '(gcd-normal 206 40)))))
+#+end_src
+
+#+RESULTS:
+:  (if (= 40 0)
+:      (206 (remainder 206 40))
+:      (if (= 6 0)
+:          (40 (remainder 40 6))
+:          (if (= 4 0)
+:              (6 (remainder 6 4))
+:              (if (= 2 0) (4 (remainder 4 2)) (if (= 0 0) 2 (remainder 2 0))))))
+
+Now let us show the applicative order.
+#+begin_src scheme :exports both :results output
+    (define-syntax gcd-normal
+      (er-macro-transformer
+       (lambda (form rename compare?)
+	 (let ((a (cadr form))
+	       (b (caddr form)))
+	   (if (= b 0)
+		`(if (= ,b 0)
+                     ,a
+                     'division-by-zero)
+		`(if (= ,b 0)
+		     (,a (remainder ,a ,b))
+		     (gcd-normal ,b ,(remainder a b))))))))
+      (display (show #f " " (pretty (macroexpand '(gcd-normal 206 40)))))
+#+end_src
+
+#+RESULTS:
+:  (if (= 40 0)
+:      (206 (remainder 206 40))
+:      (if
+:       (= 6 0)
+:       (40 (remainder 40 6))
+:       (if (= 4 0)
+:           (6 (remainder 6 4))
+:           (if (= 2 0) (4 (remainder 4 2)) (if (= 0 0) 2 'division-by-zero)))))
+
+The problem here would arise, if the ~(if)~ form had a normal
+evaluation order, because the last division, ~(remainder 2 0)~ may be
+a forbidden operation, involving a division by zero. On the other
+hand, the evaluation of ~(remainder x 0)~ could be defined as *x*, and
+then the algorithm would evaluate one more (useless) remainder.
+
+*** DONE Exercise 1.21 smallest-divisor
+    CLOSED: [2019-09-01 Sun 23:43]
+
+As usual, let us first copy the code for the ~smallest-divisor~.
+
+#+begin_src scheme :exports both :results output :noweb-ref primetest
+  (define (smallest-divisor n)
+    (find-divisor n 2))
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+	  ((divides? test-divisor n) test-divisor)
+	  (else (find-divisor n (+ test-divisor 1)))))
+  (define (divides? a b) (= (remainder b a) 0))
+
+  (define (prime? n)
+    (= n (smallest-divisor n)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+  <<primetest>>
+  (display (smallest-divisor 199))
+  (newline)
+  (display (smallest-divisor 1999))
+  (newline)
+  (display (smallest-divisor 19999))
+  (newline)
+  (display (/ 19999 7))
+  (newline)
+#+end_src
+
+#+RESULTS:
+: 199
+: 1999
+: 7
+: 2857
+
+Well, this problem doesn't look too complicated on the first glance.
+
+*** DONE Exercise 1.22 timed-prime-test
+    CLOSED: [2019-09-02 Mon 00:44]
+
+#+begin_src scheme :exports both :results output :noweb-ref timed-primetest
+  (define (runtime) (* 1000 (current-second)))
+
+  (define (timed-prime-test n)
+    (newline)
+    (display n)
+    (start-prime-test n (runtime)))
+
+  (define (start-prime-test n start-time)
+    (if (prime? n)
+	(report-prime (- (runtime) start-time))))
+
+  (define (report-prime elapsed-time)
+    (display " *** ")
+    (display elapsed-time))
+  (define (search-for-primes start finish)
+    (timed-prime-test start)
+    (if (< (+ 1 start) finish)
+	(if (even? start)
+	    (search-for-primes (+ start 1) finish)
+	    (search-for-primes (+ start 2) finish))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+  <<primetest>>
+  <<timed-primetest>>
+  (search-for-primes 1000 1020)
+  (newline)
+  (search-for-primes 10000 10038)
+  (newline)
+  (search-for-primes 100000 100044)
+  (newline)
+  (search-for-primes 1000000 1000038)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+1000
+1001
+1003
+1005
+1007
+1009 *** 0.006103515625
+1011
+1013 *** 0.005859375
+1015
+1017
+1019 *** 0.005859375
+
+10000
+10001
+10003
+10005
+10007 *** 0.016845703125
+10009 *** 0.016845703125
+10011
+10013
+10015
+10017
+10019
+10021
+10023
+10025
+10027
+10029
+10031
+10033
+10035
+10037 *** 0.016845703125
+
+100000
+100001
+100003 *** 0.052978515625
+100005
+100007
+100009
+100011
+100013
+100015
+100017
+100019 *** 0.052978515625
+100021
+100023
+100025
+100027
+100029
+100031
+100033
+100035
+100037
+100039
+100041
+100043 *** 0.052001953125
+
+1000000
+1000001
+1000003 *** 0.163818359375
+1000005
+1000007
+1000009
+1000011
+1000013
+1000015
+1000017
+1000019
+1000021
+1000023
+1000025
+1000027
+1000029
+1000031
+1000033 *** 0.1650390625
+1000035
+1000037 *** 0.1640625
+#+end_example
+
+ - Write the procedure: done.
+ - Find the smallest three primes greater than 1000   : found.
+ - Find the smallest three primes greater than 10000  : found.
+ - Find the smallest three primes greater than 100000 : found.
+ - Find the smallest three primes greater than 1000000: found.
+ - The timing data confirms the prediction. \(\sqrt{10}\approx3\), \(0.16 \approx 3\cdot1.05\).
+ - The execution time per step for testing 1.000.000 is 1.63e-07. The
+   execution time per step for testing 100.000 5.3199e-07. At least on
+   my machine the claim doesn't seem to hold very well.
+
+*** DONE Exercise 1.23 (next test-divisor)
+    CLOSED: [2019-09-02 Mon 09:56]
+
+#+begin_src scheme :exports both :results value :noweb-ref improved-primetest
+  (define (next x)
+    (if (= 2 x)
+	3
+	(+ x 2)))
+  (define (smallest-divisor n)
+    (find-divisor n 2))
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+	  ((divides? test-divisor n) test-divisor)
+	  (else (find-divisor n (next test-divisor)))))
+  (define (divides? a b) (= (remainder b a) 0))
+
+  (define (prime? n)
+    (= n (smallest-divisor n)))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<improved-primetest>>
+<<timed-primetest>>
+(timed-prime-test 1009)
+(timed-prime-test 1013)
+(timed-prime-test 1019)
+(timed-prime-test 10007)
+(timed-prime-test 10009)
+(timed-prime-test 10037)
+(timed-prime-test 100003)
+(timed-prime-test 100019)
+(timed-prime-test 100043)
+(timed-prime-test 1000003)
+(timed-prime-test 1000033)
+(timed-prime-test 1000037)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+1009 *** 0.010009765625
+1013 *** 0.00390625
+1019 *** 0.00390625
+10007 *** 0.010009765625
+10009 *** 0.010009765625
+10037 *** 0.010009765625
+100003 *** 0.031005859375
+100019 *** 0.03076171875
+100043 *** 0.030029296875
+1000003 *** 0.10205078125
+1000033 *** 0.104736328125
+1000037 *** 0.10205078125
+#+end_example
+
+We can see that the test does show a speed improvement, although not
+as impressive as 2 times. We can observe that the number of steps is
+not really halved, since ~(+ a b)~ requires one operation, and ~(if (=
+2 x) 3 else (+ 3 2))~ requires three operations, so the speed should
+improve by 3/2, which we can observe.
+
+*** DONE Exercise 1.24 Fermat method
+    CLOSED: [2019-09-02 Mon 11:32]
+
+Firstly we need the ~(fast-prime?)~ procedure.
+
+#+begin_src scheme :exports both :results value :noweb-ref random
+(define (random x)
+  (random-integer x))
+#+end_src
+
+#+RESULTS:
+: 30
+
+#+begin_src scheme :exports both :results value :noweb-ref expmod
+  (define (expmod base exp m)
+    (cond ((= exp 0) 1)
+	  ((even? exp)
+	   (remainder
+	    (square (expmod base (/ exp 2) m))
+	    m))
+	  (else
+	   (remainder
+	    (* base (expmod base (- exp 1) m))
+	    m))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref fermat-primetest
+<<random>>
+  (define (fermat-test n)
+    (define (try-it a)
+      (= (expmod a n n) a))
+    (try-it (+ 1 (random (- n 1)))))
+  (define prime-test fermat-test)
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref fast-prime
+  (define (fast-prime? n times)
+    (cond ((= times 0) true)
+	  ((prime-test n) (fast-prime? n (- times 1)))
+	  (else false)))
+  (define true #t)
+  (define false #f)
+  (define (prime? x)
+    (fast-prime? x 10))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<expmod>>
+<<fermat-primetest>>
+<<fast-prime>>
+<<timed-primetest>>
+(timed-prime-test 1009)
+(timed-prime-test 1013)
+(timed-prime-test 1019)
+(timed-prime-test 10007)
+(timed-prime-test 10009)
+(timed-prime-test 10037)
+(timed-prime-test 100003)
+(timed-prime-test 100019)
+(timed-prime-test 100043)
+(timed-prime-test 1000003)
+(timed-prime-test 1000033)
+(timed-prime-test 1000037)
+(timed-prime-test 1000)
+(timed-prime-test 6601)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+1009 *** 0.0830078125
+1013 *** 0.057861328125
+1019 *** 0.060791015625
+10007 *** 0.072998046875
+10009 *** 0.071044921875
+10037 *** 0.07275390625
+100003 *** 0.083251953125
+100019 *** 0.0849609375
+100043 *** 0.085693359375
+1000003 *** 0.09521484375
+1000033 *** 0.09619140625
+1000037 *** 0.09814453125
+1000
+6601 *** 0.0478515625
+#+end_example
+
+Firstly, observe that the interpreter seems to be doing some black magic, so
+that the test for 1009 takes more time than the test for 1013.
+
+Secondly, observe that indeed, the speed seems to have reduced its dependence
+on the length of a number, and if we want to test even bigger numbers, the
+dependency should become even smaller, as \(\log(n)\) grows very slowly. In
+particular, comparing the range around 1000 and 1000.000, the ratio of
+\(\frac{\log_{10}(1000000)}{\log_{10}(1000)} = \frac{6}{3} = 2\). This doesn't seem
+to be completely the case, but hey, there may be some constants involved, as
+well as some interpreter dark magic.
+
+*** DONE Exercise 1.25 expmod
+    CLOSED: [2019-09-02 Mon 12:46]
+
+Well, in principle, Alyssa's algorithm should work. The problem here really
+is that we would have to store the number \(a^n\), which is a very big number,
+especially because we are interested in testing primality of very large
+numbers (e.g., 512-bit long cryptography keys), and \((2^{256-1})^{2^{256}}\)
+is a very large number.
+
+*** DONE Exercise 1.26 square vs mul
+    CLOSED: [2019-09-02 Mon 12:50]
+
+The hint here lies in the name of the person helping Louis. Eva Lu Ator
+sounds similar to "evaluator", and the reason for Louis's problem really lies
+in the optimization capabilities of the interpreter. That is, if the
+evaluating algorithm uses applicative order, then the ~expmod~ is evaluated
+twice per step, which makes ~(/ exp 2)~ useless. If, however, the interpreter
+can memoize the results, his algorithm would be just as good.
+
+*** DONE Exercise 1.27 Carmichael numbers
+    CLOSED: [2019-09-02 Mon 20:50]
+
+First let us recall some Carmichael numbers.
+
+| # |      |
+|---+------|
+| 1 |  561 |
+| 2 | 1105 |
+| 3 | 1729 |
+| 4 | 2465 |
+| 5 | 2821 |
+| 6 | 6601 |
+
+We already have a procedure that computes \(a^n\mod n\), and a procedure that
+computes \(a\mod n\) is even a scheme primitive. Moreover, we even have all
+the code that does the comparison, with the single difference - our existing
+code takes an initial guess uniformly at random, whereas we need to check all
+\( a < n\).
+
+#+begin_src scheme :exports both :results output
+<<expmod>>
+  (define (congruent? a n)
+    (= (expmod a n n) a))
+  (define (carmichael-iter a n)
+    (cond ((= a n) #t)
+	  ((not (congruent? a n)) #f)
+	  (else (carmichael-iter (+ 1 a) n))))
+  (define (carmichael-or-prime? n)
+    (carmichael-iter 1 n))
+  (define (test-carmichael n)
+    (display "Testing ")
+    (display n)
+    (display ": ")
+    (if (carmichael-or-prime? n)
+      (display "true")
+      (display "false"))
+    (newline))
+  (test-carmichael 561)
+  (test-carmichael 1105)
+  (test-carmichael 1729)
+  (test-carmichael 2465)
+  (test-carmichael 2821)
+  (test-carmichael 6601)
+  (test-carmichael 20)
+  (test-carmichael 7)
+#+end_src
+
+#+RESULTS:
+: Testing 561: true
+: Testing 1105: true
+: Testing 1729: true
+: Testing 2465: true
+: Testing 2821: true
+: Testing 6601: true
+: Testing 20: false
+: Testing 7: true
+
+*** DONE Exercise 1.28 Miller-Rabin
+    CLOSED: [2019-09-02 Mon 23:28]
+#+begin_src scheme :exports both :results value :noweb-ref expmod-miller-rabin
+  (define (expmod base exp m)
+    (cond ((= exp 0) 1)
+	  ((even? exp)
+	   (let* ((root (expmod base (/ exp 2) m))
+		  (sq (square root)))
+	     (if (and (= (remainder sq m) 1) (not (or (= root 1) (= root (- m 1)))))
+	      0
+	      (remainder sq m))))
+	  (else
+	   (remainder
+	    (* base (expmod base (- exp 1) m))
+	    m))))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value :noweb-ref miller-rabin-primetest
+    <<random>>
+      (define (rabin-test n)
+	(define (try-it a)
+	  (let ((result (expmod a (- n 1) n) ))
+	    (if (or (= 1 result)  (= n 1) (= n 0))
+	    #t
+	    #f)))
+	(if (not (= n 1)) (try-it (+ 1 (random (- n 1)))) #t))
+      (define prime-test rabin-test)
+
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output :noweb-ref rabin-prime
+<<expmod-miller-rabin>>
+<<miller-rabin-primetest>>
+<<fast-prime>>
+<<timed-primetest>>
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<rabin-prime>>
+(timed-prime-test 1009)
+(timed-prime-test 1013)
+(timed-prime-test 1019)
+(timed-prime-test 10007)
+(timed-prime-test 10009)
+(timed-prime-test 10037)
+(timed-prime-test 100003)
+(timed-prime-test 100019)
+(timed-prime-test 100043)
+(timed-prime-test 1000003)
+(timed-prime-test 1000033)
+(timed-prime-test 1000037)
+(timed-prime-test 1000)
+(timed-prime-test 6601)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+1009 *** 0.09716796875
+1013 *** 0.086669921875
+1019 *** 0.087158203125
+10007 *** 0.1220703125
+10009 *** 0.113037109375
+10037 *** 0.113037109375
+100003 *** 0.130859375
+100019 *** 0.133056640625
+100043 *** 0.132080078125
+1000003 *** 0.151123046875
+1000033 *** 0.172119140625
+1000037 *** 0.156982421875
+1000
+6601
+#+end_example
+
+I used the ~(let)~ construction introduced in the later chapters, because I
+find bindings with nested procedures confusing.
+
+*** DONE Exercise 1.29 Simpson's integral
+    CLOSED: [2019-09-03 Tue 10:36]
+
+Since at the end of the task we are told to compare the result of our
+algorithm with the results of the ~integral~ procedure, let us first copy the
+integral code.
+
+#+begin_src scheme :exports both :results value :noweb-ref integral-common
+  (define (sum term a next b)
+    (if (> a b)
+	0
+	(+ (term a)
+	   (sum term (next a) next b))))
+  (define (cube x)
+    (* x x x))
+  (define (next point)
+    (+ point 1))
+#+end_src
+
+#+begin_src scheme :exports both :results value 
+<<integral-common>>
+  (define (integral f a b dx)
+    (define (add-dx x)
+      (+ x dx))
+    (* (sum f (+ a (/ dx 2.0)) add-dx b)
+       dx))
+  (list (integral cube 0 1 0.01) (integral cube 0 1 0.001))
+
+#+end_src
+
+#+RESULTS:
+| 0.24998750000000053 | 0.24999987500000106 |
+
+#+begin_src scheme :exports both :results output
+  <<integral-common>>
+  (define (integral-simpson f a b npoints)
+    (define h (/ (- b a) npoints))
+    (define h/3 (/ h 3))
+    (define (f_k k)
+      (* (f (+ a (* k h))) (cond ((= k 0) 1)
+				 ((= k npoints) 1)
+				 ((odd? k) 4)
+				 ((even? k) 2))))
+    (* h/3 (sum f_k 0 next npoints)))
+  (display (integral-simpson cube 0 1 100))
+  (newline)
+  (display (integral-simpson cube 0 1 1000))
+#+end_src
+
+#+RESULTS:
+: 1/4
+: 1/4
+
+An impressive result. I don't know at which point of the computation the
+interpreter switches to an exact representation, but meh, this result is good.
+
+*** DONE Exercise 1.30 Iterative sum
+    CLOSED: [2019-09-03 Tue 11:19]
+
+#+begin_src scheme :exports both :results output
+  (define (inc x) (+ x 1))
+  (define (identity x) x)
+  (define (sum term a next b)
+    (define (iter a result)
+      (if (= a b)
+	  (+ a result)
+	  (iter (next a) (+ a result))))
+    (iter a 0))
+
+  (sum identity 1 inc 10)
+
+#+end_src
+
+#+RESULTS:
+: 55
+
+*** DONE Exercise 1.31 Product
+    CLOSED: [2019-09-03 Tue 11:59]
+**** DONE a. Defining product
+     CLOSED: [2019-09-03 Tue 11:56]
+ #+begin_src scheme :exports both :results value
+   (define (inc x) (+ x 1))
+   (define (identity x) x)
+   (define (product term a next b)
+     (define (iter a result)
+       (if (= a b)
+	   (* (term a) result)
+	   (iter (next a) (* (term a) result))))
+     (iter a 1.0))
+   (define (factorial x) (product identity 1 inc 6))
+   (factorial 6)
+   (define (pi precision)
+     (define (enumerator index)
+       (cond ((odd?  index) (+ index 1.0))
+	     ((even? index) (+ index 2.0))
+	     (else (error "Error"))))
+     (define (denominator index)
+       (cond ((odd?  index) (+ index 2.0))
+	     ((even? index) (+ index 1.0))
+	     (else (error "Error"))))
+     (define (fraction index)
+       (/ (enumerator index) (denominator index)))
+     (* 4.0 (product fraction 1 inc precision)))
+     (pi 1280)
+ #+end_src
+
+ #+RESULTS:
+ : 3.142818162579486
+
+I can say that it converges very-very slowly.
+**** DONE b. A recursive version
+     CLOSED: [2019-09-03 Tue 11:59]
+
+#+begin_src scheme :exports both :results value
+   (define (inc x) (+ x 1))
+   (define (identity x) x)
+   (define (product term a next b)
+     (define (iter a result)
+       (if (= a b)
+	   (* (term a) result)
+	   (* (iter (next a) (term a)) result)))
+     (iter a 1.0))
+   (define (factorial x) (product identity 1 inc 6))
+   (factorial 6)
+#+end_src
+
+#+RESULTS:
+: 720.0
+
+Doesn't make too much sense to me, but here you are.
+
+*** DONE Exercise 1.32 Accumulator
+    CLOSED: [2019-09-03 Tue 12:23]
+I will cheat a little bit in this exercise, I will run ~sum~ as an iterative
+procedure and ~product~ as a recursive procedure, so at the end I will have
+two implementations, not 4, but that should not be too much of a digression.
+#+begin_src scheme :exports both :results value :noweb-ref accumulator-common
+   (define (inc x) (+ x 1))
+   (define (identity x) x)
+#+end_src
+
+**** DONE Implement ~sum~ in terms of an iterative accumulator
+     CLOSED: [2019-09-03 Tue 12:23]
+#+begin_src scheme :exports both :results value
+<<accumulator-common>>
+  (define (accumulate combiner null-value term a next b)
+       (define (iter a result)
+	 (if (>= a b)
+	     (combiner (term a) result)
+	     (combiner (iter (next a) (term a)) result)))
+       (iter a null-value))
+  (define (sum term a next b)
+    (accumulate + 0 term a next b))
+  (sum identity 1 inc 10)
+#+end_src
+
+#+RESULTS:
+: 55
+
+**** DONE Implement ~product~ in terms of a recursive process
+     CLOSED: [2019-09-03 Tue 12:22]
+
+#+begin_src scheme :exports both :results value
+<<accumulator-common>>
+  (define (accumulate combiner null-value term a next b)
+       (define (iter a result)
+	 (if (= a b)
+	     (combiner (term a) result)
+	      (iter (next a) (combiner (term a) result) )))
+       (iter a null-value))
+  (define (product term a next b)
+    (accumulate * 1 term a next b))
+  (product identity 1 inc 10)
+
+#+end_src
+
+#+RESULTS:
+: 3628800
+
+*** DONE Exercise 1.33 filtered-accumulate
+    CLOSED: [2019-09-03 Tue 14:36]
+**** DONE a. Sum-of-squares-of-primes
+    CLOSED: [2019-09-03 Tue 14:24]
+#+begin_src scheme :exports both :results value :noweb-ref filtered-accumulate
+  <<accumulator-common>>
+  <<rabin-prime>>
+    (define (filtered-accumulate combiner filter null-value term a next b)
+     (define (iter a result)
+       (if (= a b)
+	   (combiner (if (filter a) (term a) null-value) result)
+	   (iter (next a) (combiner (if (filter a) (term a) null-value) result))))
+     (iter a null-value))
+     #+end_src
+     
+#+begin_src scheme :exports both :results value 
+    <<filtered-accumulate>>
+    (define (sum-square-prime a next b)
+      (filtered-accumulate + prime? 0 square a next b))
+    (sum-square-prime 1 inc 10)
+#+end_src
+
+#+RESULTS:
+: 88
+**** DONE b. Product of positive integers mutually prime with n
+     CLOSED: [2019-09-03 Tue 14:36]
+
+#+begin_src scheme :exports both :results output
+  <<filtered-accumulate>>
+  (define (product-mutually-prime n)
+    (define (filter-gcd x)
+      (if (= (gcd n x) 1)
+	  #t
+	  #f))
+    (filtered-accumulate * filter-gcd 1 identity 1 inc n))
+  (display (product-mutually-prime 10))
+#+end_src
+
+#+RESULTS:
+: 189
+
+Here I used the ~gcd~ function from the standard library.
+
+*** DONE Exercise 1.34 lambda
+    CLOSED: [2019-09-03 Tue 14:44]
+
+#+begin_src scheme :exports both :results value :noweb-ref example-lambda
+(define (f g) (g 2))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<example-lambda>>
+(define (square x) (* x x))
+(f square)
+#+end_src
+
+#+RESULTS:
+: 4
+
+#+begin_src scheme :exports both :results value
+<<example-lambda>>
+(f (lambda (z) (* z (+ z 1))))
+#+end_src
+
+#+RESULTS:
+: 6
+
+#+begin_src scheme :exports both :results value
+<<example-lambda>>
+(f f)
+#+end_src
+
+#+RESULTS:
+: "{Exception #19 user \"non procedure application\" (2) #<procedure #f> (\"/usr/lib64/chibi/init-7.scm\" . 230)}"
+
+Well, no wonder. The final combination reduces to ~(2 2)~, which *IS* a
+non-procedure application.
+
+*** DONE Exercise 1.35 fixed-point
+    CLOSED: [2019-09-03 Tue 21:05]
+
+
+
+\(\varphi = \frac{1+\sqrt{5}}{2}\)
+\(x\mapsto 1+\frac{1}{x}\)
+Let's substitute:
+\( \frac{1+\sqrt{5}}{2} &=& 1+ \frac{2}{1+\sqrt{5}} \)
+\( (1+\sqrt{5})^2 = 2(1+\sqrt{5})+ 4\)
+\( 1 + 2 \sqrt{5} + 5 = 2 + 2 \sqrt{5} + 4 \)
+\(6 = 6\)
+
+
+#+begin_src scheme :exports both :results value :noweb-ref fixed-point-silent
+  (define tolerance 0.00001)
+  (define (fixed-point f first-guess)
+    (define (close-enough? v1 v2)
+      (< (abs (- v1 v2))
+	 tolerance))
+    (define (try guess)
+      (let ((next (f guess)))
+	(if (close-enough? guess next)
+	    next
+	    (try next))))
+  (try first-guess))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<fixed-point-silent>>
+(fixed-point cos 1.0)
+#+end_src
+
+#+RESULTS:
+: 0.7390822985224024
+
+#+begin_src scheme :exports both :results value
+  <<fixed-point-silent>>
+  (define (golden-transform x)
+    (+ 1 (/ 1 x)))
+  (fixed-point golden-transform 1.0)
+
+#+end_src
+
+#+RESULTS:
+: 1.6180327868852458
+
+#+begin_src scheme :exports both :results value
+(/ (+ 1 (sqrt 5)) 2)
+#+end_src
+
+#+RESULTS:
+: 1.618033988749895
+
+The difference is not too big.
+
+*** DONE Exercise 1.36 fixed-point-with-dampening
+    CLOSED: [2019-09-03 Tue 21:55]
+
+#+begin_src scheme :exports both :results value :noweb-ref fixed-point-verbose
+  (define tolerance 0.00001)
+  (define (fixed-point f first-guess)
+    (define (close-enough? v1 v2)
+      (display "Guesses: ")
+      (display v1)
+      (display " ")
+      (display v2)
+      (newline)
+      (< (abs (- v1 v2))
+	 tolerance))
+    (define (try guess)
+      (let ((next (f guess)))
+	(if (close-enough? guess next)
+	    next
+	    (try next))))
+  (try first-guess))
+#+end_src
+
+To find a solution to \(x^x=1000\), let us rearrange: \( x = \log_x1000 =
+\frac{\log 1000}{\log x}\).
+
+#+begin_src scheme :exports both :results value :noweb-ref log1000
+(define (log1000/logx x)
+  (/ (log 1000) (log x)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<fixed-point-verbose>>
+<<log1000>>
+(display (fixed-point log1000/logx 5))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Guesses: 5 4.29202967422018
+Guesses: 4.29202967422018 4.741863119908242
+Guesses: 4.741863119908242 4.438204569837609
+Guesses: 4.438204569837609 4.635299887107611
+Guesses: 4.635299887107611 4.50397811613643
+Guesses: 4.50397811613643 4.589989462723705
+Guesses: 4.589989462723705 4.53301150767844
+Guesses: 4.53301150767844 4.570475672855484
+Guesses: 4.570475672855484 4.545720389670642
+Guesses: 4.545720389670642 4.562024936588171
+Guesses: 4.562024936588171 4.551263234080531
+Guesses: 4.551263234080531 4.55835638768598
+Guesses: 4.55835638768598 4.553676852183342
+Guesses: 4.553676852183342 4.55676216434628
+Guesses: 4.55676216434628 4.554727130670954
+Guesses: 4.554727130670954 4.556069054770006
+Guesses: 4.556069054770006 4.555184018843625
+Guesses: 4.555184018843625 4.5557676565438205
+Guesses: 4.5557676565438205 4.555382746639082
+Guesses: 4.555382746639082 4.55563658243586
+Guesses: 4.55563658243586 4.555469180245326
+Guesses: 4.555469180245326 4.555579577901
+Guesses: 4.555579577901 4.5555067722873686
+Guesses: 4.5555067722873686 4.5555547860484085
+Guesses: 4.5555547860484085 4.555523121789556
+Guesses: 4.555523121789556 4.555544003742869
+Guesses: 4.555544003742869 4.555530232469306
+Guesses: 4.555530232469306 4.555539314360711
+4.555539314360711
+#+end_example
+
+#+begin_src scheme :exports both :results value :noweb-ref fixed-point-verbose-with-dampening
+  (define tolerance 0.00001)
+  (define (fixed-point f first-guess)
+    (define (close-enough? v1 v2)
+      (display "Guesses: ")
+      (display v1)
+      (display " ")
+      (display v2)
+      (newline)
+      (< (abs (- v1 v2))
+	 tolerance))
+    (define (try guess)
+      (let ((next (f guess)))
+	(if (close-enough? guess next)
+	    next
+	    (try (/ (+ guess next) 2)))))
+  (try first-guess))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<fixed-point-verbose-with-dampening>>
+<<log1000>>
+(display (fixed-point log1000/logx 5))
+#+end_src
+
+#+RESULTS:
+: Guesses: 5 4.29202967422018
+: Guesses: 4.64601483711009 4.49720773504196
+: Guesses: 4.571611286076025 4.544977348996107
+: Guesses: 4.558294317536066 4.553717728226165
+: Guesses: 4.556006022881116 4.555225576581478
+: Guesses: 4.555615799731297 4.555482885419889
+: Guesses: 4.555549342575593 4.555526711628406
+: Guesses: 4.555538027102 4.555534173941779
+: 4.555534173941779
+
+Well, the amount of steps is visibly smaller. Works.
+
+*** DONE Exercise 1.37 cont-frac
+    CLOSED: [2019-09-04 Wed 10:34]
+**** DONE a. recursive
+     CLOSED: [2019-09-04 Wed 11:35]
+     #+begin_src scheme :exports both :results value :noweb-ref cont-frac-recursive
+  (define (cont-frac n d k)
+    (define (next step)
+      (if (< step k)
+	  (/ (n step) (+ (d step) (next (+ step 1))) )
+	  0))
+    (next 1))
+     #+end_src
+    
+     #+begin_src scheme :exports both :results value
+     <<cont-frac-recursive>>
+         (/ 1 (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 14))
+     #+end_src
+
+     #+RESULTS:
+     : 1.6180257510729614
+
+Abelson and Sussman tell us to estimate \(k\) needed to approximate the \(\varphi\) to a required
+degree (0.0001). I didn't manage to derive the formula myself, however, I can
+give a link to the book where this proof is given:
+
+Khinchin, Continued Fractions (1935), chapter 2, section 7, gives an upper
+bound on the speed of convergence as \(\frac{1}{k^2}\). Therefore we should
+expect \(k \approx \sqrt{1000} \approx 33\). This holds for an arbitrary convergent
+continued fraction. In our case, however, when \(N_k=D_k=1\), the constant in
+the rate is also known as \(\sqrt{5}\), so the equation we need to solve is
+in fact \(k^2 \sqrt{5} = 1000\), and in practice that is
+\(\sqrt{\frac{1000}{2.23}} = 21\). How exactly we managed to do it in 14
+steps, I don't know.
+
+**** DONE b. iterative
+     CLOSED: [2019-09-04 Wed 11:35]
+
+We just start computing from the end.
+
+#+begin_src scheme :exports both :results value :noweb-ref cont-frac
+  (define (cont-frac n d k)
+    (define (next step accumulator)
+      (if (> step 0)
+	  (next (- step 1) (/ (n step) (+ (d step) accumulator)))
+	  accumulator))
+    (next k 0))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+  
+#+begin_src scheme :exports both :results value
+<<cont-frac>>
+  (/ 1 (cont-frac (lambda (i) 1.0) (lambda (i) 1.0) 14))
+#+end_src
+
+#+RESULTS:
+: 1.6180371352785146
+
+
+Remark: this exercise took me 7 hours.
+
+*** DONE Exercise 1.38 euler constant
+    CLOSED: [2019-09-04 Wed 11:35]
+
+The only difficulty with this exercise is to derive the formula for the
+second lambda.
+
+#+begin_src scheme :exports both :results value
+  <<cont-frac>>
+  (+ 2 
+     (cont-frac 
+      (lambda (i) 1.0)
+      (lambda (i) (if (= (remainder i 3) 2) (+ (* (/ i 3) 2) 2) 1))
+      14 ))
+#+end_src
+
+#+RESULTS:
+: 2.794771662537
+
+*** DONE Exercise 1.39 tan-cf
+    CLOSED: [2019-09-04 Wed 12:11]
+    :LOGBOOK:
+
+    :END:
+#+begin_src scheme :exports both :results output
+  <<cont-frac>>
+  (define (tan-cf x k)
+    (cont-frac
+     (lambda (i)
+       (if (= i 1) x (- (* x x))))
+     (lambda (i)
+       (- (* 2 i) 1))
+     k))
+  (display (tan 0.1))
+  (newline)
+  (display(tan-cf 0.1 300))
+#+end_src
+
+#+RESULTS:
+: 0.10033467208545055
+: 0.10033467208545055
+
+*** DONE Exercise 1.40 newtons-method
+    CLOSED: [2019-09-04 Wed 17:06]
+    :LOGBOOK:
+    CLOCK: [2019-09-04 Wed 17:21]--[2019-09-04 Wed 17:21] =>  0:00
+    :END:
+
+#+begin_src scheme :exports both :results value :noweb-ref deriv
+  (define (deriv g)
+    (lambda (x) (/ (- (g (+ x dx)) (g x)) dx)))
+  (define dx 0.00001)
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref newtons-method
+  (define (newton-transform g)
+    (lambda (x) (- x (/ (g x) ((deriv g) x)))))
+  (define (newtons-method g guess)
+    (fixed-point (newton-transform g) guess))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref square
+(define (square x)
+ (* x x))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref cube
+(define (cube x)
+  (* x x x))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref cubic
+  (define (cubic a b c) 
+    (lambda (x) (+ (cube x) (* a (square x)) (* b x) c)))x
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref inc
+(define (inc x) (+ x 1))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<fixed-point-silent>>
+<<cubic>>
+<<cube>>
+<<square>>
+<<deriv>>
+<<newtons-method>>
+
+(display (newtons-method (cubic 5 3 1) 1))
+#+end_src
+
+#+RESULTS:
+: -4.365230013403046
+
+Theoretically, a cubic may have up to 3 roots, but to find all of them we
+would need to try over all possible ones.
+
+*** DONE Exercise 1.41 double-double
+    CLOSED: [2019-09-04 Wed 17:21]
+
+#+begin_src scheme :exports both :results value :noweb-ref double-function
+(define (double fun)
+  (lambda (x) (fun (fun x))))
+(define (inc x)
+  (+ x 1))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<double-function>>
+(((double double) inc) 5)
+#+end_src
+
+#+RESULTS:
+: 9
+
+#+begin_src scheme :exports both :results value
+<<double-function>>
+(((double (double double)) inc) 5)
+#+end_src
+
+#+RESULTS:
+: 21
+
+\(21 = 5 + 16\)
+Double really works as a power of a function. \( 2 \Rightarrow 2^2 \Rightarrow2^{2^2} =
+\mbox{inc}^{16} 5 \)
+*** DONE Exercise 1.42 compose
+    CLOSED: [2019-09-04 Wed 17:27]
+#+begin_src scheme :exports both :results value :noweb-ref compose
+(define (compose f g)
+  (lambda (x) (f (g x))))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<compose>>
+<<square>>
+<<inc>>
+((compose square inc) 6)
+#+end_src
+
+#+RESULTS:
+: 49
+
+*** DONE Exercise 1.43 repeated
+    CLOSED: [2019-09-04 Wed 17:54]
+#+begin_src scheme :exports both :results value :noweb-ref repeated
+
+  (define (repeated fun n)
+    (define (repeat-it n fun combinator)
+      (if (= n 1)
+	  combinator
+	  (repeat-it  (- n 1) fun (lambda (x) (fun (combinator x))))))
+      (repeat-it n fun fun))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value
+<<repeated>>
+
+<<square>>
+
+((repeated square 2) 5)
+#+end_src
+
+#+RESULTS:
+: 625
+
+Hm. Managed to do it without the ~compose~ form.
+
+*** DONE Exercise 1.44 smoothing
+    CLOSED: [2019-09-04 Wed 20:17]
+
+#+begin_src scheme :exports both :results value :noweb-ref smooth
+  (define dx 0.1)
+  (define (smooth f)
+    (lambda (x) (/ (+ (f (- x dx))
+		 (f x)
+		 (f (+ x dx)))
+	      3)))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref n-smoothed
+  (define (n-smoothed fun n)
+    ((repeated smooth n) fun))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<smooth>>
+<<n-smoothed>>
+<<repeated>>
+<<cube>>
+(define (ex144-answer x)
+  ((n-smoothed cube 3) x))
+(display (ex144-answer 10))
+#+end_src
+
+#+RESULTS:
+: 1000.6
+
+Looks like what we wanted.
+
+*** DONE Exercise 1.45 nth-root
+    CLOSED: [2019-09-04 Wed 21:37]
+
+#+begin_src scheme :exports both :results value :noweb-ref average
+(define (average x y)
+   (/ (+ x y) 2))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref average-damp
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+#+end_src
+
+
+#+begin_src scheme :exports both :results value :noweb-ref n-average-damp
+(define (n-average-damped f n)
+   ((repeated average-damp n) f))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref better-fixed-point
+  (define tolerance 0.0001)
+  (define (fixed-point f first-guess)
+    (define (close-enough? v1 v2)
+      (< (abs (- v1 v2))
+	 tolerance))
+    (define (try guess)
+       (let ((next (f guess)))
+	(if (close-enough? guess next)
+	    next
+	    (try next))))
+  (try first-guess))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value :noweb-ref root-n-x
+  (define (root n x initial-guess)
+    (fixed-point
+     (n-average-damped
+      (lambda (y) (/ x (pow y (- n 1))))
+      n) 
+      initial-guess))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref pow-recursive
+(define (pow x n)
+ (if (= n 1)
+   x
+   (* x (pow x (- n 1)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<average>>
+<<average-damp>>
+<<repeated>>
+<<better-fixed-point>>
+<<n-average-damp>>
+<<pow-recursive>>
+<<root-n-x>>
+(display (root 4 4 3.0))
+
+#+end_src
+
+#+RESULTS:
+: 1.4144444873765194
+
+The true answer would require to actually estimate the dampening factor, but
+we know that *n* is enough, and I am lazy.
+
+*** DONE Exercise 1.46 iterative-improve
+    CLOSED: [2019-09-04 Wed 22:25]
+
+#+begin_src scheme :exports both :results value :noweb-ref iterative-improve
+  (define (iterative-improve good-enough? improve)
+    (define (improver guess)
+      (if (good-enough? guess)
+	  guess
+	  (improver (improve guess))))
+  improver)
+#+end_src
+
+**** DONE a. sqrt
+     CLOSED: [2019-09-04 Wed 22:24]
+
+#+begin_src scheme :exports both :results value
+    <<square>>
+    <<iterative-improve>>
+    (define (ex1.46sqrt x)
+      (let (
+	    (square-improver
+	     (iterative-improve
+	      (lambda (y) (< (abs (- (square y) x )) 0.01))
+	      (lambda (y) (/ (+ y (/ x y)) 2)))
+	     )
+	    )
+	(square-improver 1)))
+    (ex1.46sqrt 2.0)
+#+end_src
+
+#+RESULTS:
+: 1.4166666666666665
+
+**** DONE b. fixed-point
+     CLOSED: [2019-09-04 Wed 22:25]
+
+#+begin_src scheme :exports both :results value
+    <<square>>
+    <<iterative-improve>>
+    (define (fixpoint f)
+      (let (
+	    (fixpoint-improver
+	     (iterative-improve
+	      (lambda (y) (< (abs (- (f y) y )) 0.01))
+	      (lambda (y) (/ (+ y (f y)) 2)))
+	     )
+	    )
+	(fixpoint-improver 1.0)))
+    (fixpoint (lambda (x) (+ 1 (/ 1 x))))
+#+end_src
+
+#+RESULTS:
+: 1.6147785476652068
+
+
+
+I have made it. At [2019-09-04 Wed 22:25] I still haven't implemented all the
+pictures, but I already can say that I have solved _all_ problems of the
+first chapter of SICP. Some macros are wrong, I need to revise them, but that
+will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
+
+** TODO Chapter 2: Building abstractions with Data [0/97]
+
+*** TODO Exercise 2.1
+
+*** TODO Exercise 2.2
+
+*** TODO Exercise 2.3
+
+*** TODO Exercise 2.4
+
+*** TODO Exercise 2.5
+
+*** TODO Exercise 2.6
+
+*** TODO Exercise 2.7
+
+*** TODO Exercise 2.8
+
+*** TODO Exercise 2.9
+
+*** TODO Exercise 2.10
+
+*** TODO Exercise 2.11
+
+*** TODO Exercise 2.12
+
+*** TODO Exercise 2.13
+
+*** TODO Exercise 2.14
+
+*** TODO Exercise 2.15
+
+*** TODO Exercise 2.16
+
+*** TODO Exercise 2.17
+
+*** TODO Exercise 2.18
+
+*** TODO Exercise 2.19
+
+*** TODO Exercise 2.20
+
+*** TODO Exercise 2.21
+
+*** TODO Exercise 2.22
+
+*** TODO Exercise 2.23
+
+*** TODO Exercise 2.24
+
+*** TODO Exercise 2.25
+
+*** TODO Exercise 2.26
+
+*** TODO Exercise 2.27
+
+*** TODO Exercise 2.28
+
+*** TODO Exercise 2.29
+
+*** TODO Exercise 2.30
+
+*** TODO Exercise 2.31
+
+*** TODO Exercise 2.32
+
+*** TODO Exercise 2.33
+
+*** TODO Exercise 2.34
+
+*** TODO Exercise 2.35
+
+*** TODO Exercise 2.36
+
+*** TODO Exercise 2.37
+
+*** TODO Exercise 2.38
+
+*** TODO Exercise 2.39
+
+*** TODO Exercise 2.40
+
+*** TODO Exercise 2.41
+
+*** TODO Exercise 2.42
+
+*** TODO Exercise 2.43
+
+*** TODO Exercise 2.44
+
+*** TODO Exercise 2.45
+
+*** TODO Exercise 2.46
+
+*** TODO Exercise 2.47
+
+*** TODO Exercise 2.48
+
+*** TODO Exercise 2.49
+
+*** TODO Exercise 2.50
+
+*** TODO Exercise 2.51
+
+*** TODO Exercise 2.52
+
+*** TODO Exercise 2.53
+
+*** TODO Exercise 2.54
+
+*** TODO Exercise 2.55
+
+*** TODO Exercise 2.56
+
+*** TODO Exercise 2.57
+
+*** TODO Exercise 2.58
+
+*** TODO Exercise 2.59
+
+*** TODO Exercise 2.60
+
+*** TODO Exercise 2.61
+
+*** TODO Exercise 2.62
+
+*** TODO Exercise 2.63
+
+*** TODO Exercise 2.64
+
+*** TODO Exercise 2.65
+
+*** TODO Exercise 2.66
+
+*** TODO Exercise 2.67
+
+*** TODO Exercise 2.68
+
+*** TODO Exercise 2.69
+
+*** TODO Exercise 2.70
+
+*** TODO Exercise 2.71
+
+*** TODO Exercise 2.72
+
+*** TODO Exercise 2.73
+
+*** TODO Exercise 2.74
+
+*** TODO Exercise 2.75
+
+*** TODO Exercise 2.76
+
+*** TODO Exercise 2.77
+
+*** TODO Exercise 2.78
+
+*** TODO Exercise 2.79
+
+*** TODO Exercise 2.80
+
+*** TODO Exercise 2.81
+
+*** TODO Exercise 2.82
+
+*** TODO Exercise 2.83
+
+*** TODO Exercise 2.84
+
+*** TODO Exercise 2.85
+
+*** TODO Exercise 2.86
+
+*** TODO Exercise 2.87
+
+*** TODO Exercise 2.88
+
+*** TODO Exercise 2.89
+
+*** TODO Exercise 2.90
+
+*** TODO Exercise 2.91
+
+*** TODO Exercise 2.92
+
+*** TODO Exercise 2.93
+
+*** TODO Exercise 2.94
+
+*** TODO Exercise 2.95
+
+*** TODO Exercise 2.96
+
+*** TODO Exercise 2.97
+
+** TODO Chapter 3: Modularity, Objects and State [0/82]
+
+
+*** TODO Exercise 3.1
+
+*** TODO Exercise 3.2
+
+*** TODO Exercise 3.3
+
+*** TODO Exercise 3.4
+
+*** TODO Exercise 3.5
+
+*** TODO Exercise 3.6
+
+*** TODO Exercise 3.7
+
+*** TODO Exercise 3.8
+
+*** TODO Exercise 3.9
+
+*** TODO Exercise 3.10
+
+*** TODO Exercise 3.11
+
+*** TODO Exercise 3.12
+
+*** TODO Exercise 3.13
+
+*** TODO Exercise 3.14
+
+*** TODO Exercise 3.15
+
+*** TODO Exercise 3.16
+
+*** TODO Exercise 3.17
+
+*** TODO Exercise 3.18
+
+*** TODO Exercise 3.19
+
+*** TODO Exercise 3.20
+
+*** TODO Exercise 3.21
+
+*** TODO Exercise 3.22
+
+*** TODO Exercise 3.23
+
+*** TODO Exercise 3.24
+
+*** TODO Exercise 3.25
+
+*** TODO Exercise 3.26
+
+*** TODO Exercise 3.27
+
+*** TODO Exercise 3.28
+
+*** TODO Exercise 3.29
+
+*** TODO Exercise 3.30
+
+*** TODO Exercise 3.31
+
+*** TODO Exercise 3.32
+
+*** TODO Exercise 3.33
+
+*** TODO Exercise 3.34
+
+*** TODO Exercise 3.35
+
+*** TODO Exercise 3.36
+
+*** TODO Exercise 3.37
+
+*** TODO Exercise 3.38
+
+*** TODO Exercise 3.39
+
+*** TODO Exercise 3.40
+
+*** TODO Exercise 3.41
+
+*** TODO Exercise 3.42
+
+*** TODO Exercise 3.43
+
+*** TODO Exercise 3.44
+
+*** TODO Exercise 3.45
+
+*** TODO Exercise 3.46
+
+*** TODO Exercise 3.47
+
+*** TODO Exercise 3.48
+
+*** TODO Exercise 3.49
+
+*** TODO Exercise 3.50
+
+*** TODO Exercise 3.51
+
+*** TODO Exercise 3.52
+
+*** TODO Exercise 3.53
+
+*** TODO Exercise 3.54
+
+*** TODO Exercise 3.55
+
+*** TODO Exercise 3.56
+
+*** TODO Exercise 3.57
+
+*** TODO Exercise 3.58
+
+*** TODO Exercise 3.59
+
+*** TODO Exercise 3.60
+
+*** TODO Exercise 3.61
+
+*** TODO Exercise 3.62
+
+*** TODO Exercise 3.63
+
+*** TODO Exercise 3.64
+
+*** TODO Exercise 3.65
+
+*** TODO Exercise 3.66
+
+*** TODO Exercise 3.67
+
+*** TODO Exercise 3.68
+
+*** TODO Exercise 3.69
+
+*** TODO Exercise 3.70
+
+*** TODO Exercise 3.71
+
+*** TODO Exercise 3.72
+
+*** TODO Exercise 3.73
+
+*** TODO Exercise 3.74
+
+*** TODO Exercise 3.75
+
+*** TODO Exercise 3.76
+
+*** TODO Exercise 3.77
+
+*** TODO Exercise 3.78
+
+*** TODO Exercise 3.79
+
+*** TODO Exercise 3.80
+
+*** TODO Exercise 3.81
+
+*** TODO Exercise 3.82
+
+** TODO Chapter 4: Metalinguistic Abstraction [0/79]
+
+*** TODO Exercise 4.1
+
+*** TODO Exercise 4.2
+
+*** TODO Exercise 4.3
+
+*** TODO Exercise 4.4
+
+*** TODO Exercise 4.5
+
+*** TODO Exercise 4.6
+
+*** TODO Exercise 4.7
+
+*** TODO Exercise 4.8
+
+*** TODO Exercise 4.9
+
+*** TODO Exercise 4.10
+
+*** TODO Exercise 4.11
+
+*** TODO Exercise 4.12
+
+*** TODO Exercise 4.13
+
+*** TODO Exercise 4.14
+
+*** TODO Exercise 4.15
+
+*** TODO Exercise 4.16
+
+*** TODO Exercise 4.17
+
+*** TODO Exercise 4.18
+
+*** TODO Exercise 4.19
+
+*** TODO Exercise 4.20
+
+*** TODO Exercise 4.21
+
+*** TODO Exercise 4.22
+
+*** TODO Exercise 4.23
+
+*** TODO Exercise 4.24
+
+*** TODO Exercise 4.25
+
+*** TODO Exercise 4.26
+
+*** TODO Exercise 4.27
+
+*** TODO Exercise 4.28
+
+*** TODO Exercise 4.29
+
+*** TODO Exercise 4.30
+
+*** TODO Exercise 4.31
+
+*** TODO Exercise 4.32
+
+*** TODO Exercise 4.33
+
+*** TODO Exercise 4.34
+
+*** TODO Exercise 4.35
+
+*** TODO Exercise 4.36
+
+*** TODO Exercise 4.37
+
+*** TODO Exercise 4.38
+
+*** TODO Exercise 4.39
+
+*** TODO Exercise 4.40
+
+*** TODO Exercise 4.41
+
+*** TODO Exercise 4.42
+
+*** TODO Exercise 4.43
+
+*** TODO Exercise 4.44
+
+*** TODO Exercise 4.45
+
+*** TODO Exercise 4.46
+
+*** TODO Exercise 4.47
+
+*** TODO Exercise 4.48
+
+*** TODO Exercise 4.49
+
+*** TODO Exercise 4.50
+
+*** TODO Exercise 4.51
+
+*** TODO Exercise 4.52
+
+*** TODO Exercise 4.53
+
+*** TODO Exercise 4.54
+
+*** TODO Exercise 4.55
+
+*** TODO Exercise 4.56
+
+*** TODO Exercise 4.57
+
+*** TODO Exercise 4.58
+
+*** TODO Exercise 4.59
+
+*** TODO Exercise 4.60
+
+*** TODO Exercise 4.61
+
+*** TODO Exercise 4.62
+
+*** TODO Exercise 4.63
+
+*** TODO Exercise 4.64
+
+*** TODO Exercise 4.65
+
+*** TODO Exercise 4.66
+
+*** TODO Exercise 4.67
+
+*** TODO Exercise 4.68
+
+*** TODO Exercise 4.69
+
+*** TODO Exercise 4.70
+
+*** TODO Exercise 4.71
+
+*** TODO Exercise 4.72
+
+*** TODO Exercise 4.73
+
+*** TODO Exercise 4.74
+
+*** TODO Exercise 4.75
+
+*** TODO Exercise 4.76
+
+*** TODO Exercise 4.77
+
+*** TODO Exercise 4.78
+
+*** TODO Exercise 4.79
+
+** TODO Chapter 5: Computing with Register Machines [0/52]
+
+*** TODO Exercise 5.1
+
+*** TODO Exercise 5.2
+
+*** TODO Exercise 5.3
+
+*** TODO Exercise 5.4
+
+*** TODO Exercise 5.5
+
+*** TODO Exercise 5.6
+
+*** TODO Exercise 5.7
+
+*** TODO Exercise 5.8
+
+*** TODO Exercise 5.9
+
+*** TODO Exercise 5.10
+
+*** TODO Exercise 5.11
+
+*** TODO Exercise 5.12
+
+*** TODO Exercise 5.13
+
+*** TODO Exercise 5.14
+
+*** TODO Exercise 5.15
+
+*** TODO Exercise 5.16
+
+*** TODO Exercise 5.17
+
+*** TODO Exercise 5.18
+
+*** TODO Exercise 5.19
+
+*** TODO Exercise 5.20
+
+*** TODO Exercise 5.21
+
+*** TODO Exercise 5.22
+
+*** TODO Exercise 5.23
+
+*** TODO Exercise 5.24
+
+*** TODO Exercise 5.25
+
+*** TODO Exercise 5.26
+
+*** TODO Exercise 5.27
+
+*** TODO Exercise 5.28
+
+*** TODO Exercise 5.29
+
+*** TODO Exercise 5.30
+
+*** TODO Exercise 5.31
+
+*** TODO Exercise 5.32
+
+*** TODO Exercise 5.33
+
+*** TODO Exercise 5.34
+
+*** TODO Exercise 5.35
+
+*** TODO Exercise 5.36
+
+*** TODO Exercise 5.37
+
+*** TODO Exercise 5.38
+
+*** TODO Exercise 5.39
+
+*** TODO Exercise 5.40
+
+*** TODO Exercise 5.41
+
+*** TODO Exercise 5.42
+
+*** TODO Exercise 5.43
+
+*** TODO Exercise 5.44
+
+*** TODO Exercise 5.45
+
+*** TODO Exercise 5.46
+
+*** TODO Exercise 5.47
+
+*** TODO Exercise 5.48
+
+*** TODO Exercise 5.49
+
+*** TODO Exercise 5.50
+
+*** TODO Exercise 5.51
+
+*** TODO Exercise 5.52
+
+* Footnotes
+
+[fn:1] This exercise took me 7 hours.
+
