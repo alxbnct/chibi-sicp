@@ -1,390 +1,390 @@
 
 # Table of Contents
 
-1.  [noweb + common](#org0e630ec)
-    1.  [Setting chibi arguments. DANGEROUS](#orgedb44ff):dangerous:elisp:
-    2.  [Some common code blocks](#orgf624b8a)
-2.  [SICP <code>[15%]</code>](#orgc825e19)
-    1.  [Chapter 1: Building abstractions with procedures <code>[57/61]</code>](#orgbda2593)
-        1.  [Snippet](#orgb69851a)
-        2.  [Thought](#org688db31)
-        3.  [Figure 1.1 Tree representation, showing the value of each subcombination](#org7828f41)
-        4.  [Snippet](#orgcdfd136)
-        5.  [Exercise 1.1 Interpreter result](#orgb12dee6)
-        6.  [Exercise 1.2 Prefix form](#org8c5bb39)
-        7.  [Exercise 1.3 Sum of squares](#orgb8aeab4)
-        8.  [Exercise 1.4 Compound expressions](#org6b0f818)
-        9.  [Exercise 1.5 Ben's test](#org97ceb0e)
-        10. [Exercise 1.6 If is a special form](#orgbf72541)
-        11. [Exercise 1.7 Good enough?](#org661d591)
-        12. [Exercise 1.8 Newton's method](#org2ecdf92)
-        13. [Figure 1.2 Procedural decomposition of the sqrt program](#orgab413d7)
-        14. [Figure 1.3 A linear recursive process for computing \(6!\).](#orgcd3f21b)
-        15. [Figure 1.4 A linear iterative process for computing \(6!\).](#org51d624a)
-        16. [Exercise 1.9 Iterative or recursive?](#orge5934c0):macro:er_macro_transformer:chicken:
-        17. [Exercise 1.10 Ackermann's function](#orga042e2a)
-        18. [Figure 1.5 The tree-recursive process generated in computing (fib 5)](#org92f5cc7)
-        19. [Exercise 1.11 Recursive vs iterative](#org0876656)
-        20. [Exercise 1.12 Recursive Pascal's triangle](#org6288a89)
-        21. [Exercise 1.13 Fibonacci](#org4f36708)
-        22. [Exercise 1.14 count-change](#org5c1ff48):macro:er_macro_transformer:
-        23. [I found a bug in ob-scheme while doing this Exercise.](#orgce5ad2f)
-        24. [Exercise 1.15 sine](#org0461d0f):macro:er_macro_transformer:
-        25. [Exercise 1.16 Iterative exponentiation](#org059b365)
-        26. [Exercise 1.17 Fast multiplication](#org0a60f18)
-        27. [Exercise 1.18 Iterative multiplication](#org76b9af3)
-        28. [Exercise 1.19 Logarithmic Fibonacci](#org10eb53d)
-        29. [**Interjection** ir-macro-transformer.](#orgfa454b8)
-        30. [Exercise 1.20 GCD applicative vs normal](#org961dec6):er_macro_transformer:macro:
-        31. [Exercise 1.21 smallest-divisor](#org84e6ae7)
-        32. [Exercise 1.22 timed-prime-test](#orgedc1c2e)
-        33. [Exercise 1.23 (next test-divisor)](#org39c2911)
-        34. [Exercise 1.24 Fermat method](#org8c4a12b)
-        35. [Exercise 1.25 expmod](#org3d83e9a)
-        36. [Exercise 1.26 square vs mul](#orgfb0e09d)
-        37. [Exercise 1.27 Carmichael numbers](#org5c80963)
-        38. [Exercise 1.28 Miller-Rabin](#org05117ca)
-        39. [Exercise 1.29 Simpson's integral](#org9a19704)
-        40. [Exercise 1.30 Iterative sum](#org25afc62)
-        41. [Exercise 1.31 Product](#org9be1d0e)
-        42. [Exercise 1.32 Accumulator](#orgdf386d5)
-        43. [Exercise 1.33 filtered-accumulate](#org73b780f)
-        44. [Exercise 1.34 lambda](#org5c950ec)
-        45. [Exercise 1.35 fixed-point](#org645368a)
-        46. [Exercise 1.36 fixed-point-with-dampening](#orgb0e6f79)
-        47. [Exercise 1.37 cont-frac](#org5ccb678)
-        48. [Exercise 1.38 euler constant](#org9750c2e)
-        49. [Exercise 1.39 tan-cf](#org9f337f6)
-        50. [Exercise 1.40 newtons-method](#org5198204)
-        51. [Exercise 1.41 double-double](#org215d5b5)
-        52. [Exercise 1.42 compose](#orgab1cc9f)
-        53. [Exercise 1.43 repeated](#orgbb968b7)
-        54. [Exercise 1.44 smoothing](#orgd46effc)
-        55. [Exercise 1.45 nth-root](#orgad87e17)
-        56. [Exercise 1.46 iterative-improve](#orgd904117)
-    2.  [Chapter 2: Building abstractions with Data <code>[0/97]</code>](#orga7df096)
-        1.  [Exercise 2.1](#orgf8d6a38)
-        2.  [Exercise 2.2](#org7d6d0d4)
-        3.  [Exercise 2.3](#org2a78b65)
-        4.  [Exercise 2.4](#orgdb2c27e)
-        5.  [Exercise 2.5](#orgaae2185)
-        6.  [Exercise 2.6](#orgb0549b4)
-        7.  [Exercise 2.7](#org2855294)
-        8.  [Exercise 2.8](#org099b99a)
-        9.  [Exercise 2.9](#orga7af83f)
-        10. [Exercise 2.10](#org703d679)
-        11. [Exercise 2.11](#org8e7279e)
-        12. [Exercise 2.12](#orgb4710c8)
-        13. [Exercise 2.13](#org4d09a43)
-        14. [Exercise 2.14](#org49f03b9)
-        15. [Exercise 2.15](#org74b106d)
-        16. [Exercise 2.16](#org2a3b9b4)
-        17. [Exercise 2.17](#orga17e0b8)
-        18. [Exercise 2.18](#orgd99b5da)
-        19. [Exercise 2.19](#org00c0e93)
-        20. [Exercise 2.20](#org25690b7)
-        21. [Exercise 2.21](#org39a8599)
-        22. [Exercise 2.22](#orgbbb4e6f)
-        23. [Exercise 2.23](#orgd181028)
-        24. [Exercise 2.24](#org4a96186)
-        25. [Exercise 2.25](#org395e24c)
-        26. [Exercise 2.26](#org0ad14b6)
-        27. [Exercise 2.27](#org2c4df3c)
-        28. [Exercise 2.28](#orgefc8c4d)
-        29. [Exercise 2.29](#org4ff0b32)
-        30. [Exercise 2.30](#org34c398b)
-        31. [Exercise 2.31](#org6c46c3f)
-        32. [Exercise 2.32](#org189805c)
-        33. [Exercise 2.33](#org1dd9af1)
-        34. [Exercise 2.34](#orgfcd163c)
-        35. [Exercise 2.35](#orgc3e2417)
-        36. [Exercise 2.36](#orga2ebd50)
-        37. [Exercise 2.37](#org3a56d7b)
-        38. [Exercise 2.38](#org14c31dc)
-        39. [Exercise 2.39](#org08bd32a)
-        40. [Exercise 2.40](#org4e4b512)
-        41. [Exercise 2.41](#orgb352789)
-        42. [Exercise 2.42](#orgf47364c)
-        43. [Exercise 2.43](#orgade970e)
-        44. [Exercise 2.44](#org73c7d7e)
-        45. [Exercise 2.45](#org78d1f3b)
-        46. [Exercise 2.46](#orgd2b9f44)
-        47. [Exercise 2.47](#org23124af)
-        48. [Exercise 2.48](#orga3b7384)
-        49. [Exercise 2.49](#orgba2e611)
-        50. [Exercise 2.50](#org1d6547e)
-        51. [Exercise 2.51](#orgee6e73e)
-        52. [Exercise 2.52](#org0bf9d4c)
-        53. [Exercise 2.53](#orgf76c024)
-        54. [Exercise 2.54](#org71c2c90)
-        55. [Exercise 2.55](#org68f76b0)
-        56. [Exercise 2.56](#orga70c8fc)
-        57. [Exercise 2.57](#orgb901e25)
-        58. [Exercise 2.58](#orgea1949b)
-        59. [Exercise 2.59](#org2eea9cb)
-        60. [Exercise 2.60](#orge841d3d)
-        61. [Exercise 2.61](#org9235380)
-        62. [Exercise 2.62](#orgd055ba9)
-        63. [Exercise 2.63](#orgf449329)
-        64. [Exercise 2.64](#org56b0f27)
-        65. [Exercise 2.65](#org46ebb9c)
-        66. [Exercise 2.66](#org9ae4143)
-        67. [Exercise 2.67](#orgb7711cf)
-        68. [Exercise 2.68](#org20771dd)
-        69. [Exercise 2.69](#org9c0e8aa)
-        70. [Exercise 2.70](#orgde14e6c)
-        71. [Exercise 2.71](#org5962aab)
-        72. [Exercise 2.72](#org455f833)
-        73. [Exercise 2.73](#orgb8a2328)
-        74. [Exercise 2.74](#orgc4fd0a4)
-        75. [Exercise 2.75](#org8f95474)
-        76. [Exercise 2.76](#orgabfc978)
-        77. [Exercise 2.77](#org7e448db)
-        78. [Exercise 2.78](#orgfce6cdb)
-        79. [Exercise 2.79](#org678f839)
-        80. [Exercise 2.80](#org589009c)
-        81. [Exercise 2.81](#org8ebb34a)
-        82. [Exercise 2.82](#org75d623f)
-        83. [Exercise 2.83](#org1e835f5)
-        84. [Exercise 2.84](#orgd79b611)
-        85. [Exercise 2.85](#org82a754a)
-        86. [Exercise 2.86](#org95ceb50)
-        87. [Exercise 2.87](#org3964a7c)
-        88. [Exercise 2.88](#orgff63ef5)
-        89. [Exercise 2.89](#orgdfcfd2c)
-        90. [Exercise 2.90](#org49c2ad0)
-        91. [Exercise 2.91](#org7a1fc96)
-        92. [Exercise 2.92](#org1859a44)
-        93. [Exercise 2.93](#org5dc2e3f)
-        94. [Exercise 2.94](#org765ab4b)
-        95. [Exercise 2.95](#orgbd24e55)
-        96. [Exercise 2.96](#org218cfd7)
-        97. [Exercise 2.97](#org4555862)
-    3.  [Chapter 3: Modularity, Objects and State <code>[0/82]</code>](#org065b21d)
-        1.  [Exercise 3.1](#orged05049)
-        2.  [Exercise 3.2](#orgb45dbd2)
-        3.  [Exercise 3.3](#org16e9279)
-        4.  [Exercise 3.4](#orgb1e6fb6)
-        5.  [Exercise 3.5](#org2d1902e)
-        6.  [Exercise 3.6](#orga88271d)
-        7.  [Exercise 3.7](#org7fb20e0)
-        8.  [Exercise 3.8](#orgdd01252)
-        9.  [Exercise 3.9](#org90fafdf)
-        10. [Exercise 3.10](#orge13a3e2)
-        11. [Exercise 3.11](#org07b96a0)
-        12. [Exercise 3.12](#orgc3eceda)
-        13. [Exercise 3.13](#org9ff51e9)
-        14. [Exercise 3.14](#org35186bf)
-        15. [Exercise 3.15](#org5176208)
-        16. [Exercise 3.16](#org0bcf2c6)
-        17. [Exercise 3.17](#orgd235e9f)
-        18. [Exercise 3.18](#orgfd35d70)
-        19. [Exercise 3.19](#org7112fcd)
-        20. [Exercise 3.20](#orgc6ab890)
-        21. [Exercise 3.21](#org759f8f2)
-        22. [Exercise 3.22](#orgf22ecf6)
-        23. [Exercise 3.23](#orgb85bf3a)
-        24. [Exercise 3.24](#orgedbbe04)
-        25. [Exercise 3.25](#orgd0dd77b)
-        26. [Exercise 3.26](#orga5dcebc)
-        27. [Exercise 3.27](#org598ca81)
-        28. [Exercise 3.28](#orgb229668)
-        29. [Exercise 3.29](#org48098b2)
-        30. [Exercise 3.30](#orgbfac591)
-        31. [Exercise 3.31](#orga5530f9)
-        32. [Exercise 3.32](#org0ddac1c)
-        33. [Exercise 3.33](#org1d14fa7)
-        34. [Exercise 3.34](#org09fe536)
-        35. [Exercise 3.35](#orge36e21e)
-        36. [Exercise 3.36](#orga665fd1)
-        37. [Exercise 3.37](#org3f26b12)
-        38. [Exercise 3.38](#org774f518)
-        39. [Exercise 3.39](#org856481a)
-        40. [Exercise 3.40](#org55ebb15)
-        41. [Exercise 3.41](#orgad2b1a6)
-        42. [Exercise 3.42](#orge765835)
-        43. [Exercise 3.43](#orgddb497e)
-        44. [Exercise 3.44](#org81f3d7b)
-        45. [Exercise 3.45](#orgb2fdbb0)
-        46. [Exercise 3.46](#org87d8ada)
-        47. [Exercise 3.47](#orgacd782d)
-        48. [Exercise 3.48](#orgea804a5)
-        49. [Exercise 3.49](#org1908a65)
-        50. [Exercise 3.50](#orgf3dadac)
-        51. [Exercise 3.51](#org6f876aa)
-        52. [Exercise 3.52](#orgb5453ab)
-        53. [Exercise 3.53](#org64c9e94)
-        54. [Exercise 3.54](#org2820eb4)
-        55. [Exercise 3.55](#org172aaed)
-        56. [Exercise 3.56](#org06c91b4)
-        57. [Exercise 3.57](#org30d3626)
-        58. [Exercise 3.58](#org9b44321)
-        59. [Exercise 3.59](#org150faee)
-        60. [Exercise 3.60](#org76ac168)
-        61. [Exercise 3.61](#org1e41368)
-        62. [Exercise 3.62](#org15a7848)
-        63. [Exercise 3.63](#orgd885033)
-        64. [Exercise 3.64](#org587b8ab)
-        65. [Exercise 3.65](#org5935368)
-        66. [Exercise 3.66](#org3fb0356)
-        67. [Exercise 3.67](#orgb2b82c1)
-        68. [Exercise 3.68](#org3ece18f)
-        69. [Exercise 3.69](#orgd35f918)
-        70. [Exercise 3.70](#orgea1f7a3)
-        71. [Exercise 3.71](#org3024128)
-        72. [Exercise 3.72](#org0686eb1)
-        73. [Exercise 3.73](#orgbdb6a6c)
-        74. [Exercise 3.74](#orgdd365c6)
-        75. [Exercise 3.75](#org6b550e2)
-        76. [Exercise 3.76](#org396ac50)
-        77. [Exercise 3.77](#org82b697d)
-        78. [Exercise 3.78](#org21a9a7f)
-        79. [Exercise 3.79](#org9da5864)
-        80. [Exercise 3.80](#org4dc8e5e)
-        81. [Exercise 3.81](#orgc1417db)
-        82. [Exercise 3.82](#orgefc29ff)
-    4.  [Chapter 4: Metalinguistic Abstraction <code>[0/79]</code>](#org15a582a)
-        1.  [Exercise 4.1](#org022feb7)
-        2.  [Exercise 4.2](#orgbed52d7)
-        3.  [Exercise 4.3](#org7148377)
-        4.  [Exercise 4.4](#orgd0d23f6)
-        5.  [Exercise 4.5](#org7a49ecc)
-        6.  [Exercise 4.6](#org610111b)
-        7.  [Exercise 4.7](#org95247cd)
-        8.  [Exercise 4.8](#orgca494f2)
-        9.  [Exercise 4.9](#org4d68006)
-        10. [Exercise 4.10](#orgb751da5)
-        11. [Exercise 4.11](#orgabf1634)
-        12. [Exercise 4.12](#orgca3fc46)
-        13. [Exercise 4.13](#org1543b3d)
-        14. [Exercise 4.14](#orgcf91c9f)
-        15. [Exercise 4.15](#org7a34f14)
-        16. [Exercise 4.16](#orge1ba9c3)
-        17. [Exercise 4.17](#org3d780fa)
-        18. [Exercise 4.18](#org68c992f)
-        19. [Exercise 4.19](#orgc4f44ce)
-        20. [Exercise 4.20](#orgf5de6bb)
-        21. [Exercise 4.21](#org8e7b44b)
-        22. [Exercise 4.22](#org5e91d06)
-        23. [Exercise 4.23](#org0c8bc9c)
-        24. [Exercise 4.24](#org6048b60)
-        25. [Exercise 4.25](#org48b7562)
-        26. [Exercise 4.26](#org87ce3e2)
-        27. [Exercise 4.27](#org6949a45)
-        28. [Exercise 4.28](#org729cd32)
-        29. [Exercise 4.29](#org4afae7d)
-        30. [Exercise 4.30](#orga68502c)
-        31. [Exercise 4.31](#orgc344423)
-        32. [Exercise 4.32](#org515ce98)
-        33. [Exercise 4.33](#org544fdc9)
-        34. [Exercise 4.34](#org8f2c3a4)
-        35. [Exercise 4.35](#org51ab961)
-        36. [Exercise 4.36](#org0ad5292)
-        37. [Exercise 4.37](#org8b4afca)
-        38. [Exercise 4.38](#orgd876492)
-        39. [Exercise 4.39](#orgb9b9c52)
-        40. [Exercise 4.40](#org7f30c29)
-        41. [Exercise 4.41](#orgefb7672)
-        42. [Exercise 4.42](#orgd3b1c38)
-        43. [Exercise 4.43](#org1a99713)
-        44. [Exercise 4.44](#orgfd5f632)
-        45. [Exercise 4.45](#org61766d1)
-        46. [Exercise 4.46](#org7fdf673)
-        47. [Exercise 4.47](#orga0d65fa)
-        48. [Exercise 4.48](#org69b7663)
-        49. [Exercise 4.49](#org09ab996)
-        50. [Exercise 4.50](#orgcced876)
-        51. [Exercise 4.51](#orgff3e964)
-        52. [Exercise 4.52](#org2e2fe87)
-        53. [Exercise 4.53](#org9da9a35)
-        54. [Exercise 4.54](#orgb6e0a04)
-        55. [Exercise 4.55](#orgfe96b87)
-        56. [Exercise 4.56](#org14d9d73)
-        57. [Exercise 4.57](#orgb947789)
-        58. [Exercise 4.58](#org1072ad9)
-        59. [Exercise 4.59](#org24c7632)
-        60. [Exercise 4.60](#org815f7c6)
-        61. [Exercise 4.61](#orgc0e8d7e)
-        62. [Exercise 4.62](#org3c54fb2)
-        63. [Exercise 4.63](#orgd73ec2c)
-        64. [Exercise 4.64](#orgd451fb1)
-        65. [Exercise 4.65](#orgdcfbcbc)
-        66. [Exercise 4.66](#orgb96b472)
-        67. [Exercise 4.67](#orgb15c80f)
-        68. [Exercise 4.68](#orge9cb62a)
-        69. [Exercise 4.69](#org0b6b46e)
-        70. [Exercise 4.70](#org0f298d4)
-        71. [Exercise 4.71](#orgfbf4a14)
-        72. [Exercise 4.72](#org3150c61)
-        73. [Exercise 4.73](#org510bdce)
-        74. [Exercise 4.74](#orge3e7c1e)
-        75. [Exercise 4.75](#orgea534e0)
-        76. [Exercise 4.76](#orgbda643b)
-        77. [Exercise 4.77](#org90d886f)
-        78. [Exercise 4.78](#org0b32bdd)
-        79. [Exercise 4.79](#org9ab8f95)
-    5.  [Chapter 5: Computing with Register Machines <code>[0/52]</code>](#org8b326ab)
-        1.  [Exercise 5.1](#orgb2546cf)
-        2.  [Exercise 5.2](#org67c9f93)
-        3.  [Exercise 5.3](#org39ef6b3)
-        4.  [Exercise 5.4](#orged6a3d8)
-        5.  [Exercise 5.5](#orga0f36b8)
-        6.  [Exercise 5.6](#orgd2723fd)
-        7.  [Exercise 5.7](#org79d6fa0)
-        8.  [Exercise 5.8](#org6c7d5f8)
-        9.  [Exercise 5.9](#org405d64c)
-        10. [Exercise 5.10](#orgd97402f)
-        11. [Exercise 5.11](#orge2f11da)
-        12. [Exercise 5.12](#org4c0aceb)
-        13. [Exercise 5.13](#orgda6ccd0)
-        14. [Exercise 5.14](#org56fecc8)
-        15. [Exercise 5.15](#orge38a995)
-        16. [Exercise 5.16](#orgf9f2926)
-        17. [Exercise 5.17](#orgb2e51af)
-        18. [Exercise 5.18](#org9a2a416)
-        19. [Exercise 5.19](#orgebe182d)
-        20. [Exercise 5.20](#org9b113a0)
-        21. [Exercise 5.21](#org4f736b1)
-        22. [Exercise 5.22](#org6528e98)
-        23. [Exercise 5.23](#org0f9d89b)
-        24. [Exercise 5.24](#org5b107d7)
-        25. [Exercise 5.25](#orgc31fcee)
-        26. [Exercise 5.26](#orga324803)
-        27. [Exercise 5.27](#orga4826ec)
-        28. [Exercise 5.28](#org91aa566)
-        29. [Exercise 5.29](#org464df09)
-        30. [Exercise 5.30](#orga284db9)
-        31. [Exercise 5.31](#org2a92204)
-        32. [Exercise 5.32](#org3287349)
-        33. [Exercise 5.33](#orgd129467)
-        34. [Exercise 5.34](#org1e81d4a)
-        35. [Exercise 5.35](#org19638fd)
-        36. [Exercise 5.36](#orga167a46)
-        37. [Exercise 5.37](#org461eee0)
-        38. [Exercise 5.38](#orgf44d3af)
-        39. [Exercise 5.39](#orgc6bf3e5)
-        40. [Exercise 5.40](#org95668c2)
-        41. [Exercise 5.41](#orgc143f6f)
-        42. [Exercise 5.42](#org6271bfd)
-        43. [Exercise 5.43](#org8aee3a6)
-        44. [Exercise 5.44](#org74fe54e)
-        45. [Exercise 5.45](#org3f319fb)
-        46. [Exercise 5.46](#org31f3222)
-        47. [Exercise 5.47](#orge0b106b)
-        48. [Exercise 5.48](#orgd18fd1f)
-        49. [Exercise 5.49](#org3ab75aa)
-        50. [Exercise 5.50](#orgd9a7088)
-        51. [Exercise 5.51](#org4b986f2)
-        52. [Exercise 5.52](#org47a3060)
+1.  [noweb + common](#org74803f4)
+    1.  [Setting chibi arguments. DANGEROUS](#org5fc2155):dangerous:elisp:
+    2.  [Some common code blocks](#org41ab692)
+2.  [SICP <code>[15%]</code>](#org2e20637)
+    1.  [Chapter 1: Building abstractions with procedures <code>[57/61]</code>](#org07a4dfc)
+        1.  [Snippet](#org36dcb55)
+        2.  [Thought](#orge8787e5)
+        3.  [Figure 1.1 Tree representation, showing the value of each subcombination](#orgc6e8738)
+        4.  [Snippet](#org6b4b93f)
+        5.  [Exercise 1.1 Interpreter result](#org72ed0d3)
+        6.  [Exercise 1.2 Prefix form](#orgf4cb6dc)
+        7.  [Exercise 1.3 Sum of squares](#org02e2797)
+        8.  [Exercise 1.4 Compound expressions](#org7c33a8e)
+        9.  [Exercise 1.5 Ben's test](#org5565d99)
+        10. [Exercise 1.6 If is a special form](#orgd38c0f1)
+        11. [Exercise 1.7 Good enough?](#org8811bb8)
+        12. [Exercise 1.8 Newton's method](#orged9e753)
+        13. [Figure 1.2 Procedural decomposition of the sqrt program](#org19d8332)
+        14. [Figure 1.3 A linear recursive process for computing <img src="ltximg/index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" alt="index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" />.](#org22e61c8)
+        15. [Figure 1.4 A linear iterative process for computing <img src="ltximg/index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" alt="index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" />.](#org2be185f)
+        16. [Exercise 1.9 Iterative or recursive?](#org1898f50):macro:er_macro_transformer:chicken:
+        17. [Exercise 1.10 Ackermann's function](#org7de10b4)
+        18. [Figure 1.5 The tree-recursive process generated in computing (fib 5)](#org045b84e)
+        19. [Exercise 1.11 Recursive vs iterative](#org3b8e73e)
+        20. [Exercise 1.12 Recursive Pascal's triangle](#org621cc36)
+        21. [Exercise 1.13 Fibonacci](#org77e2ca4)
+        22. [Exercise 1.14 count-change](#org06e7e0d):macro:er_macro_transformer:
+        23. [I found a bug in ob-scheme while doing this Exercise.](#org6a22a1b)
+        24. [Exercise 1.15 sine](#org6b9b434):macro:er_macro_transformer:
+        25. [Exercise 1.16 Iterative exponentiation](#orge7c9959)
+        26. [Exercise 1.17 Fast multiplication](#org31145bf)
+        27. [Exercise 1.18 Iterative multiplication](#org8f5c667)
+        28. [Exercise 1.19 Logarithmic Fibonacci](#org6f000bb)
+        29. [**Interjection** ir-macro-transformer.](#orge05aa23)
+        30. [Exercise 1.20 GCD applicative vs normal](#org65f37d7):er_macro_transformer:macro:
+        31. [Exercise 1.21 smallest-divisor](#org1ec4364)
+        32. [Exercise 1.22 timed-prime-test](#org04404cf)
+        33. [Exercise 1.23 (next test-divisor)](#org1e2eebb)
+        34. [Exercise 1.24 Fermat method](#org09b2134)
+        35. [Exercise 1.25 expmod](#org59f0b0b)
+        36. [Exercise 1.26 square vs mul](#orgaaf2d91)
+        37. [Exercise 1.27 Carmichael numbers](#org13a6aca)
+        38. [Exercise 1.28 Miller-Rabin](#org9c909d0)
+        39. [Exercise 1.29 Simpson's integral](#orgdb26018)
+        40. [Exercise 1.30 Iterative sum](#org38461cc)
+        41. [Exercise 1.31 Product](#org9fc60ca)
+        42. [Exercise 1.32 Accumulator](#org93a1be0)
+        43. [Exercise 1.33 filtered-accumulate](#orgc4cc60f)
+        44. [Exercise 1.34 lambda](#org969faa3)
+        45. [Exercise 1.35 fixed-point](#org4803ac6)
+        46. [Exercise 1.36 fixed-point-with-dampening](#orgafc9691)
+        47. [Exercise 1.37 cont-frac](#org484c53a)
+        48. [Exercise 1.38 euler constant](#orgb7dd4b2)
+        49. [Exercise 1.39 tan-cf](#orga9246ec)
+        50. [Exercise 1.40 newtons-method](#orgfcb2f0a)
+        51. [Exercise 1.41 double-double](#org0f069ed)
+        52. [Exercise 1.42 compose](#orgaa3c85b)
+        53. [Exercise 1.43 repeated](#orgb5b3275)
+        54. [Exercise 1.44 smoothing](#org022406b)
+        55. [Exercise 1.45 nth-root](#org1cb0d79)
+        56. [Exercise 1.46 iterative-improve](#org8ad7f67)
+    2.  [Chapter 2: Building abstractions with Data <code>[0/97]</code>](#org875092d)
+        1.  [Exercise 2.1](#org836038a)
+        2.  [Exercise 2.2](#orgc390bdc)
+        3.  [Exercise 2.3](#org3f1ae7e)
+        4.  [Exercise 2.4](#org9ac4702)
+        5.  [Exercise 2.5](#orge8eb8ef)
+        6.  [Exercise 2.6](#org65782b6)
+        7.  [Exercise 2.7](#org00daba1)
+        8.  [Exercise 2.8](#orgb2e30bf)
+        9.  [Exercise 2.9](#org48219d5)
+        10. [Exercise 2.10](#orgaf1d726)
+        11. [Exercise 2.11](#org47c382c)
+        12. [Exercise 2.12](#org90ab116)
+        13. [Exercise 2.13](#orgffffb70)
+        14. [Exercise 2.14](#orgcbfb92e)
+        15. [Exercise 2.15](#org36fcd2b)
+        16. [Exercise 2.16](#org701616a)
+        17. [Exercise 2.17](#org0a42477)
+        18. [Exercise 2.18](#orgba35e97)
+        19. [Exercise 2.19](#org8534dfb)
+        20. [Exercise 2.20](#org7d68ee6)
+        21. [Exercise 2.21](#org6ccb486)
+        22. [Exercise 2.22](#orga788750)
+        23. [Exercise 2.23](#org5badb0d)
+        24. [Exercise 2.24](#org31cccc4)
+        25. [Exercise 2.25](#org1ddc91c)
+        26. [Exercise 2.26](#orgc2810fa)
+        27. [Exercise 2.27](#orga912f1f)
+        28. [Exercise 2.28](#org83e1f16)
+        29. [Exercise 2.29](#org66e1aaa)
+        30. [Exercise 2.30](#orgba0b53e)
+        31. [Exercise 2.31](#org13b7148)
+        32. [Exercise 2.32](#org8869325)
+        33. [Exercise 2.33](#org08afee6)
+        34. [Exercise 2.34](#org121ab24)
+        35. [Exercise 2.35](#org6d591f8)
+        36. [Exercise 2.36](#orgfa555fd)
+        37. [Exercise 2.37](#orgfde0adc)
+        38. [Exercise 2.38](#orgfe1009f)
+        39. [Exercise 2.39](#org714a01b)
+        40. [Exercise 2.40](#orgbccf5a7)
+        41. [Exercise 2.41](#orgd662d0a)
+        42. [Exercise 2.42](#orgfa85aca)
+        43. [Exercise 2.43](#orgd77e327)
+        44. [Exercise 2.44](#orgc6d6e8f)
+        45. [Exercise 2.45](#org39097cb)
+        46. [Exercise 2.46](#org9844b09)
+        47. [Exercise 2.47](#org19d64c6)
+        48. [Exercise 2.48](#org0a98f2d)
+        49. [Exercise 2.49](#org630566a)
+        50. [Exercise 2.50](#org84b06e7)
+        51. [Exercise 2.51](#org0bf6788)
+        52. [Exercise 2.52](#orgc0ce858)
+        53. [Exercise 2.53](#orgd4f7a5f)
+        54. [Exercise 2.54](#org6bb2e1b)
+        55. [Exercise 2.55](#org7b21255)
+        56. [Exercise 2.56](#org13ba3c8)
+        57. [Exercise 2.57](#orga3ab72f)
+        58. [Exercise 2.58](#org9adf575)
+        59. [Exercise 2.59](#orge5f74f4)
+        60. [Exercise 2.60](#orgeb69c40)
+        61. [Exercise 2.61](#org6cc2714)
+        62. [Exercise 2.62](#orgef94799)
+        63. [Exercise 2.63](#orgcf8f30d)
+        64. [Exercise 2.64](#org8bbf93c)
+        65. [Exercise 2.65](#orgc647d4b)
+        66. [Exercise 2.66](#orga4da822)
+        67. [Exercise 2.67](#orgd5a09a9)
+        68. [Exercise 2.68](#org011b2ff)
+        69. [Exercise 2.69](#org306db0b)
+        70. [Exercise 2.70](#orgfd0ca65)
+        71. [Exercise 2.71](#orgdb2c1a0)
+        72. [Exercise 2.72](#org50181fd)
+        73. [Exercise 2.73](#org199f67e)
+        74. [Exercise 2.74](#org59e1371)
+        75. [Exercise 2.75](#org05a1c11)
+        76. [Exercise 2.76](#orgee79d8b)
+        77. [Exercise 2.77](#orgaa7314b)
+        78. [Exercise 2.78](#orgc692e9d)
+        79. [Exercise 2.79](#orge5a9dab)
+        80. [Exercise 2.80](#org54e9f03)
+        81. [Exercise 2.81](#orgf90b315)
+        82. [Exercise 2.82](#orgb9150b3)
+        83. [Exercise 2.83](#orgca607b9)
+        84. [Exercise 2.84](#org861bc07)
+        85. [Exercise 2.85](#orgb07f70f)
+        86. [Exercise 2.86](#orgfcce34b)
+        87. [Exercise 2.87](#orgeef9f0a)
+        88. [Exercise 2.88](#orgdd86bf3)
+        89. [Exercise 2.89](#org8d755bd)
+        90. [Exercise 2.90](#org9f35103)
+        91. [Exercise 2.91](#org312de71)
+        92. [Exercise 2.92](#orgec364f7)
+        93. [Exercise 2.93](#org2ec9bbb)
+        94. [Exercise 2.94](#org6056cda)
+        95. [Exercise 2.95](#org5a3f9e5)
+        96. [Exercise 2.96](#org7845b6c)
+        97. [Exercise 2.97](#orgf796354)
+    3.  [Chapter 3: Modularity, Objects and State <code>[0/82]</code>](#org29f1aa5)
+        1.  [Exercise 3.1](#orgf9ec929)
+        2.  [Exercise 3.2](#org51936cd)
+        3.  [Exercise 3.3](#org1a08d5c)
+        4.  [Exercise 3.4](#org83deca8)
+        5.  [Exercise 3.5](#orga917547)
+        6.  [Exercise 3.6](#orga64c3f5)
+        7.  [Exercise 3.7](#orgdeb88ce)
+        8.  [Exercise 3.8](#orga2484ff)
+        9.  [Exercise 3.9](#org9983f60)
+        10. [Exercise 3.10](#orgfee24ff)
+        11. [Exercise 3.11](#org0476769)
+        12. [Exercise 3.12](#org816a6d4)
+        13. [Exercise 3.13](#org6aa1fb8)
+        14. [Exercise 3.14](#org52bc159)
+        15. [Exercise 3.15](#org0e368c3)
+        16. [Exercise 3.16](#org49a5e98)
+        17. [Exercise 3.17](#orga766dbb)
+        18. [Exercise 3.18](#orgd42cdf5)
+        19. [Exercise 3.19](#org5d4c446)
+        20. [Exercise 3.20](#org68647f4)
+        21. [Exercise 3.21](#org0205e15)
+        22. [Exercise 3.22](#org89fa519)
+        23. [Exercise 3.23](#orgb1c94ed)
+        24. [Exercise 3.24](#orga6591a8)
+        25. [Exercise 3.25](#org88d3212)
+        26. [Exercise 3.26](#org8394bc2)
+        27. [Exercise 3.27](#org375b4b9)
+        28. [Exercise 3.28](#org6b8af26)
+        29. [Exercise 3.29](#orga61bd0c)
+        30. [Exercise 3.30](#org651f885)
+        31. [Exercise 3.31](#org86b61b8)
+        32. [Exercise 3.32](#org89aa0fc)
+        33. [Exercise 3.33](#org2767ef9)
+        34. [Exercise 3.34](#org5e41f92)
+        35. [Exercise 3.35](#org95d4e26)
+        36. [Exercise 3.36](#org03d7ee4)
+        37. [Exercise 3.37](#org28cf3de)
+        38. [Exercise 3.38](#orgcca45b3)
+        39. [Exercise 3.39](#org9440430)
+        40. [Exercise 3.40](#org92f625d)
+        41. [Exercise 3.41](#orgda5477b)
+        42. [Exercise 3.42](#orga191fd9)
+        43. [Exercise 3.43](#org3c92e97)
+        44. [Exercise 3.44](#org463a5bd)
+        45. [Exercise 3.45](#org2e0bd1b)
+        46. [Exercise 3.46](#orgf2515fa)
+        47. [Exercise 3.47](#orgcfdf1ee)
+        48. [Exercise 3.48](#org978a78f)
+        49. [Exercise 3.49](#orgb4c99f2)
+        50. [Exercise 3.50](#orgc1f2855)
+        51. [Exercise 3.51](#org977bfff)
+        52. [Exercise 3.52](#org8f7def9)
+        53. [Exercise 3.53](#org570d086)
+        54. [Exercise 3.54](#org76c9e29)
+        55. [Exercise 3.55](#org9fcd10a)
+        56. [Exercise 3.56](#org37fdb13)
+        57. [Exercise 3.57](#orgd718720)
+        58. [Exercise 3.58](#org4d48828)
+        59. [Exercise 3.59](#orgf6b34ff)
+        60. [Exercise 3.60](#org302171d)
+        61. [Exercise 3.61](#org7f9dbd3)
+        62. [Exercise 3.62](#orge153a7f)
+        63. [Exercise 3.63](#orgdd3d35b)
+        64. [Exercise 3.64](#org67b48b5)
+        65. [Exercise 3.65](#org528748c)
+        66. [Exercise 3.66](#org122007e)
+        67. [Exercise 3.67](#org27f5cf1)
+        68. [Exercise 3.68](#org5410f30)
+        69. [Exercise 3.69](#org901f901)
+        70. [Exercise 3.70](#org78fa8e2)
+        71. [Exercise 3.71](#org34d3fcd)
+        72. [Exercise 3.72](#orgca8ea41)
+        73. [Exercise 3.73](#orga010030)
+        74. [Exercise 3.74](#orgbcd5c2d)
+        75. [Exercise 3.75](#org1bc5385)
+        76. [Exercise 3.76](#org75fd271)
+        77. [Exercise 3.77](#org9b457ed)
+        78. [Exercise 3.78](#orgc0e6d3d)
+        79. [Exercise 3.79](#org0a7f9c0)
+        80. [Exercise 3.80](#orgcacd0aa)
+        81. [Exercise 3.81](#orgf87b228)
+        82. [Exercise 3.82](#org620861e)
+    4.  [Chapter 4: Metalinguistic Abstraction <code>[0/79]</code>](#orgb251955)
+        1.  [Exercise 4.1](#orgc0b5bb9)
+        2.  [Exercise 4.2](#org67f2643)
+        3.  [Exercise 4.3](#orgd5c58f8)
+        4.  [Exercise 4.4](#org4d54e74)
+        5.  [Exercise 4.5](#org2668c5a)
+        6.  [Exercise 4.6](#org237fd06)
+        7.  [Exercise 4.7](#orgf165291)
+        8.  [Exercise 4.8](#orgfce28d1)
+        9.  [Exercise 4.9](#org024c976)
+        10. [Exercise 4.10](#orgfb84074)
+        11. [Exercise 4.11](#org549626b)
+        12. [Exercise 4.12](#org3936d57)
+        13. [Exercise 4.13](#orgbf5aed3)
+        14. [Exercise 4.14](#org7614340)
+        15. [Exercise 4.15](#org69b4f51)
+        16. [Exercise 4.16](#orge5ef032)
+        17. [Exercise 4.17](#orgb0bbd8a)
+        18. [Exercise 4.18](#org9619fee)
+        19. [Exercise 4.19](#org1e2f897)
+        20. [Exercise 4.20](#org1165b7b)
+        21. [Exercise 4.21](#org6480227)
+        22. [Exercise 4.22](#orgf49e56b)
+        23. [Exercise 4.23](#org4c5f2a8)
+        24. [Exercise 4.24](#orgbf86f38)
+        25. [Exercise 4.25](#orgd61e0d0)
+        26. [Exercise 4.26](#org80a1801)
+        27. [Exercise 4.27](#org03bce13)
+        28. [Exercise 4.28](#org9d5fc4d)
+        29. [Exercise 4.29](#orgfb02599)
+        30. [Exercise 4.30](#orgc3586ca)
+        31. [Exercise 4.31](#org3094077)
+        32. [Exercise 4.32](#org8e29895)
+        33. [Exercise 4.33](#org660815b)
+        34. [Exercise 4.34](#org84200e3)
+        35. [Exercise 4.35](#orgd33420c)
+        36. [Exercise 4.36](#org5c8362f)
+        37. [Exercise 4.37](#org847f5b3)
+        38. [Exercise 4.38](#orgeb32931)
+        39. [Exercise 4.39](#org08d1b7b)
+        40. [Exercise 4.40](#org0393f30)
+        41. [Exercise 4.41](#org6880dba)
+        42. [Exercise 4.42](#org58fea77)
+        43. [Exercise 4.43](#org3d87dee)
+        44. [Exercise 4.44](#orgadc2519)
+        45. [Exercise 4.45](#org9f9856b)
+        46. [Exercise 4.46](#org5ff5065)
+        47. [Exercise 4.47](#org9eaa58d)
+        48. [Exercise 4.48](#org4e3b38e)
+        49. [Exercise 4.49](#orgd50be9d)
+        50. [Exercise 4.50](#org4de3fb8)
+        51. [Exercise 4.51](#org5d14a2a)
+        52. [Exercise 4.52](#org8c25da1)
+        53. [Exercise 4.53](#org181b6cf)
+        54. [Exercise 4.54](#orga835e6e)
+        55. [Exercise 4.55](#orgd3bd0f6)
+        56. [Exercise 4.56](#org69764f7)
+        57. [Exercise 4.57](#org1cbb180)
+        58. [Exercise 4.58](#org01038a8)
+        59. [Exercise 4.59](#orge525706)
+        60. [Exercise 4.60](#org1661bd4)
+        61. [Exercise 4.61](#org76ec517)
+        62. [Exercise 4.62](#orgf49f206)
+        63. [Exercise 4.63](#org69a738b)
+        64. [Exercise 4.64](#org4188521)
+        65. [Exercise 4.65](#orgf41d14d)
+        66. [Exercise 4.66](#org12686fb)
+        67. [Exercise 4.67](#org66d9277)
+        68. [Exercise 4.68](#org6a71074)
+        69. [Exercise 4.69](#org7fa7b88)
+        70. [Exercise 4.70](#orgde41c92)
+        71. [Exercise 4.71](#org99f6ec8)
+        72. [Exercise 4.72](#org400d645)
+        73. [Exercise 4.73](#orgc52cc19)
+        74. [Exercise 4.74](#org5de5d3e)
+        75. [Exercise 4.75](#orgf556383)
+        76. [Exercise 4.76](#org31bfef5)
+        77. [Exercise 4.77](#org3488ada)
+        78. [Exercise 4.78](#org252043e)
+        79. [Exercise 4.79](#org0ab832b)
+    5.  [Chapter 5: Computing with Register Machines <code>[0/52]</code>](#org9d679b3)
+        1.  [Exercise 5.1](#org2ef12a5)
+        2.  [Exercise 5.2](#orgff8d8fb)
+        3.  [Exercise 5.3](#orgb6ee8cf)
+        4.  [Exercise 5.4](#org468c8f7)
+        5.  [Exercise 5.5](#org8300657)
+        6.  [Exercise 5.6](#org441baf8)
+        7.  [Exercise 5.7](#org27676a0)
+        8.  [Exercise 5.8](#orga65cbc1)
+        9.  [Exercise 5.9](#orgc5f4389)
+        10. [Exercise 5.10](#org02a86bf)
+        11. [Exercise 5.11](#orgc046a41)
+        12. [Exercise 5.12](#org346c2ba)
+        13. [Exercise 5.13](#org1a37ea9)
+        14. [Exercise 5.14](#org158e312)
+        15. [Exercise 5.15](#org6d1df44)
+        16. [Exercise 5.16](#orgc3aa706)
+        17. [Exercise 5.17](#org9b7360c)
+        18. [Exercise 5.18](#org55ec814)
+        19. [Exercise 5.19](#org0554626)
+        20. [Exercise 5.20](#orgf2da27f)
+        21. [Exercise 5.21](#orgb2877c0)
+        22. [Exercise 5.22](#org9bf947c)
+        23. [Exercise 5.23](#orgea8053e)
+        24. [Exercise 5.24](#org97cc429)
+        25. [Exercise 5.25](#orga13343f)
+        26. [Exercise 5.26](#orgd6be7a7)
+        27. [Exercise 5.27](#org8bb25a2)
+        28. [Exercise 5.28](#org16c012c)
+        29. [Exercise 5.29](#org8f3e64d)
+        30. [Exercise 5.30](#orgac903d8)
+        31. [Exercise 5.31](#orgdd0d89b)
+        32. [Exercise 5.32](#org237bd7e)
+        33. [Exercise 5.33](#orgd5c8d14)
+        34. [Exercise 5.34](#org0255c4d)
+        35. [Exercise 5.35](#org0df5504)
+        36. [Exercise 5.36](#org5ee0681)
+        37. [Exercise 5.37](#org2f25663)
+        38. [Exercise 5.38](#org54bbc2c)
+        39. [Exercise 5.39](#org9e1d0be)
+        40. [Exercise 5.40](#orge138ea4)
+        41. [Exercise 5.41](#orgd7b9aa1)
+        42. [Exercise 5.42](#org187d781)
+        43. [Exercise 5.43](#org1888ca3)
+        44. [Exercise 5.44](#orgd586ddf)
+        45. [Exercise 5.45](#org76136cd)
+        46. [Exercise 5.46](#org3481fa3)
+        47. [Exercise 5.47](#orgcb4c108)
+        48. [Exercise 5.48](#org593bbbe)
+        49. [Exercise 5.49](#org3dc09ec)
+        50. [Exercise 5.50](#orgbb692c1)
+        51. [Exercise 5.51](#orgc7e9fd8)
+        52. [Exercise 5.52](#org9f7c91d)
 
 
 
-<a id="org0e630ec"></a>
+<a id="org74803f4"></a>
 
 # noweb + common
 
 
-<a id="orgedb44ff"></a>
+<a id="org5fc2155"></a>
 
 ## Setting chibi arguments. DANGEROUS     :dangerous:elisp:
 
@@ -393,7 +393,7 @@
          "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27"))
 
 
-<a id="orgf624b8a"></a>
+<a id="org41ab692"></a>
 
 ## Some common code blocks
 
@@ -404,17 +404,17 @@
        (newline))
 
 
-<a id="orgc825e19"></a>
+<a id="org2e20637"></a>
 
 # SICP <code>[15%]</code>
 
 
-<a id="orgbda2593"></a>
+<a id="org07a4dfc"></a>
 
 ## TODO Chapter 1: Building abstractions with procedures <code>[57/61]</code>
 
 
-<a id="orgb69851a"></a>
+<a id="org36dcb55"></a>
 
 ### Snippet
 
@@ -424,14 +424,14 @@
     390
 
 
-<a id="org688db31"></a>
+<a id="orge8787e5"></a>
 
 ### Thought
 
 Tree accumulation is the process of computing a thing by traversing a tree.
 
 
-<a id="org7828f41"></a>
+<a id="orgc6e8738"></a>
 
 ### DONE Figure 1.1 Tree representation, showing the value of each subcombination
 
@@ -511,7 +511,7 @@ For the sake of pedagogical clarity, I have formatted it as a picture.
 ![img](figure-1-1-dot.png)
 
 
-<a id="orgcdfd136"></a>
+<a id="org6b4b93f"></a>
 
 ### Snippet
 
@@ -525,7 +525,7 @@ For the sake of pedagogical clarity, I have formatted it as a picture.
     25
 
 
-<a id="orgb12dee6"></a>
+<a id="org72ed0d3"></a>
 
 ### DONE Exercise 1.1 Interpreter result
 
@@ -567,7 +567,7 @@ For the sake of pedagogical clarity, I have formatted it as a picture.
     16
 
 
-<a id="org8c5bb39"></a>
+<a id="orgf4cb6dc"></a>
 
 ### DONE Exercise 1.2 Prefix form
 
@@ -576,7 +576,7 @@ For the sake of pedagogical clarity, I have formatted it as a picture.
     -37/150
 
 
-<a id="orgb8aeab4"></a>
+<a id="org02e2797"></a>
 
 ### DONE Exercise 1.3 Sum of squares
 
@@ -591,7 +591,7 @@ For the sake of pedagogical clarity, I have formatted it as a picture.
     13
 
 
-<a id="org6b0f818"></a>
+<a id="org7c33a8e"></a>
 
 ### DONE Exercise 1.4 Compound expressions
 
@@ -604,7 +604,7 @@ For the sake of pedagogical clarity, I have formatted it as a picture.
     7
 
 
-<a id="org97ceb0e"></a>
+<a id="org5565d99"></a>
 
 ### DONE Exercise 1.5 Ben's test
 
@@ -620,7 +620,7 @@ application of test and try to traverse the tree depth-first, this
 code should be able to terminate successfully?
 
 
-<a id="orgbf72541"></a>
+<a id="orgd38c0f1"></a>
 
 ### DONE Exercise 1.6 If is a special form
 
@@ -644,7 +644,7 @@ Consider:
     (new-if (not (= b 0)) (/ a b) a)
 
     1
-    {Exception #19 user "divide by zero" () #<procedure #f> (#f . 529)}
+    {Exception #19 user "divide by zero" () #<procedure #f> (#f . 841)}
 
 However, this issue can be solved using scheme macros.
 
@@ -673,7 +673,7 @@ The code above works as expected, because the macro does not evaluate
 its arguments, and (cond) is a special form.
 
 
-<a id="org661d591"></a>
+<a id="org8811bb8"></a>
 
 ### DONE Exercise 1.7 Good enough?
 
@@ -684,58 +684,57 @@ carefully.
 
 The function we are interested in is:
 
-\begin{equation}
-\label{eq:5}
-f(x) = \sqrt{x}
-\end{equation}
+
+<div class="figure">
+<p><img src="ltximg/index_1f2b5b60b9c2bcc6a3c92ae2320f53172198bd1b.png" alt="index_1f2b5b60b9c2bcc6a3c92ae2320f53172198bd1b.png" /></p>
+</div>
 
 The code given in the chapter before is equivalent to the following
-Newton's method formula, where \(f_i\) denotes the next guess:
+Newton's method formula, where <img src="ltximg/index_0e11215e836ddfacc1869b884556488a1d1a62d0.png" alt="index_0e11215e836ddfacc1869b884556488a1d1a62d0.png" /> denotes the next guess:
 
-\begin{equation}
-\label{eq:1} 
-f_{i+1}_{} = \frac{f_i + \frac{x}{f_i}}{2}
-\end{equation}
+
+<div class="figure">
+<p><img src="ltximg/index_2dac860ba84eeeb5d1e545505c4b021fb8e188cb.png" alt="index_2dac860ba84eeeb5d1e545505c4b021fb8e188cb.png" /></p>
+</div>
 
 How on Earth does this formula even appear? Let's remember some
 mathematics, namely, the Taylor series (variables unbound):
 
-\begin{equation}
-\label{eq:2}
- f(x) = f(x_{0}_{}) + f'(x_{0})(x-x_{0}) + o(x)
-\end{equation}
 
-Let us call \`true' value of \(\sqrt{x}=f\). Let us call our first guess
-\(f_{0}\). What is the value of the difference (error) between them?
-Clearly, \(f-f_0\). Well, the problem is — we don't know \(f\). But we do
-know \(f^2\). Therefore \(f^2-f^2_0\) is a number we know. What will be the
-error on the next step of the algorithm? Let's find \(f_1\) as
-\(f_1=f_0+\delta\). If \(\delta\) is not too big, we can use the Taylor
-expansion from ref:eq:1 \(\delta\).
+<div class="figure">
+<p><img src="ltximg/index_8ebade304c727f351c98d85d9351f0b6d3f7705d.png" alt="index_8ebade304c727f351c98d85d9351f0b6d3f7705d.png" /></p>
+</div>
 
-\begin{equation}
-\label{eq:8}
-E = f^2 - f_0^2 = f^2 - (f_0 + \delta)^2 \approx f^2 - f_0^2 - 2f_0\delta
-\end{equation}
+Let us call \`true' value of <img src="ltximg/index_4dd10ed3bbbc2a8c4d4ac77598c7c460c2d73378.png" alt="index_4dd10ed3bbbc2a8c4d4ac77598c7c460c2d73378.png" />. Let us call our first guess
+<img src="ltximg/index_aff1d2d49a72552f682fb0d4f5b1a17e588d05d6.png" alt="index_aff1d2d49a72552f682fb0d4f5b1a17e588d05d6.png" />. What is the value of the difference (error) between them?
+Clearly, <img src="ltximg/index_917a12776c1a469350caf195cc125359cb9706db.png" alt="index_917a12776c1a469350caf195cc125359cb9706db.png" />. Well, the problem is — we don't know <img src="ltximg/index_458ea7beb064b06c71bf0139a6e7c352a773b6ff.png" alt="index_458ea7beb064b06c71bf0139a6e7c352a773b6ff.png" />. But we do
+know <img src="ltximg/index_3adacc51296eed5b165aa30cccf542dcfa20f6fa.png" alt="index_3adacc51296eed5b165aa30cccf542dcfa20f6fa.png" />. Therefore <img src="ltximg/index_dd25b3d0545d1d50e693cb5fe16d19562716f466.png" alt="index_dd25b3d0545d1d50e693cb5fe16d19562716f466.png" /> is a number we know. What will be the
+error on the next step of the algorithm? Let's find <img src="ltximg/index_5af799f6b36b63b3d4358c3968b3d6f7ea64bf33.png" alt="index_5af799f6b36b63b3d4358c3968b3d6f7ea64bf33.png" /> as
+<img src="ltximg/index_07854fcfd07291fc835df20593766c441a0e6f74.png" alt="index_07854fcfd07291fc835df20593766c441a0e6f74.png" />. If <img src="ltximg/index_b8ed45411d7cbe7699c3ab1fc429842ff3076d32.png" alt="index_b8ed45411d7cbe7699c3ab1fc429842ff3076d32.png" /> is not too big, we can use the Taylor
+expansion from ref:eq:1 <img src="ltximg/index_b8ed45411d7cbe7699c3ab1fc429842ff3076d32.png" alt="index_b8ed45411d7cbe7699c3ab1fc429842ff3076d32.png" />.
+
+
+<div class="figure">
+<p><img src="ltximg/index_57ecd827ba14e6324b5f916698f4eea19d39a422.png" alt="index_57ecd827ba14e6324b5f916698f4eea19d39a422.png" /></p>
+</div>
 
 Be careful. What I expanded here is not the function value. It is the
 <span class="underline">error</span> value. Now, clearly we want our error to be as small as
 possible, desirably as little as machine precision would allow. So
-assuming \(E=0\), we get an equation to solve:
+assuming <img src="ltximg/index_8dfa7271060137e4da301c5fbd321710fd90b840.png" alt="index_8dfa7271060137e4da301c5fbd321710fd90b840.png" />, we get an equation to solve:
 
-\begin{align}
-\label{eq:9}
-E=0 \leftrightarrow& f^2-f_0^2-2f_0\delta=0 \\
-\delta =& \frac{f_0^2 -f^2 }{2f_0}
-\end{align}
 
-Remember though that we don't need just \(\delta\) here. We actually need
-\(f_1\). But \(f_1\) is just \(f_0+\delta\).
+<div class="figure">
+<p><img src="ltximg/index_4f3fdcf3f21faa1cfd2c2ecc87697b604a991afb.png" alt="index_4f3fdcf3f21faa1cfd2c2ecc87697b604a991afb.png" /></p>
+</div>
 
-\begin{align}
-\label{eq:10}
-f_1 = \frac{f^2 - f_0^2}{2f_0} + f_0
-\end{align}
+Remember though that we don't need just <img src="ltximg/index_b8ed45411d7cbe7699c3ab1fc429842ff3076d32.png" alt="index_b8ed45411d7cbe7699c3ab1fc429842ff3076d32.png" /> here. We actually need
+<img src="ltximg/index_5af799f6b36b63b3d4358c3968b3d6f7ea64bf33.png" alt="index_5af799f6b36b63b3d4358c3968b3d6f7ea64bf33.png" />. But <img src="ltximg/index_5af799f6b36b63b3d4358c3968b3d6f7ea64bf33.png" alt="index_5af799f6b36b63b3d4358c3968b3d6f7ea64bf33.png" /> is just <img src="ltximg/index_3d78eec4503b442a510a72a90dfe95e5a0457368.png" alt="index_3d78eec4503b442a510a72a90dfe95e5a0457368.png" />.
+
+
+<div class="figure">
+<p><img src="ltximg/index_79fd195ff2fe3ac27367b33ff86be71c5c3cfb89.png" alt="index_79fd195ff2fe3ac27367b33ff86be71c5c3cfb89.png" /></p>
+</div>
 
 Now if you rearrange this formula, you will get exactly the formula
 ref:eq:1.
@@ -875,7 +874,7 @@ Let us write a better sqrt-iter?.
 Works faster and gives a better result. Seemingly. QED<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.
 
 
-<a id="org2ecdf92"></a>
+<a id="orged9e753"></a>
 
 ### DONE Exercise 1.8 Newton's method
 
@@ -931,28 +930,28 @@ rather from a derivative of a cube.
     3.0000000000000977
 
 
-<a id="orgab413d7"></a>
+<a id="org19d8332"></a>
 
 ### TODO Figure 1.2 Procedural decomposition of the sqrt program
 
 TODO
 
 
-<a id="orgcd3f21b"></a>
+<a id="org22e61c8"></a>
 
-### TODO Figure 1.3 A linear recursive process for computing \(6!\).
-
-TODO
-
-
-<a id="org51d624a"></a>
-
-### TODO Figure 1.4 A linear iterative process for computing \(6!\).
+### TODO Figure 1.3 A linear recursive process for computing <img src="ltximg/index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" alt="index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" />.
 
 TODO
 
 
-<a id="orge5934c0"></a>
+<a id="org2be185f"></a>
+
+### TODO Figure 1.4 A linear iterative process for computing <img src="ltximg/index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" alt="index_636e4355c14eb884455ca87f34a1d1626764c4bf.png" />.
+
+TODO
+
+
+<a id="org1898f50"></a>
 
 ### DONE Exercise 1.9 Iterative or recursive?     :macro:er_macro_transformer:chicken:
 
@@ -1016,7 +1015,7 @@ information is kept, as the return value will be just the last result,
 so this macro is expanded until it's just a number.
 
 
-<a id="orga042e2a"></a>
+<a id="org7de10b4"></a>
 
 ### DONE Exercise 1.10 Ackermann's function
 
@@ -1055,13 +1054,10 @@ The values of these expressions are listed above.
 
 The mathematical expressions for these formulae are:
 
-\begin{eqnarray}
-\label{eq:3}
-f(n) & = & 2y\\
-g(n) & = & 2^y \\
-h(n) & = & 2^{2^n}\\
-k(n) & = & 5n^2\\
-\end{eqnarray}
+
+<div class="figure">
+<p><img src="ltximg/index_025408110c2a34eb2dc4ecb5b9afe3274e61602e.png" alt="index_025408110c2a34eb2dc4ecb5b9afe3274e61602e.png" /></p>
+</div>
 
 Actually this is not the Ackermann's function as it is most often
 defined, for example, see
@@ -1070,29 +1066,25 @@ recurrent relation is the same. This version of the Ackermann's
 function seems to be equivalent to the powers tower.
 
 I may have lied with the coefficients, but essentially, the
-Ackermann's function with parameters \(n\) and \(m\) works by applying the
+Ackermann's function with parameters <img src="ltximg/index_2151baceed443bea4772931fb19a95f5f1e314c3.png" alt="index_2151baceed443bea4772931fb19a95f5f1e314c3.png" /> and <img src="ltximg/index_844c939cb84ae408dcd9303822c43048129155c7.png" alt="index_844c939cb84ae408dcd9303822c43048129155c7.png" /> works by applying the
 n-the hyperoperator m times to 2. A hyperoperator is a generalization
 of the standard matematical operator sequence \`+', \`\*', \`^', see
 <https://googology.wikia.org/wiki/Hyper_operator>
 
 
-<a id="org92f5cc7"></a>
+<a id="org045b84e"></a>
 
 ### TODO Figure 1.5 The tree-recursive process generated in computing (fib 5)
 
 
-<a id="org0876656"></a>
+<a id="org3b8e73e"></a>
 
 ### DONE Exercise 1.11 Recursive vs iterative
 
-\begin{equation}
-\label{eq:4}
-f(n)=\left\{
-\begin{array}{l@{\quad:\quad}l}
-n & n<3\\
-f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
-\end{array}\right.
-\end{equation}
+
+<div class="figure">
+<p><img src="ltximg/index_b9515a189de86612dc90ea41fb5c8bda61e1745e.png" alt="index_b9515a189de86612dc90ea41fb5c8bda61e1745e.png" /></p>
+</div>
 
     (define (f-recursive n)
       (cond ((< n 3) n)
@@ -1119,18 +1111,14 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
     142
 
 
-<a id="org6288a89"></a>
+<a id="org621cc36"></a>
 
 ### DONE Exercise 1.12 Recursive Pascal's triangle
 
-\begin{tabular}{rcccccccccc}
- &    &    &    &    &  1\\\noalign{\smallskip\smallskip}
- &    &    &    &  1 &    &  1\\\noalign{\smallskip\smallskip}
- &    &    &  1 &    &  2 &    &  1\\\noalign{\smallskip\smallskip}
- &    &  1 &    &  3 &    &  3 &    &  1\\\noalign{\smallskip\smallskip}
- &  1 &    &  4 &    &  6 &    &  4 &    &  1\\\noalign{\smallskip\smallskip}
- &    &    &    &  . &  . &  . &    &    &   &   \\\noalign{\smallskip\smallskip}
-\end{tabular}
+
+<div class="figure">
+<p><img src="ltximg/index_d56932b6c19b1e9cd7d1bd4f163f4f9b3a3badc7.png" alt="index_d56932b6c19b1e9cd7d1bd4f163f4f9b3a3badc7.png" /></p>
+</div>
 
     (define (pascal-number line-number column-number)
       (cond ((= line-number 1) 1)
@@ -1143,53 +1131,37 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
     (pascal-number 5 3)
 
 
-<a id="org4f36708"></a>
+<a id="org77e2ca4"></a>
 
 ### DONE Exercise 1.13 Fibonacci
 
-\begin{equation}
-\label{eq:6}
-\mbox{Fib}(n)=\left\{ 
-\begin{array}{l@{\quad:\quad}l}
-0 & n=0\\
-1 & n=1\\
-\mbox{Fib}(n-1) + \mbox{Fib}(n-2) & \mbox{otherwise}}
-\end{array}\right.
-\end{equation}
 
-Abelson and Sussman define \(\varphi=(1+\sqrt{5})/2\) and \(\psi=(1-\sqrt{5})/2\).
+<div class="figure">
+<p><img src="ltximg/index_d1e768a50ae6173484e3b23b5808d06e73b38640.png" alt="index_d1e768a50ae6173484e3b23b5808d06e73b38640.png" /></p>
+</div>
 
-Knowing that \( \mbox{Fib}(n) = (\varphi^{n} - \psi^n)/\sqrt{5}\) is almost all the
-problem done, because \(\psi\) is clearly less than \(1\), so for large
-\(n\) it will be exponentially close to \(0\), and this is where the
+Abelson and Sussman define <img src="ltximg/index_6503197011351f4eb70061321e1cab0f095d5a1b.png" alt="index_6503197011351f4eb70061321e1cab0f095d5a1b.png" /> and <img src="ltximg/index_cd47c9d70d4343d03d989f5ea4deb7475c1dfc88.png" alt="index_cd47c9d70d4343d03d989f5ea4deb7475c1dfc88.png" />.
+
+Knowing that <img src="ltximg/index_ac773292cb43ee407db60065cf6f23688ed84543.png" alt="index_ac773292cb43ee407db60065cf6f23688ed84543.png" /> is almost all the
+problem done, because <img src="ltximg/index_17f05239da0ef7a80389626648c17fa9d452af64.png" alt="index_17f05239da0ef7a80389626648c17fa9d452af64.png" /> is clearly less than <img src="ltximg/index_af3230dcf98c207d1c76d8af16b6f94492ad6203.png" alt="index_af3230dcf98c207d1c76d8af16b6f94492ad6203.png" />, so for large
+<img src="ltximg/index_4f45d79f0382087e2c65f5b95fb96c34bb78911d.png" alt="index_4f45d79f0382087e2c65f5b95fb96c34bb78911d.png" /> it will be exponentially close to <img src="ltximg/index_62cd5ba144328e080d7fb3e8dcd9bda311c6359c.png" alt="index_62cd5ba144328e080d7fb3e8dcd9bda311c6359c.png" />, and this is where the
 \`\`closest integer'' comes from.
 
 Let us prove the rest by induction.
 
-\begin{eqnarray}
-\label{eq:13}
-\frac{\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2}}{\sqrt{5}} &=& \frac{\varphi^{n} - \psi^{n}}{\sqrt{5}}\\
-\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2} &=& \varphi^{n} - \psi^{n} \\
-(\varphi + 1)\varphi^{n-2} - (\psi + 1)\psi^{n-2} &=&  \varphi^{n} - \psi^{n}\\
-(\varphi + 1 - \varphi^2)\varphi^{n-2} &=&  (\psi + 1 - \psi^2)\psi^{n-2}\\
-(\frac{1+\sqrt{5}}{2} + 1 - (\frac{1+\sqrt{5}}{2})^2)\varphi^{n-2} &=&
-(\frac{1-\sqrt{5}}{2} + 1 - (\frac{1-\sqrt{5}}{2}))\psi^{n-2} \\
-(\frac{2+2\sqrt{5}}{4} + \frac{4}{4} - \frac{1+2\sqrt{5}+5}{4})\varphi^{n-2} &=&
-(\frac{2-2\sqrt{5}}{4} + \frac{4}{4} - \frac{1-2\sqrt{5}+5}{4})\psi^{n-2}\\
-0&=&0
-\end{eqnarray}
 
-This proves that the recurrent relation for \(\frac{\varphi^n-\psi^n}{\sqrt{5}}\) is the
+<div class="figure">
+<p><img src="ltximg/index_466e2f3bc12876b144050c86ed4b1b799c030815.png" alt="index_466e2f3bc12876b144050c86ed4b1b799c030815.png" /></p>
+</div>
+
+This proves that the recurrent relation for <img src="ltximg/index_19386b2015c1244a9ef6e5f7977ab2d20e386b86.png" alt="index_19386b2015c1244a9ef6e5f7977ab2d20e386b86.png" /> is the
 same as for the Fibonacci sequence. Then if we prove that there exist
-such \(n\) and \(n-1\) so that \(\mbox{Fib}(n) =
-\frac{\varphi^n-\psi^n}{\sqrt{5}}\), then we're done.
+such <img src="ltximg/index_4f45d79f0382087e2c65f5b95fb96c34bb78911d.png" alt="index_4f45d79f0382087e2c65f5b95fb96c34bb78911d.png" /> and <img src="ltximg/index_6a760a910d135681b143eb6e73559272f2133e06.png" alt="index_6a760a910d135681b143eb6e73559272f2133e06.png" /> so that <img src="ltximg/index_e7f5a6c6539ae72afb44e752588be6a593a24ab7.png" alt="index_e7f5a6c6539ae72afb44e752588be6a593a24ab7.png" />, then we're done.
 
-Indeed, let's have a look at \(n=1\): \(\frac{1+\sqrt{5}}{2
-\sqrt{5}} - \frac{1-\sqrt{5}}{2 \sqrt{5}} = 1\); and \(n=0\): \(
-\frac{1-1}{\sqrt{5}} = 0\).
+Indeed, let's have a look at <img src="ltximg/index_e1155a10fe60f5022d288f0146d5e14ff8f21f94.png" alt="index_e1155a10fe60f5022d288f0146d5e14ff8f21f94.png" />: <img src="ltximg/index_b78dba481bcddfb765c1bdd15e899833e161df40.png" alt="index_b78dba481bcddfb765c1bdd15e899833e161df40.png" />; and <img src="ltximg/index_d49fcd30ed8c39059fda6d675bc4f747e6e5e1b5.png" alt="index_d49fcd30ed8c39059fda6d675bc4f747e6e5e1b5.png" />: <img src="ltximg/index_a4193b4812354271dcd127ce459c8250aa6a3fb3.png" alt="index_a4193b4812354271dcd127ce459c8250aa6a3fb3.png" />.
 
 
-<a id="org5c1ff48"></a>
+<a id="org06e7e0d"></a>
 
 ### DONE Exercise 1.14 count-change     :macro:er_macro_transformer:
 
@@ -1325,13 +1297,13 @@ for the simplest case of only one denomination is the
 amount. Therefore, the algorithm is linear in amount and exponential
 in the number of denominations.
 
-\begin{equation}
-\label{eq:14}
-C = \Theta(n^a)
-\end{equation}
+
+<div class="figure">
+<p><img src="ltximg/index_92cc3503d995faa18496b4479889be3d46e05f8d.png" alt="index_92cc3503d995faa18496b4479889be3d46e05f8d.png" /></p>
+</div>
 
 
-<a id="orgce5ad2f"></a>
+<a id="org6a22a1b"></a>
 
 ### I found a bug in ob-scheme while doing this Exercise.
 
@@ -1362,7 +1334,7 @@ C = \Theta(n^a)
 (org-babel-script-escape "(+ 0)") (org-babel-script-escape "(+ 0) ")
 
 
-<a id="org0461d0f"></a>
+<a id="org6b9b434"></a>
 
 ### DONE Exercise 1.15 sine     :macro:er_macro_transformer:
 
@@ -1833,19 +1805,18 @@ Theoretically, we can expand everything at once.
 
 As seen from the code above, the amount of steps is 5. It is easily
 seen from the fact that the application of `p` starts when **x** is
-sufficiently small, and that requires \(0.1 > 12.15\cdot(\frac{1}{3})^n \Rightarrow n
-= O(\log_3 121.5)\) steps.
+sufficiently small, and that requires <img src="ltximg/index_c7c48f4ad5a6c27066e010487d400eadfe70a1b6.png" alt="index_c7c48f4ad5a6c27066e010487d400eadfe70a1b6.png" /> steps.
 
 `(sine x)` is expandable in constant space and time, `(cube x)` is
 expandable in constant space and time if multiplication is an
 elementary operation. Therefore the only operation left is
 `p`. Therefore, time and space are of equal order of magnitude.
 
--   \(\left\lceil \log_3 121.5 \right\rceil = 5\)
--   \(O(\ln(a\cdot b))\) where \(a\) is the angle and \(b\) is precision
+-   <img src="ltximg/index_7b711c28668b78883c1b5fdf65d4556f229aad86.png" alt="index_7b711c28668b78883c1b5fdf65d4556f229aad86.png" />
+-   <img src="ltximg/index_b7dedfa75860abc8566436e17552032f3520dab1.png" alt="index_b7dedfa75860abc8566436e17552032f3520dab1.png" /> where <img src="ltximg/index_c6a7c4ebc65644f4ae8b43525489d6fabab57d36.png" alt="index_c6a7c4ebc65644f4ae8b43525489d6fabab57d36.png" /> is the angle and <img src="ltximg/index_604296e727077712cdce273b2fa6448440155a87.png" alt="index_604296e727077712cdce273b2fa6448440155a87.png" /> is precision
 
 
-<a id="org059b365"></a>
+<a id="orge7c9959"></a>
 
 ### DONE Exercise 1.16 Iterative exponentiation
 
@@ -1895,7 +1866,7 @@ The answer is the code block above. We just collect some data and put
 it into the state variable **a**.
 
 
-<a id="org0a60f18"></a>
+<a id="org31145bf"></a>
 
 ### DONE Exercise 1.17 Fast multiplication
 
@@ -1922,7 +1893,7 @@ convergence speed is exponential. This could be reformulated as an
 iterative procedure, with an accumulator variable, but I am too lazy.
 
 
-<a id="org76b9af3"></a>
+<a id="org8f5c667"></a>
 
 ### DONE Exercise 1.18 Iterative multiplication
 
@@ -1949,7 +1920,7 @@ procedure. Well, now I do it in this exercise.
 The idea here is exactly the same as in the previous Exercise 1.18.
 
 
-<a id="org10eb53d"></a>
+<a id="org6f000bb"></a>
 
 ### DONE Exercise 1.19 Logarithmic Fibonacci
 
@@ -1965,17 +1936,16 @@ As usualy, let's first copy the code of `fib-iter`.
 
     55
 
-The formula for \(T\) is the following:
+The formula for <img src="ltximg/index_3e6820c2014d80de6b868ff35e57888d7459ec74.png" alt="index_3e6820c2014d80de6b868ff35e57888d7459ec74.png" /> is the following:
 
-\begin{eqnarray}
-T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix} aq+bq+ap \\ bp + aq \end{pmatrix} &\\ 
-T_{pq} \left( T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} \right) & = & \begin{pmatrix} (aq+bq+ap)q+(bp + aq)q+(aq+bq+ap)p \\ (bp + aq)p + (aq+bq+ap)q \end{pmatrix} &\\
-T_{p'q'}\begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix}a(2pq + qq) + a(pp+qq) + b(2pq + qq)\\ a(2pq + qq) + b(pp + qq) \end{pmatrix}& \\
-\end{eqnarray}
 
-From here we can easily see the values for \(p\prime\) and \(q'\):
+<div class="figure">
+<p><img src="ltximg/index_9a106f9ba3309473a9fd1b115746bd85dada30f5.png" alt="index_9a106f9ba3309473a9fd1b115746bd85dada30f5.png" /></p>
+</div>
 
-\(p'=pp+qq\), \(q' = 2pq+qq\)
+From here we can easily see the values for <img src="ltximg/index_8aa420ca728e649bce323ae97db45712536a1765.png" alt="index_8aa420ca728e649bce323ae97db45712536a1765.png" /> and <img src="ltximg/index_6b97f2e7f6bb00c3230c2ded5db0354317483d0d.png" alt="index_6b97f2e7f6bb00c3230c2ded5db0354317483d0d.png" />:
+
+<img src="ltximg/index_f05fc37f4c0522b22437da1143e7c44b2a09a199.png" alt="index_f05fc37f4c0522b22437da1143e7c44b2a09a199.png" />, <img src="ltximg/index_d7f54263f5fa51cb7ca8df4fa2c597d6142f904b.png" alt="index_d7f54263f5fa51cb7ca8df4fa2c597d6142f904b.png" />
 
 Let us substitute them into the code given by Abelson and Sussman.
 
@@ -2001,7 +1971,7 @@ Let us substitute them into the code given by Abelson and Sussman.
 Works.
 
 
-<a id="orgfa454b8"></a>
+<a id="orge05aa23"></a>
 
 ### **Interjection** ir-macro-transformer.
 
@@ -2019,7 +1989,7 @@ Works.
     (list x y)
 
 
-<a id="org961dec6"></a>
+<a id="org65f37d7"></a>
 
 ### DONE Exercise 1.20 GCD applicative vs normal     :er_macro_transformer:macro:
 
@@ -2087,7 +2057,7 @@ hand, the evaluation of `(remainder x 0)` could be defined as **x**, and
 then the algorithm would evaluate one more (useless) remainder.
 
 
-<a id="org84e6ae7"></a>
+<a id="org1ec4364"></a>
 
 ### DONE Exercise 1.21 smallest-divisor
 
@@ -2131,7 +2101,7 @@ As usual, let us first copy the code for the `smallest-divisor`.
 Well, this problem doesn't look too complicated on the first glance.
 
 
-<a id="orgedc1c2e"></a>
+<a id="org04404cf"></a>
 
 ### DONE Exercise 1.22 timed-prime-test
 
@@ -2200,19 +2170,19 @@ Well, this problem doesn't look too complicated on the first glance.
     1003
     1005
     1007
-    1009 *** 0.0068359375
+    1009 *** 0.007080078125
     1011
-    1013 *** 0.006103515625
+    1013 *** 0.007080078125
     1015
     1017
-    1019 *** 0.00732421875
+    1019 *** 0.006103515625
     
     10000
     10001
     10003
     10005
-    10007 *** 0.019287109375
-    10009 *** 0.019287109375
+    10007 *** 0.01904296875
+    10009 *** 0.01806640625
     10011
     10013
     10015
@@ -2226,11 +2196,11 @@ Well, this problem doesn't look too complicated on the first glance.
     10031
     10033
     10035
-    10037 *** 0.018798828125
+    10037 *** 0.01904296875
     
     100000
     100001
-    100003 *** 0.066162109375
+    100003 *** 0.05615234375
     100005
     100007
     100009
@@ -2238,7 +2208,7 @@ Well, this problem doesn't look too complicated on the first glance.
     100013
     100015
     100017
-    100019 *** 0.056884765625
+    100019 *** 0.06689453125
     100021
     100023
     100025
@@ -2250,11 +2220,11 @@ Well, this problem doesn't look too complicated on the first glance.
     100037
     100039
     100041
-    100043 *** 0.055908203125
+    100043 *** 0.05712890625
     
     1000000
     1000001
-    1000003 *** 0.178955078125
+    1000003 *** 0.202392578125
     1000005
     1000007
     1000009
@@ -2269,22 +2239,22 @@ Well, this problem doesn't look too complicated on the first glance.
     1000027
     1000029
     1000031
-    1000033 *** 0.18603515625
+    1000033 *** 0.18505859375
     1000035
-    1000037 *** 0.176025390625
+    1000037 *** 0.222900390625
 
 -   Write the procedure: done.
 -   Find the smallest three primes greater than 1000   : found.
 -   Find the smallest three primes greater than 10000  : found.
 -   Find the smallest three primes greater than 100000 : found.
 -   Find the smallest three primes greater than 1000000: found.
--   The timing data confirms the prediction. \(\sqrt{10}\approx3\), \(0.16 \approx 3\cdot1.05\).
+-   The timing data confirms the prediction. <img src="ltximg/index_43aa51bd2e42d1f2908e2ccf198ebbb774248407.png" alt="index_43aa51bd2e42d1f2908e2ccf198ebbb774248407.png" />, <img src="ltximg/index_f126af073ccc838dc9e0a3fe0cdf45180c71f7ce.png" alt="index_f126af073ccc838dc9e0a3fe0cdf45180c71f7ce.png" />.
 -   The execution time per step for testing 1.000.000 is 1.63e-07. The
     execution time per step for testing 100.000 5.3199e-07. At least on
     my machine the claim doesn't seem to hold very well.
 
 
-<a id="org39c2911"></a>
+<a id="org1e2eebb"></a>
 
 ### DONE Exercise 1.23 (next test-divisor)
 
@@ -2354,18 +2324,18 @@ Well, this problem doesn't look too complicated on the first glance.
     (timed-prime-test 1000037)
 
     
-    1009 *** 0.0107421875
-    1013 *** 0.0048828125
-    1019 *** 0.004150390625
-    10007 *** 0.010986328125
-    10009 *** 0.010986328125
-    10037 *** 0.01123046875
-    100003 *** 0.032958984375
-    100019 *** 0.032958984375
-    100043 *** 0.032958984375
-    1000003 *** 0.10107421875
-    1000033 *** 0.10009765625
-    1000037 *** 0.10009765625
+    1009 *** 0.011962890625
+    1013 *** 0.005859375
+    1019 *** 0.0048828125
+    10007 *** 0.014892578125
+    10009 *** 0.010009765625
+    10037 *** 0.06982421875
+    100003 *** 0.123046875
+    100019 *** 0.123046875
+    100043 *** 0.123046875
+    1000003 *** 0.236083984375
+    1000033 *** 0.14501953125
+    1000037 *** 0.14599609375
 
 We can see that the test does show a speed improvement, although not
 as impressive as 2 times. We can observe that the number of steps is
@@ -2374,7 +2344,7 @@ not really halved, since `(+ a b)` requires one operation, and `(if (=
 improve by 3/2, which we can observe.
 
 
-<a id="org8c4a12b"></a>
+<a id="org09b2134"></a>
 
 ### DONE Exercise 1.24 Fermat method
 
@@ -2480,45 +2450,45 @@ Firstly we need the `(fast-prime?)` procedure.
     (timed-prime-test 6601)
 
     
-    1009 *** 0.053955078125
-    1013 *** 0.0458984375
+    1009 *** 0.05615234375
+    1013 *** 0.045654296875
     1019 *** 0.0478515625
-    10007 *** 0.05712890625
-    10009 *** 0.06103515625
-    10037 *** 0.056884765625
-    100003 *** 0.065185546875
-    100019 *** 0.067138671875
-    100043 *** 0.06689453125
-    1000003 *** 0.07470703125
-    1000033 *** 0.076171875
-    1000037 *** 0.0771484375
+    10007 *** 0.057861328125
+    10009 *** 0.055908203125
+    10037 *** 0.05712890625
+    100003 *** 0.066162109375
+    100019 *** 0.068115234375
+    100043 *** 0.06787109375
+    1000003 *** 0.07568359375
+    1000033 *** 0.075927734375
+    1000037 *** 0.077880859375
     1000
-    6601 *** 0.052001953125
+    6601 *** 0.052734375
 
 Firstly, observe that the interpreter seems to be doing some black magic, so
 that the test for 1009 takes more time than the test for 1013.
 
 Secondly, observe that indeed, the speed seems to have reduced its dependence
 on the length of a number, and if we want to test even bigger numbers, the
-dependency should become even smaller, as \(\log(n)\) grows very slowly. In
+dependency should become even smaller, as <img src="ltximg/index_e9540a0edc1260cec9d61caa1f9198bd3e4e8e80.png" alt="index_e9540a0edc1260cec9d61caa1f9198bd3e4e8e80.png" /> grows very slowly. In
 particular, comparing the range around 1000 and 1000.000, the ratio of
-\(\frac{\log_{10}(1000000)}{\log_{10}(1000)} = \frac{6}{3} = 2\). This doesn't seem
+<img src="ltximg/index_0e26ee17db715ccb65f2080170061e2177206484.png" alt="index_0e26ee17db715ccb65f2080170061e2177206484.png" />. This doesn't seem
 to be completely the case, but hey, there may be some constants involved, as
 well as some interpreter dark magic.
 
 
-<a id="org3d83e9a"></a>
+<a id="org59f0b0b"></a>
 
 ### DONE Exercise 1.25 expmod
 
 Well, in principle, Alyssa's algorithm should work. The problem here really
-is that we would have to store the number \(a^n\), which is a very big number,
+is that we would have to store the number <img src="ltximg/index_0a76ac4945391db84381646682b020f168e1fb7e.png" alt="index_0a76ac4945391db84381646682b020f168e1fb7e.png" />, which is a very big number,
 especially because we are interested in testing primality of very large
-numbers (e.g., 512-bit long cryptography keys), and \((2^{256-1})^{2^{256}}\)
+numbers (e.g., 512-bit long cryptography keys), and <img src="ltximg/index_9739484b3fa9a2038ca18864e5ab37f0ab568934.png" alt="index_9739484b3fa9a2038ca18864e5ab37f0ab568934.png" />
 is a very large number.
 
 
-<a id="orgfb0e09d"></a>
+<a id="orgaaf2d91"></a>
 
 ### DONE Exercise 1.26 square vs mul
 
@@ -2530,7 +2500,7 @@ twice per step, which makes `(/ exp 2)` useless. If, however, the interpreter
 can memoize the results, his algorithm would be just as good.
 
 
-<a id="org5c80963"></a>
+<a id="org13a6aca"></a>
 
 ### DONE Exercise 1.27 Carmichael numbers
 
@@ -2589,11 +2559,11 @@ First let us recall some Carmichael numbers.
 </tbody>
 </table>
 
-We already have a procedure that computes \(a^n\mod n\), and a procedure that
-computes \(a\mod n\) is even a scheme primitive. Moreover, we even have all
+We already have a procedure that computes <img src="ltximg/index_4076593056acd69b776973e6b64c22b41ec50921.png" alt="index_4076593056acd69b776973e6b64c22b41ec50921.png" />, and a procedure that
+computes <img src="ltximg/index_9eec5ed53b7fb7b6ffe31eaee5953afeb8ac1570.png" alt="index_9eec5ed53b7fb7b6ffe31eaee5953afeb8ac1570.png" /> is even a scheme primitive. Moreover, we even have all
 the code that does the comparison, with the single difference - our existing
 code takes an initial guess uniformly at random, whereas we need to check all
-\( a < n\).
+<img src="ltximg/index_d64f0539974f06a5ba6e8eae83b804ed1dac2796.png" alt="index_d64f0539974f06a5ba6e8eae83b804ed1dac2796.png" />.
 
     (define (expmod base exp m)
       (cond ((= exp 0) 1)
@@ -2640,7 +2610,7 @@ code takes an initial guess uniformly at random, whereas we need to check all
     Testing 7: true
 
 
-<a id="org05117ca"></a>
+<a id="org9c909d0"></a>
 
 ### DONE Exercise 1.28 Miller-Rabin
 
@@ -2791,18 +2761,18 @@ code takes an initial guess uniformly at random, whereas we need to check all
     (timed-prime-test 6601)
 
     
-    1009 *** 0.102783203125
-    1013 *** 0.092041015625
-    1019 *** 0.093017578125
-    10007 *** 0.120849609375
-    10009 *** 0.133056640625
-    10037 *** 0.11181640625
-    100003 *** 0.132080078125
-    100019 *** 0.1337890625
-    100043 *** 0.134033203125
-    1000003 *** 0.153076171875
-    1000033 *** 0.157958984375
-    1000037 *** 0.163818359375
+    1009 *** 0.107177734375
+    1013 *** 0.09716796875
+    1019 *** 0.09716796875
+    10007 *** 0.124755859375
+    10009 *** 0.123046875
+    10037 *** 0.123779296875
+    100003 *** 0.14306640625
+    100019 *** 0.153076171875
+    100043 *** 0.137939453125
+    1000003 *** 0.15576171875
+    1000033 *** 0.159912109375
+    1000037 *** 0.1611328125
     1000
     6601
 
@@ -2810,7 +2780,7 @@ I used the `(let)` construction introduced in the later chapters, because I
 find bindings with nested procedures confusing.
 
 
-<a id="org9a19704"></a>
+<a id="orgdb26018"></a>
 
 ### DONE Exercise 1.29 Simpson's integral
 
@@ -2891,7 +2861,7 @@ An impressive result. I don't know at which point of the computation the
 interpreter switches to an exact representation, but meh, this result is good.
 
 
-<a id="org25afc62"></a>
+<a id="org38461cc"></a>
 
 ### DONE Exercise 1.30 Iterative sum
 
@@ -2907,7 +2877,7 @@ interpreter switches to an exact representation, but meh, this result is good.
     (sum identity 1 inc 10)
 
 
-<a id="org9be1d0e"></a>
+<a id="org9fc60ca"></a>
 
 ### DONE Exercise 1.31 Product
 
@@ -2959,7 +2929,7 @@ interpreter switches to an exact representation, but meh, this result is good.
     Doesn't make too much sense to me, but here you are.
 
 
-<a id="orgdf386d5"></a>
+<a id="org93a1be0"></a>
 
 ### DONE Exercise 1.32 Accumulator
 
@@ -3005,7 +2975,7 @@ two implementations, not 4, but that should not be too much of a digression.
         3628800
 
 
-<a id="org73b780f"></a>
+<a id="orgc4cc60f"></a>
 
 ### DONE Exercise 1.33 filtered-accumulate
 
@@ -3212,7 +3182,7 @@ two implementations, not 4, but that should not be too much of a digression.
     Here I used the `gcd` function from the standard library.
 
 
-<a id="org5c950ec"></a>
+<a id="org969faa3"></a>
 
 ### DONE Exercise 1.34 lambda
 
@@ -3240,17 +3210,17 @@ Well, no wonder. The final combination reduces to `(2 2)`, which **IS** a
 non-procedure application.
 
 
-<a id="org645368a"></a>
+<a id="org4803ac6"></a>
 
 ### DONE Exercise 1.35 fixed-point
 
-\(\varphi = \frac{1+\sqrt{5}}{2}\)
-\(x\mapsto 1+\frac{1}{x}\)
+<img src="ltximg/index_43b385c780d7045afe1e04b40b129288cbf854c4.png" alt="index_43b385c780d7045afe1e04b40b129288cbf854c4.png" />
+<img src="ltximg/index_29ca1e8c9870b3595ac37cc6f03c0e93bc3834e3.png" alt="index_29ca1e8c9870b3595ac37cc6f03c0e93bc3834e3.png" />
 Let's substitute:
-\( \frac{1+\sqrt{5}}{2} &=& 1+ \frac{2}{1+\sqrt{5}} \)
-\( (1+\sqrt{5})^2 = 2(1+\sqrt{5})+ 4\)
-\( 1 + 2 \sqrt{5} + 5 = 2 + 2 \sqrt{5} + 4 \)
-\(6 = 6\)
+<img src="ltximg/index_e56b14ed63e273538ddb1229539e4ad3f864a773.png" alt="index_e56b14ed63e273538ddb1229539e4ad3f864a773.png" />
+<img src="ltximg/index_05078b2ef016e383e38c09fc360296d6131265a6.png" alt="index_05078b2ef016e383e38c09fc360296d6131265a6.png" />
+<img src="ltximg/index_571f23a6ee48e5af9b9b8014dbe221dd5f5d35b6.png" alt="index_571f23a6ee48e5af9b9b8014dbe221dd5f5d35b6.png" />
+<img src="ltximg/index_2217fd3965618457ab386ab40a6bc1bef321a8b4.png" alt="index_2217fd3965618457ab386ab40a6bc1bef321a8b4.png" />
 
     (define tolerance 0.00001)
     (define (fixed-point f first-guess)
@@ -3305,7 +3275,7 @@ Let's substitute:
 The difference is not too big.
 
 
-<a id="orgb0e6f79"></a>
+<a id="orgafc9691"></a>
 
 ### DONE Exercise 1.36 fixed-point-with-dampening
 
@@ -3328,8 +3298,7 @@ The difference is not too big.
 
     #<undef>
 
-To find a solution to \(x^x=1000\), let us rearrange: \( x = \log_x1000 =
-\frac{\log 1000}{\log x}\).
+To find a solution to <img src="ltximg/index_6779837ce31ef66242d6fda98b082722031a6b0b.png" alt="index_6779837ce31ef66242d6fda98b082722031a6b0b.png" />, let us rearrange: <img src="ltximg/index_aafb4bfe7bcf6804913dd1d9e17048d9d7f8f820.png" alt="index_aafb4bfe7bcf6804913dd1d9e17048d9d7f8f820.png" />.
 
     (define (log1000/logx x)
       (/ (log 1000) (log x)))
@@ -3438,7 +3407,7 @@ To find a solution to \(x^x=1000\), let us rearrange: \( x = \log_x1000 =
 Well, the amount of steps is visibly smaller. Works.
 
 
-<a id="org5ccb678"></a>
+<a id="org484c53a"></a>
 
 ### DONE Exercise 1.37 cont-frac
 
@@ -3463,17 +3432,17 @@ Well, the amount of steps is visibly smaller. Works.
     
         1.6180257510729614
     
-    Abelson and Sussman tell us to estimate \(k\) needed to approximate the \(\varphi\) to a required
+    Abelson and Sussman tell us to estimate <img src="ltximg/index_6e95eef27caa8cb7c5e0eef0c0c9c7c5d31f3d0f.png" alt="index_6e95eef27caa8cb7c5e0eef0c0c9c7c5d31f3d0f.png" /> needed to approximate the <img src="ltximg/index_a1d7796230428a162cb96a7f2cfbe952aa2d30d3.png" alt="index_a1d7796230428a162cb96a7f2cfbe952aa2d30d3.png" /> to a required
     degree (0.0001). I didn't manage to derive the formula myself, however, I can
     give a link to the book where this proof is given:
     
     Khinchin, Continued Fractions (1935), chapter 2, section 7, gives an upper
-    bound on the speed of convergence as \(\frac{1}{k^2}\). Therefore we should
-    expect \(k \approx \sqrt{1000} \approx 33\). This holds for an arbitrary convergent
-    continued fraction. In our case, however, when \(N_k=D_k=1\), the constant in
-    the rate is also known as \(\sqrt{5}\), so the equation we need to solve is
-    in fact \(k^2 \sqrt{5} = 1000\), and in practice that is
-    \(\sqrt{\frac{1000}{2.23}} = 21\). How exactly we managed to do it in 14
+    bound on the speed of convergence as <img src="ltximg/index_6137f259a52114a1ff0c102180e8f9538d4945e6.png" alt="index_6137f259a52114a1ff0c102180e8f9538d4945e6.png" />. Therefore we should
+    expect <img src="ltximg/index_861c68b59fb5d71b993fa5352b6252d6d09cf9f2.png" alt="index_861c68b59fb5d71b993fa5352b6252d6d09cf9f2.png" />. This holds for an arbitrary convergent
+    continued fraction. In our case, however, when <img src="ltximg/index_0297e7ed16a839014ce8446024b58eea69ad42f0.png" alt="index_0297e7ed16a839014ce8446024b58eea69ad42f0.png" />, the constant in
+    the rate is also known as <img src="ltximg/index_f09f2a92be5772b0048382a7f8f660a68bf3e761.png" alt="index_f09f2a92be5772b0048382a7f8f660a68bf3e761.png" />, so the equation we need to solve is
+    in fact <img src="ltximg/index_c2a8506f6b6fba6935f6d08b7bb3993e2286c4c2.png" alt="index_c2a8506f6b6fba6935f6d08b7bb3993e2286c4c2.png" />, and in practice that is
+    <img src="ltximg/index_6dbab901b117897ed6aedd2b6dc6f16694b094cd.png" alt="index_6dbab901b117897ed6aedd2b6dc6f16694b094cd.png" />. How exactly we managed to do it in 14
     steps, I don't know.
 
 2.  DONE b. iterative
@@ -3502,7 +3471,7 @@ Well, the amount of steps is visibly smaller. Works.
     Remark: this exercise took me 7 hours.
 
 
-<a id="org9750c2e"></a>
+<a id="orgb7dd4b2"></a>
 
 ### DONE Exercise 1.38 euler constant
 
@@ -3524,7 +3493,7 @@ second lambda.
     2.794771662537
 
 
-<a id="org9f337f6"></a>
+<a id="orga9246ec"></a>
 
 ### DONE Exercise 1.39 tan-cf
 
@@ -3549,7 +3518,7 @@ second lambda.
     0.10033467208545055
 
 
-<a id="org5198204"></a>
+<a id="orgfcb2f0a"></a>
 
 ### DONE Exercise 1.40 newtons-method
 
@@ -3618,7 +3587,7 @@ Theoretically, a cubic may have up to 3 roots, but to find all of them we
 would need to try over all possible ones.
 
 
-<a id="org215d5b5"></a>
+<a id="org0f069ed"></a>
 
 ### DONE Exercise 1.41 double-double
 
@@ -3645,12 +3614,11 @@ would need to try over all possible ones.
 
     21
 
-\(21 = 5 + 16\)
-Double really works as a power of a function. \( 2 \Rightarrow 2^2 \Rightarrow2^{2^2} =
-\mbox{inc}^{16} 5 \)
+<img src="ltximg/index_3dee7bcb7186cd9683b1db3e3995449db6243cc7.png" alt="index_3dee7bcb7186cd9683b1db3e3995449db6243cc7.png" />
+Double really works as a power of a function. <img src="ltximg/index_c834d66bbed02048611895c9f5cf79a3436588c9.png" alt="index_c834d66bbed02048611895c9f5cf79a3436588c9.png" />
 
 
-<a id="orgab1cc9f"></a>
+<a id="orgaa3c85b"></a>
 
 ### DONE Exercise 1.42 compose
 
@@ -3669,7 +3637,7 @@ Double really works as a power of a function. \( 2 \Rightarrow 2^2 \Rightarrow2^
     49
 
 
-<a id="orgbb968b7"></a>
+<a id="orgb5b3275"></a>
 
 ### DONE Exercise 1.43 repeated
 
@@ -3701,7 +3669,7 @@ Double really works as a power of a function. \( 2 \Rightarrow 2^2 \Rightarrow2^
 Hm. Managed to do it without the `compose` form.
 
 
-<a id="orgd46effc"></a>
+<a id="org022406b"></a>
 
 ### DONE Exercise 1.44 smoothing
 
@@ -3745,7 +3713,7 @@ Hm. Managed to do it without the `compose` form.
 Looks like what we wanted.
 
 
-<a id="orgad87e17"></a>
+<a id="org1cb0d79"></a>
 
 ### DONE Exercise 1.45 nth-root
 
@@ -3836,7 +3804,7 @@ The true answer would require to actually estimate the dampening factor, but
 we know that **n** is enough, and I am lazy.
 
 
-<a id="orgd904117"></a>
+<a id="org8ad7f67"></a>
 
 ### DONE Exercise 1.46 iterative-improve
 
@@ -3901,1572 +3869,1572 @@ we know that **n** is enough, and I am lazy.
     will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
 
 
-<a id="orga7df096"></a>
+<a id="org875092d"></a>
 
 ## TODO Chapter 2: Building abstractions with Data <code>[0/97]</code>
 
 
-<a id="orgf8d6a38"></a>
+<a id="org836038a"></a>
 
 ### TODO Exercise 2.1
 
 
-<a id="org7d6d0d4"></a>
+<a id="orgc390bdc"></a>
 
 ### TODO Exercise 2.2
 
 
-<a id="org2a78b65"></a>
+<a id="org3f1ae7e"></a>
 
 ### TODO Exercise 2.3
 
 
-<a id="orgdb2c27e"></a>
+<a id="org9ac4702"></a>
 
 ### TODO Exercise 2.4
 
 
-<a id="orgaae2185"></a>
+<a id="orge8eb8ef"></a>
 
 ### TODO Exercise 2.5
 
 
-<a id="orgb0549b4"></a>
+<a id="org65782b6"></a>
 
 ### TODO Exercise 2.6
 
 
-<a id="org2855294"></a>
+<a id="org00daba1"></a>
 
 ### TODO Exercise 2.7
 
 
-<a id="org099b99a"></a>
+<a id="orgb2e30bf"></a>
 
 ### TODO Exercise 2.8
 
 
-<a id="orga7af83f"></a>
+<a id="org48219d5"></a>
 
 ### TODO Exercise 2.9
 
 
-<a id="org703d679"></a>
+<a id="orgaf1d726"></a>
 
 ### TODO Exercise 2.10
 
 
-<a id="org8e7279e"></a>
+<a id="org47c382c"></a>
 
 ### TODO Exercise 2.11
 
 
-<a id="orgb4710c8"></a>
+<a id="org90ab116"></a>
 
 ### TODO Exercise 2.12
 
 
-<a id="org4d09a43"></a>
+<a id="orgffffb70"></a>
 
 ### TODO Exercise 2.13
 
 
-<a id="org49f03b9"></a>
+<a id="orgcbfb92e"></a>
 
 ### TODO Exercise 2.14
 
 
-<a id="org74b106d"></a>
+<a id="org36fcd2b"></a>
 
 ### TODO Exercise 2.15
 
 
-<a id="org2a3b9b4"></a>
+<a id="org701616a"></a>
 
 ### TODO Exercise 2.16
 
 
-<a id="orga17e0b8"></a>
+<a id="org0a42477"></a>
 
 ### TODO Exercise 2.17
 
 
-<a id="orgd99b5da"></a>
+<a id="orgba35e97"></a>
 
 ### TODO Exercise 2.18
 
 
-<a id="org00c0e93"></a>
+<a id="org8534dfb"></a>
 
 ### TODO Exercise 2.19
 
 
-<a id="org25690b7"></a>
+<a id="org7d68ee6"></a>
 
 ### TODO Exercise 2.20
 
 
-<a id="org39a8599"></a>
+<a id="org6ccb486"></a>
 
 ### TODO Exercise 2.21
 
 
-<a id="orgbbb4e6f"></a>
+<a id="orga788750"></a>
 
 ### TODO Exercise 2.22
 
 
-<a id="orgd181028"></a>
+<a id="org5badb0d"></a>
 
 ### TODO Exercise 2.23
 
 
-<a id="org4a96186"></a>
+<a id="org31cccc4"></a>
 
 ### TODO Exercise 2.24
 
 
-<a id="org395e24c"></a>
+<a id="org1ddc91c"></a>
 
 ### TODO Exercise 2.25
 
 
-<a id="org0ad14b6"></a>
+<a id="orgc2810fa"></a>
 
 ### TODO Exercise 2.26
 
 
-<a id="org2c4df3c"></a>
+<a id="orga912f1f"></a>
 
 ### TODO Exercise 2.27
 
 
-<a id="orgefc8c4d"></a>
+<a id="org83e1f16"></a>
 
 ### TODO Exercise 2.28
 
 
-<a id="org4ff0b32"></a>
+<a id="org66e1aaa"></a>
 
 ### TODO Exercise 2.29
 
 
-<a id="org34c398b"></a>
+<a id="orgba0b53e"></a>
 
 ### TODO Exercise 2.30
 
 
-<a id="org6c46c3f"></a>
+<a id="org13b7148"></a>
 
 ### TODO Exercise 2.31
 
 
-<a id="org189805c"></a>
+<a id="org8869325"></a>
 
 ### TODO Exercise 2.32
 
 
-<a id="org1dd9af1"></a>
+<a id="org08afee6"></a>
 
 ### TODO Exercise 2.33
 
 
-<a id="orgfcd163c"></a>
+<a id="org121ab24"></a>
 
 ### TODO Exercise 2.34
 
 
-<a id="orgc3e2417"></a>
+<a id="org6d591f8"></a>
 
 ### TODO Exercise 2.35
 
 
-<a id="orga2ebd50"></a>
+<a id="orgfa555fd"></a>
 
 ### TODO Exercise 2.36
 
 
-<a id="org3a56d7b"></a>
+<a id="orgfde0adc"></a>
 
 ### TODO Exercise 2.37
 
 
-<a id="org14c31dc"></a>
+<a id="orgfe1009f"></a>
 
 ### TODO Exercise 2.38
 
 
-<a id="org08bd32a"></a>
+<a id="org714a01b"></a>
 
 ### TODO Exercise 2.39
 
 
-<a id="org4e4b512"></a>
+<a id="orgbccf5a7"></a>
 
 ### TODO Exercise 2.40
 
 
-<a id="orgb352789"></a>
+<a id="orgd662d0a"></a>
 
 ### TODO Exercise 2.41
 
 
-<a id="orgf47364c"></a>
+<a id="orgfa85aca"></a>
 
 ### TODO Exercise 2.42
 
 
-<a id="orgade970e"></a>
+<a id="orgd77e327"></a>
 
 ### TODO Exercise 2.43
 
 
-<a id="org73c7d7e"></a>
+<a id="orgc6d6e8f"></a>
 
 ### TODO Exercise 2.44
 
 
-<a id="org78d1f3b"></a>
+<a id="org39097cb"></a>
 
 ### TODO Exercise 2.45
 
 
-<a id="orgd2b9f44"></a>
+<a id="org9844b09"></a>
 
 ### TODO Exercise 2.46
 
 
-<a id="org23124af"></a>
+<a id="org19d64c6"></a>
 
 ### TODO Exercise 2.47
 
 
-<a id="orga3b7384"></a>
+<a id="org0a98f2d"></a>
 
 ### TODO Exercise 2.48
 
 
-<a id="orgba2e611"></a>
+<a id="org630566a"></a>
 
 ### TODO Exercise 2.49
 
 
-<a id="org1d6547e"></a>
+<a id="org84b06e7"></a>
 
 ### TODO Exercise 2.50
 
 
-<a id="orgee6e73e"></a>
+<a id="org0bf6788"></a>
 
 ### TODO Exercise 2.51
 
 
-<a id="org0bf9d4c"></a>
+<a id="orgc0ce858"></a>
 
 ### TODO Exercise 2.52
 
 
-<a id="orgf76c024"></a>
+<a id="orgd4f7a5f"></a>
 
 ### TODO Exercise 2.53
 
 
-<a id="org71c2c90"></a>
+<a id="org6bb2e1b"></a>
 
 ### TODO Exercise 2.54
 
 
-<a id="org68f76b0"></a>
+<a id="org7b21255"></a>
 
 ### TODO Exercise 2.55
 
 
-<a id="orga70c8fc"></a>
+<a id="org13ba3c8"></a>
 
 ### TODO Exercise 2.56
 
 
-<a id="orgb901e25"></a>
+<a id="orga3ab72f"></a>
 
 ### TODO Exercise 2.57
 
 
-<a id="orgea1949b"></a>
+<a id="org9adf575"></a>
 
 ### TODO Exercise 2.58
 
 
-<a id="org2eea9cb"></a>
+<a id="orge5f74f4"></a>
 
 ### TODO Exercise 2.59
 
 
-<a id="orge841d3d"></a>
+<a id="orgeb69c40"></a>
 
 ### TODO Exercise 2.60
 
 
-<a id="org9235380"></a>
+<a id="org6cc2714"></a>
 
 ### TODO Exercise 2.61
 
 
-<a id="orgd055ba9"></a>
+<a id="orgef94799"></a>
 
 ### TODO Exercise 2.62
 
 
-<a id="orgf449329"></a>
+<a id="orgcf8f30d"></a>
 
 ### TODO Exercise 2.63
 
 
-<a id="org56b0f27"></a>
+<a id="org8bbf93c"></a>
 
 ### TODO Exercise 2.64
 
 
-<a id="org46ebb9c"></a>
+<a id="orgc647d4b"></a>
 
 ### TODO Exercise 2.65
 
 
-<a id="org9ae4143"></a>
+<a id="orga4da822"></a>
 
 ### TODO Exercise 2.66
 
 
-<a id="orgb7711cf"></a>
+<a id="orgd5a09a9"></a>
 
 ### TODO Exercise 2.67
 
 
-<a id="org20771dd"></a>
+<a id="org011b2ff"></a>
 
 ### TODO Exercise 2.68
 
 
-<a id="org9c0e8aa"></a>
+<a id="org306db0b"></a>
 
 ### TODO Exercise 2.69
 
 
-<a id="orgde14e6c"></a>
+<a id="orgfd0ca65"></a>
 
 ### TODO Exercise 2.70
 
 
-<a id="org5962aab"></a>
+<a id="orgdb2c1a0"></a>
 
 ### TODO Exercise 2.71
 
 
-<a id="org455f833"></a>
+<a id="org50181fd"></a>
 
 ### TODO Exercise 2.72
 
 
-<a id="orgb8a2328"></a>
+<a id="org199f67e"></a>
 
 ### TODO Exercise 2.73
 
 
-<a id="orgc4fd0a4"></a>
+<a id="org59e1371"></a>
 
 ### TODO Exercise 2.74
 
 
-<a id="org8f95474"></a>
+<a id="org05a1c11"></a>
 
 ### TODO Exercise 2.75
 
 
-<a id="orgabfc978"></a>
+<a id="orgee79d8b"></a>
 
 ### TODO Exercise 2.76
 
 
-<a id="org7e448db"></a>
+<a id="orgaa7314b"></a>
 
 ### TODO Exercise 2.77
 
 
-<a id="orgfce6cdb"></a>
+<a id="orgc692e9d"></a>
 
 ### TODO Exercise 2.78
 
 
-<a id="org678f839"></a>
+<a id="orge5a9dab"></a>
 
 ### TODO Exercise 2.79
 
 
-<a id="org589009c"></a>
+<a id="org54e9f03"></a>
 
 ### TODO Exercise 2.80
 
 
-<a id="org8ebb34a"></a>
+<a id="orgf90b315"></a>
 
 ### TODO Exercise 2.81
 
 
-<a id="org75d623f"></a>
+<a id="orgb9150b3"></a>
 
 ### TODO Exercise 2.82
 
 
-<a id="org1e835f5"></a>
+<a id="orgca607b9"></a>
 
 ### TODO Exercise 2.83
 
 
-<a id="orgd79b611"></a>
+<a id="org861bc07"></a>
 
 ### TODO Exercise 2.84
 
 
-<a id="org82a754a"></a>
+<a id="orgb07f70f"></a>
 
 ### TODO Exercise 2.85
 
 
-<a id="org95ceb50"></a>
+<a id="orgfcce34b"></a>
 
 ### TODO Exercise 2.86
 
 
-<a id="org3964a7c"></a>
+<a id="orgeef9f0a"></a>
 
 ### TODO Exercise 2.87
 
 
-<a id="orgff63ef5"></a>
+<a id="orgdd86bf3"></a>
 
 ### TODO Exercise 2.88
 
 
-<a id="orgdfcfd2c"></a>
+<a id="org8d755bd"></a>
 
 ### TODO Exercise 2.89
 
 
-<a id="org49c2ad0"></a>
+<a id="org9f35103"></a>
 
 ### TODO Exercise 2.90
 
 
-<a id="org7a1fc96"></a>
+<a id="org312de71"></a>
 
 ### TODO Exercise 2.91
 
 
-<a id="org1859a44"></a>
+<a id="orgec364f7"></a>
 
 ### TODO Exercise 2.92
 
 
-<a id="org5dc2e3f"></a>
+<a id="org2ec9bbb"></a>
 
 ### TODO Exercise 2.93
 
 
-<a id="org765ab4b"></a>
+<a id="org6056cda"></a>
 
 ### TODO Exercise 2.94
 
 
-<a id="orgbd24e55"></a>
+<a id="org5a3f9e5"></a>
 
 ### TODO Exercise 2.95
 
 
-<a id="org218cfd7"></a>
+<a id="org7845b6c"></a>
 
 ### TODO Exercise 2.96
 
 
-<a id="org4555862"></a>
+<a id="orgf796354"></a>
 
 ### TODO Exercise 2.97
 
 
-<a id="org065b21d"></a>
+<a id="org29f1aa5"></a>
 
 ## TODO Chapter 3: Modularity, Objects and State <code>[0/82]</code>
 
 
-<a id="orged05049"></a>
+<a id="orgf9ec929"></a>
 
 ### TODO Exercise 3.1
 
 
-<a id="orgb45dbd2"></a>
+<a id="org51936cd"></a>
 
 ### TODO Exercise 3.2
 
 
-<a id="org16e9279"></a>
+<a id="org1a08d5c"></a>
 
 ### TODO Exercise 3.3
 
 
-<a id="orgb1e6fb6"></a>
+<a id="org83deca8"></a>
 
 ### TODO Exercise 3.4
 
 
-<a id="org2d1902e"></a>
+<a id="orga917547"></a>
 
 ### TODO Exercise 3.5
 
 
-<a id="orga88271d"></a>
+<a id="orga64c3f5"></a>
 
 ### TODO Exercise 3.6
 
 
-<a id="org7fb20e0"></a>
+<a id="orgdeb88ce"></a>
 
 ### TODO Exercise 3.7
 
 
-<a id="orgdd01252"></a>
+<a id="orga2484ff"></a>
 
 ### TODO Exercise 3.8
 
 
-<a id="org90fafdf"></a>
+<a id="org9983f60"></a>
 
 ### TODO Exercise 3.9
 
 
-<a id="orge13a3e2"></a>
+<a id="orgfee24ff"></a>
 
 ### TODO Exercise 3.10
 
 
-<a id="org07b96a0"></a>
+<a id="org0476769"></a>
 
 ### TODO Exercise 3.11
 
 
-<a id="orgc3eceda"></a>
+<a id="org816a6d4"></a>
 
 ### TODO Exercise 3.12
 
 
-<a id="org9ff51e9"></a>
+<a id="org6aa1fb8"></a>
 
 ### TODO Exercise 3.13
 
 
-<a id="org35186bf"></a>
+<a id="org52bc159"></a>
 
 ### TODO Exercise 3.14
 
 
-<a id="org5176208"></a>
+<a id="org0e368c3"></a>
 
 ### TODO Exercise 3.15
 
 
-<a id="org0bcf2c6"></a>
+<a id="org49a5e98"></a>
 
 ### TODO Exercise 3.16
 
 
-<a id="orgd235e9f"></a>
+<a id="orga766dbb"></a>
 
 ### TODO Exercise 3.17
 
 
-<a id="orgfd35d70"></a>
+<a id="orgd42cdf5"></a>
 
 ### TODO Exercise 3.18
 
 
-<a id="org7112fcd"></a>
+<a id="org5d4c446"></a>
 
 ### TODO Exercise 3.19
 
 
-<a id="orgc6ab890"></a>
+<a id="org68647f4"></a>
 
 ### TODO Exercise 3.20
 
 
-<a id="org759f8f2"></a>
+<a id="org0205e15"></a>
 
 ### TODO Exercise 3.21
 
 
-<a id="orgf22ecf6"></a>
+<a id="org89fa519"></a>
 
 ### TODO Exercise 3.22
 
 
-<a id="orgb85bf3a"></a>
+<a id="orgb1c94ed"></a>
 
 ### TODO Exercise 3.23
 
 
-<a id="orgedbbe04"></a>
+<a id="orga6591a8"></a>
 
 ### TODO Exercise 3.24
 
 
-<a id="orgd0dd77b"></a>
+<a id="org88d3212"></a>
 
 ### TODO Exercise 3.25
 
 
-<a id="orga5dcebc"></a>
+<a id="org8394bc2"></a>
 
 ### TODO Exercise 3.26
 
 
-<a id="org598ca81"></a>
+<a id="org375b4b9"></a>
 
 ### TODO Exercise 3.27
 
 
-<a id="orgb229668"></a>
+<a id="org6b8af26"></a>
 
 ### TODO Exercise 3.28
 
 
-<a id="org48098b2"></a>
+<a id="orga61bd0c"></a>
 
 ### TODO Exercise 3.29
 
 
-<a id="orgbfac591"></a>
+<a id="org651f885"></a>
 
 ### TODO Exercise 3.30
 
 
-<a id="orga5530f9"></a>
+<a id="org86b61b8"></a>
 
 ### TODO Exercise 3.31
 
 
-<a id="org0ddac1c"></a>
+<a id="org89aa0fc"></a>
 
 ### TODO Exercise 3.32
 
 
-<a id="org1d14fa7"></a>
+<a id="org2767ef9"></a>
 
 ### TODO Exercise 3.33
 
 
-<a id="org09fe536"></a>
+<a id="org5e41f92"></a>
 
 ### TODO Exercise 3.34
 
 
-<a id="orge36e21e"></a>
+<a id="org95d4e26"></a>
 
 ### TODO Exercise 3.35
 
 
-<a id="orga665fd1"></a>
+<a id="org03d7ee4"></a>
 
 ### TODO Exercise 3.36
 
 
-<a id="org3f26b12"></a>
+<a id="org28cf3de"></a>
 
 ### TODO Exercise 3.37
 
 
-<a id="org774f518"></a>
+<a id="orgcca45b3"></a>
 
 ### TODO Exercise 3.38
 
 
-<a id="org856481a"></a>
+<a id="org9440430"></a>
 
 ### TODO Exercise 3.39
 
 
-<a id="org55ebb15"></a>
+<a id="org92f625d"></a>
 
 ### TODO Exercise 3.40
 
 
-<a id="orgad2b1a6"></a>
+<a id="orgda5477b"></a>
 
 ### TODO Exercise 3.41
 
 
-<a id="orge765835"></a>
+<a id="orga191fd9"></a>
 
 ### TODO Exercise 3.42
 
 
-<a id="orgddb497e"></a>
+<a id="org3c92e97"></a>
 
 ### TODO Exercise 3.43
 
 
-<a id="org81f3d7b"></a>
+<a id="org463a5bd"></a>
 
 ### TODO Exercise 3.44
 
 
-<a id="orgb2fdbb0"></a>
+<a id="org2e0bd1b"></a>
 
 ### TODO Exercise 3.45
 
 
-<a id="org87d8ada"></a>
+<a id="orgf2515fa"></a>
 
 ### TODO Exercise 3.46
 
 
-<a id="orgacd782d"></a>
+<a id="orgcfdf1ee"></a>
 
 ### TODO Exercise 3.47
 
 
-<a id="orgea804a5"></a>
+<a id="org978a78f"></a>
 
 ### TODO Exercise 3.48
 
 
-<a id="org1908a65"></a>
+<a id="orgb4c99f2"></a>
 
 ### TODO Exercise 3.49
 
 
-<a id="orgf3dadac"></a>
+<a id="orgc1f2855"></a>
 
 ### TODO Exercise 3.50
 
 
-<a id="org6f876aa"></a>
+<a id="org977bfff"></a>
 
 ### TODO Exercise 3.51
 
 
-<a id="orgb5453ab"></a>
+<a id="org8f7def9"></a>
 
 ### TODO Exercise 3.52
 
 
-<a id="org64c9e94"></a>
+<a id="org570d086"></a>
 
 ### TODO Exercise 3.53
 
 
-<a id="org2820eb4"></a>
+<a id="org76c9e29"></a>
 
 ### TODO Exercise 3.54
 
 
-<a id="org172aaed"></a>
+<a id="org9fcd10a"></a>
 
 ### TODO Exercise 3.55
 
 
-<a id="org06c91b4"></a>
+<a id="org37fdb13"></a>
 
 ### TODO Exercise 3.56
 
 
-<a id="org30d3626"></a>
+<a id="orgd718720"></a>
 
 ### TODO Exercise 3.57
 
 
-<a id="org9b44321"></a>
+<a id="org4d48828"></a>
 
 ### TODO Exercise 3.58
 
 
-<a id="org150faee"></a>
+<a id="orgf6b34ff"></a>
 
 ### TODO Exercise 3.59
 
 
-<a id="org76ac168"></a>
+<a id="org302171d"></a>
 
 ### TODO Exercise 3.60
 
 
-<a id="org1e41368"></a>
+<a id="org7f9dbd3"></a>
 
 ### TODO Exercise 3.61
 
 
-<a id="org15a7848"></a>
+<a id="orge153a7f"></a>
 
 ### TODO Exercise 3.62
 
 
-<a id="orgd885033"></a>
+<a id="orgdd3d35b"></a>
 
 ### TODO Exercise 3.63
 
 
-<a id="org587b8ab"></a>
+<a id="org67b48b5"></a>
 
 ### TODO Exercise 3.64
 
 
-<a id="org5935368"></a>
+<a id="org528748c"></a>
 
 ### TODO Exercise 3.65
 
 
-<a id="org3fb0356"></a>
+<a id="org122007e"></a>
 
 ### TODO Exercise 3.66
 
 
-<a id="orgb2b82c1"></a>
+<a id="org27f5cf1"></a>
 
 ### TODO Exercise 3.67
 
 
-<a id="org3ece18f"></a>
+<a id="org5410f30"></a>
 
 ### TODO Exercise 3.68
 
 
-<a id="orgd35f918"></a>
+<a id="org901f901"></a>
 
 ### TODO Exercise 3.69
 
 
-<a id="orgea1f7a3"></a>
+<a id="org78fa8e2"></a>
 
 ### TODO Exercise 3.70
 
 
-<a id="org3024128"></a>
+<a id="org34d3fcd"></a>
 
 ### TODO Exercise 3.71
 
 
-<a id="org0686eb1"></a>
+<a id="orgca8ea41"></a>
 
 ### TODO Exercise 3.72
 
 
-<a id="orgbdb6a6c"></a>
+<a id="orga010030"></a>
 
 ### TODO Exercise 3.73
 
 
-<a id="orgdd365c6"></a>
+<a id="orgbcd5c2d"></a>
 
 ### TODO Exercise 3.74
 
 
-<a id="org6b550e2"></a>
+<a id="org1bc5385"></a>
 
 ### TODO Exercise 3.75
 
 
-<a id="org396ac50"></a>
+<a id="org75fd271"></a>
 
 ### TODO Exercise 3.76
 
 
-<a id="org82b697d"></a>
+<a id="org9b457ed"></a>
 
 ### TODO Exercise 3.77
 
 
-<a id="org21a9a7f"></a>
+<a id="orgc0e6d3d"></a>
 
 ### TODO Exercise 3.78
 
 
-<a id="org9da5864"></a>
+<a id="org0a7f9c0"></a>
 
 ### TODO Exercise 3.79
 
 
-<a id="org4dc8e5e"></a>
+<a id="orgcacd0aa"></a>
 
 ### TODO Exercise 3.80
 
 
-<a id="orgc1417db"></a>
+<a id="orgf87b228"></a>
 
 ### TODO Exercise 3.81
 
 
-<a id="orgefc29ff"></a>
+<a id="org620861e"></a>
 
 ### TODO Exercise 3.82
 
 
-<a id="org15a582a"></a>
+<a id="orgb251955"></a>
 
 ## TODO Chapter 4: Metalinguistic Abstraction <code>[0/79]</code>
 
 
-<a id="org022feb7"></a>
+<a id="orgc0b5bb9"></a>
 
 ### TODO Exercise 4.1
 
 
-<a id="orgbed52d7"></a>
+<a id="org67f2643"></a>
 
 ### TODO Exercise 4.2
 
 
-<a id="org7148377"></a>
+<a id="orgd5c58f8"></a>
 
 ### TODO Exercise 4.3
 
 
-<a id="orgd0d23f6"></a>
+<a id="org4d54e74"></a>
 
 ### TODO Exercise 4.4
 
 
-<a id="org7a49ecc"></a>
+<a id="org2668c5a"></a>
 
 ### TODO Exercise 4.5
 
 
-<a id="org610111b"></a>
+<a id="org237fd06"></a>
 
 ### TODO Exercise 4.6
 
 
-<a id="org95247cd"></a>
+<a id="orgf165291"></a>
 
 ### TODO Exercise 4.7
 
 
-<a id="orgca494f2"></a>
+<a id="orgfce28d1"></a>
 
 ### TODO Exercise 4.8
 
 
-<a id="org4d68006"></a>
+<a id="org024c976"></a>
 
 ### TODO Exercise 4.9
 
 
-<a id="orgb751da5"></a>
+<a id="orgfb84074"></a>
 
 ### TODO Exercise 4.10
 
 
-<a id="orgabf1634"></a>
+<a id="org549626b"></a>
 
 ### TODO Exercise 4.11
 
 
-<a id="orgca3fc46"></a>
+<a id="org3936d57"></a>
 
 ### TODO Exercise 4.12
 
 
-<a id="org1543b3d"></a>
+<a id="orgbf5aed3"></a>
 
 ### TODO Exercise 4.13
 
 
-<a id="orgcf91c9f"></a>
+<a id="org7614340"></a>
 
 ### TODO Exercise 4.14
 
 
-<a id="org7a34f14"></a>
+<a id="org69b4f51"></a>
 
 ### TODO Exercise 4.15
 
 
-<a id="orge1ba9c3"></a>
+<a id="orge5ef032"></a>
 
 ### TODO Exercise 4.16
 
 
-<a id="org3d780fa"></a>
+<a id="orgb0bbd8a"></a>
 
 ### TODO Exercise 4.17
 
 
-<a id="org68c992f"></a>
+<a id="org9619fee"></a>
 
 ### TODO Exercise 4.18
 
 
-<a id="orgc4f44ce"></a>
+<a id="org1e2f897"></a>
 
 ### TODO Exercise 4.19
 
 
-<a id="orgf5de6bb"></a>
+<a id="org1165b7b"></a>
 
 ### TODO Exercise 4.20
 
 
-<a id="org8e7b44b"></a>
+<a id="org6480227"></a>
 
 ### TODO Exercise 4.21
 
 
-<a id="org5e91d06"></a>
+<a id="orgf49e56b"></a>
 
 ### TODO Exercise 4.22
 
 
-<a id="org0c8bc9c"></a>
+<a id="org4c5f2a8"></a>
 
 ### TODO Exercise 4.23
 
 
-<a id="org6048b60"></a>
+<a id="orgbf86f38"></a>
 
 ### TODO Exercise 4.24
 
 
-<a id="org48b7562"></a>
+<a id="orgd61e0d0"></a>
 
 ### TODO Exercise 4.25
 
 
-<a id="org87ce3e2"></a>
+<a id="org80a1801"></a>
 
 ### TODO Exercise 4.26
 
 
-<a id="org6949a45"></a>
+<a id="org03bce13"></a>
 
 ### TODO Exercise 4.27
 
 
-<a id="org729cd32"></a>
+<a id="org9d5fc4d"></a>
 
 ### TODO Exercise 4.28
 
 
-<a id="org4afae7d"></a>
+<a id="orgfb02599"></a>
 
 ### TODO Exercise 4.29
 
 
-<a id="orga68502c"></a>
+<a id="orgc3586ca"></a>
 
 ### TODO Exercise 4.30
 
 
-<a id="orgc344423"></a>
+<a id="org3094077"></a>
 
 ### TODO Exercise 4.31
 
 
-<a id="org515ce98"></a>
+<a id="org8e29895"></a>
 
 ### TODO Exercise 4.32
 
 
-<a id="org544fdc9"></a>
+<a id="org660815b"></a>
 
 ### TODO Exercise 4.33
 
 
-<a id="org8f2c3a4"></a>
+<a id="org84200e3"></a>
 
 ### TODO Exercise 4.34
 
 
-<a id="org51ab961"></a>
+<a id="orgd33420c"></a>
 
 ### TODO Exercise 4.35
 
 
-<a id="org0ad5292"></a>
+<a id="org5c8362f"></a>
 
 ### TODO Exercise 4.36
 
 
-<a id="org8b4afca"></a>
+<a id="org847f5b3"></a>
 
 ### TODO Exercise 4.37
 
 
-<a id="orgd876492"></a>
+<a id="orgeb32931"></a>
 
 ### TODO Exercise 4.38
 
 
-<a id="orgb9b9c52"></a>
+<a id="org08d1b7b"></a>
 
 ### TODO Exercise 4.39
 
 
-<a id="org7f30c29"></a>
+<a id="org0393f30"></a>
 
 ### TODO Exercise 4.40
 
 
-<a id="orgefb7672"></a>
+<a id="org6880dba"></a>
 
 ### TODO Exercise 4.41
 
 
-<a id="orgd3b1c38"></a>
+<a id="org58fea77"></a>
 
 ### TODO Exercise 4.42
 
 
-<a id="org1a99713"></a>
+<a id="org3d87dee"></a>
 
 ### TODO Exercise 4.43
 
 
-<a id="orgfd5f632"></a>
+<a id="orgadc2519"></a>
 
 ### TODO Exercise 4.44
 
 
-<a id="org61766d1"></a>
+<a id="org9f9856b"></a>
 
 ### TODO Exercise 4.45
 
 
-<a id="org7fdf673"></a>
+<a id="org5ff5065"></a>
 
 ### TODO Exercise 4.46
 
 
-<a id="orga0d65fa"></a>
+<a id="org9eaa58d"></a>
 
 ### TODO Exercise 4.47
 
 
-<a id="org69b7663"></a>
+<a id="org4e3b38e"></a>
 
 ### TODO Exercise 4.48
 
 
-<a id="org09ab996"></a>
+<a id="orgd50be9d"></a>
 
 ### TODO Exercise 4.49
 
 
-<a id="orgcced876"></a>
+<a id="org4de3fb8"></a>
 
 ### TODO Exercise 4.50
 
 
-<a id="orgff3e964"></a>
+<a id="org5d14a2a"></a>
 
 ### TODO Exercise 4.51
 
 
-<a id="org2e2fe87"></a>
+<a id="org8c25da1"></a>
 
 ### TODO Exercise 4.52
 
 
-<a id="org9da9a35"></a>
+<a id="org181b6cf"></a>
 
 ### TODO Exercise 4.53
 
 
-<a id="orgb6e0a04"></a>
+<a id="orga835e6e"></a>
 
 ### TODO Exercise 4.54
 
 
-<a id="orgfe96b87"></a>
+<a id="orgd3bd0f6"></a>
 
 ### TODO Exercise 4.55
 
 
-<a id="org14d9d73"></a>
+<a id="org69764f7"></a>
 
 ### TODO Exercise 4.56
 
 
-<a id="orgb947789"></a>
+<a id="org1cbb180"></a>
 
 ### TODO Exercise 4.57
 
 
-<a id="org1072ad9"></a>
+<a id="org01038a8"></a>
 
 ### TODO Exercise 4.58
 
 
-<a id="org24c7632"></a>
+<a id="orge525706"></a>
 
 ### TODO Exercise 4.59
 
 
-<a id="org815f7c6"></a>
+<a id="org1661bd4"></a>
 
 ### TODO Exercise 4.60
 
 
-<a id="orgc0e8d7e"></a>
+<a id="org76ec517"></a>
 
 ### TODO Exercise 4.61
 
 
-<a id="org3c54fb2"></a>
+<a id="orgf49f206"></a>
 
 ### TODO Exercise 4.62
 
 
-<a id="orgd73ec2c"></a>
+<a id="org69a738b"></a>
 
 ### TODO Exercise 4.63
 
 
-<a id="orgd451fb1"></a>
+<a id="org4188521"></a>
 
 ### TODO Exercise 4.64
 
 
-<a id="orgdcfbcbc"></a>
+<a id="orgf41d14d"></a>
 
 ### TODO Exercise 4.65
 
 
-<a id="orgb96b472"></a>
+<a id="org12686fb"></a>
 
 ### TODO Exercise 4.66
 
 
-<a id="orgb15c80f"></a>
+<a id="org66d9277"></a>
 
 ### TODO Exercise 4.67
 
 
-<a id="orge9cb62a"></a>
+<a id="org6a71074"></a>
 
 ### TODO Exercise 4.68
 
 
-<a id="org0b6b46e"></a>
+<a id="org7fa7b88"></a>
 
 ### TODO Exercise 4.69
 
 
-<a id="org0f298d4"></a>
+<a id="orgde41c92"></a>
 
 ### TODO Exercise 4.70
 
 
-<a id="orgfbf4a14"></a>
+<a id="org99f6ec8"></a>
 
 ### TODO Exercise 4.71
 
 
-<a id="org3150c61"></a>
+<a id="org400d645"></a>
 
 ### TODO Exercise 4.72
 
 
-<a id="org510bdce"></a>
+<a id="orgc52cc19"></a>
 
 ### TODO Exercise 4.73
 
 
-<a id="orge3e7c1e"></a>
+<a id="org5de5d3e"></a>
 
 ### TODO Exercise 4.74
 
 
-<a id="orgea534e0"></a>
+<a id="orgf556383"></a>
 
 ### TODO Exercise 4.75
 
 
-<a id="orgbda643b"></a>
+<a id="org31bfef5"></a>
 
 ### TODO Exercise 4.76
 
 
-<a id="org90d886f"></a>
+<a id="org3488ada"></a>
 
 ### TODO Exercise 4.77
 
 
-<a id="org0b32bdd"></a>
+<a id="org252043e"></a>
 
 ### TODO Exercise 4.78
 
 
-<a id="org9ab8f95"></a>
+<a id="org0ab832b"></a>
 
 ### TODO Exercise 4.79
 
 
-<a id="org8b326ab"></a>
+<a id="org9d679b3"></a>
 
 ## TODO Chapter 5: Computing with Register Machines <code>[0/52]</code>
 
 
-<a id="orgb2546cf"></a>
+<a id="org2ef12a5"></a>
 
 ### TODO Exercise 5.1
 
 
-<a id="org67c9f93"></a>
+<a id="orgff8d8fb"></a>
 
 ### TODO Exercise 5.2
 
 
-<a id="org39ef6b3"></a>
+<a id="orgb6ee8cf"></a>
 
 ### TODO Exercise 5.3
 
 
-<a id="orged6a3d8"></a>
+<a id="org468c8f7"></a>
 
 ### TODO Exercise 5.4
 
 
-<a id="orga0f36b8"></a>
+<a id="org8300657"></a>
 
 ### TODO Exercise 5.5
 
 
-<a id="orgd2723fd"></a>
+<a id="org441baf8"></a>
 
 ### TODO Exercise 5.6
 
 
-<a id="org79d6fa0"></a>
+<a id="org27676a0"></a>
 
 ### TODO Exercise 5.7
 
 
-<a id="org6c7d5f8"></a>
+<a id="orga65cbc1"></a>
 
 ### TODO Exercise 5.8
 
 
-<a id="org405d64c"></a>
+<a id="orgc5f4389"></a>
 
 ### TODO Exercise 5.9
 
 
-<a id="orgd97402f"></a>
+<a id="org02a86bf"></a>
 
 ### TODO Exercise 5.10
 
 
-<a id="orge2f11da"></a>
+<a id="orgc046a41"></a>
 
 ### TODO Exercise 5.11
 
 
-<a id="org4c0aceb"></a>
+<a id="org346c2ba"></a>
 
 ### TODO Exercise 5.12
 
 
-<a id="orgda6ccd0"></a>
+<a id="org1a37ea9"></a>
 
 ### TODO Exercise 5.13
 
 
-<a id="org56fecc8"></a>
+<a id="org158e312"></a>
 
 ### TODO Exercise 5.14
 
 
-<a id="orge38a995"></a>
+<a id="org6d1df44"></a>
 
 ### TODO Exercise 5.15
 
 
-<a id="orgf9f2926"></a>
+<a id="orgc3aa706"></a>
 
 ### TODO Exercise 5.16
 
 
-<a id="orgb2e51af"></a>
+<a id="org9b7360c"></a>
 
 ### TODO Exercise 5.17
 
 
-<a id="org9a2a416"></a>
+<a id="org55ec814"></a>
 
 ### TODO Exercise 5.18
 
 
-<a id="orgebe182d"></a>
+<a id="org0554626"></a>
 
 ### TODO Exercise 5.19
 
 
-<a id="org9b113a0"></a>
+<a id="orgf2da27f"></a>
 
 ### TODO Exercise 5.20
 
 
-<a id="org4f736b1"></a>
+<a id="orgb2877c0"></a>
 
 ### TODO Exercise 5.21
 
 
-<a id="org6528e98"></a>
+<a id="org9bf947c"></a>
 
 ### TODO Exercise 5.22
 
 
-<a id="org0f9d89b"></a>
+<a id="orgea8053e"></a>
 
 ### TODO Exercise 5.23
 
 
-<a id="org5b107d7"></a>
+<a id="org97cc429"></a>
 
 ### TODO Exercise 5.24
 
 
-<a id="orgc31fcee"></a>
+<a id="orga13343f"></a>
 
 ### TODO Exercise 5.25
 
 
-<a id="orga324803"></a>
+<a id="orgd6be7a7"></a>
 
 ### TODO Exercise 5.26
 
 
-<a id="orga4826ec"></a>
+<a id="org8bb25a2"></a>
 
 ### TODO Exercise 5.27
 
 
-<a id="org91aa566"></a>
+<a id="org16c012c"></a>
 
 ### TODO Exercise 5.28
 
 
-<a id="org464df09"></a>
+<a id="org8f3e64d"></a>
 
 ### TODO Exercise 5.29
 
 
-<a id="orga284db9"></a>
+<a id="orgac903d8"></a>
 
 ### TODO Exercise 5.30
 
 
-<a id="org2a92204"></a>
+<a id="orgdd0d89b"></a>
 
 ### TODO Exercise 5.31
 
 
-<a id="org3287349"></a>
+<a id="org237bd7e"></a>
 
 ### TODO Exercise 5.32
 
 
-<a id="orgd129467"></a>
+<a id="orgd5c8d14"></a>
 
 ### TODO Exercise 5.33
 
 
-<a id="org1e81d4a"></a>
+<a id="org0255c4d"></a>
 
 ### TODO Exercise 5.34
 
 
-<a id="org19638fd"></a>
+<a id="org0df5504"></a>
 
 ### TODO Exercise 5.35
 
 
-<a id="orga167a46"></a>
+<a id="org5ee0681"></a>
 
 ### TODO Exercise 5.36
 
 
-<a id="org461eee0"></a>
+<a id="org2f25663"></a>
 
 ### TODO Exercise 5.37
 
 
-<a id="orgf44d3af"></a>
+<a id="org54bbc2c"></a>
 
 ### TODO Exercise 5.38
 
 
-<a id="orgc6bf3e5"></a>
+<a id="org9e1d0be"></a>
 
 ### TODO Exercise 5.39
 
 
-<a id="org95668c2"></a>
+<a id="orge138ea4"></a>
 
 ### TODO Exercise 5.40
 
 
-<a id="orgc143f6f"></a>
+<a id="orgd7b9aa1"></a>
 
 ### TODO Exercise 5.41
 
 
-<a id="org6271bfd"></a>
+<a id="org187d781"></a>
 
 ### TODO Exercise 5.42
 
 
-<a id="org8aee3a6"></a>
+<a id="org1888ca3"></a>
 
 ### TODO Exercise 5.43
 
 
-<a id="org74fe54e"></a>
+<a id="orgd586ddf"></a>
 
 ### TODO Exercise 5.44
 
 
-<a id="org3f319fb"></a>
+<a id="org76136cd"></a>
 
 ### TODO Exercise 5.45
 
 
-<a id="org31f3222"></a>
+<a id="org3481fa3"></a>
 
 ### TODO Exercise 5.46
 
 
-<a id="orge0b106b"></a>
+<a id="orgcb4c108"></a>
 
 ### TODO Exercise 5.47
 
 
-<a id="orgd18fd1f"></a>
+<a id="org593bbbe"></a>
 
 ### TODO Exercise 5.48
 
 
-<a id="org3ab75aa"></a>
+<a id="org3dc09ec"></a>
 
 ### TODO Exercise 5.49
 
 
-<a id="orgd9a7088"></a>
+<a id="orgbb692c1"></a>
 
 ### TODO Exercise 5.50
 
 
-<a id="org4b986f2"></a>
+<a id="orgc7e9fd8"></a>
 
 ### TODO Exercise 5.51
 
 
-<a id="org47a3060"></a>
+<a id="org9f7c91d"></a>
 
 ### TODO Exercise 5.52
 

@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-09-05 10:20:30 lockywolf>
+# Time-stamp: <2019-09-05 11:44:51 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -2934,6 +2934,8 @@ will be done on the second pass. (Yes, there will be a second [or, rather, third
 ** TODO Chapter 2: Building abstractions with Data [0/97]
 
 *** TODO Exercise 2.1
+
+
 
 *** TODO Exercise 2.2
 
