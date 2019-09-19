@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-09-05 11:44:51 lockywolf>
+# Time-stamp: <2019-09-20 00:27:46 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -16,7 +16,7 @@
 #+begin_src elisp :export both :results value
 (setq geiser-chibi-extra-command-line-parameters
    '("-m" "chibi" "-m" "chibi show" "-m" "chibi show pretty"
-     "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27"))
+     "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27" "-m" "chibi process"))
 #+end_src
 
 #+RESULTS:
@@ -35,7 +35,7 @@
 
 #+RESULTS: common
 
-* SICP [15%]
+* SICP [26%]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -53,7 +53,7 @@
 *** Thought
  Tree accumulation is the process of computing a thing by traversing a tree.
 
-*** DONE Figure 1.1 Tree representation, showing the value of each subcombination
+*** DONE Figure 1.1 Tree representation, showing the value of each subcombination :graphviz:
     CLOSED: [2019-08-20 Tue 14:35]
  For the sake of pedagogical clarity, I have formatted it as a picture.
  #+BEGIN_SRC plantuml :exports both :file figure-1-1-mm.png
@@ -2931,97 +2931,1931 @@ pictures, but I already can say that I have solved _all_ problems of the
 first chapter of SICP. Some macros are wrong, I need to revise them, but that
 will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
 
-** TODO Chapter 2: Building abstractions with Data [0/97]
+** TODO Chapter 2: Building abstractions with Data [44/108]
+*** DONE Exercise 2.1 make-rat
+    CLOSED: [2019-09-06 Fri 13:00]
 
-*** TODO Exercise 2.1
+
+In this exercise I will also define the functions presented by Abelson
+and Sussman for general reference.
+
+#+begin_src scheme :exports both :results value :noweb-ref make-rat
+  (define (make-rat numerator denominator)
+    (let* ((my-gcd (gcd numerator denominator))
+	   (numerator (/ numerator my-gcd))
+	   (denominator (/ denominator my-gcd))
+	   (sign (/ (abs denominator) denominator)))
+      (cons (* numerator sign) (* denominator sign))))
+  (define (numer x)
+    (car x))
+
+  (define (denom x)
+    (cdr x))
+
+#+end_src
+
+#+RESULTS:
+: unfinished
+
+#+begin_src scheme :exports both :results value 2.2.1-basic-rat
+  (define (add-rat x y)
+    (make-rat (+ (* (numer x) (denom y))
+		 (* (numer y) (denom x)))
+	      (* (denom x) (denom y))))
+  (define (sub-rat x y)
+    (make-rat (- (* (numer x) (denom y))
+		 (* (numer y) (denom x)))
+	      (* (denom x) (denom y))))
+  (define (mul-rat x y)
+    (make-rat (* (numer x) (numer y))
+	      (* (denom x) (denom y))))
+
+  (define (div-rat x y)
+    (make-rat (* (numer x) (denom y))
+	      (* (denom x) (numer y))))
+  (define (equal-rat? x y)
+    (= (* (numer x) (denom y))
+       (* (numer y) (denom x))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref print-rat
+  (define (print-rat x)
+    (newline)
+    (display (numer x))
+    (display "/")
+    (display (denom x)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<print-rat>>
+<<2.2.1-basic-rat>>
+<<make-rat>>
+(define one-half (make-rat -65 -5))
+(print-rat one-half)
+#+end_src
+
+#+RESULTS:
+: 
+: 13/1
+
+*** TODO Figure 2.1
+
+This figure contains a data-abstraction diagram. I don't know how to
+make them yet.
+
+*** DONE Exercise 2.2 make-segment
+    CLOSED: [2019-09-06 Fri 13:34]
+
+#+begin_src scheme :exports both :results value :noweb-ref make-segment
+  (define (make-segment x1 y1 x2 y2)
+    (cons (make-point x1 y1)  (make-point x2 y2)))
+
+  (define (start-segment segment)
+    (car segment))
+
+  (define (end-segment segment)
+    (cdr segment))
+
+  (define (make-point x y)
+    (cons x y))
+
+  (define (x-point point)
+    (car point))
+
+  (define (y-point point)
+    (cdr point))
+
+  (define (midpoint-segment segment)
+    (make-point (/ (+ (x-point (start-segment segment))
+		   (x-point (end-segment   segment))) 2)
+		(/ (+ (y-point (start-segment segment))
+		   (y-point (end-segment   segment))) 2)))
+
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref print-point
+  (define (print-point p)
+    (newline)
+    (display "(")
+    (display (x-point p))
+    (display ",")
+    (display (y-point p))
+    (display ")"))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<print-point>>
+<<make-segment>>
+(print-point (midpoint-segment (make-segment 1 0 0 1)))
+#+end_src
+
+#+RESULTS:
+: 
+: (1/2,1/2)
+
+The task looks pretty straightforward. Just make a cons of points.
+
+*** DONE Exercise 2.3 make-rectangle
+    CLOSED: [2019-09-08 Sun 17:58]
+
+I will choose the following two representations:
+ - List of points from top left to the right.
+ - Two lists of coordinates, x and y.
+
+I will not be using segments from Exercise 2.2, because then I would
+have to care about the consistency of the first and the last point in
+the four segments.
+
+#+begin_src scheme :exports both :results output :noweb-ref rectangle
+  (define (area rectangle)
+    (* (get-height rectangle) (get-width rectangle)))
+  (define (perimeter rectangle)
+    (* 2 (+ (get-height rectangle) (get-width rectangle))))
+  (define (get-height rectangle)
+    (dist (nth-point 1 rectangle) (nth-point 2 rectangle)))
+  (define (get-width rectangle)
+    (dist (nth-point 2 rectangle) (nth-point 3 rectangle)))
+  (define (dist point1 point2)
+    (+ (square (- (x-point point1) (x-point point2))) (square (- (y-point point1) (y-point point2)))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output :noweb-ref rectangle-point-list
+  (define (make-rectangle x1 y1 x2 y2 x3 y3 x4 y4)   
+    (list (make-point x1 y1)
+	  (make-point x2 y2)
+	  (make-point x3 y3)
+	  (make-point x4 y4)))
+  (define (nth-point n rectangle)
+    (if (= n 1)
+	(car rectangle)
+	(nth-point (- n 1) (cdr rectangle))))
+#+end_src
+
+
+#+begin_src scheme :exports both :results output :noweb-ref rectangle-two-lists
+  (define (make-rectangle x1 y1 x2 y2 x3 y3 x4 y4)   
+    (cons (list x1 x2 x3 x4) (list y1 y2 y3 y4)))
+
+  (define (nth-point n rectangle)
+    (if (= n 1)
+	(make-point (caar rectangle) (cadr rectangle))
+	(nth-point (- n 1) (cons (cdar rectangle) (cddr rectangle)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+  <<rectangle>>
+  <<rectangle-point-list>>
+  <<make-segment>>
+  (let ((test1 (make-rectangle 0 0 0 1 1 1 1 0)))
+    (display "Area=")
+    (display (area test1))
+    (newline)
+    (display "Perimeter=")
+    (display (perimeter test1))
+    (newline))
+
+#+end_src
+
+#+RESULTS:
+: Area=1
+: Perimeter=4
+
+
+#+begin_src scheme :exports both :results output
+  <<rectangle>>
+  <<rectangle-two-lists>>
+  <<make-segment>>
+  (let ((test1 (make-rectangle 0 0 0 1 1 1 1 0)))
+    (display "Area=")
+    (display (area test1))
+    (newline)
+    (display "Perimeter=")
+    (display (perimeter test1))
+    (newline))
+
+#+end_src
+
+#+RESULTS:
+: Area=1
+: Perimeter=4
+
+This is not very efficient, but two implementations were requested --
+and they were delivered.
+
+*** DONE Exercise 2.4 cons-lambda
+    CLOSED: [2019-09-08 Sun 18:08]
+
+#+begin_src scheme :exports both :results output
+  (define (cons x y)
+    (lambda (m) (m x y)))
+  (define (car z)
+    (z (lambda (p q) p)))
+  (define (cdr z)
+    (z (lambda (p q) q)))
+
+  (display (car (cons 'a 'b)))
+  (newline)
+  (display (cdr (cons 'a 'b)))
+  (newline)
+#+end_src
+
+#+RESULTS:
+: a
+: b
+
+*** DONE Exercise 2.5 cons-pow
+    CLOSED: [2019-09-08 Sun 19:07]
+    0:00:00 -- 0:56:02 
+
+#+begin_src scheme :exports both :results value :noweb-ref ex2.5cons
+(define (cons a b)
+  (* (expt 2 a) (expt 3 b)))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value :noweb-ref ex2.5car
+(define (car number)
+  (log (gcd (expt 2.0 (floor (log number 2))) number) 2))
+(define (cdr number)
+  (log (gcd (expt 3.0 (floor (log number 2))) number) 3))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value
+<<ex2.5car>>
+<<ex2.5cons>>
+
+(list (car (cons 14 4)) (cdr (cons 14 4)))
+
+#+end_src
+
+#+RESULTS:
+| 14.0 | 4.0 |
+
+*** DONE Exercise 2.6 Church Numerals
+    CLOSED: [2019-09-08 Sun 19:41]
+0:00:00 -- 0:23:58 
+
+In the worst case this exercise can be copied literally right from the
+Wikipedia article: https://en.wikipedia.org/wiki/Church_encoding
+#+begin_src scheme :exports both :results value :noweb-ref church-zero
+  (define identity (lambda (x) x))
+  (define zero (lambda (f) identity))
+  (define (add-1 n)
+    (lambda (f) (lambda (x) (f ((n f) x)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+  <<church-zero>>
+  (define one (lambda (f) (lambda (x) (f x))))
+  (define two (lambda (f) (lambda (x) (f (f x)))))
+  (define (plus a b)
+    (lambda (f) (lambda (x) ((a f) ((b f) x)))))
+
+#+end_src
+
+#+RESULTS:
+
+*** DONE Exercise 2.7 make-interval
+    CLOSED: [2019-09-08 Sun 20:09]
+0:00:00 -- 0:20:09 
+
+#+begin_src scheme :exports both :results value :noweb-ref make-interval
+  (define (make-interval a b)
+    (cons a b))
+  (define (upper-bound interval)
+    (max (car interval) (cdr interval)))
+  (define (lower-bound interval)
+    (min (car interval) (cdr interval)))
+#+end_src
+
+
+#+begin_src scheme :exports both :results value :noweb-ref interval-common
+  (define (add-interval x y)
+    (make-interval (+ (lower-bound x) (lower-bound y))
+		   (+ (upper-bound x) (upper-bound y))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref mul-interval-simple
+  (define (mul-interval x y)
+    (let ((p1 (* (lower-bound x) (lower-bound y)))
+	  (p2 (* (lower-bound x) (upper-bound y)))
+	  (p3 (* (upper-bound x) (lower-bound y)))
+	  (p4 (* (upper-bound x) (upper-bound y))))
+      (make-interval (min p1 p2 p3 p4)
+		     (max p1 p2 p3 p4))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref div-interval-lame
+  (define (div-interval x y)
+    (mul-interval
+     x
+     (make-interval (/ 1.0 (upper-bound y))
+		    (/ 1.0 (lower-bound y)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<make-interval>>
+<<interval-common>>
+<<div-interval-lame>>
+<<mul-interval-simple>>
+(show #t " " (add-interval (make-interval 5 5.6) (make-interval 6 6.1)) "\n")
+(show #t " " (mul-interval (make-interval -0.1 0.1) (make-interval 100 110)) "\n")
+(show #t " " (div-interval (make-interval -0.1 0.1) (make-interval 100 110)))
+#+end_src
+
+#+RESULTS:
+:  (11.0 . 11.7)
+:  (-11.0 . 11.0)
+:  (-0.001 . 0.001)
+
+*** DONE Exercise 2.8 sub-interval
+    CLOSED: [2019-09-08 Sun 23:07]
+
+#+begin_src scheme :exports both :results value :noweb-ref sub-interval
+  (define (sub-interval a b)
+    (make-interval (- (upper-bound a) (lower-bound b))
+		   (- (lower-bound a) (upper-bound b))))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<make-interval>>
+<<sub-interval>>
+(show #t " " (sub-interval (make-interval 100 -100) (make-interval -1 101)))
+#+end_src
+
+#+RESULTS:
+:  (101 . -201)
+
+*** DONE Exercise 2.9 interval-width
+    CLOSED: [2019-09-08 Sun 23:15]
+ 0:06:00
+#+begin_src scheme :exports both :results value
+  (define (width interval)
+    (abs (- (upper-bound interval) (lower-bound interval))))
+#+end_src
+
+\( a + \Delta a + b + \Delta b = (a+b) + (\Delta a + \Delta b)\)
+\((a+\Delta a)\cdot (b+\Delta b) = (a\cdot b) + (a\Delta b + b\Delta a + \Delta a \Delta b)\)
+
+The formulae above should relatively convincingly explain why the
+width is not the function of the initial widths only in the case of
+multiplication. 
+
+*** DONE Exercise 2.10 div-interval-better
+    CLOSED: [2019-09-08 Sun 23:30]
+0:14:50  
+The initial Alyssa's construction is:
+#+begin_src scheme :exports both :results value :noweb-ref div-interval-better
+  (define (div-interval x y)
+    (when (and (< (lower-bound y) 0) (> (upper-bound y) 0))
+      (error "Division by zero." (list x y)))
+      (mul-interval
+       x
+       (make-interval (/ 1.0 (upper-bound y))
+		      (/ 1.0 (lower-bound y)))))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<div-interval-better>>
+<<make-interval>>
+(display (div-interval (make-interval 1 2) (make-interval -1 1)))
+#+end_src
+
+#+RESULTS:
+: '(Exception #19 user "Division by zero." (((1 . 2) (-1 . 1))) #f #f)
+
+*** DONE Exercise 2.11 mul-interval-nine-cases
+    CLOSED: [2019-09-09 Mon 00:45]
+1:06:58 
+
+| number | lower x | upper x | lower y | upper y |
+|--------+---------+---------+---------+---------|
+|      2 | +       | +       | +       | +       |
+|      2 | +       | +       | -       | +       |
+|      2 | +       | +       | -       | -       |
+|      2 | -       | +       | +       | +       |
+|      3 | -       | +       | -       | +       |
+|      2 | -       | +       | -       | -       |
+|      2 | -       | -       | +       | +       |
+|      2 | -       | -       | -       | +       |
+|      2 | -       | -       | -       | -       |
+
+
+#+begin_src scheme :exports both :results value :noweb-ref mul-interval
+  (define (mul-interval x y)
+    (let ((x1 (lower-bound x))
+	  (x2 (upper-bound x))
+	  (y1 (lower-bound y))
+	  (y2 (upper-bound y)))
+      (cond ((and (> x1 0) (> x2 0) (> y1 0) (> y2 0)) (make-interval (* x1 y1) (* x2 y2)))
+	    ((and (> x1 0) (> x2 0) (< y1 0) (> y2 0)) (make-interval (* x2 y1) (* x2 y2)))
+	    ((and (> x1 0) (> x2 0) (< y1 0) (< y2 0)) (make-interval (* x2 y1) (* x2 y1)))
+	    ((and (< x1 0) (> x2 0) (> y1 0) (> y2 0)) (make-interval (* x1 y2) (* x2 y2)))
+	    ((and (< x1 0) (> x2 0) (< y1 0) (> y2 0))
+	     (let ((p1 (* (lower-bound x) (lower-bound y)))
+		   (p2 (* (lower-bound x) (upper-bound y)))
+		   (p3 (* (upper-bound x) (lower-bound y)))
+		   (p4 (* (upper-bound x) (upper-bound y))))
+	       (make-interval (min p1 p2 p3 p4)
+			      (max p1 p2 p3 p4))))
+	    ((and (< x1 0) (> x2 0) (< y1 0) (< y2 0)) (make-interval (* x2 y2) (* x2 y1)))
+	    ((and (< x1 0) (< x2 0) (> y1 0) (> y2 0)) (make-interval (* x1 y2) (* x2 y1)))
+	    ((and (< x1 0) (< x2 0) (< y1 0) (> y2 0)) (make-interval (* x2 y2) (* x1 y1)))
+	    ((and (< x1 0) (< x2 0) (< y1 0) (< y2 0)) (make-interval (* x2 y2) (* x1 y1))))))
+#+end_src
+
+I don't even want to test it. 
+
+#+begin_src scheme :exports both :results output
+<<mul-interval>>
+<<make-interval>>
+(show #t " " (mul-interval (make-interval -2 2) (make-interval -5 6)))
+
+#+end_src
+
+#+RESULTS:
+:  (-12 . 12)
+
+Marvelous.
+
+*** DONE Exercise 2.12 make-center-percent
+    CLOSED: [2019-09-09 Mon 10:11]
+
+#+begin_src scheme :exports both :results value :noweb-ref make-center-width
+  (define (make-center-width c w)
+    (make-interval (- c w) (+ c w)))
+  (define (center i)
+    (/ (+ (lower-bound i) (upper-bound i)) 2))
+  (define (width i)
+    (/ (- (upper-bound i) (lower-bound i)) 2))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref make-center-precision
+  (define (make-center-percent center percent)
+    (let ((delta (* center (/ percent 100))))
+      (make-interval  (+ center delta) (- center delta))))
+  (define (relative-precision interval)
+    (let* ((center (/ (+ (lower-bound interval) (upper-bound interval))
+		     2))
+	   (percent (/ (abs (- (lower-bound interval) (upper-bound interval))) 2)))
+      (/ percent center)))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<make-center-width>>
+<<make-center-precision>>
+<<make-interval>>
+  (let ((test-interval (make-center-percent 100 2)))
+    (show #t " " test-interval "\n")
+    (show #t " " (center test-interval) "\n")
+    (show #t " " (relative-precision test-interval)) "\n")
+#+end_src
+
+#+RESULTS:
+:  (102 . 98)
+:  100
+:  1/50
+
+*** DONE Exercise 2.13 formula for tolerance
+    CLOSED: [2019-09-09 Mon 10:16]
+
+\((a+\Delta a)\cdot (b+\Delta b) = (a\cdot b) + (a\Delta b + b\Delta a + \Delta a \Delta b)\)
+\(\frac{(a+\Delta a)\cdot (b+\Delta b)}{a\cdot b} = \frac{(a\cdot b)}{a\cdot b} + \frac{(a\Delta b +
+b\Delta a + \Delta a \Delta b)}{a \cdot b} \approx 1 + \frac{\Delta a}{a} + \frac{\Delta b}{b}\) 
+
+*** DONE Exercise 2.14 parallel-resistors
+    CLOSED: [2019-09-09 Mon 11:24]
+0:37:00 +  0:31:07 = 1:06:07
+#+begin_src scheme :exports both :results output
+  <<make-interval>>
+  <<div-interval-better>>
+  <<mul-interval>>
+  <<interval-common>>
+  (define (par1 r1 r2)
+    (div-interval (mul-interval r1 r2)
+		  (add-interval r1 r2)))
+  (define (par2 r1 r2)
+    (let ((one (make-interval 1 1)))
+      (div-interval
+       one (add-interval (div-interval one r1)
+			 (div-interval one r2)))))
+
+  (show #t " " (par1 (make-interval 4.9 5.1) (make-interval 6.9 7.1)) "\n")
+  (show #t " " (par2 (make-interval 4.9 5.1) (make-interval 6.9 7.1)) "\n")
+#+end_src
+
+#+RESULTS:
+:  (2.7713114754098367 . 3.0686440677966096)
+:  (2.8652542372881356 . 2.968032786885246)
+
+It is worth noticing that ~par2~ uses more operations than
+~par1~. Even if the title problem in the exercise wasn't present, we
+would still get a less precise result.
+
+#+begin_src scheme :exports both :results output
+    <<make-interval>>
+    <<mul-interval>>
+    <<div-interval-better>>
+    (let ((one (make-interval 1.0 1.0))
+	  (i2 (make-interval 4.9 5.1))
+	  (i3 (make-interval 6.9 7.1)))
+      (show #t " " (div-interval one one) "\n")
+      (show #t " " (div-interval one i2) "\n")
+      (show #t " " (div-interval i2 i2) "\n")
+      (show #t " " (div-interval i2 i3) "\n")
+      (show #t " " (mul-interval  i2 (div-interval one i2)) "\n"))
+
+#+end_src
+
+#+RESULTS:
+:  (1.0 . 1.0)
+:  (0.19607843137254904 . 0.2040816326530612)
+:  (0.9607843137254903 . 1.040816326530612)
+:  (0.6901408450704226 . 0.7391304347826086)
+:  (0.9607843137254903 . 1.040816326530612)
+
+The idea here is, in some sense, the non-independence of the random
+variables *i2* and *i2*. Regardless of the precision of *i2*, we
+_know_ that \(\frac{i_2}{i_2} = 1\). 
+
+The center-percent form I implemented is slightly different from the
+one Abelson expected, I guess, but still,
+\(\frac{1}{1} \approx 1 \pm 2\Delta\). This is too much.
+
+*** DONE Exercise 2.15 better-intervals
+    CLOSED: [2019-09-09 Mon 11:34]
+
+I already answered this question in the Exercise 2.14. The problem is
+of the potential independence (which may or may not be the case) of
+*a* and *b*, but complete dependence of *a* on *a*, which is \(1\)
+regardless of whether *a* is even well-defined.
+
+*** DONE Exercise 2.16 interval-arithmetic
+    CLOSED: [2019-09-09 Mon 11:37]
+
+To solve this problem in the general case, on would have to build a
+probability distribution of the function on the variables, and use
+something of a probabilistic reduction on every step. I am not aware
+of such systems if they even exist. It would be indispensable for
+quantum modelling though.
+
+Hypothetically, if such systems existed, they would do something like
+build a distribution on every step of the computation and track every
+quantity occurrence in every distribution.
+
+
+*** TODO Figure 2.2 Box-and-pointer representation of ~(cons 1 2)~. :graphviz:
+https://gitlab.com/graphviz/graphviz/issues/1588
+https://gitlab.com/graphviz/graphviz/issues/1589
+10:00:00
+[2019-09-10 Tue 10:24] I managed to make pgf work with org-mode, but
+didn't manage to  make a picture yet. So far this problem happened to
+generalize to the case of drawing arbitrary vector graphics. Graphviz
+turned out to be less fit for this problem.
+
+#+begin_src plantuml :exports both :file figure-2-2.png
+  @startdot
+  digraph sicp2_2 {
+    node [shape=none];
+    source [label=""];
+    
+    node [shape=plaintext, style="rounded"];
+    struct0 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f1"></td>
+                 <td width="29" height="35" sides="lrtb" port="f2"></td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+    rankdir=LR;
+    node [shape=record, style="rounded"];
+    struct2 [label="<f2> 2"];
+    struct1 [label="<f1> 1"];
+    edge [arrowhead=normal,arrowtail=dot];    
+    struct0:f2:c -> struct2:f0 [tailclip=false];
+    struct0:f1:c -> struct1:f0 [tailclip=false];
+    source -> struct0;
+  }
+
+  @enddot
+#+end_src 
+
+#+RESULTS:
+[[file:figure-2-2.png]]
+
+
+#+name: tikztest
+#+header: :imagemagick yes :iminoptions -density 600 :imoutoptions -geometry 200
+#+header: :fit yes :headers '("\\usepackage{tikz}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports code :file test.png
+  \usetikzlibrary{trees}
+  \begin{tikzpicture}[color=white]
+    \node [circle, draw, fill=red!70] at (0,0) {1}
+      child { 
+             node [circle, draw, fill=blue!70] {2}
+             child { 
+                   node [circle, draw, fill=green!70]  {3} }
+             child { 
+                   node [circle, draw, fill=yellow!70] {4} }
+            };
+  \end{tikzpicture}
+#+end_src
+
+#+RESULTS: tikztest
+[[file:test.png]]
+
+#+begin_src plantuml :exports both :file ditaa.png
+@startditaa
+               +---+---+     +---+---+         +---+---+     +---+
+          ---->| * | *-+---->| * | * |    ---->| * | *------>| 4 |
+               +-|-+---+     +-|-+-|-+         +-|-+---+     +---+
+                 |             |   |             |
+                 V             V   V             V
+             +---+---+      +---+ +---+      +---+---+     +---+---+
+             | * | * |      | 3 | | 4 |      | * | *-+---->| * | * |
+             +-|-+-|-+      +---+ +---+      +-|-+---+     +-|-+-|-+
+               |   |                           |             |   |
+               V   V                           V             V   V
+            +---+ +---+                      +---+        +---+ +---+
+            | 1 | | 2 |                      | 1 |        | 2 | | 3 |
+            +---+ +---+                      +---+        +---+ +---+
+
+@endditaa
+#+end_src 
+
+#+RESULTS:
+[[file:ditaa.png]]
+
+
+*** DONE Exercise 2.17 last-pair
+    CLOSED: [2019-09-10 Tue 10:48]
+0:20:51 
+
+#+begin_src scheme :exports both :results value :noweb-ref last-pair
+  (define (last-pair lst)
+    (list-tail lst (- (length lst) 1)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<last-pair>>
+(let ((tmp (last-pair '(1 1))))
+(show #t " " (car tmp) " " (cdr tmp)))
+#+end_src
+
+#+RESULTS:
+:  1 ()
+
+*** DONE Exercise 2.18 reverse
+    CLOSED: [2019-09-10 Tue 10:57]
+0:03:56 
+#+begin_src scheme :exports both :results value :noweb-ref reverse-list
+  (define (reverse lst)
+    (define (lst-iter x y)
+       (if (null? y)
+	   x
+	   (lst-iter (cons (car y) x) (cdr y))))
+    (lst-iter '() lst))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<reverse-list>>
+(show #t " " (reverse '(1 2 3)))
+#+end_src
+
+#+RESULTS:
+:  (3 2 1)
+
+*** DONE Exercise 2.19 coin-values                                   :unsure:
+    CLOSED: [2019-09-10 Tue 11:27]
+
+#+begin_src scheme :exports both :results value :noweb-ref coin-values
+  (define us-coins (list 50 25 10 5 1))
+  (define uk-coins (list 100 50 20 10 5 2 1 0.5))
+  (define uk-coins-damaged (list 0.50 100 50 20 10 5 2 1))
+
+  (define (cc amount coin-values)
+    (cond ((= amount 0) 1)
+	  ((or (< amount 0) (no-more? coin-values)) 0)
+	  (else
+	   (+ (cc amount
+		  (except-first-denomination
+		   coin-values))
+	      (cc (- amount
+		     (first-denomination
+		      coin-values))
+		  coin-values)))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref first-denomination
+  (define (first-denomination coin-values)
+    (car coin-values))
+  (define (except-first-denomination coin-values)
+    (cdr coin-values))
+  (define (no-more? coin-values)
+    (null? coin-values))
+#+end_src
+
+*Warning:* the next code is a bit slow (~1 minute).
+
+#+begin_src scheme :exports both :results output
+<<first-denomination>>
+<<coin-values>>
+(show #t " " (cc 137 us-coins) "\n")
+(show #t " " (cc 137 uk-coins) "\n")
+#+end_src
+
+#+RESULTS:
+:  704
+:  443166
+
+#+begin_src scheme :exports both :results output
+<<first-denomination>>
+<<coin-values>>
+(show #t " " (cc 137 uk-coins-damaged) "\n")
+#+end_src
+
+#+RESULTS:
+:  443166
+
+I don't see why the result would depend on the order of the coins. We
+don't seem to be using the order anywhere.
+
+*** DONE Exercise 2.20 dotted-tail notation
+    CLOSED: [2019-09-10 Tue 18:55]
+1:45:10 
+#+begin_src scheme :exports both :results value :noweb-ref same-parity
+  (define (same-parity . lst)
+    (define (iter-parity lst bit accumulator)
+      (cond ((null? lst)
+	     accumulator)
+	    ((= (remainder (car lst) 2) bit)
+	     (iter-parity (cdr lst) bit (cons (car lst) accumulator)))
+	    (else
+	     (iter-parity (cdr lst) bit accumulator))))
+   (reverse (iter-parity lst (remainder (car lst) 2) '())))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<same-parity>>
+(show #t " " (same-parity 2 3 4) "\n")
+(show #t " " (same-parity 1 2 3 4) "\n")
+#+end_src
+
+#+RESULTS:
+:  (2 4)
+:  (1 3)
+
+*** DONE Exercise 2.21 map-square-list
+    CLOSED: [2019-09-10 Tue 19:14]
+0:13:23 
+#+begin_src scheme :exports both :results output
+  (define nil #f)
+  (define (square-list items)
+
+  (if (null? items)
+	'()
+	(cons (* (car items) (car items)) (square-list (cdr items)))))
+  (show #t " " (square-list '(1 2 3 4 5)))
+#+end_src
+
+#+RESULTS:
+:  (1 4 9 16 25)
+
+#+begin_src scheme :exports both :results output
+  (define (square-list items)
+    (map (lambda (x) (* x x)) items))
+
+  (show #t " " (square-list '(1 2 3 4 5)))
+#+end_src
+
+#+RESULTS:
+:  (1 4 9 16 25)
+
+One of the peculiar tricks in this equation is that unlike in older
+lisps, *#f* is not entirely the same as ~'()~, although they both
+evaluate to false.
+
+*** DONE Exercise 2.22 wrong list order
+    CLOSED: [2019-09-10 Tue 19:24]
+Referring to Exercise 2.20 is highly recommended. 
+
+The problem with the first solution is that, indeed, he's ~cons~'ing
+the pair in such a way that it would produce the reversed list.
+
+The problem with the second solution is that it IS creating a list-ish
+construction that is contains all the elements in the right order, but
+stores them in ~cdr~'s, not in ~car~'s. 
+
+In lisp without mutations (without ~set-cdr!~ and ~set-car!~), it is
+only possible to prepend elements to lists, not really append.
+
+*** DONE Exercise 2.23 for-each
+    CLOSED: [2019-09-10 Tue 19:33]
+0:04:56 
+#+begin_src scheme :exports both :results output
+  (define (for-each fun items)
+   (unless (null? items)
+    (fun (car items))
+    (for-each fun (cdr items))))
+
+  (for-each (lambda (x)
+	      (newline)
+	      (display x))
+	    (list 57 321 88))
+#+end_src
+
+#+RESULTS:
+: 
+: 57
+: 321
+: 88
+
+*** DONE Exercise 2.24 list-plot-result                            :graphviz:
+    CLOSED: [2019-09-10 Tue 22:13]
+0:48:39 
+The result of the interpreter:
+#+begin_src scheme :exports both :results output
+(show #t " " (list 1 (list 2 (list 3 4))))
+#+end_src
+
+#+RESULTS:
+:  (1 (2 (3 4)))
+
+The box-and-pointer structure:
+
+#+begin_src plantuml :exports both :file exercise-2-24.png
+  @startdot
+  digraph sicp2_24 {
+    node [shape=plaintext, style="rounded"];
+    struct1 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f0">1</td>
+                 <td width="29" height="35" sides="lrtb" port="f1"></td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+    rankdir=LR;
+    edge [arrowhead=normal,arrowtail=dot,tailclip=false, dir=both];    
+    struct1:f1:c -> struct2 [tailclip=false];
+    
+    node [shape=plaintext, style="rounded"];
+    struct2 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f0"></td>
+                 <td width="29" height="35" sides="lrtb" port="f1">'()</td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+    
+    struct2:f0:c -> struct3 [tailclip=false];
+    
+    node [shape=plaintext, style="rounded"];
+    struct3 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f0"></td>
+                 <td width="29" height="35" sides="lrtb" port="f1"></td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+
+    node [shape=plaintext, style="rounded"];
+    struct4 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f0"></td>
+                 <td width="29" height="35" sides="lrtb" port="f1">'()</td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+    struct3_3 [label="2",shape=record];
+    struct3:f0:c -> struct3_3 [tailclip=false];
+
+    struct3:f1:c -> struct4 [tailclip=false];
+
+    struct5 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f0">3</td>
+                 <td width="29" height="35" sides="lrtb" port="f1"></td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+    struct4:f0:c -> struct5;    
+
+    struct6 [label=<<table BORDER="0" CELLBORDER="1" CELLSPACING="0">
+             <tr>
+                 <td width="29" height="35" sides="ltrb" port="f0">4</td>
+                 <td width="29" height="35" sides="lrtb" port="f1">'()</td>
+             </tr>
+             </table>>, style="rounded,filled", fillcolor="gray"];
+    struct5:f1:c -> struct6;
+
+  }
+
+  @enddot
+#+end_src 
+
+#+RESULTS:
+[[file:exercise-2-24.png]]
+
+Tree interpretation:
+
+ #+begin_src plantuml :exports both :file figure-1-1-dot.png
+ @startdot
+ graph g {
+	 node [shape=plaintext];
+	 A1 [label="(1 (2 (3 4)))"];
+
+	 B1 [label="1"];
+         B2 [label="(2 (3 4))"];
+
+         C1 [label="2"];
+         C2 [label="(3 4)"];
+
+         D1 [label="3"];
+         D2 [label="4"];
+
+
+ // edges
+	 A1 -- B1;
+	 A1 -- B2;
+	
+	 B2 -- C1;
+	 B2 -- C2;
+
+	 C2 -- D1;
+	 C2 -- D2;
+
+	 { rank=same; A1 }
+	 { rank=same; B1 B2 } 
+	 { rank=same; C1 C2 }
+	 { rank=same; D1 D2 }
+ } 
+ @enddot
+ #+end_src 
+
+ #+RESULTS:
+ [[file:figure-1-1-dot.png]]
+
+*** DONE Exercise 2.25 caddr
+    CLOSED: [2019-09-10 Tue 23:07]
+#+begin_src scheme :exports both :results value
+(car (cdr (car (cdr (cdr '(1 3 (5 7) 9))))))
+#+end_src
+
+#+RESULTS:
+: 7
+
+#+begin_src scheme :exports both :results value
+(caar '((7)))
+#+end_src
+
+#+RESULTS:
+: 7
+
+#+begin_src scheme :exports both :results output
+(show #t " " (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr '(1 (2 (3 (4 (5 (6 7)))))))))))))))))))
+#+end_src
+
+#+RESULTS:
+:  7
+
+The task was funny.
+
+*** DONE Exercise 2.26 append cons list
+    CLOSED: [2019-09-10 Tue 23:23]
+
+#+begin_src scheme :exports both :results output
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+(show #t " " (append x y) "\n")
+(show #t " " (cons x y) "\n")
+(show #t " " (list x y) "\n")
+#+end_src
+
+#+RESULTS:
+:  (1 2 3 4 5 6)
+:  ((1 2 3) 4 5 6)
+:  ((1 2 3) (4 5 6))
+
+*** DONE Exercise 2.27 deep-reverse
+    CLOSED: [2019-09-11 Wed 09:47]
+0:14:46 
+#+begin_src scheme :exports both :results output
+  (define (deep-reverse lst)
+    (define (iter-reverse lst1 accumulator)
+      (if (null? lst1)
+	  accumulator
+	  (if (pair? (car lst1))
+	      (iter-reverse (cdr lst1) (cons (deep-reverse (car lst1)) accumulator))
+	      (iter-reverse (cdr lst1) (cons (car lst1) accumulator)))))
+    (iter-reverse lst '()))
+
+  (define x (list (list 1 2) (list 3 4)))
+  (show #t " " (reverse x) "\n")
+  (show #t " " (deep-reverse x))
+#+end_src
+
+#+RESULTS:
+:  ((3 4) (1 2))
+:  ((4 3) (2 1))
+
+*** DONE Exercise 2.28 fringe
+    CLOSED: [2019-09-11 Wed 10:24]
+0:37:00
+#+begin_src scheme :exports both :results output
+      (define (fringe tree)
+	(define (fringe-iter tree accumulator)
+	  (cond  ((null? tree) '())
+		 ((not (pair? tree)) (list tree))
+		 (else
+		   (append accumulator 
+			   (fringe-iter (car tree) '())
+			   (fringe-iter (cdr tree) '())))))
+	(fringe-iter tree '()))
+      (define x (list (list 1 2) (list 3 4)))
+      (show #t " " (fringe x) "\n")
+      (show #t " " (fringe (list x x)) "\n")
+
+#+end_src
+
+#+RESULTS:
+:  (1 2 3 4)
+:  (1 2 3 4 1 2 3 4)
+
+*** DONE Exercise 2.29 mobile
+    CLOSED: [2019-09-11 Wed 11:47]
+1:23:0
+#+begin_src scheme :exports both :results value :noweb-ref mobile
+  (define (make-mobile left right)
+    (list left right))
+
+  (define (make-branch length structure)
+    (list length structure))
+
+  (define (left-branch mobile)
+    (car mobile))
+
+  (define (right-branch mobile)
+    (cadr mobile))
+
+  (define (branch-length branch)
+    (car branch))
+
+  (define (branch-structure branch)
+    (cadr branch))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref mobile-total-weight
+  (define (total-weight mobile)
+    (if (pair? mobile)
+    (+ (if (pair? (branch-structure (left-branch mobile)))
+	   (total-weight (branch-structure (left-branch mobile)))
+	   (branch-structure (left-branch mobile)))
+       (if (pair? (branch-structure (right-branch mobile)))
+	   (total-weight (branch-structure (right-branch mobile)))
+	   (branch-structure (right-branch mobile))))
+    mobile))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+  <<mobile>>
+  <<mobile-total-weight>>
+  (total-weight
+   (make-mobile
+    (make-branch
+     5
+     (make-mobile
+      (make-branch 1 1)
+      (make-branch 2 2)))
+    (make-branch 7 2)))
+#+end_src
+
+#+RESULTS:
+: 5
+
+#+begin_src scheme :exports both :results value :noweb-ref mobile-balanced
+    (define (balanced? mobile)
+      (and
+       (=
+	(*
+	 (branch-length (left-branch mobile))
+	 (total-weight (branch-structure (left-branch mobile))))
+	(*
+	 (branch-length (right-branch mobile))
+	 (total-weight (branch-structure (right-branch mobile))))
+	)
+       (if (pair? (branch-structure (left-branch mobile)))
+	   (balanced? (branch-structure (left-branch mobile)))
+	   #t)
+       (if (pair? (branch-structure (right-branch mobile)))
+	   (balanced? (branch-structure (right-branch mobile)))
+	   #t)))
+     
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<mobile-balanced>>
+<<mobile-total-weight>>
+<<mobile>>
+  (show #t " " (balanced?
+   (make-mobile
+    (make-branch
+     5
+     (make-mobile
+      (make-branch 1 1)
+      (make-branch 2 2)))
+    (make-branch 7 2))) "\n")
+  (show #t " " (balanced? (make-mobile (make-branch 5 5) (make-branch 5 5))) "\n")
+
+#+end_src
+
+#+RESULTS:
+:  #f
+:  #t
+
+If we replace lists with ~cons~, the only thing that needs to be
+changed is that ~cadr~ should be replaced with ~car~.
+
+*** DONE Exercise 2.30 square-tree
+    CLOSED: [2019-09-11 Wed 14:11]
+ 1. A no-high-level version
+#+begin_src scheme :exports both :results value :noweb-ref  square-tree
+  (define (square-tree tree)
+    (cond ((null? tree) '())
+	  ((not (pair? tree)) (square tree))
+	  (else (cons (square-tree (car tree))
+		      (square-tree (cdr tree))))))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<square-tree>>
+  (show #t " " (square-tree
+   (list 1
+	 (list 2 (list 3 4) 5)
+	 (list 6 7))))
+#+end_src
+
+#+RESULTS:
+:  (1 (4 (9 16) 25) (36 49))
+ 2. High-level version
+#+begin_src scheme :exports both :results output :noweb-ref square-subtree-map
+    (define (square-tree tree)
+      (map (lambda (sub-tree)
+	     (if (pair? sub-tree)
+		 (square-tree sub-tree)
+		 (square sub-tree)))
+	   tree))
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<square-subtree-map>>
+  (show #t " " (square-tree
+   (list 1
+	 (list 2 (list 3 4) 5)
+	 (list 6 7))))
+#+end_src
+
+#+RESULTS:
+:  (1 (4 (9 16) 25) (36 49))
+
+Not a very hard problem.
+
+*** DONE Exercise 2.31 tree-map square tree
+    CLOSED: [2019-09-11 Wed 14:38]
+Not a very hard problem.
+#+begin_src scheme :exports both :results output
+  (define (square-tree tree) (tree-map square tree))
+
+  (define (tree-map square tree)
+    (map (lambda (sub-tree)
+	   (if (pair? sub-tree)
+	       (tree-map square sub-tree)
+	       (square sub-tree)))
+	 tree))
+  (show #t " " 
+	(square-tree
+	 (list 1
+	       (list 2 (list 3 4) 5)
+	       (list 6 7))))
+
+#+end_src
+
+#+RESULTS:
+:  (1 (4 (9 16) 25) (36 49))
+
+*** DONE Exercise 2.32 subsets
+    CLOSED: [2019-09-11 Wed 14:53]
+
+#+begin_src scheme :exports both :results value :noweb-ref subsets
+  (define (subsets s)
+    (if (null? s)
+	(list '())
+	(let ((rest (subsets (cdr s))))
+	  (append rest (map (lambda (suffix) (append (list (car s)) suffix)) rest)))))
+  (subsets '(1 2 3))
+#+end_src
+
+#+RESULTS:
+|---+---+---|
+| 3 |   |   |
+| 2 |   |   |
+| 2 | 3 |   |
+| 1 |   |   |
+| 1 | 3 |   |
+| 1 | 2 |   |
+| 1 | 2 | 3 |
+
+The explanation is easy. The subsets can be constructed by taking any
+element, say, the first, and appending it to every subset of the rest
+of the set. That is if we already have a set of subsets of some set
+*S*, and we are adding some element *a*, then it may or may not be in
+every subset of the enlarged set *S+a*. 
+
+
+*** TODO Figure 2.7 Signal-flow diagram
+
+*** DONE Exercise 2.33 map-append-length
+    CLOSED: [2019-09-11 Wed 23:53]
+
+#+begin_src scheme :exports both :results value :noweb-ref filter
+  (define (filter predicate sequence)
+    (cond ((null? sequence) '())
+	  ((predicate (car sequence))
+	   (cons (car sequence)
+		 (filter predicate (cdr sequence))))
+	  (else (filter predicate (cdr sequence)))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref accumulate
+  (define (accumulate op initial sequence)
+    (if (null? sequence)
+	initial
+	(op (car sequence)
+	    (accumulate op initial (cdr sequence)))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref enumerate-interval
+  (define (enumerate-interval low high)
+    (if (> low high)
+	'()
+	(cons low (enumerate-interval (+ low 1) high))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref enumerate-tree
+  (define (enumerate-tree tree)
+    (cond ((null? tree) '())
+	   ((not (pair? tree)) (list tree))
+	   (else (append (enumerate-tree (car tree))
+			 (enumerate-tree (cdr tree))))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref map-append-length
+  (define (map p sequence)
+    (accumulate (lambda (x y) (x y)) '() sequence))
+  (define (append seq1 seq2)
+    (accumulate cons seq2 seq1))
+  (define (length sequence)
+    (accumulate (lambda (x y) (+ 1 y))))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+ (length (make-list 100 99))
+#+end_src
+
+#+RESULTS:
+: 100
+
+*** DONE Exercise 2.34 horners-rule
+    CLOSED: [2019-09-12 Thu 00:01]
+#+begin_src scheme :exports both :results value
+<<accumulate>>
+  (define (horner-eval x coefficient-sequence)
+    (accumulate (lambda (this-coeff higher-terms) (+ this-coeff (* x higher-terms)))
+		0
+		coefficient-sequence))
+  (horner-eval 2 (list 1 3 0 5 0 1))
+
+#+end_src
+
+#+RESULTS:
+: 79
+
+*** DONE Exercise 2.35 count-leaves-accumulate
+    CLOSED: [2019-09-12 Thu 00:17]
+#+begin_src scheme :exports both :results value
+<<accumulate>>
+  (define (count-leaves t)
+    (accumulate + 0 (map (lambda (x) (if (pair? x)
+				    (count-leaves x)
+				    1)) t)))
+  (count-leaves (list 1 2 3))
+#+end_src
+
+#+RESULTS:
+: 3
+
+*** DONE Exercise 2.36 accumulate-n
+    CLOSED: [2019-09-12 Thu 00:26]
+#+begin_src scheme :exports both :results value :noweb-ref accumulate-n
+<<accumulate>>
+  (define (accumulate-n op init seqs)
+    (if (null? (car seqs))
+	'()
+	(cons (accumulate op init (map car seqs))
+              (accumulate-n op init (map cdr seqs)))))
+#+end_src
+  
+#+begin_src scheme :exports both :results value
+<<accumulate-n>>
+  (accumulate-n + 0 '((1 2 3) (4 5 6) (7 8 9) (10 11 12)))
+#+end_src
+
+#+RESULTS:
+| 22 | 26 | 30 |
+
+*** DONE Exercise 2.37 matrix-*-vector
+    CLOSED: [2019-09-12 Thu 00:50]
+
+#+begin_src scheme :exports both :results value :noweb-ref dot-product
+  (define (dot-product v w)
+    (accumulate + 0 (map * v w)))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref matrix-operations
+  (define (matrix-*-vector m v)
+    (map (lambda (x) (dot-product v x)) m))
+  (define (transpose mat)
+    (accumulate-n cons '() mat))
+  (define (matrix-*-matrix m n)
+    (let ((cols (transpose n)))
+      (map (lambda (x) (matrix-*-vector m x)) n)))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<accumulate>>
+<<accumulate-n>>
+<<dot-product>>
+<<matrix-operations>>
+(show #t " " (matrix-*-vector '((1 2 3 4) (4 5 6 6) (6 7 8 9)) '(1 2 3 4)) "\n")
+(show #t " " (transpose '((1 2 3 4) (4 5 6 6) (6 7 8 9))) "\n")
+(show #t " " (matrix-*-matrix
+               '((1 2 3 4) (4 5 6 6) (6 7 8 9)) 
+               '((1 2 3 4) (4 5 6 6) (6 7 8 9)) ) "\n")
+#+end_src
+
+#+RESULTS:
+:  (30 56 80)
+:  ((1 4 6) (2 5 7) (3 6 8) (4 6 9))
+:  ((30 56 80) (56 113 161) (80 161 230))
+
+*** DONE Exercise 2.38 fold-left
+    CLOSED: [2019-09-12 Thu 09:45]
+#+begin_src scheme :exports both :results value :noweb-ref fold-left
+  (define (fold-left op initial sequence)
+    (define (iter result rest)
+      (if (null? rest)
+	  result
+	  (iter (op result (car rest))
+		(cdr rest))))
+    (iter initial sequence))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<accumulate>>
+<<fold-left>>
+(show #t " " (accumulate / 1 (list 1 2 3)) "\n")
+(show #t " " (fold-left / 1 (list 1 2 3)) "\n")
+(show #t " " (accumulate list '() (list 1 2 3)) "\n")
+(show #t " " (fold-left list '() (list 1 2 3)) "\n")
+(show #t " " (fold-left + 0 (list 1 2 3)) "\n")
+(show #t " " (accumulate + 0 (list 1 2 3)) "\n")
+#+end_src
+
+#+RESULTS:
+:  3/2
+:  1/6
+:  (1 (2 (3 ())))
+:  (((() 1) 2) 3)
+:  6
+:  6
+
+Well, it seems that commutative operations, that is the ones for which
+\(a+b = b+a\).
+
+*** DONE Exercise 2.39 reverse fold-right fold-left
+    CLOSED: [2019-09-12 Thu 09:52]
+
+#+begin_src scheme :exports both :results output
+<<accumulate>>
+<<fold-left>>
+  (define (reverse sequence)
+    (accumulate (lambda (x y) (cons x y)) '() sequence))
+  (show #t " " (reverse (list 1 2 3)) "\n")
+  (define (reverse sequence)
+    (fold-left  (lambda (x y) (cons y x)) '() sequence))
+  (show #t " " (reverse (list 1 2 3)))
+
+#+end_src
+
+#+RESULTS:
+:  (1 2 3)
+:  (3 2 1)
+
+*** DONE Exercise 2.40 unique-pairs
+    CLOSED: [2019-09-12 Thu 10:34]
+0:42:00
+
+#+begin_src scheme :exports both :results value :noweb-ref flatmap
+  (define (flatmap proc seq)
+    (accumulate append '() (map proc seq)))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref prime-sum
+  (define (prime-sum? pair)
+    (prime? (+ (car pair) (cadr pair))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref make-pair-sum
+(define (make-pair-sum pair)
+    (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+#+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref prime-sum-pairs
+  (define (prime-sum-pairs n)
+    (map make-pair-sum
+	  (filter prime-sum? (flatmap
+			      (lambda (i)
+				(map (lambda (j) (list i j))
+				     (enumerate-interval 1 (- i 1))))
+			      (enumerate-interval 1 n)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<prime-sum-pairs>>
+<<enumerate-interval>>
+<<flatmap>>
+<<accumulate>>
+<<prime-sum>>
+<<filter>>
+<<fast-prime>>
+<<fermat-primetest>>
+<<expmod-miller-rabin>>
+<<make-pair-sum>>
+<<map-append-length>>
+(show #t " " (prime-sum-pairs 30))
+#+end_src
+
+#+RESULTS:
+:  ((2 1 3) (3 2 5) (4 1 5) (4 3 7) (5 2 7) (6 1 7) (6 5 11) (7 4 11) (7 6 13) (8 3 11) (8 5 13) (9 2 11) (9 4 13) (9 8 17) (10 1 11) (10 3 13) (10 7 17) (10 9 19) (11 2 13) (11 6 17) (11 8 19) (12 1 13) (12 5 17) (12 7 19) (12 11 23) (13 4 17) (13 6 19) (13 10 23) (14 3 17) (14 5 19) (14 9 23) (15 2 17) (15 4 19) (15 8 23) (15 14 29) (16 1 17) (16 3 19) (16 7 23) (16 13 29) (16 15 31) (17 2 19) (17 6 23) (17 12 29) (17 14 31) (18 1 19) (18 5 23) (18 11 29) (18 13 31) (19 4 23) (19 10 29) (19 12 31) (19 18 37) (20 3 23) (20 9 29) (20 11 31) (20 17 37) (21 2 23) (21 8 29) (21 10 31) (21 16 37) (21 20 41) (22 1 23) (22 7 29) (22 9 31) (22 15 37) (22 19 41) (22 21 43) (23 6 29) (23 8 31) (23 14 37) (23 18 41) (23 20 43) (24 5 29) (24 7 31) (24 13 37) (24 17 41) (24 19 43) (24 23 47) (25 4 29) (25 6 31) (25 12 37) (25 16 41) (25 18 43) (25 22 47) (26 3 29) (26 5 31) (26 11 37) (26 15 41) (26 17 43) (26 21 47) (27 2 29) (27 4 31) (27 10 37) (27 14 41) (27 16 43) (27 20 47) (27 26 53) (28 1 29) (28 3 31) (28 9 37) (28 13 41) (28 15 43) (28 19 47) (28 25 53) (29 2 31) (29 8 37) (29 12 41) (29 14 43) (29 18 47) (29 24 53) (30 1 31) (30 7 37) (30 11 41) (30 13 43) (30 17 47) (30 23 53) (30 29 59))
+
+#+begin_src scheme :exports both :results value :noweb-ref unique-pairs
+  (define (unique-pairs n)
+    (flatmap
+     (lambda (i)
+       (map (lambda (j) (list i j))
+	    (enumerate-interval 1 (- i 1))))
+     (enumerate-interval 1 n)))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+  <<unique-pairs>>
+  <<flatmap>>
+  <<enumerate-interval>>
+  <<accumulate>>
+  (unique-pairs 3)
+#+end_src
+
+#+RESULTS:
+| 2 | 1 |
+| 3 | 1 |
+| 3 | 2 |
+
+#+begin_src scheme :exports both :results value :noweb-ref prime-sum-pairs-unique-pairs
+  (define (prime-sum-pairs n)
+    (map make-pair-sum
+	  (filter prime-sum? (unique-pairs n))))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<unique-pairs>>
+<<prime-sum-pairs-unique-pairs>>
+<<enumerate-interval>>
+<<flatmap>>
+<<accumulate>>
+<<prime-sum>>
+<<filter>>
+<<fast-prime>>
+<<fermat-primetest>>
+<<expmod-miller-rabin>>
+<<make-pair-sum>>
+<<map-append-length>>
+(prime-sum-pairs 10)
+#+end_src
+
+#+RESULTS:
+|  2 | 1 |  3 |
+|  3 | 2 |  5 |
+|  4 | 1 |  5 |
+|  4 | 3 |  7 |
+|  5 | 2 |  7 |
+|  6 | 1 |  7 |
+|  6 | 5 | 11 |
+|  7 | 4 | 11 |
+|  7 | 6 | 13 |
+|  8 | 3 | 11 |
+|  8 | 5 | 13 |
+|  9 | 2 | 11 |
+|  9 | 4 | 13 |
+|  9 | 8 | 17 |
+| 10 | 1 | 11 |
+| 10 | 3 | 13 |
+| 10 | 7 | 17 |
+| 10 | 9 | 19 |
+
+I have to note that this deceiptively simple task involves reusing
+results of 12 other problems.
+ 
+*** DONE Exercise 2.41 triple-sum
+    CLOSED: [2019-09-14 Sat 15:15]
+     *Exercise 2.41:* Write a procedure to find all ordered triples of
+     distinct positive integers i, j, and k less than or equal to a
+     given integer n that sum to a given integer s.
+
+#+begin_src scheme :exports both :results value :noweb-ref unique-triples
+    (define (unique-triples n)
+      (flatmap
+       (lambda (i)
+	 (flatmap (lambda (j) 
+		(map (lambda (k) (list i j k))
+		     (enumerate-interval 1 (- j 1))))
+	      (enumerate-interval 1 (- i 1))))
+       (enumerate-interval 1 n)))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<accumulate>>
+<<enumerate-interval>>
+<<flatmap>>
+<<unique-triples>>
+(show #t " " (unique-triples 5) "\n")
+#+end_src
+
+#+RESULTS:
+:  ((3 2 1) (4 2 1) (4 3 1) (4 3 2) (5 2 1) (5 3 1) (5 3 2) (5 4 1) (5 4 2) (5 4 3))
 
 
 
-*** TODO Exercise 2.2
+#+begin_src scheme :exports both :results value :noweb-ref sum-equal-s
+  (define (sum-equal-s? s tuple)
+    (if (= s  (accumulate + 0 tuple))
+	#t
+	#f))
+#+end_src
 
-*** TODO Exercise 2.3
+#+begin_src scheme :exports both :results value
+<<sum-equal-s>>
+<<accumulate>>
+(and (sum-equal-s? 30 (list 10 5 5 9 1)) (not (sum-equal-s? 10 (list 3 3 3))))
+#+end_src
 
-*** TODO Exercise 2.4
+#+RESULTS:
+: #t
 
-*** TODO Exercise 2.5
+#+begin_src scheme :exports both :results value :noweb-ref sum-equal-s-triples
+  (define (sum-equal-s-triples s n)
+    (filter (lambda (x) (sum-equal-s? s x)) (unique-triples n)))
+#+end_src
 
-*** TODO Exercise 2.6
+#+begin_src scheme :exports both :results value
+<<enumerate-interval>>
+<<flatmap>>
+<<sum-equal-s-triples>>
+<<accumulate>>
+<<sum-equal-s>>
+<<filter>>
+<<unique-triples>>
+(sum-equal-s-triples 15 30)
+#+end_src
 
-*** TODO Exercise 2.7
+#+RESULTS:
+|  6 | 5 | 4 |
+|  7 | 5 | 3 |
+|  7 | 6 | 2 |
+|  8 | 4 | 3 |
+|  8 | 5 | 2 |
+|  8 | 6 | 1 |
+|  9 | 4 | 2 |
+|  9 | 5 | 1 |
+| 10 | 3 | 2 |
+| 10 | 4 | 1 |
+| 11 | 3 | 1 |
+| 12 | 2 | 1 |
 
-*** TODO Exercise 2.8
 
-*** TODO Exercise 2.9
+*** DONE Figure 2.8 A solution to the eight-queens puzzle.
 
-*** TODO Exercise 2.10
+#+begin_src plantuml :exports both :file figure-2-8.png
+@startditaa
+          +---+---+---+---+---+---+---+---+
+          |   |   |   |   |   | Q |   |   |
+          +---+---+---+---+---+---+---+---+
+          |   |   | Q |   |   |   |   |   |
+          +---+---+---+---+---+---+---+---+
+          | Q |   |   |   |   |   |   |   |
+          +---+---+---+---+---+---+---+---+
+          |   |   |   |   |   |   | Q |   |
+          +---+---+---+---+---+---+---+---+
+          |   |   |   |   | Q |   |   |   |
+          +---+---+---+---+---+---+---+---+
+          |   |   |   |   |   |   |   | Q |
+          +---+---+---+---+---+---+---+---+
+          |   | Q |   |   |   |   |   |   |
+          +---+---+---+---+---+---+---+---+
+          |   |   |   | Q |   |   |   |   |
+          +---+---+---+---+---+---+---+---+
+@endditaa
+#+end_src 
 
-*** TODO Exercise 2.11
+#+RESULTS:
+[[file:figure-2-8.png]]
 
-*** TODO Exercise 2.12
+*** DONE Exercise 2.42 k-queens
+    CLOSED: [2019-09-17 Tue 22:27]
+3:00:00 + 2:00:00 + 1:00:00 = 6:00:00
+The commentary to this problem is bad. Firstly, it is *NOT* obvious
+that it is even possible to place a queen into every column and every
+row. Indeed, in the solution above, this happens to be the case, but
+this is by no means obvious.
 
-*** TODO Exercise 2.13
+The second thought: since the algorithm is expected to provide *all*
+possible solutions, it should be required have a list of lists... sort
+of, to represent the multitude. So ~queens~ should return a list of
+lists. 
 
-*** TODO Exercise 2.14
+Secondly, the code given by the authors is totally moronic in at least
+two places: 
+ 1. rest-of-queens? Seriously? Why not "world of queens", or
+    "suffix-queens", to make it even more obscure? It should have been
+    called "prefix-queens", or, better "queens-already-on-board". We
+    are not short of bytes, are we?
+ 2. who on Earth would call a procedure "queen-cols"? What does it
+even mean? Descriptive names -- zero.
+ 
+The third thought: anyone who wants to solve this puzzle, must at
+least know what it is for a queen to be "safe". That is, if a queen
+number A has a position b_1 then our new queen's B position b_2 must
+satisfy : 1) b_2 \neq b_1 2)|b_2 - b_1| \ne B - A. And this must be true
+\forall A < B.
 
-*** TODO Exercise 2.15
+The fourth thought: it is *NOT* obvious, but the "rest of queens"
+contains the list of queens _in the reversed order_. So ~car~'ing
+anything with it represents attaching the queen _to the end_ of the
+list. This is why we have *k* supplied as an argument to the ~safe?~
+procedure.
 
-*** TODO Exercise 2.16
+#+begin_src scheme :exports both :results value :noweb-ref k-queens
+  (define (queens board-size)
+    (define (queen-cols k)
+      (if (= k 0)
+	  (list empty-board)
+	  (filter
+	   (lambda (positions) (safe? k positions))
+	   (flatmap
+	    (lambda (rest-of-queens)
+	      (map (lambda (new-row)
+		     (adjoin-position new-row k rest-of-queens))
+		   (enumerate-interval 1 board-size)))
+	    (queen-cols (- k 1))))))
+    (queen-cols board-size))
 
-*** TODO Exercise 2.17
+#+end_src
 
-*** TODO Exercise 2.18
+#+begin_src scheme :exports both :results output
+<<k-queens>>
+<<flatmap>>
+<<enumerate-interval>>
+<<accumulate>>
+<<filter>>
+  (define empty-board '())
+  (define (adjoin-position new-row k rest-of-queens)
+    (cons (cons k new-row) rest-of-queens))
+  (define (safe? k positions)
+    (cond ((null? (cdr positions)) #t)
+	  ((= k 1) #t)
+	  ((= (cdar positions) (cdadr positions)) #f)
+	  ((= (abs (- (cdar positions) (cdadr positions))) (abs (- (caar positions) (caadr positions)))) #f)
+	  (else (safe? k (cons (car positions) (cddr positions))))))
+(map (lambda (x) (show #t " " x "\n")) (queens 8))
+#+end_src
 
-*** TODO Exercise 2.19
+#+RESULTS:
+#+begin_example
+ ((8 . 4) (7 . 2) (6 . 7) (5 . 3) (4 . 6) (3 . 8) (2 . 5) (1 . 1))
+ ((8 . 5) (7 . 2) (6 . 4) (5 . 7) (4 . 3) (3 . 8) (2 . 6) (1 . 1))
+ ((8 . 3) (7 . 5) (6 . 2) (5 . 8) (4 . 6) (3 . 4) (2 . 7) (1 . 1))
+ ((8 . 3) (7 . 6) (6 . 4) (5 . 2) (4 . 8) (3 . 5) (2 . 7) (1 . 1))
+ ((8 . 5) (7 . 7) (6 . 1) (5 . 3) (4 . 8) (3 . 6) (2 . 4) (1 . 2))
+ ((8 . 4) (7 . 6) (6 . 8) (5 . 3) (4 . 1) (3 . 7) (2 . 5) (1 . 2))
+ ((8 . 3) (7 . 6) (6 . 8) (5 . 1) (4 . 4) (3 . 7) (2 . 5) (1 . 2))
+ ((8 . 5) (7 . 3) (6 . 8) (5 . 4) (4 . 7) (3 . 1) (2 . 6) (1 . 2))
+ ((8 . 5) (7 . 7) (6 . 4) (5 . 1) (4 . 3) (3 . 8) (2 . 6) (1 . 2))
+ ((8 . 4) (7 . 1) (6 . 5) (5 . 8) (4 . 6) (3 . 3) (2 . 7) (1 . 2))
+ ((8 . 3) (7 . 6) (6 . 4) (5 . 1) (4 . 8) (3 . 5) (2 . 7) (1 . 2))
+ ((8 . 4) (7 . 7) (6 . 5) (5 . 3) (4 . 1) (3 . 6) (2 . 8) (1 . 2))
+ ((8 . 6) (7 . 4) (6 . 2) (5 . 8) (4 . 5) (3 . 7) (2 . 1) (1 . 3))
+ ((8 . 6) (7 . 4) (6 . 7) (5 . 1) (4 . 8) (3 . 2) (2 . 5) (1 . 3))
+ ((8 . 1) (7 . 7) (6 . 4) (5 . 6) (4 . 8) (3 . 2) (2 . 5) (1 . 3))
+ ((8 . 6) (7 . 8) (6 . 2) (5 . 4) (4 . 1) (3 . 7) (2 . 5) (1 . 3))
+ ((8 . 6) (7 . 2) (6 . 7) (5 . 1) (4 . 4) (3 . 8) (2 . 5) (1 . 3))
+ ((8 . 4) (7 . 7) (6 . 1) (5 . 8) (4 . 5) (3 . 2) (2 . 6) (1 . 3))
+ ((8 . 5) (7 . 8) (6 . 4) (5 . 1) (4 . 7) (3 . 2) (2 . 6) (1 . 3))
+ ((8 . 4) (7 . 8) (6 . 1) (5 . 5) (4 . 7) (3 . 2) (2 . 6) (1 . 3))
+ ((8 . 2) (7 . 7) (6 . 5) (5 . 8) (4 . 1) (3 . 4) (2 . 6) (1 . 3))
+ ((8 . 1) (7 . 7) (6 . 5) (5 . 8) (4 . 2) (3 . 4) (2 . 6) (1 . 3))
+ ((8 . 2) (7 . 5) (6 . 7) (5 . 4) (4 . 1) (3 . 8) (2 . 6) (1 . 3))
+ ((8 . 4) (7 . 2) (6 . 7) (5 . 5) (4 . 1) (3 . 8) (2 . 6) (1 . 3))
+ ((8 . 5) (7 . 7) (6 . 1) (5 . 4) (4 . 2) (3 . 8) (2 . 6) (1 . 3))
+ ((8 . 6) (7 . 4) (6 . 1) (5 . 5) (4 . 8) (3 . 2) (2 . 7) (1 . 3))
+ ((8 . 5) (7 . 1) (6 . 4) (5 . 6) (4 . 8) (3 . 2) (2 . 7) (1 . 3))
+ ((8 . 5) (7 . 2) (6 . 6) (5 . 1) (4 . 7) (3 . 4) (2 . 8) (1 . 3))
+ ((8 . 6) (7 . 3) (6 . 7) (5 . 2) (4 . 8) (3 . 5) (2 . 1) (1 . 4))
+ ((8 . 2) (7 . 7) (6 . 3) (5 . 6) (4 . 8) (3 . 5) (2 . 1) (1 . 4))
+ ((8 . 7) (7 . 3) (6 . 1) (5 . 6) (4 . 8) (3 . 5) (2 . 2) (1 . 4))
+ ((8 . 5) (7 . 1) (6 . 8) (5 . 6) (4 . 3) (3 . 7) (2 . 2) (1 . 4))
+ ((8 . 1) (7 . 5) (6 . 8) (5 . 6) (4 . 3) (3 . 7) (2 . 2) (1 . 4))
+ ((8 . 3) (7 . 6) (6 . 8) (5 . 1) (4 . 5) (3 . 7) (2 . 2) (1 . 4))
+ ((8 . 6) (7 . 3) (6 . 1) (5 . 7) (4 . 5) (3 . 8) (2 . 2) (1 . 4))
+ ((8 . 7) (7 . 5) (6 . 3) (5 . 1) (4 . 6) (3 . 8) (2 . 2) (1 . 4))
+ ((8 . 7) (7 . 3) (6 . 8) (5 . 2) (4 . 5) (3 . 1) (2 . 6) (1 . 4))
+ ((8 . 5) (7 . 3) (6 . 1) (5 . 7) (4 . 2) (3 . 8) (2 . 6) (1 . 4))
+ ((8 . 2) (7 . 5) (6 . 7) (5 . 1) (4 . 3) (3 . 8) (2 . 6) (1 . 4))
+ ((8 . 3) (7 . 6) (6 . 2) (5 . 5) (4 . 8) (3 . 1) (2 . 7) (1 . 4))
+ ((8 . 6) (7 . 1) (6 . 5) (5 . 2) (4 . 8) (3 . 3) (2 . 7) (1 . 4))
+ ((8 . 8) (7 . 3) (6 . 1) (5 . 6) (4 . 2) (3 . 5) (2 . 7) (1 . 4))
+ ((8 . 2) (7 . 8) (6 . 6) (5 . 1) (4 . 3) (3 . 5) (2 . 7) (1 . 4))
+ ((8 . 5) (7 . 7) (6 . 2) (5 . 6) (4 . 3) (3 . 1) (2 . 8) (1 . 4))
+ ((8 . 3) (7 . 6) (6 . 2) (5 . 7) (4 . 5) (3 . 1) (2 . 8) (1 . 4))
+ ((8 . 6) (7 . 2) (6 . 7) (5 . 1) (4 . 3) (3 . 5) (2 . 8) (1 . 4))
+ ((8 . 3) (7 . 7) (6 . 2) (5 . 8) (4 . 6) (3 . 4) (2 . 1) (1 . 5))
+ ((8 . 6) (7 . 3) (6 . 7) (5 . 2) (4 . 4) (3 . 8) (2 . 1) (1 . 5))
+ ((8 . 4) (7 . 2) (6 . 7) (5 . 3) (4 . 6) (3 . 8) (2 . 1) (1 . 5))
+ ((8 . 7) (7 . 1) (6 . 3) (5 . 8) (4 . 6) (3 . 4) (2 . 2) (1 . 5))
+ ((8 . 1) (7 . 6) (6 . 8) (5 . 3) (4 . 7) (3 . 4) (2 . 2) (1 . 5))
+ ((8 . 3) (7 . 8) (6 . 4) (5 . 7) (4 . 1) (3 . 6) (2 . 2) (1 . 5))
+ ((8 . 6) (7 . 3) (6 . 7) (5 . 4) (4 . 1) (3 . 8) (2 . 2) (1 . 5))
+ ((8 . 7) (7 . 4) (6 . 2) (5 . 8) (4 . 6) (3 . 1) (2 . 3) (1 . 5))
+ ((8 . 4) (7 . 6) (6 . 8) (5 . 2) (4 . 7) (3 . 1) (2 . 3) (1 . 5))
+ ((8 . 2) (7 . 6) (6 . 1) (5 . 7) (4 . 4) (3 . 8) (2 . 3) (1 . 5))
+ ((8 . 2) (7 . 4) (6 . 6) (5 . 8) (4 . 3) (3 . 1) (2 . 7) (1 . 5))
+ ((8 . 3) (7 . 6) (6 . 8) (5 . 2) (4 . 4) (3 . 1) (2 . 7) (1 . 5))
+ ((8 . 6) (7 . 3) (6 . 1) (5 . 8) (4 . 4) (3 . 2) (2 . 7) (1 . 5))
+ ((8 . 8) (7 . 4) (6 . 1) (5 . 3) (4 . 6) (3 . 2) (2 . 7) (1 . 5))
+ ((8 . 4) (7 . 8) (6 . 1) (5 . 3) (4 . 6) (3 . 2) (2 . 7) (1 . 5))
+ ((8 . 2) (7 . 6) (6 . 8) (5 . 3) (4 . 1) (3 . 4) (2 . 7) (1 . 5))
+ ((8 . 7) (7 . 2) (6 . 6) (5 . 3) (4 . 1) (3 . 4) (2 . 8) (1 . 5))
+ ((8 . 3) (7 . 6) (6 . 2) (5 . 7) (4 . 1) (3 . 4) (2 . 8) (1 . 5))
+ ((8 . 4) (7 . 7) (6 . 3) (5 . 8) (4 . 2) (3 . 5) (2 . 1) (1 . 6))
+ ((8 . 4) (7 . 8) (6 . 5) (5 . 3) (4 . 1) (3 . 7) (2 . 2) (1 . 6))
+ ((8 . 3) (7 . 5) (6 . 8) (5 . 4) (4 . 1) (3 . 7) (2 . 2) (1 . 6))
+ ((8 . 4) (7 . 2) (6 . 8) (5 . 5) (4 . 7) (3 . 1) (2 . 3) (1 . 6))
+ ((8 . 5) (7 . 7) (6 . 2) (5 . 4) (4 . 8) (3 . 1) (2 . 3) (1 . 6))
+ ((8 . 7) (7 . 4) (6 . 2) (5 . 5) (4 . 8) (3 . 1) (2 . 3) (1 . 6))
+ ((8 . 8) (7 . 2) (6 . 4) (5 . 1) (4 . 7) (3 . 5) (2 . 3) (1 . 6))
+ ((8 . 7) (7 . 2) (6 . 4) (5 . 1) (4 . 8) (3 . 5) (2 . 3) (1 . 6))
+ ((8 . 5) (7 . 1) (6 . 8) (5 . 4) (4 . 2) (3 . 7) (2 . 3) (1 . 6))
+ ((8 . 4) (7 . 1) (6 . 5) (5 . 8) (4 . 2) (3 . 7) (2 . 3) (1 . 6))
+ ((8 . 5) (7 . 2) (6 . 8) (5 . 1) (4 . 4) (3 . 7) (2 . 3) (1 . 6))
+ ((8 . 3) (7 . 7) (6 . 2) (5 . 8) (4 . 5) (3 . 1) (2 . 4) (1 . 6))
+ ((8 . 3) (7 . 1) (6 . 7) (5 . 5) (4 . 8) (3 . 2) (2 . 4) (1 . 6))
+ ((8 . 8) (7 . 2) (6 . 5) (5 . 3) (4 . 1) (3 . 7) (2 . 4) (1 . 6))
+ ((8 . 3) (7 . 5) (6 . 2) (5 . 8) (4 . 1) (3 . 7) (2 . 4) (1 . 6))
+ ((8 . 3) (7 . 5) (6 . 7) (5 . 1) (4 . 4) (3 . 2) (2 . 8) (1 . 6))
+ ((8 . 5) (7 . 2) (6 . 4) (5 . 6) (4 . 8) (3 . 3) (2 . 1) (1 . 7))
+ ((8 . 6) (7 . 3) (6 . 5) (5 . 8) (4 . 1) (3 . 4) (2 . 2) (1 . 7))
+ ((8 . 5) (7 . 8) (6 . 4) (5 . 1) (4 . 3) (3 . 6) (2 . 2) (1 . 7))
+ ((8 . 4) (7 . 2) (6 . 5) (5 . 8) (4 . 6) (3 . 1) (2 . 3) (1 . 7))
+ ((8 . 4) (7 . 6) (6 . 1) (5 . 5) (4 . 2) (3 . 8) (2 . 3) (1 . 7))
+ ((8 . 6) (7 . 3) (6 . 1) (5 . 8) (4 . 5) (3 . 2) (2 . 4) (1 . 7))
+ ((8 . 5) (7 . 3) (6 . 1) (5 . 6) (4 . 8) (3 . 2) (2 . 4) (1 . 7))
+ ((8 . 4) (7 . 2) (6 . 8) (5 . 6) (4 . 1) (3 . 3) (2 . 5) (1 . 7))
+ ((8 . 6) (7 . 3) (6 . 5) (5 . 7) (4 . 1) (3 . 4) (2 . 2) (1 . 8))
+ ((8 . 6) (7 . 4) (6 . 7) (5 . 1) (4 . 3) (3 . 5) (2 . 2) (1 . 8))
+ ((8 . 4) (7 . 7) (6 . 5) (5 . 2) (4 . 6) (3 . 1) (2 . 3) (1 . 8))
+ ((8 . 5) (7 . 7) (6 . 2) (5 . 6) (4 . 3) (3 . 1) (2 . 4) (1 . 8))
+#+end_example
 
-*** TODO Exercise 2.20
+Because of really terrible introduction, this exercise took me 6 times
+more than it's worth.
 
-*** TODO Exercise 2.21
+*** DONE Exercise 2.43 slow k-queens
+    CLOSED: [2019-09-17 Tue 22:55]
 
-*** TODO Exercise 2.22
+To answer this exercise, we need to estimate the complexity of the
+canonical solution and Louis' solution.
 
-*** TODO Exercise 2.23
+For the canonical solution, we can safely assume that the ~safe?~
+procedure filters out no sequences at all (this would only worsen our
+estimate). Therefore, every additional column would multiply the total
+computation needed by the size of the column. Roughly speaking, this
+would be \(k^k \approx 2^k \rightarrow 2^{}^6 = 64\).
 
-*** TODO Exercise 2.24
+For the Louis's solution, however, the ~(queen-cols (- k 1))~ is
+solved for every value of ~k~ from scratch, which is not necessary,
+and adds an additional multiplicand of \(k^{k-1}\) for every
+~k~. Roughly speaking, this adds an additional power of \(k-1\) to the
+solution time. \( (k\cdot T)^k \approx 2^{6k}\rightarrow 2^{36}\). A little bit too much.
 
-*** TODO Exercise 2.25
+*** Remark. Now we are starting the "picture language" chapter. 
+It may (and will) require extensive modification to the standard
+working environment, because I am not using the most default nowadays
+Racket. In this subsection I will implement the required subroutines.
 
-*** TODO Exercise 2.26
+(define wave2 (beside wave (flip-vert wave)))
+     (define wave4 (below wave2 wave2))
 
-*** TODO Exercise 2.27
+SICP is incredibly confusing in this chapter. 
 
-*** TODO Exercise 2.28
+The following is one of the most prominent examples:
+#+begin_src scheme :exports both :results value
+(define (segments->painter segment-list)
+       (lambda (frame)
+         (for-each
+          (lambda (segment)
+            (draw-line
+             ((frame-coord-map frame) (start-segment segment))
+             ((frame-coord-map frame) (end-segment segment))))
+          segment-list)))
+#+end_src
 
-*** TODO Exercise 2.29
+#+begin_src scheme :exports both :results raw value
+    (define canvas-size
+      (make-parameter
+       200
+       (lambda (size)
+	 (if (and (exact-integer? size) (<= 2 size 1000))
+	     size
+	     (error "invalid canvas size")))))
+    (define canvas-file-name
+      (make-parameter
+       "/tmp/scheme-temp.gif"
+       (lambda (name)
+	 (if (string? name)
+	     name
+	     (error "invalid canvas file name")))))
+    (define (draw-line point1 point2)
+      (system "rm" (canvas-file-name))
+      (system "convert" "xc:white"
+	      "-scale" (string-append
+			(number->string (canvas-size))
+			"x"
+			(number->string (canvas-size)))
+	      (canvas-file-name))
+	(system "mogrify"
+		"-fill" "black"
+		"-draw" (string-append "line "
+				     (number->string (* (canvas-size) (car point1)))
+				     ","
+				     (number->string (* (canvas-size) (cdr point1)))
+				     " "
+				     (number->string (* (canvas-size) (car point2)))
+				     ","
+				     (number->string (* (canvas-size) (cdr point2))))
+		(canvas-file-name))
+      (string-append "[[" (canvas-file-name) "]]"))
+  (draw-line (cons 0 0) (cons 1 1))
+#+end_src
 
-*** TODO Exercise 2.30
+#+RESULTS:
 
-*** TODO Exercise 2.31
 
-*** TODO Exercise 2.32
-
-*** TODO Exercise 2.33
-
-*** TODO Exercise 2.34
-
-*** TODO Exercise 2.35
-
-*** TODO Exercise 2.36
-
-*** TODO Exercise 2.37
-
-*** TODO Exercise 2.38
-
-*** TODO Exercise 2.39
-
-*** TODO Exercise 2.40
-
-*** TODO Exercise 2.41
-
-*** TODO Exercise 2.42
-
-*** TODO Exercise 2.43
-
-*** TODO Exercise 2.44
+*** TODO Figure 2.10 Wave painter
+*** TODO Exercise 2.44 
 
 *** TODO Exercise 2.45
 
