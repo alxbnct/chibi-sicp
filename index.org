@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-09-20 00:27:46 lockywolf>
+# Time-stamp: <2019-09-20 16:34:51 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -35,7 +35,7 @@
 
 #+RESULTS: common
 
-* SICP [26%]
+* SICP [27%]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -2931,7 +2931,7 @@ pictures, but I already can say that I have solved _all_ problems of the
 first chapter of SICP. Some macros are wrong, I need to revise them, but that
 will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
 
-** TODO Chapter 2: Building abstractions with Data [44/108]
+** TODO Chapter 2: Building abstractions with Data [47/102]
 *** DONE Exercise 2.1 make-rat
     CLOSED: [2019-09-06 Fri 13:00]
 
@@ -4813,65 +4813,300 @@ The following is one of the most prominent examples:
           segment-list)))
 #+end_src
 
+#+begin_src scheme :exports both :results raw value :noweb-ref draw-line
+  (define canvas-size
+    (make-parameter
+     200
+     (lambda (size)
+       (if (and (exact-integer? size) (<= 2 size 1000))
+	   size
+	   (error "invalid canvas size")))))
+  (define canvas-file-name
+    (make-parameter
+     "/tmp/scheme-temp.gif"
+     (lambda (name)
+       (if (string? name)
+	   name
+	   (error "invalid canvas file name")))))
+  (define (canvas-reset)
+    (system "rm" (canvas-file-name))
+    (system "convert" "xc:white"
+	    "-scale" (string-append
+		      (number->string (canvas-size))
+		      "x"
+		      (number->string (canvas-size)))
+	    (canvas-file-name)))
+  (define (canvas-refresh)
+    (string-append "[[" (canvas-file-name) "]]"))
+  (define (draw-line point1 point2)
+    (system "mogrify"
+	    "-fill" "black"
+	    "-draw" (string-append "line "
+				   (number->string (* (canvas-size) (car point1)))
+				   ","
+				   (number->string (* (canvas-size) (cadr point1)))
+				   " "
+				   (number->string (* (canvas-size) (car point2)))
+				   ","
+				   (number->string (* (canvas-size) (cadr point2))))
+	    (canvas-file-name))
+    (display (string-append "[[" (canvas-file-name) "]]"))
+    (string-append "[[" (canvas-file-name) "]]"))
+  (canvas-reset)
+#+end_src
+
 #+begin_src scheme :exports both :results raw value
-    (define canvas-size
-      (make-parameter
-       200
-       (lambda (size)
-	 (if (and (exact-integer? size) (<= 2 size 1000))
-	     size
-	     (error "invalid canvas size")))))
-    (define canvas-file-name
-      (make-parameter
-       "/tmp/scheme-temp.gif"
-       (lambda (name)
-	 (if (string? name)
-	     name
-	     (error "invalid canvas file name")))))
-    (define (draw-line point1 point2)
-      (system "rm" (canvas-file-name))
-      (system "convert" "xc:white"
-	      "-scale" (string-append
-			(number->string (canvas-size))
-			"x"
-			(number->string (canvas-size)))
-	      (canvas-file-name))
-	(system "mogrify"
-		"-fill" "black"
-		"-draw" (string-append "line "
-				     (number->string (* (canvas-size) (car point1)))
-				     ","
-				     (number->string (* (canvas-size) (cdr point1)))
-				     " "
-				     (number->string (* (canvas-size) (car point2)))
-				     ","
-				     (number->string (* (canvas-size) (cdr point2))))
-		(canvas-file-name))
-      (string-append "[[" (canvas-file-name) "]]"))
-  (draw-line (cons 0 0) (cons 1 1))
+  <<draw-line>>
+  (draw-line (list 0 0) (list 1 1))
+  (draw-line (list 0 1) (list 1 0))
+#+end_src
+
+#+RESULTS:
+[[/tmp/scheme-temp.gif]]
+
+#+begin_src scheme :exports both :results value :noweb-ref pict-frame
+  (define (frame-coord-map frame)
+    (lambda (v)
+     (add-vect
+       (origin-frame frame)
+              (add-vect (scale-vect (xcor-vect v) (edge1-frame frame))
+		 (scale-vect (ycor-vect v) (edge2-frame frame))))))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results value
+  <<make-frame>>
+  <<pict-frame>>
+  <<pict-vect>>
+  ((frame-coord-map
+	   (make-frame
+	    (make-vect 0.1 0.2)
+	    (make-vect 1.0 1.0)
+	    (make-vect 1.0 1.0))) (make-vect 0 0))
+#+end_src
+
+#+RESULTS:
+| 0.1 | 0.2 |
+
+#+begin_src scheme :exports both :results raw value :noweb-ref segments-painter
+  (define (segments->painter segment-list)
+    (lambda (frame)
+      (for-each
+       (lambda (segment)
+	 (draw-line
+	  ((frame-coord-map frame)
+	   (start-segment segment))
+	  ((frame-coord-map frame)
+	   (end-segment segment))))
+       segment-list)))
+#+end_src
+
+*** TODO Figure 2.10 Wave painter
+*** TODO Exercise 2.44 
+*** TODO Exercise 2.45
+*** DONE Exercise 2.46 make-vect
+    CLOSED: [2019-09-20 Fri 12:48]
+#+begin_src scheme :exports both :results value :noweb-ref pict-vect
+  (define (make-vect xcor ycor . o)
+    (append (list xcor) (list ycor) o))
+  (define (xcor-vect vect)
+    (car vect))
+  (define (ycor-vect vect)
+    (cadr vect))
+  (define (scale-vect scale vect)
+    (map (lambda (x) (* x scale)) vect))
+  (define (add-vect vec1 vec2)
+    (map (lambda (cor1 cor2) (+ cor1 cor2)) vec1 vec2))
+  (define (sub-vect vec1 vec2)
+    (map (lambda (cor1 cor2) (- cor1 cor2)) vec1 vec2))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+<<pict-vect>>
+(show #t (make-vect 1 2 3) "\n")
+(show #t (xcor-vect (make-vect 1 2 3)) "\n")
+(show #t (ycor-vect (make-vect 1 2 3)) "\n")
+(show #t (scale-vect 2 (make-vect 1 2 3)) "\n")
+(show #t (add-vect (make-vect 1 2 3) (make-vect 1 2 3)) "\n")
+(show #t (sub-vect (make-vect 1 2 3) (make-vect 1 2 3)) "\n")
+#+end_src
+
+#+RESULTS:
+: (1 2 3)
+: 1
+: 2
+: (2 4 6)
+: (2 4 6)
+: (0 0 0)
+
+*** DONE Exercise 2.47 make-frame
+    CLOSED: [2019-09-20 Fri 14:48]
+#+begin_src scheme :exports both :results value :noweb-ref make-frame
+(define (make-frame origin edge1 edge2)
+  (list origin edge1 edge2))
+(define (origin-frame frame)
+  (car frame))
+(define (edge1-frame frame)
+  (cadr frame))
+(define (edge2-frame frame)
+  (caddr frame))
+#+end_src
+#+begin_src scheme :exports both :results output
+<<make-frame>>
+<<pict-vect>>
+(make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))
+(origin-frame (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
+(edge1-frame  (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
+(edge2-frame  (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
 #+end_src
 
 #+RESULTS:
 
+#+begin_src scheme :exports both :results output
+<<pict-vect>>
+  (define (make-frame origin edge1 edge2)
+    (cons origin (cons edge1 edge2)))
+  (define (origin-frame frame)
+    (car frame))
+  (define (edge1-frame frame)
+    (cadr frame))
+  (define (edge2-frame frame)
+    (cddr frame))
+  (show #t (origin-frame (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))) "\n")
+  (show #t (edge1-frame (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))) "\n")
+  (show #t (edge2-frame (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))) "\n")
+#+end_src
 
-*** TODO Figure 2.10 Wave painter
-*** TODO Exercise 2.44 
+#+RESULTS:
+: (0.1 0.2)
+: (0.1 0.2)
+: (0.0 0.3)
 
-*** TODO Exercise 2.45
+*** DONE Exercise 2.48 make-segment
+    CLOSED: [2019-09-20 Fri 16:06]
+#+begin_src scheme :exports both :results value :noweb-ref pict-segment
+  (define (make-segment start-vector end-vector)
+    (list start-vector end-vector))
+  (define (start-segment segment)
+    (car segment))
+  (define (end-segment segment)
+    (cadr segment))
+#+end_src
 
-*** TODO Exercise 2.46
+#+begin_src scheme :exports both :results raw value
+  <<draw-line>>
+  <<pict-segment>>
+  <<segments-painter>>
+  <<pict-vect>>
+  <<make-frame>>
+  <<pict-frame>>
+  ((segments->painter
+    (list
+     (make-segment (make-vect 0 0) (make-vect 1 1))
+     (make-segment (make-vect 0 1) (make-vect 1 0))))
+   (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+  (canvas-refresh)
+#+end_src
 
-*** TODO Exercise 2.47
-
-*** TODO Exercise 2.48
+#+RESULTS:
+[[/tmp/scheme-temp.gif]]
 
 *** TODO Exercise 2.49
+
+#+begin_src scheme :exports both :results value :noweb-ref x-painter
+(define x-painter
+  (segments->painter
+    (list
+     (make-segment (make-vect 0 0) (make-vect 1 1))
+     (make-segment (make-vect 0 1) (make-vect 1 0)))))
+#+end_src
+
+#+begin_src scheme :exports both :results raw value
+  <<draw-line>>
+  <<pict-segment>>
+  <<segments-painter>>
+  <<pict-vect>>
+  <<make-frame>>
+  <<pict-frame>>
+  <<x-painter>>
+  (x-painter
+   (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+  (canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[/tmp/scheme-temp.gif]]
+
+This painter is not entirely accurate, because my background is black,
+so the lines would coalesce with it. I therefore just moved the lines
+a little bit inside.
+
+#+begin_src scheme :exports both :results value :noweb-ref frame-boundary-painter
+(define frame-boundary-painter
+  (segments->painter
+    (list
+     (make-segment (make-vect 0.01 0.01) (make-vect 0.01 0.99))
+     (make-segment (make-vect 0.01 0.99) (make-vect 0.99 0.99))
+     (make-segment (make-vect 0.99 0.99) (make-vect 0.99 0.01))
+     (make-segment (make-vect 0.99 0.01) (make-vect 0.01 0.01)))))
+#+end_src
+
+#+begin_src scheme :exports both :results raw value
+  <<draw-line>>
+  <<pict-segment>>
+  <<segments-painter>>
+  <<pict-vect>>
+  <<make-frame>>
+  <<pict-frame>>
+  <<frame-boundary-painter>>
+
+  (frame-boundary-painter
+   (make-frame (make-vect 0.1 0.1) (make-vect 0.1 0.05) (make-vect 0.5 0)))
+  (canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[/tmp/scheme-temp.gif]]
+
+#+begin_src scheme :exports both :results value :noweb-ref diamond-painter
+(define diamond-painter
+  (segments->painter
+    (list
+     (make-segment (make-vect 0.01 0.5) (make-vect 0.5 0.99))
+     (make-segment (make-vect 0.5 0.99) (make-vect 0.99 0.5))
+     (make-segment (make-vect 0.99 0.5) (make-vect 0.5 0.01))
+     (make-segment (make-vect 0.5 0.01) (make-vect 0.01 0.5)))))
+#+end_src
+
+#+begin_src scheme :exports both :results raw value
+  <<draw-line>>
+  <<pict-segment>>
+  <<segments-painter>>
+  <<pict-vect>>
+  <<make-frame>>
+  <<pict-frame>>
+  <<diamond-painter>>
+
+  (diamond-painter
+   (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+  (canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[/tmp/scheme-temp.gif]]
+
 
 *** TODO Exercise 2.50
 
 *** TODO Exercise 2.51
 
 *** TODO Exercise 2.52
+*** Remark. Here the picture language chapter stops
 
 *** TODO Exercise 2.53
 
@@ -5400,3 +5635,5 @@ The following is one of the most prominent examples:
 
 [fn:1] This exercise took me 7 hours.
 
+
+#  LocalWords:  vec vect
