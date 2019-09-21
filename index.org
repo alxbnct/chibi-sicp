@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-09-20 16:34:51 lockywolf>
+# Time-stamp: <2019-09-21 14:56:59 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -2931,7 +2931,7 @@ pictures, but I already can say that I have solved _all_ problems of the
 first chapter of SICP. Some macros are wrong, I need to revise them, but that
 will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
 
-** TODO Chapter 2: Building abstractions with Data [47/102]
+** TODO Chapter 2: Building abstractions with Data [49/102]
 *** DONE Exercise 2.1 make-rat
     CLOSED: [2019-09-06 Fri 13:00]
 
@@ -4813,7 +4813,7 @@ The following is one of the most prominent examples:
           segment-list)))
 #+end_src
 
-#+begin_src scheme :exports both :results raw value :noweb-ref draw-line
+#+begin_src scheme :exports both :results output :noweb-ref draw-line
   (define canvas-size
     (make-parameter
      200
@@ -4822,12 +4822,12 @@ The following is one of the most prominent examples:
 	   size
 	   (error "invalid canvas size")))))
   (define canvas-file-name
-    (make-parameter
-     "/tmp/scheme-temp.gif"
-     (lambda (name)
-       (if (string? name)
-	   name
-	   (error "invalid canvas file name")))))
+     (make-parameter
+        (string-append "./" (substring (process->string "uuidgen") 0 36) ".gif")
+	(lambda (name)
+	  (if (string? name)
+	      name
+	      (error "invalid canvas file name")))))
   (define (canvas-reset)
     (system "rm" (canvas-file-name))
     (system "convert" "xc:white"
@@ -4838,6 +4838,7 @@ The following is one of the most prominent examples:
 	    (canvas-file-name)))
   (define (canvas-refresh)
     (string-append "[[" (canvas-file-name) "]]"))
+  (canvas-reset)
   (define (draw-line point1 point2)
     (system "mogrify"
 	    "-fill" "black"
@@ -4852,8 +4853,10 @@ The following is one of the most prominent examples:
 	    (canvas-file-name))
     (display (string-append "[[" (canvas-file-name) "]]"))
     (string-append "[[" (canvas-file-name) "]]"))
-  (canvas-reset)
 #+end_src
+
+#+RESULTS:
+
 
 #+begin_src scheme :exports both :results raw value
   <<draw-line>>
@@ -4862,7 +4865,7 @@ The following is one of the most prominent examples:
 #+end_src
 
 #+RESULTS:
-[[/tmp/scheme-temp.gif]]
+[[./d890f987-3ba1-41f4-a2b2-c427aa7c2858.gif]]
 
 #+begin_src scheme :exports both :results value :noweb-ref pict-frame
   (define (frame-coord-map frame)
@@ -4902,6 +4905,43 @@ The following is one of the most prominent examples:
 	   (end-segment segment))))
        segment-list)))
 #+end_src
+
+#+begin_src scheme :exports both :results value :noweb-ref rogers
+  (define (rogers frame)
+    (define (pict-vect->magick-vect vector)
+      (string-append
+       (number->string (+ 1 (* (canvas-size) (xcor-vect vector))))
+       ","
+       (number->string (+ 1 (* (canvas-size) (ycor-vect vector))))))
+    (system "mogrify" "-adjoin" "(" "./assets/rogers.png"
+	     "-distort" "Affine"
+	     (string-append 
+		"1,1 "    (pict-vect->magick-vect (origin-frame frame))
+		" 149,1 "   (pict-vect->magick-vect (add-vect
+						   (origin-frame frame)
+						   (edge2-frame  frame)))
+                " 1,180 "  (pict-vect->magick-vect (add-vect
+						   (origin-frame frame)
+						   (edge1-frame  frame)))) ")"
+	     (canvas-file-name)))
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results raw value
+<<pict-vect>>
+<<pict-frame>>
+<<make-frame>>
+<<rogers>>
+<<draw-line>>
+(rogers (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+(canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[./885fd88e-4e15-478d-987d-eafd2a56aa02.gif]]
+
 
 *** TODO Figure 2.10 Wave painter
 *** TODO Exercise 2.44 
@@ -5016,7 +5056,8 @@ The following is one of the most prominent examples:
 #+RESULTS:
 [[/tmp/scheme-temp.gif]]
 
-*** TODO Exercise 2.49
+*** DONE Exercise 2.49 segments->painter applications
+    CLOSED: [2019-09-20 Fri 23:10]
 
 #+begin_src scheme :exports both :results value :noweb-ref x-painter
 (define x-painter
@@ -5040,7 +5081,7 @@ The following is one of the most prominent examples:
 #+end_src
 
 #+RESULTS:
-[[/tmp/scheme-temp.gif]]
+[[./a58f8946-42b6-43c4-89a5-59e892599394.gif]]
 
 This painter is not entirely accurate, because my background is black,
 so the lines would coalesce with it. I therefore just moved the lines
@@ -5071,7 +5112,7 @@ a little bit inside.
 #+end_src
 
 #+RESULTS:
-[[/tmp/scheme-temp.gif]]
+[[./c03f59fb-c473-4cc1-bb80-20c97e7e7594.gif]]
 
 #+begin_src scheme :exports both :results value :noweb-ref diamond-painter
 (define diamond-painter
@@ -5098,12 +5139,119 @@ a little bit inside.
 #+end_src
 
 #+RESULTS:
-[[/tmp/scheme-temp.gif]]
+[[./90918df1-a802-4df6-a10d-afc50547bc72.gif]]
 
+Remark: solving the Exercise 2.49d is not possible. It would be
+possible to provide a finite approximation to the solution, indeed,
+but that is not what was actually required. An exact solution,
+however, would require some implementation of curved drawing, since
+the wavy outline is clearly created using smooth curves.
 
-*** TODO Exercise 2.50
+*** DONE Exercise 2.50 flip-horiz and rotate270 and rotate180
+    CLOSED: [2019-09-20 Fri 23:37]
+0:27:00
+#+begin_src scheme :exports both :results value :noweb-ref transform-painter
+  (define (transform-painter painter origin corner1 corner2)
+    (lambda (frame)
+      (let ((m (frame-coord-map frame)))
+	(let ((new-origin (m origin)))
+	  (painter (make-frame
+		    new-origin
+		    (sub-vect (m corner1) new-origin)
+		    (sub-vect (m corner2) new-origin)))))))
+#+end_src
 
-*** TODO Exercise 2.51
+#+begin_src scheme :exports both :results value :noweb-ref flip-horiz
+  (define (flip-horiz painter)
+    (transform-painter painter
+		       (make-vect 1.0 0.0)
+		       (make-vect 0.0 0.0)
+		       (make-vect 1.0 1.0)))
+#+end_src
+
+#+begin_src scheme :exports both :results raw value
+<<flip-horiz>>
+<<pict-vect>>
+<<pict-segment>>
+<<segments-painter>>
+<<transform-painter>>
+<<make-frame>>
+<<pict-frame>>
+<<draw-line>>
+(define bltr-line-painter
+  (segments->painter
+    (list
+     (make-segment (make-vect 0.0 0.00) (make-vect 1 1.0)))))
+((flip-horiz bltr-line-painter) (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+(canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[./16a1c73c-b94a-43b4-b8e1-23070e9b74e3.gif]]
+
+#+begin_src scheme :exports both :results value :noweb-ref rotate180
+  (define (rotate180 painter)
+    (transform-painter painter
+		       (make-vect 1.0 1.0)
+		       (make-vect 0.0 1.0)
+		       (make-vect 1.0 0.0)))
+#+end_src
+
+#+begin_src scheme :exports both :results raw value
+<<rotate180>>
+<<pict-vect>>
+<<pict-segment>>
+<<segments-painter>>
+<<transform-painter>>
+<<make-frame>>
+<<pict-frame>>
+<<draw-line>>
+(define ne-arrow-painter
+  (segments->painter
+    (list
+     (make-segment (make-vect 0.0 0.00) (make-vect 0.9 0.9))
+     (make-segment (make-vect 0.9 0.9) (make-vect 0.9 0.7))
+     (make-segment (make-vect 0.9 0.9) (make-vect 0.7 0.9)))))
+#;(ne-arrow-painter (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+((rotate180 ne-arrow-painter) (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+(canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[./5c326456-1e75-40de-a335-8ec356c6b6e4.gif]]
+
+#+begin_src scheme :exports both :results value :noweb-ref rotate270
+  (define (rotate270 painter)
+    (transform-painter painter
+		       (make-vect 0.0 1.0)
+		       (make-vect 0.0 0.0)
+		       (make-vect 1.0 1.0)))
+#+end_src
+
+#+begin_src scheme :exports both :results raw value
+<<rotate270>>
+<<pict-vect>>
+<<pict-segment>>
+<<segments-painter>>
+<<transform-painter>>
+<<make-frame>>
+<<pict-frame>>
+<<draw-line>>
+(define ne-arrow-painter
+  (segments->painter
+    (list
+     (make-segment (make-vect 0.0 0.00) (make-vect 0.9 0.9))
+     (make-segment (make-vect 0.9 0.9) (make-vect 0.9 0.7))
+     (make-segment (make-vect 0.9 0.9) (make-vect 0.7 0.9)))))
+#;(ne-arrow-painter (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+((rotate270 ne-arrow-painter) (make-frame (make-vect 0 0) (make-vect 0 1) (make-vect 1 0)))
+(canvas-refresh)
+#+end_src
+
+#+RESULTS:
+[[./0a1372f7-c289-4dff-bd50-b9aa3eb887ac.gif]]
+
+*** TODO Exercise 2.51 
 
 *** TODO Exercise 2.52
 *** Remark. Here the picture language chapter stops
