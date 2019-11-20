@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-10-29 00:12:42 lockywolf>
+# Time-stamp: <2019-11-20 13:44:45 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -20,7 +20,7 @@
 #+end_src
 
 #+RESULTS:
-| -m | chibi | -m | chibi show | -m | chibi show pretty | -m | chibi ast | -m | chibi time | -m | srfi 27 |
+| -m | chibi | -m | srfi 159 | -m | chibi ast | -m | chibi time | -m | srfi 27 | -m | chibi process | -m | srfi 42 | -m | srfi 78 |
 
 ** Some common code blocks
 
@@ -35,7 +35,7 @@
 
 #+RESULTS: common
 
-* SICP [41%]
+* SICP [43%]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -3558,6 +3558,7 @@ turned out to be less fit for this problem.
 [[file:figure-2-2.png]]
 
 
+
 #+name: tikztest
 #+header: :imagemagick yes :iminoptions -density 600 :imoutoptions -geometry 200
 #+header: :fit yes :headers '("\\usepackage{tikz}")
@@ -3578,6 +3579,7 @@ turned out to be less fit for this problem.
 
 #+RESULTS: tikztest
 [[file:test.png]]
+
 
 #+begin_src plantuml :exports both :file ditaa.png
 @startditaa
@@ -19120,26 +19122,613 @@ Computer programs.
 
 The main pedagogical conclusion one may infer from this exercise is that it
 is a good idea to read a book on algebra and integer algorithms.
-** TODO Chapter 3: Modularity, Objects and State [0/82]
+** TODO Chapter 3: Modularity, Objects and State [8/82]
+*** DONE Exercise 3.1 accumulators
+    CLOSED: [2019-10-29 Tue 10:24]
+
+#+begin_src scheme :exports both :results output
+(define (make-accumulator initial-amount)
+   (lambda (increment) (set! initial-amount (+ initial-amount increment)) initial-amount))
+(define A (make-accumulator 5))
+(check (A 10) => 15)
+(check (A 20) => 35)
+(define B (make-accumulator 100))
+(check (B 200) => 300)
+(check (B   1) => 301)
+#+end_src
+
+#+RESULTS:
+: 
+: (A 10) => 15 ; correct
+: 
+: (A 20) => 35 ; correct
+: 
+: (B 200) => 300 ; correct
+: 
+: (B 1) => 301 ; correct
+
+*** DONE Exercise 3.2 make-monitored
+    CLOSED: [2019-10-29 Tue 11:03]
+
+This problem is ill-defined. In particular, it doesn't specify whether we
+should be counting calls to ~f~ only, or to ~mf~ in total, including the
+calls to ~'how-many-calls?~. 
+
+#+begin_src scheme :exports both :results output
+  (define (make-monitored f)
+    (let ((call-counter 0))
+      (lambda (arg)
+	(cond ((eq? arg 'reset-count) (set! call-counter 0))
+	      ((eq? arg 'how-many-calls?) call-counter)
+	      (else (begin (set! call-counter (+ 1 call-counter)) (f arg)))))))
+  (define s (make-monitored sqrt))
+
+  (check (s 100) => 10)
+  (check (s 'how-many-calls?) => 1)
+#+end_src
+
+#+RESULTS:
+: 
+: (s 100) => 10 ; correct
+: 
+: (s (quote how-many-calls?)) => 1 ; correct
+
+*** DONE Exercise 3.3 password protection
+    CLOSED: [2019-10-29 Tue 11:17]
+
+This exercise is slightly tricky in that it uses the less commonly used form
+of ~lambda~, which can take any number of arguments.
+
+#+begin_src scheme :exports both :results output
+(define (make-account balance password)
+       (define (withdraw amount)
+         (if (>= balance amount)
+             (begin (set! balance (- balance amount))
+                    balance)
+             "Insufficient funds"))
+       (define (deposit amount)
+         (set! balance (+ balance amount))
+         balance)
+       (define (dispatch pass m)
+        (if (eq? pass password)
+         (cond ((eq? m 'withdraw) withdraw)
+               ((eq? m 'deposit) deposit)
+               (else (error "Unknown request -- MAKE-ACCOUNT"
+                            m)))
+         (lambda rest "Incorrect password")))
+       dispatch)
+
+(define acc (make-account 100 'secret-password))
+
+(check ((acc 'secret-password 'withdraw) 40) => 60)
+
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+
+#+end_src
+
+#+RESULTS:
+: 
+: ((acc (quote secret-password) (quote withdraw)) 40) => 60 ; correct
+: 
+: ((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+*** DONE Exercise 3.4 call-the-cops
+    CLOSED: [2019-10-29 Tue 11:32]
+
+#+begin_src scheme :exports both :results output
+(define (make-account balance password)
+       (define (withdraw amount)
+         (if (>= balance amount)
+             (begin (set! balance (- balance amount))
+                    balance)
+             "Insufficient funds"))
+       (define (deposit amount)
+         (set! balance (+ balance amount))
+         balance)
+       (let ((cops-counter 7))
+        (define (call-the-cops) "Call the cops")
+        (define (dispatch pass m)
+        (if (eq? pass password)
+         (cond ((eq? m 'withdraw) withdraw)
+               ((eq? m 'deposit) deposit)
+               (else (error "Unknown request -- MAKE-ACCOUNT"
+                            m)))
+         (lambda rest 
+           (if (< 0 cops-counter)
+             (begin (set! cops-counter (- cops-counter 1)) "Incorrect password")
+             (call-the-cops)))))
+       dispatch))
+
+(define acc (make-account 100 'secret-password))
+
+(check ((acc 'secret-password 'withdraw) 40) => 60)
+
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(check ((acc 'some-other-password 'deposit) 50) => "Call the cops")
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+((acc (quote secret-password) (quote withdraw)) 40) => 60 ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+
+((acc (quote some-other-password) (quote deposit)) 50) => "Call the cops" ; correct
+#+end_example
+
+*** DONE Exercise 3.5 Monte-Carlo
+    CLOSED: [2019-10-30 Wed 00:12]
+
+I am using the random function first defined in Exercise 1.24, not the
+rand-update, because I am not very sure in my prng development skills.
+
+#+begin_src scheme :exports both :results output
+  <<random>>
+  (define (random-in-range low high)
+      (let ((range (- high low)))
+      (+ low (random range))))
+  (show #t "Test 01: " (random-in-range 1 2000) "\n")
+
+  (define (monte-carlo trials experiment)
+    (define (iter trials-remaining trials-passed)
+      (cond ((= trials-remaining 0)
+	     (/ trials-passed trials))
+	    ((experiment)
+	     (iter (- trials-remaining 1) (+ trials-passed 1)))
+	    (else
+	     (iter (- trials-remaining 1) trials-passed))))
+    (iter trials 0))
+
+  (define (is-inside-circle? x y radius)
+    #;(show #t "x=" x ", y=" y "\n")
+    (if (< (+ (expt (- x 1000) 2) (expt (- y 1000) 2)) (expt radius 2))
+	#t
+	#f))
+
+  (define (estimate-integral P x1 x2 y1 y2 trials)
+    #;(show #t "estimate-integral: x1=" x1 ", x2=" x2 ", y1=" y1 ", y2=" y2 ", trials=" trials "\n")
+    (monte-carlo trials
+		 (lambda ()
+		   (P (random-in-range x1 x2) (random-in-range y1 y2)))))
+
+  (define (estimate-pi trials)
+    (inexact (* 4 (estimate-integral
+	  (lambda (x y) (is-inside-circle? x y 1000)) 1 2000 1 2000 trials))))
+(show #t "Test 02:" (estimate-pi 100100) "\n")
+#+end_src
+
+#+RESULTS:
+: Test 01: 907
+: Test 02:3.148211788211788
+
+It took me more time to understand what exactly is wanted than to write the
+actual code.
+
+*** DONE Exercise 3.6 reset a prng
+    CLOSED: [2019-10-30 Wed 11:42]
+
+All three components in the random formula are primes. Is this good?
+
+#+begin_src scheme :exports both :results output
 
 
-*** TODO Exercise 3.1
+  (define rand
 
-*** TODO Exercise 3.2
+    (let ((seed 1))
+      (define (rand-update x)
+	(remainder (+ (* x 111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111389)
+		      211111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111801)
+		   2111111111111111111111111111111111111111227))
+      (lambda (operation)
+	(case operation
+	  ('generate (begin (show #t "Seed=" seed "\n") (set! seed (rand-update seed)) seed))
+	  ('reset (lambda (number)
+		    (set! seed number)))
+	  (else (error "rand: wrong operation" operation))))))
+  (show #t "Test 01: First random call: " (rand 'generate) "\n")
 
-*** TODO Exercise 3.3
+  ((rand 'reset) 100)
 
-*** TODO Exercise 3.4
+  (show #t "Test 02: Second random call: " (rand 'generate) "\n")
+#+end_src
 
-*** TODO Exercise 3.5
+#+RESULTS:
+: Seed=1
+: Test 01: First random call: 473684210526315790444679008925823330256457
+: Seed=100
+: Test 02: Second random call: 701754385964912314820502646968297937855541
 
-*** TODO Exercise 3.6
+*** DONE Exercise 3.7 Joint accounts
+    CLOSED: [2019-10-30 Wed 13:07]
 
-*** TODO Exercise 3.7
+This exercise illustrates a fairly common thing in programming called
+"wrapping" or "interfacing". 
 
-*** TODO Exercise 3.8
+#+begin_src scheme :exports both :results output
+(define (make-account balance password)
+       (define (withdraw amount)
+         (if (>= balance amount)
+             (begin (set! balance (- balance amount))
+                    balance)
+             "Insufficient funds"))
+       (define (deposit amount)
+         (set! balance (+ balance amount))
+         balance)
+       (define (dispatch pass m)
+        (if (eq? pass password)
+         (cond ((eq? m 'withdraw) withdraw)
+               ((eq? m 'deposit) deposit)
+               (else (error "Unknown request -- MAKE-ACCOUNT"
+                            m)))
+         (lambda rest "Incorrect password")))
+       dispatch)
 
-*** TODO Exercise 3.9
+(define acc (make-account 100 'secret-password))
+
+(check ((acc 'secret-password 'withdraw) 40) => 60)
+
+(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+
+(define (make-joint account main-password sub-password)
+ (define (dispatch pass m)
+        (if (eq? pass sub-password)
+         (account main-password m)
+         (lambda rest "Incorrect password")))
+ dispatch)
+
+(define peter-acc (make-account 100 'open-sesame))
+
+(define paul-acc
+ (make-joint peter-acc 'open-sesame 'rosebud))
+
+(check ((peter-acc 'open-sesame 'withdraw) 40) => 60)
+(check ((paul-acc  'rosebud     'deposit)  50) => 110)
+
+
+#+end_src
+
+#+RESULTS:
+: 
+: ((acc (quote secret-password) (quote withdraw)) 40) => 60 ; correct
+: 
+: ((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+: 
+: ((peter-acc (quote open-sesame) (quote withdraw)) 40) => 60 ; correct
+: 
+: ((paul-acc (quote rosebud) (quote deposit)) 50) => 110 ; correct
+
+*** DONE Exercise 3.8 Right-to-left vs Left-to-right
+    CLOSED: [2019-10-30 Wed 13:45]
+
+#+begin_src scheme :exports both :results output
+
+(define (make-lock a)
+  (lambda (arg)
+    (if (= arg 0)
+       (set! a 0))
+    a))
+(define f (make-lock 100))
+
+(show #t "Test 01:" (+ (f 0) (f 1)) "\n")
+
+(define-syntax plus-oneway
+  (syntax-rules ()
+    ((plus-oneway a b) (let* ((first a)
+                              (second b))
+                           (+ first second)))))
+(define-syntax plus-otherway
+  (syntax-rules ()
+    ((plus-otherway a b) (let* ((first b)
+                                (second a))
+                           (+ first second)))))
+(define g (make-lock 101))
+(define h (make-lock 201))
+(show #t "Test 02:" (plus-oneway   (g 0) (g 1)) "\n")
+(show #t "Test 03:" (plus-otherway (h 0) (h 1)) "\n")
+
+#+end_src
+
+#+RESULTS:
+: Test 01:100
+: Test 02:0
+: Test 03:201
+
+This is a fun exercise, which is nicely illustrated using
+macros. Unlike ~+~, ~let*~ is guaranteed to evaluate its parameters
+top to bottom, so we can specify the order of evaluation. The order of
+evaluation in the next ~+~ does not matter, because its arguments are
+already values and so evaluate to themselves.
+
+*** TODO COMMENT Figure 3.5                                                    :tikz:
+#+name: remark-environments-tikz
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 800
+#+header: :fit yes :headers '("\\usepackage{tikz}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports code :file figure-3-5.png
+  
+  \begin{tikzpicture}
+  [color=white,
+   scheme/.style={filldraw,
+                  rectangle,
+                  draw=white,
+                  fill=black!50,
+                  rounded corners,
+                  minimum size=2cm,
+                  align=left}
+  ]
+
+  \node (0,0) {};
+  \node (0,6.5) {};  
+  \node (13.0,0) {};
+  \node (13.0,6.5) {};
+    
+  %\filldraw[scheme,label=center:{x:2}] (2.0,  4.5) rectangle (13.0,6.5) ;
+  \path (7.5,5.5) node[scheme,minimum width=11.5cm,minimum height=2cm] { test }
+  %\filldraw[scheme] (2.0,  2.0) rectangle (4.0 ,4.0) ;
+  \path  (3.0,3.0) node[scheme] {E2};
+  \filldraw[scheme] (5.0,  2.0) rectangle (7.0 ,4.0) ;
+  \filldraw[scheme] (8.0,  2.0) rectangle (10.0,4.0) ;
+  \filldraw[scheme] (11.0, 2.0) rectangle (13.0,4.0) ;
+
+  \draw[fill=yellow,font=\verylarge,align=left] (1.0,5.5) node {global\\ env};
+
+  \end{tikzpicture}
+#+end_src
+
+#+RESULTS: remark-environments-tikz
+[[file:figure-3-9.png]]
+
+
+*** TODO Exercise 3.9 Environment structures
+
+Okay, this is not a very good solution. I only display the
+environments, and the code is only displayed to clarify the
+environments. The ~if~ special forms are expanded.
+
+Let us draw the environment number 1.
+
+#+name: exercise-3-9-part-1
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-9-part-1.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+     font=\sffamily,pics/two dots/.style={code={
+     \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+     (#1-left) {};
+    \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+    right=0pt of #1-left]
+        (#1-right) {};
+    \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+    }},
+    every pin edge/.style={<-,very thick},
+    box/.style={draw,rectangle,inner sep=#1},box/.default=2mm]
+  % 
+  \node (W1)  {factorial:};
+  \node (fake1) [right=190mm of W1] {};  
+  %
+  \node (g env) [box, fit=(W1) (fake1),
+  pin={[text width=1cm,pin distance=10mm]left:global env}]
+  { };
+  %
+  \path ([yshift=-20mm]W1.east)pic{two dots=w1fun}
+    (w1fun) edge [<-, to path={|- (\tikztotarget)}] (W1.east);
+  %
+  \node [below=of w1fun-left, align=left] {parameters: n \\ body: \dots}
+    edge [<-] (w1fun-left.center); 
+  
+  \path (w1fun-right.center) edge[->,to path={-| (\tikztotarget)}] 
+    (node cs:name=g env,angle=183);
+\path (g env.south west) -- (g env.south east)
+\foreach \idx in {1,...,5}  
+{  
+  node [pos=1/7.5+\idx/7.5] (fake2-\idx)  {}
+  node (E\idx-env) [below=5mm of fake2-\idx,box,
+    pin={[pin distance=5mm]left:E\idx}] {n:\idx}
+    edge [->] (fake2-\idx)
+  
+  node (E\idx-code) [below=5mm of E\idx-env, align=center]{
+       (* \the\numexpr7-\idx \hskip5pt (factorial \the\numexpr6-\idx))
+    }
+} 
+node [pos=1/7.5+6/7.5] (fake2-6) {}
+node (E6-env) [below=5mm of fake2-6,box,
+    pin={[pin distance=5mm]left:E6}] {n:1}
+    edge [->] (fake2-6)
+node (E6-code) [below=5mm of E6-env, align=center]{
+       1
+    };
+%\draw (g env.south east) node [draw=red,rectangle]  {debug};
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-9-part-1
+[[file:exercise-3-9-part-1.png]]
+
+
+Let us draw the environment number 2.
+
+
+#+name: exercise-3-9-part-2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-9-part-2.png
+\def \lwfcount {1}
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+     font=\sffamily,pics/two dots/.style={code={
+     \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+     (#1-left) {};
+    \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+    right=0pt of #1-left]
+        (#1-right) {};
+    \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+    }},
+    every pin edge/.style={<-,very thick},
+    box/.style={draw,rectangle,inner sep=#1},box/.default=2mm]
+
+  \node (W1)   {factorial:};
+  \node (fake1) [right=340mm of W1] {};  
+  \node (fact-iter) [above=1mm of W1] {fact-iter:};
+%
+  \node (g env) [box, fit=(W1) (fake1) (fact-iter),
+  pin={[text width=1cm,pin distance=10mm]left:global env}]
+  { };
+  % factorial
+  \path ([yshift=-20mm]W1.east)pic{two dots=w1fun}
+    (w1fun) edge [<-, to path={|- (\tikztotarget)}] (W1.east);
+  \node [below=of w1fun-left, align=left] {\ttfamily \noindent parameters:\vphantom{d}n \\ body: \dots}
+    edge [<-] (w1fun-left.center); 
+  \draw[->] (w1fun-right.center) -| ([xshift=3mm] w1fun-right.east |- g env.south);
+
+  % fact-iter
+\path coordinate[base right=22mm of w1fun.east] (aux)
+    (aux) pic{two dots=fact-iter-fun}
+    (fact-iter-fun) edge [<-, to path={|- (\tikztotarget)}] (fact-iter.east);
+  \node [below=of fact-iter-fun-left, align=left,node font=\ttfamily] {
+     parameters:product,\\
+     \phantom{parameters:}counter,\\
+     \phantom{parameters:}max-count \\ body: \dots}
+    edge [<-] (fact-iter-fun-left.center); 
+  \draw[->] (fact-iter-fun-right.center) -| ([xshift=3mm] fact-iter-fun-right.east |- g env.south);
+
+\path (g env.south west) -- (g env.south east)
+\foreach \idx in {1,...,6}  
+{  
+  
+  node [pos=2.6/7.5+\idx/11] (fake2-\idx)  {}
+  node (E\idx-env) [below=5mm of fake2-\idx,box,
+    pin={[pin distance=5mm]left:E\idx}, align=left] {
+        counter:\idx\\
+        product:\pgfmathparse{int(factorial(\idx-1))}\pgfmathresult \\
+        max-count:6}
+    edge [->] (fake2-\idx)
+
+  node (E\idx-code) [below=5mm of E\idx-env, align=left]{
+       (fact-iter\\
+        (* counter product) \\
+       (+ counter 1)  \\
+       max-count)
+    }
+}
+node [pos=2.6/7.5+7/11] (fake2-7) {}
+node (E7-env) [below=5mm of fake2-7,box,
+    pin={[pin distance=5mm]left:E7},align=left] 
+    {counter:7\\
+     product:\pgfmathparse{int(factorial(7-1))}\pgfmathresult \\
+     max-count:6
+    }
+    edge [->] (fake2-7)
+node (E7-code) [below=5mm of E7-env, align=center]{
+       720
+    }
+node [pos=2.0/7.5] (fake2-0) {}
+node (E0-env) [below=5mm of fake2-0, box,
+    pin={[pin distance=5mm]left:E0},align=left]
+    {n:6}
+    edge [->] (fake2-0)
+node (E0-code) [below=5mm of E0-env, align=left]{
+  (fact-iter 1 1 n)}
+;
+
+
+%node [pos=1.6/7.5+6/8] (fake2-6) {}
+%node (E6-env) [below=5mm of fake2-6,box,
+%    pin={[pin distance=5mm]left:E6}] {n:1}
+%    edge [->] (fake2-6)
+%node (E6-code) [below=5mm of E6-env, align=center]{
+%       1
+%    };
+ 
+
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-9-part-2
+[[file:exercise-3-9-part-2.png]]
+
+These pictures would have never happened unless generous people from
+TeX StackExchange had helped.
+
+https://tex.stackexchange.com/questions/515909/how-to-make-this-tikz-picture-more-idiomatic-environment-diagram/515913
+https://tex.stackexchange.com/questions/516560/how-to-place-evenly-spaced-nodes-in-tikz-from-node1-to-node2
+https://tex.stackexchange.com/questions/517061/how-to-debug-token-positions-in-petri-nets-in-tikz
+https://tex.stackexchange.com/questions/517217/how-is-text-indented-and-glued-within-tikz-node-contents
+
+I feel that these diagrams are already quite cluttered, so I am
+implicitly expanding ~if~ forms in the "code" blocks. I am also
+ignoring top level commands and I am not drawing arrows when function
+calls occur.
+
+*** DONE Figure 3.9 Environments after the call to W1
+
+#+name: remark-environments-3-9
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 800
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file figure-3-9.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50]
+\begin{scope} [node distance=4mm]
+\node (make withdraw) {make-withdraw: ...};
+\node (fake1) [right=of make withdraw,xshift=40mm] {};
+\node (W1) [below=of make withdraw.west,anchor=west] {W1:};
+\end{scope}
+
+\node (g env) [draw,rectangle,inner sep=2mm, fit=(make withdraw) (W1) (fake1)]
+{ };
+
+\node (g env name) [left={of g env},text width=1cm]
+{global env} edge[->,very thick] (g env);
+
+\begin{scope}[node distance=0mm]
+\node [draw,minimum size=5mm,circle,tokens=1,below=of W1.east, yshift=-20mm] (w1fun-left) {};
+\node [draw,minimum size=5mm,circle,tokens=1,right=of w1fun-left, xshift=0mm]
+(w1fun-right) {};
+
+\node [rectangle, fit=(w1fun-left) (w1fun-right)] (w1fun)
+{} edge [<-, to path={|- (\tikztotarget)}] (W1.east);
+\end{scope}
+
+\node [below=of w1fun-left, align=left] {parameters: amount \\ body:...}
+edge [<-] (w1fun-left.center); 
+
+
+\node (E1-env) [below=of g env,yshift=5mm,draw,inner sep=2mm] {balance: amount}
+edge [->] (g env);
+\node [left=of E1-env,xshift=5mm] {E1} edge [->] (E1-env);
+
+\path (w1fun-right.center) edge[->,to path={-| (\tikztotarget)}] (E1-env.south);
+
+\end{tikzpicture}
+
+
+#+end_src
+
+#+RESULTS: remark-environments-3-9
+[[file:figure-3-9.png]]
+
+
 
 *** TODO Exercise 3.10
 
