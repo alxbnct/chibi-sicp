@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-11-20 13:44:45 lockywolf>
+# Time-stamp: <2019-12-02 23:29:36 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -16,11 +16,11 @@
 #+begin_src elisp :export both :results value
 (setq geiser-chibi-extra-command-line-parameters
    '("-m" "chibi" "-m" "srfi 159" 
-     "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27" "-m" "chibi process" "-m" "srfi 42" "-m" "srfi 78"))
+     "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27" "-m" "chibi process" "-m" "srfi 42" "-m" "srfi 78" "-m" "scheme list"))
 #+end_src
 
 #+RESULTS:
-| -m | chibi | -m | srfi 159 | -m | chibi ast | -m | chibi time | -m | srfi 27 | -m | chibi process | -m | srfi 42 | -m | srfi 78 |
+| -m | chibi | -m | srfi 159 | -m | chibi ast | -m | chibi time | -m | srfi 27 | -m | chibi process | -m | srfi 42 | -m | srfi 78 | -m | scheme list |
 
 ** Some common code blocks
 
@@ -35,7 +35,7 @@
 
 #+RESULTS: common
 
-* SICP [43%]
+* SICP [46%]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -19122,7 +19122,7 @@ Computer programs.
 
 The main pedagogical conclusion one may infer from this exercise is that it
 is a good idea to read a book on algebra and integer algorithms.
-** TODO Chapter 3: Modularity, Objects and State [8/82]
+** TODO Chapter 3: Modularity, Objects and State [19/84]
 *** DONE Exercise 3.1 accumulators
     CLOSED: [2019-10-29 Tue 10:24]
 
@@ -19498,8 +19498,8 @@ already values and so evaluate to themselves.
 #+RESULTS: remark-environments-tikz
 [[file:figure-3-9.png]]
 
-
-*** TODO Exercise 3.9 Environment structures
+*** DONE Exercise 3.9 Environment structures
+    CLOSED: [2019-11-20 Wed 14:28]
 
 Okay, this is not a very good solution. I only display the
 environments, and the code is only displayed to clarify the
@@ -19574,7 +19574,6 @@ Let us draw the environment number 2.
 #+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows}")
 #+header: :buffer on
 #+begin_src latex :results raw file :exports both :file exercise-3-9-part-2.png
-\def \lwfcount {1}
 \begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
      font=\sffamily,pics/two dots/.style={code={
      \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
@@ -19651,17 +19650,6 @@ node (E0-code) [below=5mm of E0-env, align=left]{
   (fact-iter 1 1 n)}
 ;
 
-
-%node [pos=1.6/7.5+6/8] (fake2-6) {}
-%node (E6-env) [below=5mm of fake2-6,box,
-%    pin={[pin distance=5mm]left:E6}] {n:1}
-%    edge [->] (fake2-6)
-%node (E6-code) [below=5mm of E6-env, align=center]{
-%       1
-%    };
- 
-
-
 \end{tikzpicture}
 #+end_src
 
@@ -19671,17 +19659,17 @@ node (E0-code) [below=5mm of E0-env, align=left]{
 These pictures would have never happened unless generous people from
 TeX StackExchange had helped.
 
-https://tex.stackexchange.com/questions/515909/how-to-make-this-tikz-picture-more-idiomatic-environment-diagram/515913
-https://tex.stackexchange.com/questions/516560/how-to-place-evenly-spaced-nodes-in-tikz-from-node1-to-node2
-https://tex.stackexchange.com/questions/517061/how-to-debug-token-positions-in-petri-nets-in-tikz
-https://tex.stackexchange.com/questions/517217/how-is-text-indented-and-glued-within-tikz-node-contents
+ - https://tex.stackexchange.com/questions/515909/how-to-make-this-tikz-picture-more-idiomatic-environment-diagram/515913
+ - https://tex.stackexchange.com/questions/516560/how-to-place-evenly-spaced-nodes-in-tikz-from-node1-to-node2
+ - https://tex.stackexchange.com/questions/517061/how-to-debug-token-positions-in-petri-nets-in-tikz
+ - https://tex.stackexchange.com/questions/517217/how-is-text-indented-and-glued-within-tikz-node-contents
 
 I feel that these diagrams are already quite cluttered, so I am
 implicitly expanding ~if~ forms in the "code" blocks. I am also
 ignoring top level commands and I am not drawing arrows when function
-calls occur.
+calls occur.[fn:2]
 
-*** DONE Figure 3.9 Environments after the call to W1
+*** TODO Figure 3.9 Environments after the call to W1
 
 #+name: remark-environments-3-9
 #+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 800
@@ -19728,29 +19716,1100 @@ edge [->] (g env);
 #+RESULTS: remark-environments-3-9
 [[file:figure-3-9.png]]
 
+*** DONE Exercise 3.10 Using ~let~ to create state variables
+    CLOSED: [2019-11-25 Mon 12:52]
+
+We need to compare two versions of ~make-withdraw~, the one using a
+parameter variable as a state variable, the one created automatically,
+and the one which creates a state variable explicitly using ~let~.
+
+The first one:
+#+begin_src scheme :exports both :results output
+(define (make-withdraw balance)
+  (lambda (amount)
+    (if (>= balance amount)
+      (begin (set! balance (- balance amount))
+             balance)
+"Insufficient funds")))
+#+end_src
+
+#+name: exercise-3-10-part-1
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-10-part-1.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+     font=\sffamily,pics/two dots/.style={code={
+     \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+     (#1-left) {};
+    \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+    right=0pt of #1-left]
+        (#1-right) {};
+    \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+    }},
+    every pin edge/.style={<-,very thick},
+    box/.style={draw,rectangle,inner sep=#1},box/.default=2mm]
+
+  \node (W1)   {make-withdraw:};
+  \node (fake1) [right=100mm of W1] {};  
+  \node (fact-iter) [above=3mm of W1.west,anchor=west] {W1:};
+%
+  \node (g env) [box, fit=(W1) (fake1) (fact-iter),
+  pin={[text width=1cm,pin distance=10mm]left:global env}]
+  { };
+
+  \path ([yshift=-20mm]W1.east)pic{two dots=w1fun}
+    (w1fun) edge [<-, to path={|- (\tikztotarget)}] (W1.east);
+  \node [below=of w1fun-left, align=left,font=\ttfamily] 
+{\noindent parameters:\vphantom{d}balance \\ 
+body:\\ 
+  (lambda (amount)\\
+    (if (>= balance amount)\\
+      (begin (set! balance\\ (- balance amount))\\
+             balance)\\
+"Insufficient funds"))
+}
+    edge [<-] (w1fun-left.center); 
+  \draw[->] (w1fun-right.center) -| ([xshift=3mm] w1fun-right.east |- g env.south);
+
+\path (g env.south west) -- (g env.south east)
+node [pos=7/8] (fake2-7) {}
+node (E7-env) [below=5mm of fake2-7,box,
+    pin={[pin distance=5mm]left:E1},align=left] 
+    {balance:100}
+    edge [->] (fake2-7) ;
+
+\path coordinate[below right=5mm and 40mm of w1fun] (aux)
+    (aux) pic{two dots=fact-iter-fun}
+    (fact-iter-fun) edge [<-, to path={|- (\tikztotarget)}] (fact-iter.east);
+  \node [below=of fact-iter-fun-left, align=left,node font=\ttfamily] {
+     parameters:amount \\ 
+     body: (if (>= balance amount)\\
+      (begin (set! balance\\ (- balance amount))\\
+             balance)}
+    edge [<-] (fact-iter-fun-left.center); 
+  \draw[->] (fact-iter-fun-right.center) -|  (E7-env.south);
 
 
-*** TODO Exercise 3.10
+\end{tikzpicture}
+#+end_src
 
-*** TODO Exercise 3.11
+#+RESULTS: exercise-3-10-part-1
+[[file:exercise-3-10-part-1.png]]
 
-*** TODO Exercise 3.12
 
-*** TODO Exercise 3.13
+The second one:
+#+begin_src scheme :exports both :results output
+  (define (make-withdraw initial-amount)
+  (let ((balance initial-amount))
+  (lambda (amount)
+  (if (>= balance amount)
+  (begin (set! balance (- balance amount))
+  balance)
+  "Insufficient funds"))))
+#+end_src
 
-*** TODO Exercise 3.14
+#+name: exercise-3-10-part-2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-10-part-2.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+     font=\sffamily,pics/two dots/.style={code={
+     \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+     (#1-left) {};
+    \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+    right=0pt of #1-left]
+        (#1-right) {};
+    \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+    }},
+    every pin edge/.style={<-,very thick},
+    box/.style={draw,rectangle,inner sep=#1},box/.default=2mm]
 
-*** TODO Exercise 3.15
+  \node (W1)   {make-withdraw:};
+  \node (fake1) [right=100mm of W1] {};  
+  \node (fact-iter) [above=3mm of W1.west,anchor=west] {W1:};
+%
+  \node (g env) [box, fit=(W1) (fake1) (fact-iter),
+  pin={[text width=1cm,pin distance=10mm]left:global env}]
+  { };
 
-*** TODO Exercise 3.16
+  \path ([yshift=-20mm]W1.east)pic{two dots=w1fun}
+    (w1fun) edge [<-, to path={|- (\tikztotarget)}] (W1.east);
+  \node [below=of w1fun-left, align=left,font=\ttfamily] 
+{\noindent parameters:initial-amount \\ 
+body:\\ 
+(let ((balance initial-amount))\\
+  (lambda (amount)\\
+  (if (>= balance amount)\\
+  (begin (set! balance\\ (- balance amount))\\
+  balance)\\
+  "Insufficient funds"))
+}
+    edge [<-] (w1fun-left.center); 
+  \draw[->] (w1fun-right.center) -| ([xshift=3mm] w1fun-right.east |- g env.south);
 
-*** TODO Exercise 3.17
+\path (g env.south west) -- (g env.south east)
+node [pos=7/8] (fake2-7) {}
+node (E7-env) [below=5mm of fake2-7,box,
+    pin={[pin distance=5mm]left:E1},align=left] 
+    {initial-amount:100}
+    edge [->] (fake2-7) 
+node (E2) [below=5mm of E7-env,box,
+    pin={[pin distance=5mm]left:E2},align=left] 
+    {balance:100}
+    edge [->] (E7-env) 
 
-*** TODO Exercise 3.18
+;
 
-*** TODO Exercise 3.19
+\path coordinate[below right=15mm and 40mm of w1fun] (aux)
+    (aux) pic{two dots=fact-iter-fun}
+    (fact-iter-fun) edge [<-, to path={|- (\tikztotarget)}] (fact-iter.east);
+  \node [below=of fact-iter-fun-left, align=left,node font=\ttfamily] {
+     parameters:amount \\ 
+     body: (if (>= balance amount)\\
+      (begin (set! balance\\ (- balance amount))\\
+             balance)}
+    edge [<-] (fact-iter-fun-left.center); 
+  \draw[->] (fact-iter-fun-right.center) -|  (E2);
 
-*** TODO Exercise 3.20
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-10-part-2
+[[file:exercise-3-10-part-2.png]]
+
+I think these two diagrams explain things quite well. An additional
+~let~ creates an additional frame, which is visible on the figure
+[[exercise-3-10-part-2]]. 
+
+*** DONE Exercise 3.11 Internal definitions
+    CLOSED: [2019-11-26 Tue 12:44]
+
+This is a huge task. Let us first draw ~make-account~, and then
+improve on it.
+
+#+name: exercise-3-11-part-1
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-11-part-1.png
+  \begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+       font=\sffamily,pics/two dots/.style={code={
+       \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+       (#1-left) {};
+      \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+      right=0pt of #1-left]
+	  (#1-right) {};
+      \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+      }},
+      every pin edge/.style={<-,very thick},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      node distance=4mm]
+
+    \node (W1)   {make-account:};
+    \node (fake1) [right=100mm of W1] {};  
+    \node (fact-iter) [above=3mm of W1.west,anchor=west] {acc:};
+  %
+    \node (g env) [box, fit=(W1) (fake1) (fact-iter),
+    pin={[text width=1cm,pin distance=10mm]left:global env}]
+    { };
+
+    \path ([yshift=-20mm]W1.east)pic{two dots=w1fun}
+      (w1fun) edge [<-, to path={|- (\tikztotarget)}] (W1.east);
+    \node [below=5mm of w1fun-left, align=left,font=\ttfamily] 
+  {\noindent parameters:\vphantom{d}balance \\ 
+  body:\\   
+  (define (withdraw amount)\\
+  (if (>= balance amount)\\
+  (begin (set! balance\\ (- balance amount))\\
+  balance)\\
+  "Insufficient funds"))\\
+  (define (deposit amount)\\
+  (set! balance (+ balance amount))\\
+  balance)\\
+  (define (dispatch m)\\
+  (cond ((eq? m 'withdraw) withdraw)\\
+  ((eq? m 'deposit) deposit)\\
+  (else\\
+  (error "Unknown request: MAKE-ACCOUNT"\\
+  m))))\\
+  dispatch
+  }
+      edge [<-] (w1fun-left.center); 
+    \draw[->] (w1fun-right.center) -| ([xshift=3mm] w1fun-right.east |- g env.south);
+
+  \path (g env.south west) -- (g env.south east)
+  node [pos=7/8] (fake2-7) {}
+  node (balance-var)  [below=6mm of fake2-7] {\vphantom{l}balance:30}
+  node (withdraw-var) [below=of balance-var.west,anchor=west] {\vphantom{l}withdraw:}
+  node (deposit-var)  [below=of withdraw-var.west,anchor=west] {\vphantom{l}deposit:}
+  node (E7-env) [box,
+      pin={[pin distance=5mm]left:E1},align=left,
+      fit=(balance-var) (deposit-var) (withdraw-var)] 
+      {}
+  edge [->] (fake2-7) ;
+
+  \path coordinate[below right=5mm and 40mm of w1fun] (aux)
+      (aux) pic{two dots=fact-iter-fun}
+      (fact-iter-fun) edge [<-, to path={|- (\tikztotarget)}] (fact-iter.east);
+  \node [below=5mm of fact-iter-fun-left, align=left,node font=\ttfamily] {
+       parameters:m \\ 
+       body: (cond ((eq? m 'withdraw) withdraw)\\
+	     ((eq? m 'deposit) deposit)\\
+	     (else\\
+	     (error "Unknown request: MAKE-ACCOUNT"\\
+	     m)))
+      }
+   edge [<-] (fact-iter-fun-left.center); 
+  \draw[->] (fact-iter-fun-right.center) -|  ($ (E7-env.south) - (5mm,0mm) $);
+  
+  \path coordinate[below right=10mm and 13mm of E7-env.south] (aux)
+      (aux) pic{two dots=deposit}
+      (deposit) edge [<-, to path={|- (\tikztotarget)}] (deposit-var.east);
+  \node [below=5mm of deposit-left, align=left,node font=\ttfamily] {
+       parameters:amount \\ 
+       body:  (set! balance\\ (+ balance amount))\\
+              balance
+      }
+   edge [<-] (deposit-left.center); 
+  \draw[->] (deposit-right.center) |- (fact-iter-fun -| E7-env.south) -|  ($ (E7-env.south) - (0mm,0mm) $);
+
+  \path coordinate[below right=10mm and 50mm of E7-env.south] (aux)
+      (aux) pic{two dots=withdraw}
+      (withdraw) edge [<-, to path={|- (\tikztotarget)}] (withdraw-var.east);
+  \node [below=5mm of withdraw-left, align=left,node font=\ttfamily] {
+       parameters:amount \\ 
+       body:  (set! balance\\ (- balance amount))\\
+              balance
+      }
+   edge [<-] (withdraw-left.center); 
+  \draw[->] (withdraw-right.center) |-  ($ (E7-env.east) + (0mm,5mm) $);
+
+  \end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-11-part-1
+[[file:exercise-3-11-part-1.png]]
+
+I am not plotting the intermediate environments, that is too much
+work, but the important thing is that when ~acc~ is evaluated, the
+evaluation frame is appended to the environment E1, and the lookup is
+performed in the enclosing environment, including the bindings for
+~dispatch~ and ~withdraw~. 
+
+The state for ~acc~ is kept in the environment E1. 
+
+If we to define ~acc2~, the frame in which we define it would mean a
+lot. Let us assume that we define ~acc2~ at the top level. This would
+mean that now we would have two environments, E1 and E2 pointing, both
+the children of the global environment. Only the global definitions
+(that is ~make-account~, ~acc1~ and ~acc2~) would be shared. 
+
+*** DONE Exercise 3.12 Drawing ~append!~
+    CLOSED: [2019-11-29 Fri 11:55]
+
+Now we need to draw box-and-pointer diagrams for the two variants of ~append~.
+
+The first ~append~ can be drawn like this:
+
+#+name: exercise-3-12-part1
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-12-part1.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1-car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1-cdr) at(0,0) {};
+      \node[name=#1-box,fit=(#1-car) (#1-cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1-box.south -| origin) -- (#1-box.north -| origin);
+      \if#2t
+      % \path node[shape=circle,fill,draw,radius=2mm] at (#1-car.center) {};
+      \filldraw (#1-car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1-car.south west) to (#1-car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1-cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1-cdr.south west) to (#1-cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+\node (x) {x};
+\node[right=200mm of x] {};
+\pic[right=of x] {cons cell={cell-a}{t}{t}};
+\draw[->] (x) to (cell-a-box);
+\pic[below=of cell-a-car] {cons element={a}{a}};
+\pic[right=of cell-a-cdr] {cons cell={cell-b}{t}{f}};
+\pic[below=of cell-b-car] {cons element={b}{b}};
+\draw[->] (cell-a-cdr.center) to (cell-b-box);
+\draw[->] (cell-a-car.center) to (a);
+\draw[->] (cell-b-car.center) to (b);
+
+\node[right=of cell-b-box] (y) {y};
+\pic[right=of y] {cons cell={cell-c}{t}{t}};
+\draw[->] (y) to (cell-c-box);
+\pic[below=of cell-c-car] {cons element={c}{c}};
+\pic[right=of cell-c-cdr] {cons cell={cell-d}{t}{f}};
+\pic[below=of cell-d-car] {cons element={d}{d}};
+\draw[->] (cell-c-cdr.center) to (cell-d-box);
+\draw[->] (cell-c-car.center) to (c);
+\draw[->] (cell-d-car.center) to (d);
+
+\node[below=50mm of x] (z) {z};
+\pic[right=of z] {cons cell={cell-a-2}{t}{t}};
+\draw[->] (z) to (cell-a-2-box);
+\pic[below=of cell-a-2-car] {cons element={a2}{a}};
+\pic[right=of cell-a-2-cdr] {cons cell={cell-b-2}{t}{t}};
+\pic[below=of cell-b-2-car] {cons element={b2}{b}};
+\pic[right=of cell-b-2-cdr] {cons cell={cell-c-2}{t}{t}};
+\pic[below=of cell-c-2-car] {cons element={c2}{c}};
+\pic[right=of cell-c-2-cdr] {cons cell={cell-d-2}{t}{f}};
+\pic[below=of cell-d-2-car] {cons element={d2}{d}};
+
+
+\draw[->] (cell-a-2-cdr.center) to (cell-b-2-box);
+\draw[->] (cell-a-2-car.center) to (a2);
+\draw[->] (cell-b-2-car.center) to (b2);
+\draw[->] (cell-b-2-cdr.center) to (cell-c-2-box);
+\draw[->] (cell-c-2-car.center) to (c2);
+\draw[->] (cell-c-2-cdr.center) to (cell-d-2-box);
+\draw[->] (cell-d-2-car.center) to (d2);
+
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-12-part1
+[[file:exercise-3-12-part1.png]]
+
+
+
+#+begin_src scheme :exports both :results value
+?
+(define x (list 'a 'b))
+(define y (list 'c 'd))
+(define z (append x y))
+z
+(cdr x)
+
+#+end_src
+
+#+RESULTS:
+| b |
+
+
+The second append, done with ~append!~ , modifies ~x~.
+
+#+name: exercise-3-12-part2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-12-part2.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1-car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1-cdr) at(0,0) {};
+      \node[name=#1-box,fit=(#1-car) (#1-cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1-box.south -| origin) -- (#1-box.north -| origin);
+      \if#2t
+      % \path node[shape=circle,fill,draw,radius=2mm] at (#1-car.center) {};
+      \filldraw (#1-car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1-car.south west) to (#1-car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1-cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1-cdr.south west) to (#1-cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+\node (x) {x};
+\node[right=200mm of x] {};
+\pic[right=of x] {cons cell={cell-a}{t}{t}};
+\draw[->] (x) to (cell-a-box);
+\pic[below=of cell-a-car] {cons element={a}{a}};
+\pic[right=of cell-a-cdr] {cons cell={cell-b}{t}{t}};
+\pic[below=of cell-b-car] {cons element={b}{b}};
+\draw[->] (cell-a-cdr.center) to (cell-b-box);
+\draw[->] (cell-a-car.center) to (a);
+\draw[->] (cell-b-car.center) to (b);
+
+\node[right=of cell-b-box] (y) {y};
+\pic[right=of y] {cons cell={cell-c}{t}{t}};
+\draw[->] (y) to (cell-c-box);
+\pic[below=of cell-c-car] {cons element={c}{c}};
+\pic[right=of cell-c-cdr] {cons cell={cell-d}{t}{f}};
+\pic[below=of cell-d-car] {cons element={d}{d}};
+\draw[->] (cell-c-cdr.center) to (cell-d-box);
+\draw[->] (cell-c-car.center) to (c);
+\draw[->] (cell-d-car.center) to (d);
+%\draw (cell-b-cdr.center) -- controls (5cm,1cm) and (6cm,1cm) -- (cell-c-box.center);
+\draw[->] (cell-b-cdr.center) .. controls ($ (y.north) + (0,5mm) $) .. (cell-c-box);
+
+\node[above=of cell-a-car] (w) {w};
+\draw[->] (w) to (cell-a-car);
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-12-part2
+[[file:exercise-3-12-part2.png]]
+
+
+Therefore, the answer is the following:
+#+begin_src scheme :exports both :results value
+<<last-pair>>
+(define (append! x y)
+(set-cdr! (last-pair x) y)
+x)
+
+(define x (list 'a 'b))
+(define y (list 'c 'd))
+(define w (append! x y))
+w
+(cdr x)
+#+end_src
+
+#+RESULTS:
+| b | c | d |
+
+*** DONE Exercise 3.13 ~make-cycle~
+    CLOSED: [2019-11-29 Fri 12:09]
+
+This thing is called a "circular list".
+
+#+begin_src scheme :exports both :results value
+<<last-pair>>
+(define (make-cycle x)
+(set-cdr! (last-pair x) x)
+x)
+(define z (make-cycle (list 'a 'b 'c)))
+z
+
+#+end_src
+
+#+RESULTS:
+: (a b c...
+
+#+name: exercise-3-13
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-12.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1-car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1-cdr) at(0,0) {};
+      \node[name=#1-box,fit=(#1-car) (#1-cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1-box.south -| origin) -- (#1-box.north -| origin);
+      \if#2t
+      % \path node[shape=circle,fill,draw,radius=2mm] at (#1-car.center) {};
+      \filldraw (#1-car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1-car.south west) to (#1-car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1-cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1-cdr.south west) to (#1-cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+\node (z) {z};
+\node[right=200mm of z] {};
+\pic[right=of z] {cons cell={cell-a}{t}{t}};
+\draw[->] (z) to (cell-a-box);
+\pic[below=of cell-a-car] {cons element={a}{a}};
+\pic[right=of cell-a-cdr] {cons cell={cell-b}{t}{t}};
+\pic[below=of cell-b-car] {cons element={b}{b}};
+\draw[->] (cell-a-cdr.center) to (cell-b-box);
+\draw[->] (cell-a-car.center) to (a);
+\draw[->] (cell-b-car.center) to (b);
+\pic[right=of cell-b-box] {cons cell={cell-c}{t}{t}};
+\pic[below=of cell-c-car] {cons element={c}{c}};
+\draw[->] (cell-c-car.center) to (c);
+\draw[->] (cell-b-cdr.center) to (cell-c-box);
+\draw[->] (cell-c-cdr.center) .. controls ($ (cell-c-cdr.center) + (0,30mm) $)
+and ($ (cell-a-car.center) + (0,30mm) $) .. (cell-a-car);
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-13
+[[file:exercise-3-12.png]]
+
+*** DONE Exercise 3.14 ~mystery~
+    CLOSED: [2019-11-29 Fri 21:23]
+
+#+begin_src scheme :exports both :results output
+  (define (mystery x)
+    (define (loop x y)
+      (if (null? x)
+	  y
+	  (let ((temp (cdr x)))
+	    (set-cdr! x y)
+	    (loop temp x))))
+    (loop x '()))
+(define v (list 'a 'b 'c 'd))
+(show #t "initial v: " v "\n")
+(define w (mystery v))
+(show #t "w: " w "\n")
+(show #t "what remains of v: " v "\n")
+#+end_src
+
+#+RESULTS:
+: Initial v: (a b c d)
+: w: (d c b a)
+: what remains of v: (a)
+
+The ~mystery~ procedure is roughly equivalent to ~(reverse x)~, except
+that it works in constant space, whereas an ordinary ~reverse~
+additionally uses as much space as ~x~ occupies.
+
+Let us plot ~v~ before the operation.
+
+#+name: exercise-3-14-part1
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-14-part1.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1-car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1-cdr) at(0,0) {};
+      \node[name=#1-box,fit=(#1-car) (#1-cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1-box.south -| origin) -- (#1-box.north -| origin);
+      \if#2t
+      \filldraw (#1-car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1-car.south west) to (#1-car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1-cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1-cdr.south west) to (#1-cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+
+\node (v) {v};
+\pic[right=of v] {cons cell={cell-a-2}{t}{t}};
+\draw[->] (v) to (cell-a-2-box);
+\pic[below=of cell-a-2-car] {cons element={a2}{a}};
+\pic[right=of cell-a-2-cdr] {cons cell={cell-b-2}{t}{t}};
+\pic[below=of cell-b-2-car] {cons element={b2}{b}};
+\pic[right=of cell-b-2-cdr] {cons cell={cell-c-2}{t}{t}};
+\pic[below=of cell-c-2-car] {cons element={c2}{c}};
+\pic[right=of cell-c-2-cdr] {cons cell={cell-d-2}{t}{f}};
+\pic[below=of cell-d-2-car] {cons element={d2}{d}};
+
+
+\draw[->] (cell-a-2-cdr.center) to (cell-b-2-box);
+\draw[->] (cell-a-2-car.center) to (a2);
+\draw[->] (cell-b-2-car.center) to (b2);
+\draw[->] (cell-b-2-cdr.center) to (cell-c-2-box);
+\draw[->] (cell-c-2-car.center) to (c2);
+\draw[->] (cell-c-2-cdr.center) to (cell-d-2-box);
+\draw[->] (cell-d-2-car.center) to (d2);
+
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-14-part1
+[[file:exercise-3-14.png]]
+
+
+~mystery~ reverses the list, so the diagram would be:
+
+#+name: exercise-3-14-part2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-14-part2.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1-car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1-cdr) at(0,0) {};
+      \node[name=#1-box,fit=(#1-car) (#1-cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1-box.south -| origin) -- (#1-box.north -| origin);
+      \if#2t
+      \filldraw (#1-car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1-car.south west) to (#1-car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1-cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1-cdr.south west) to (#1-cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+
+\node (w) {w};
+\pic[right=of w] {cons cell={cell-a-2}{t}{t}};
+\draw[->] (w) to (cell-a-2-box);
+\pic[below=of cell-a-2-car] {cons element={a2}{d}};
+\pic[right=of cell-a-2-cdr] {cons cell={cell-b-2}{t}{t}};
+\pic[below=of cell-b-2-car] {cons element={b2}{c}};
+\pic[right=of cell-b-2-cdr] {cons cell={cell-c-2}{t}{t}};
+\pic[below=of cell-c-2-car] {cons element={c2}{b}};
+\pic[right=of cell-c-2-cdr] {cons cell={cell-d-2}{t}{f}};
+\pic[below=of cell-d-2-car] {cons element={d2}{a}};
+
+
+\draw[->] (cell-a-2-cdr.center) to (cell-b-2-box);
+\draw[->] (cell-a-2-car.center) to (a2);
+\draw[->] (cell-b-2-car.center) to (b2);
+\draw[->] (cell-b-2-cdr.center) to (cell-c-2-box);
+\draw[->] (cell-c-2-car.center) to (c2);
+\draw[->] (cell-c-2-cdr.center) to (cell-d-2-box);
+\draw[->] (cell-d-2-car.center) to (d2);
+
+\node[above=of cell-d-2-car] (v) {v};
+\draw[->] (v) to (cell-d-2-car);
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-14-part2
+[[file:exercise-3-14-part2.png]]
+
+~v~ still points to the cell containing ~'x~, but now the ~car~ of
+this cell is an empty list.
+
+*** DONE Exercise 3.15 ~set-to-wow!~
+    CLOSED: [2019-12-01 Sun 19:59]
+
+#+begin_src scheme :exports both :results output
+(define (set-to-wow! x) 
+   (set-car! (car x) 'wow)
+    x)
+(define x (list 'a 'b))
+(define z1 (cons x x))
+(define z2 (cons (list 'a 'b) (list 'a 'b)))
+(show #t "The structures are: \n" z1 "\n" z2 "\n")
+(set-to-wow! z1)
+(show #t "Modified z1: " z1 "\n")
+(set-to-wow! z2)
+(show #t "Modifier z2: " z2 "\n")
+#+end_src
+
+#+RESULTS:
+: The structures are: 
+: ((a b) a b)
+: ((a b) a b)
+: Modified z1: ((wow b) wow b)
+: Modifier z2: ((wow b) a b)
+
+First let us draw ~z1~ after ~set-to-wow!~.
+
+#+name: exercise-3-15-part1
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,graphs}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-15-part1.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1!car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1!cdr) at(0,0) {};
+      \node[name=#1!box,fit=(#1!car) (#1!cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1!box.south -| origin) -- (#1!box.north -| origin);
+      \if#2t
+      \filldraw (#1!car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1!car.south west) to (#1!car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1!cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1!cdr.south west) to (#1!cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+
+\matrix[row sep=10mm,column sep=20mm] {
+
+\node (z1!var) {z1}; & \pic{cons cell={z1}{t}{t}}; &  \\
+\node (x) {x};   & \pic{cons cell={list1}{t}{t}}; & \pic{cons cell={list2}{t}{f}}; \\
+                 & \pic[below=5mm of list1!car]{cons element={a}{wow}}; & \pic[below=5mm of list2!car]{cons element={b}{b}};\\
+};
+
+\node[right=200mm of z1!var] {};
+
+\graph[use existing nodes]
+{
+z1!var -> z1!box ;
+z1!car.center -> list1!car;
+z1!cdr.center -> list1!cdr;
+list1!cdr.center -> list2!box;
+list1!car.center -> a;
+list2!car.center -> b;
+x -> list1!box;
+};
+%\draw[->] (z1-var) -- (x);
+\end{tikzpicture}
+
+
+#+end_src
+
+#+RESULTS: exercise-3-15-part1
+[[file:exercise-3-15-part1.png]]
+
+Next we shall plot ~z2~ after ~set-to-wow!~.
+
+#+name: exercise-3-15-part2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,graphs}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-15-part2.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1!car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1!cdr) at(0,0) {};
+      \node[name=#1!box,fit=(#1!car) (#1!cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1!box.south -| origin) -- (#1!box.north -| origin);
+      \if#2t
+      \filldraw (#1!car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1!car.south west) to (#1!car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1!cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1!cdr.south west) to (#1!cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+
+\matrix[row sep=20mm,column sep=20mm] {
+                     & \pic[xshift=-5mm]{cons element={wow}{wow}};   & \\
+\node (z2!var) {z2}; & \pic{cons cell={z21}{t}{t}}; & \pic{cons cell={z22}{t}{f}}; \\
+                     & \pic[xshift=-5mm]{cons element={a}{a}};   & \pic[xshift=-5mm]{cons element={b}{b}}; \\
+                     & \pic{cons cell={z23}{t}{t}}; & \pic{cons cell={z24}{t}{f}};\\
+};
+
+\node[right=200mm of z2!var] {};
+
+\graph[use existing nodes]
+{
+z2!var -> z21!box ;
+z21!car.center -> wow;
+z21!cdr.center -> z22!box;
+z22!car.center -> b;
+z23!car.center -> a;
+z23!cdr.center -> z24!box;
+z24!car.center -> b;
+};
+%\draw[->] (z1-var) -- (x);
+\end{tikzpicture}
+
+
+#+end_src
+
+#+RESULTS: exercise-3-15-part2
+[[file:exercise-3-15-part2.png]]
+
+
+The picture should explain the result of ~set-to-wow!~ fairly well.
+
+*** DONE Exercise 3.16 ~count-pairs~
+    CLOSED: [2019-12-02 Mon 00:05]
+#+begin_src scheme :exports both :results output
+(define (count-pairs x)
+(if (not (pair? x))
+0
+(+ (count-pairs (car x))
+(count-pairs (cdr x))
+1)))
+(show #t "Return three: " (count-pairs (list 'a 'b 'c)) "\n")
+(show #t "Return four: " (count-pairs (let ((x (list 'a 'b 'c)))
+                          (set-car! (cdr x) (cddr x)) x)) "\n")
+(show #t "Return seven: " (count-pairs (let ((x (list 'a 'b 'c)))
+                          (set-car!  x (cdr x))
+                          (set-car!  (cdr x) (cddr x))    
+                          x)) "\n")
+ (show #t "Never return: " 
+          (let ((x (list 'a 'b 'c)))
+             (set-cdr! (cddr x) x)
+            x) "\n")
+
+#+end_src
+
+#+RESULTS:
+: Return three: 3
+: Return four: 4
+: Return seven: 7
+: Never return: #0=(a b c . #0#)
+
+#+name: exercise-3-16
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,graphs}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-16.png
+
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+      font=\sffamily,
+      node distance=20mm,
+      pics/cons cell/.style n args={3}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0] (#1!car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1!cdr) at(0,0) {};
+      \node[name=#1!box,fit=(#1!car) (#1!cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1!box.south -| origin) -- (#1!box.north -| origin);
+      \if#2t
+      % \path node[shape=circle,fill,draw,radius=2mm] at (#1-car.center) {};
+      \filldraw (#1!car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1!car.south west) to (#1!car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1!cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1!cdr.south west) to (#1!cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [xshift=-5mm,minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      ]
+\matrix[row sep=10mm,column sep=20mm] {
+\pic{cons cell={cell1}{t}{t}}; & \pic{cons cell={cell2}{t}{t}}; & \pic{cons cell={cell3}{t}{f}}; \\
+\pic{cons element={a}{a}};     & \pic{cons element={b}{b}};     & \pic{cons element={c}{d}}; \\
+\pic{cons cell={cell4}{t}{t}}; & \pic{cons cell={cell5}{t}{t}}; & \pic{cons cell={cell6}{t}{f}}; \\
+\pic{cons element={a2}{a}};    &                                & \pic{cons element={c2}{c}}; \\
+\pic{cons cell={cell7}{t}{t}}; & \pic{cons cell={cell8}{t}{t}}; & \pic{cons cell={cell9}{t}{f}}; \\
+                               &                                & \pic{cons element={c3}{c}}; \\
+\pic{cons cell={cell10}{t}{t}}; & \pic{cons cell={cell11}{t}{t}}; & \pic{cons cell={cell12}{t}{t}}; \\
+\pic{cons element={a4}{a}};     & \pic{cons element={b4}{b}};     & \pic{cons element={c4}{d}}; \\
+};
+\node[right=200mm of cell1!box] {};
+
+\graph[use existing nodes,
+skip loop/.style={to path={-- ++(0,#1) -| (\tikztotarget)}}]
+{
+cell1!cdr.center -> cell2!box;
+cell1!car.center -> a;
+cell2!car.center -> b;
+cell2!cdr.center -> cell3!box;
+cell3!car.center -> c;
+cell4!cdr.center -> cell5!box;
+cell4!car.center -> a2;
+cell5!car.center ->[skip loop=10mm] cell6!car;
+cell5!cdr.center -> cell6!box;
+cell6!car.center -> c2;
+cell7!cdr.center -> cell8!box;
+cell7!car.center ->[skip loop=-10mm] cell8!car;
+cell8!cdr.center -> cell9!box;
+cell8!car.center ->[skip loop=10mm] cell9!car;
+cell9!car.center -> c3;
+cell10!car.center -> a4;
+cell10!cdr.center -> cell11!box;
+cell11!car.center -> b4;
+cell11!cdr.center -> cell12!box;
+cell12!car.center -> c4;
+cell12!cdr.center ->[skip loop=10mm] cell10!car;
+};
+
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-16
+[[file:exercise-3-16.png]]
+*** DONE Exercise 3.17 Real ~count-pairs~
+    CLOSED: [2019-12-02 Mon 00:47]
+
+This is an inefficient solution, because it uses an O(n) lookup. 
+
+#+begin_src scheme :exports both :results output
+      (define (count-pairs s)
+	(define my-set (list))
+	(define (count-pairs-loop x)
+	   (cond ((not (pair? x)) 0)
+		 ((memq x my-set) 0)
+		 (else (begin
+			 (set! my-set (append my-set (list x)))
+			 (+ (count-pairs-loop (car x))
+			    (count-pairs-loop (cdr x))
+			    1)))))
+	(set! my-set (list))
+	(count-pairs-loop s))
+    (show #t "Returned three: " (count-pairs (list 'a 'b 'c)) "\n")
+    (show #t "Returned four: " (count-pairs (let ((x (list 'a 'b 'c)))
+			      (set-car! (cdr x) (cddr x)) x)) "\n")
+    (show #t "Returned seven: " (count-pairs (let ((x (list 'a 'b 'c)))
+			      (set-car!  x (cdr x))
+			      (set-car!  (cdr x) (cddr x))    
+			      x)) "\n")
+    (show #t "Never returned: " 
+	      (count-pairs (let ((x (list 'a 'b 'c)))
+		 (set-cdr! (cddr x) x)
+		x)) "\n")
+
+#+end_src
+
+#+RESULTS:
+: Returned three: 3
+: Returned four: 3
+: Returned seven: 3
+: Never returned: 3
+
+*** DONE Exercise 3.18 Finding cycles
+    CLOSED: [2019-12-02 Mon 01:04]
+
+Still not a very efficient solution, but it works.
+
+#+begin_src scheme :exports both :results output
+  (define (is-cyclic? y)
+    (define seen-elements (list))
+    (define (is-s-l x)
+      (cond ((not (pair? x)) #f)
+	    ((null? x) #f)
+	    ((memq x seen-elements) #t)
+	    (else (begin
+		    (set! seen-elements (append seen-elements (list x)))
+		    (is-s-l (cdr x))))))
+    (set! seen-elements (list))
+    (is-s-l y))
+  (show #t "Returned three: " (is-cyclic? (list 'a 'b 'c)) "\n")
+  (show #t "Returned four: " (is-cyclic? (let ((x (list 'a 'b 'c)))
+					   (set-car! (cdr x) (cddr x)) x)) "\n")
+  (show #t "Returned seven: " (is-cyclic? (let ((x (list 'a 'b 'c)))
+					    (set-car!  x (cdr x))
+					    (set-car!  (cdr x) (cddr x))    
+					    x)) "\n")
+  (show #t "Never returned: " 
+	(is-cyclic? (let ((x (list 'a 'b 'c)))
+		      (set-cdr! (cddr x) x)
+		      x)) "\n")
+
+#+end_src
+
+#+RESULTS:
+: Returned three: #f
+: Returned four: #f
+: Returned seven: #f
+: Never returned: #t
+
+*** DONE Exercise 3.19 Efficient finding cycles
+    CLOSED: [2019-12-02 Mon 23:29]
+
+The idea that we are going to explore in this exercise is slightly
+similar to the dynamic programming. This will not be efficient at all,
+but will eventually find not just whether the list has a cycle, but
+also the length of the cycle.
+
+#+begin_src scheme :exports both :results output
+    (define (is-cyclic? l)
+      (let loop ((starting-elem 0)
+		 (cycle-len 1))
+	(cond ((or (not (pair? (drop l starting-elem)))
+		  (not (pair? (drop l (+ starting-elem cycle-len))))) 
+	       #f)
+	      ((eq?  (drop l starting-elem) 
+		     (drop l (+ starting-elem cycle-len))) #t)
+	      ((> starting-elem 0) (loop (- starting-elem 1) (+ cycle-len 1)))
+	      (else (loop cycle-len 1)))))
+
+    (show #t "Returned three: " (is-cyclic? (list 'a 'b 'c)) "\n")
+    (show #t "Returned four: " (is-cyclic? (let ((x (list 'a 'b 'c)))
+					     (set-car! (cdr x) (cddr x)) x)) "\n")
+    (show #t "Returned seven: " (is-cyclic? (let ((x (list 'a 'b 'c)))
+					      (set-car!  x (cdr x))
+					      (set-car!  (cdr x) (cddr x))    
+					      x)) "\n")
+    (show #t "Never returned: " 
+	  (is-cyclic? (let ((x (list 'a 'b 'c)))
+			(set-cdr! (cddr x) x)
+			x)) "\n")
+
+#+end_src
+
+#+RESULTS:
+: Returned three: #f
+: Returned four: #f
+: Returned seven: #f
+: Never returned: #t
+
+The not very clever idea used here is that we can check if an element
+~x~ is a start of a loop of length ~n~. Therefore we can iterate over
+all possible values of ~x~ and ~n~. This exercise uses the ~(scheme
+list)~ standard library from R7RS.
+
+This algorithm clearly only uses O(1) memory, since we only remember
+the number of the starting element and the cycle length.
+
+*** TODO Exercise 3.20 Procedural ~set-car!~
 
 *** TODO Exercise 3.21
 
@@ -20192,7 +21251,7 @@ pseudo-chapter so that the appropriate code could be tangled in.
 
 * Footnotes
 
+
+
 [fn:1] This exercise took me 7 hours.
-
-
-#  LocalWords:  vec vect
+[fn:2] This exercise took me about 40 hours.
