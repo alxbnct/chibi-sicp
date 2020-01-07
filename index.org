@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2019-12-02 23:29:36 lockywolf>
+# Time-stamp: <2020-01-08 13:02:47 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -11,18 +11,27 @@
 
 
 * noweb + common
+** Some common code blocks
+
 ** Setting chibi arguments. DANGEROUS                       :dangerous:elisp:
 
 #+begin_src elisp :export both :results value
-(setq geiser-chibi-extra-command-line-parameters
-   '("-m" "chibi" "-m" "srfi 159" 
-     "-m" "chibi ast" "-m" "chibi time" "-m" "srfi 27" "-m" "chibi process" "-m" "srfi 42" "-m" "srfi 78" "-m" "scheme list"))
+  (setq geiser-chibi-extra-command-line-parameters
+     '("-m" "chibi" 
+       "-m" "srfi 159" 
+       "-m" "chibi ast" 
+       "-m" "chibi time" 
+       "-m" "srfi 27" 
+       "-m" "chibi process" 
+       "-m" "srfi 42" 
+       "-m" "srfi 78" 
+       "-m" "scheme list"
+       "-m" "srfi 18"))
+  (setq geiser-connection-timeout (* 2 geiser-connection-timeout))
 #+end_src
 
 #+RESULTS:
 | -m | chibi | -m | srfi 159 | -m | chibi ast | -m | chibi time | -m | srfi 27 | -m | chibi process | -m | srfi 42 | -m | srfi 78 | -m | scheme list |
-
-** Some common code blocks
 
 #+name: common
 #+begin_src scheme :results output :exportss none
@@ -35,7 +44,7 @@
 
 #+RESULTS: common
 
-* SICP [46%]
+* SICP [60%]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -213,7 +222,7 @@
  #+end_src
 
  #+RESULTS:
- : 13
+ : "Result (exception): {Exception #19 user \"undefined variable\" (sort) #<procedure sum-of-two-max> (#f . 41)}\nStack trace:\n  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 1202 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm\n  called from sum-of-two-max on line 41\n  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm\n  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm\n  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm\n  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm\n  called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm\n"
 
 *** DONE Exercise 1.4 Compound expressions
     CLOSED: [2019-08-20 Tue 14:39]
@@ -19122,7 +19131,7 @@ Computer programs.
 
 The main pedagogical conclusion one may infer from this exercise is that it
 is a good idea to read a book on algebra and integer algorithms.
-** TODO Chapter 3: Modularity, Objects and State [19/84]
+** TODO Chapter 3: Modularity, Objects and State [77/93]
 *** DONE Exercise 3.1 accumulators
     CLOSED: [2019-10-29 Tue 10:24]
 
@@ -20809,14 +20818,340 @@ list)~ standard library from R7RS.
 This algorithm clearly only uses O(1) memory, since we only remember
 the number of the starting element and the cycle length.
 
-*** TODO Exercise 3.20 Procedural ~set-car!~
+*** DONE Exercise 3.20 Procedural ~set-car!~
+    CLOSED: [2019-12-03 Tue 14:40]
 
-*** TODO Exercise 3.21
+I am excluding the definitions from the diagram, they are cumbersome.
 
-*** TODO Exercise 3.22
+#+name: exercise-3-20
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-20.png
+  \begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+       font=\sffamily,pics/two dots/.style={code={
+       \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+       (#1-left) {};
+      \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+      right=0pt of #1-left]
+	  (#1-right) {};
+      \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+      }},
+      every pin edge/.style={<-,very thick},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      node distance=4mm]
 
-*** TODO Exercise 3.23
 
+
+    \node (x-global)  {x:};
+    \node (fake1) [right=100mm of x-global] {};  
+    \node (z-global) [above=3mm of x-global.west,anchor=west] {z:};
+  %
+    \node (g env) [box, fit=(z-global) (fake1) (x-global),
+    pin={[text width=1cm,pin distance=10mm]left:global env}]
+    { };
+
+  \path (g env.south west) -- (g env.south east)
+  node [pos=2/8] (fake2-7) {}
+  node (x-var)  [below=6mm of fake2-7] {\vphantom{l}x:17}
+  node (y-var) [below=of x-var.west,anchor=west] {\vphantom{l}y:2}
+  node (setx1) [below=of y-var.west,anchor=west] {\vphantom{l}set-x!: ...}
+  node (sety1) [below=of setx1.west,anchor=west] {\vphantom{l}set-y!: ...}
+  node (E1-env) [box,
+      pin={[pin distance=5mm]left:E1},align=left,
+      fit=(x-var) (y-var) (setx1) (sety1)] 
+      {}
+  edge [->] (g env.south -| E1-env.north) ;
+
+  \path (g env.south west) -- (g env.south east)
+  node[pos=1/16] (anchor1)
+  coordinate[below=50 mm of anchor1] (aux)
+      (aux) pic{two dots=x-dispatch}
+      (x-dispatch) edge [<-, to path={|- (\tikztotarget)}] (x-global.east);
+  \draw[->] (x-dispatch-right.center) -|  (E1-env.south);
+  \node [below=5mm of x-dispatch-left, align=left,font=\ttfamily] 
+  {\noindent parameters:\vphantom{l}m \\ 
+  body:\\   
+(cond \\ ((eq? m 'car) x) \\
+((eq? m 'cdr) y) \\
+((eq? m 'set-car!) set-x!) \\
+((eq? m 'set-cdr!) set-y!) \\
+(else \\
+(error "Undefined operation: CONS" m))) \\
+  }
+      edge [<-] (x-dispatch-left.center);
+
+  \path (g env.south west) -- (g env.south east)
+  node [pos=9/16] (fake-8) {}
+  node (x-var)  [below=6mm of fake-8] {\vphantom{l}x:}
+  node (y-var) [below=of x-var.west,anchor=west] {\vphantom{l}y:}
+  node (setx1) [below=of y-var.west,anchor=west] {\vphantom{l}set-x!: ...}
+  node (sety1) [below=of setx1.west,anchor=west] {\vphantom{l}set-y!: ...}
+  node (E2-env) [box,
+      pin={[pin distance=5mm]left:E2},align=left,
+      fit=(x-var) (y-var) (setx1) (sety1)] 
+      {}
+  edge [->] (g env.south -| E2-env.north) ;
+  \draw[->] (x-var.east)  ++(1mm,0) -- ++(0,5mm) -| ($ (x-dispatch.north) + (1mm,0) $);
+  \draw[->] (y-var.east) -- ++(0,6mm) -| ($ (x-dispatch.north) + (2mm,0) $);
+
+  \path (g env.south west) -- (g env.south east)
+  node[pos=12/16] (anchor)
+  coordinate[below=50 mm of anchor] (aux)
+      (aux) pic{two dots=z-dispatch}
+      (z-dispatch) edge [<-, to path={|- (\tikztotarget)}] (z-global.east);
+  \draw[->] (z-dispatch-right.center) -- ++(0,7mm) -|  (E2-env.south);
+  \node [below=5mm of z-dispatch-left, align=left,font=\ttfamily] 
+  {\noindent parameters:\vphantom{l}m \\ 
+  body:\\   
+(cond \\ ((eq? m 'car) x) \\
+((eq? m 'cdr) y) \\
+((eq? m 'set-car!) set-x!) \\
+((eq? m 'set-cdr!) set-y!) \\
+(else \\
+(error "Undefined operation: CONS" m))) \\
+  }
+      edge [<-] (z-dispatch-left.center);
+
+
+  \end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-20
+[[file:exercise-3-20.png]]
+
+I am only drawing the final environment, but the idea should be quite obvious.
+
+*** DONE Exercise 3.21 queues
+    CLOSED: [2019-12-03 Tue 15:10]
+
+#+begin_src scheme :exports both :results output :noweb-ref queue
+  (define (front-ptr queue) (car queue))
+  (define (rear-ptr queue)
+    (cdr queue))
+  (define (set-front-ptr! queue item)
+    (set-car! queue item))
+  (define (set-rear-ptr! queue item)
+    (set-cdr! queue item))
+  (define (empty-queue? queue)
+    (null? (front-ptr queue)))
+  (define (make-queue) (cons '() '()))
+  (define (front-queue queue)
+    (if (empty-queue? queue)
+	(error "FRONT called with an empty queue" queue)
+	(car (front-ptr queue))))
+  (define (insert-queue! queue item)
+    (let ((new-pair (cons item '())))
+      (cond ((empty-queue? queue)
+	     (set-front-ptr! queue new-pair)
+	     (set-rear-ptr! queue new-pair)
+	     queue)
+	    (else
+	     (set-cdr! (rear-ptr queue) new-pair)
+	     (set-rear-ptr! queue new-pair)
+	     queue))))
+  (define (delete-queue! queue)
+    (cond ((empty-queue? queue)
+	   (error "DELETE! called with an empty queue" queue))
+	  (else (set-front-ptr! queue (cdr (front-ptr queue)))
+		queue)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<queue>>
+(define q1 (make-queue))
+(show #t "(insert-queue! q1 'a) = " (insert-queue! q1 'a) "\n")
+(show #t "(insert-queue! q1 'b) = " (insert-queue! q1 'b) "\n")
+(show #t "(delete-queue! q1)    = " (delete-queue! q1)    "\n")
+(show #t "insert " (insert-queue! q1 'c) "\n")
+(show #t "(delete-queue! q1)    = " (delete-queue! q1)    "\n")
+
+
+
+#+end_src
+
+#+RESULTS:
+: (insert-queue! q1 'a) = ((a) a)
+: (insert-queue! q1 'b) = ((a b) b)
+: (delete-queue! q1)    = ((b) b)
+: insert ((b c) c)
+: (delete-queue! q1)    = ((c) c)
+
+I dare to say that this printed representation is correct, because it
+not just displays the queue, but also shows what the end pointer marks.
+
+Indeed, the queue is just a pair of a list and the final
+pair. Moreover, even if the queue is empty, the last pair is not
+destroyed, and therefore is displayed.
+
+#+begin_src scheme :exports both :results output :noweb-ref print-queue
+<<queue>>
+(define (print-queue queue)
+  (display (car queue)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<queue>>
+<<print-queue>>
+(define q1 (make-queue))
+(print-queue (insert-queue! q1 'a))
+(newline)
+(print-queue (insert-queue! q1 'b))
+(newline)
+(print-queue (delete-queue! q1))
+(newline)
+(print-queue (delete-queue! q1))
+#+end_src
+
+#+RESULTS:
+: (a)
+: (a b)
+: (b)
+: ()
+
+Everything is fine.
+
+*** DONE Exercise 3.22 procedural queue
+    CLOSED: [2019-12-03 Tue 22:13]
+#+begin_src scheme :exports both :results output :noweb-ref procedural-queue
+    (define (make-queue)
+      (let ((front-ptr (list))
+	    (rear-ptr #f))
+	(define (front)
+	  (if (null? front-ptr)
+	      (error "FRONT called with an empty queue" queue)
+	      (car front-ptr)))
+	(define (insert! x)
+	  (let ((new-pair (cons x (list)))) 
+	    (cond ((null? front-ptr) 
+		   (set! front-ptr new-pair)
+		   (set! rear-ptr  new-pair))
+		  (else
+		   (set-cdr! rear-ptr new-pair)
+		   (set! rear-ptr new-pair)))))
+	(define (delete!)
+	  (if (not (null? front-ptr))
+	      (set! front-ptr (cdr front-ptr))
+	      (error "Queue already empty" front-ptr)))
+	(define (dispatch m)
+	  (cond ((eq? m 'empty-queue) (null? front-ptr))
+		((eq? m 'front) (front))
+		((eq? m 'insert!) insert!)
+		((eq? m 'delete!) delete!)
+                ((eq? m 'print) (display front-ptr))
+		(else
+		 (error "Undefined operation: queue" m)))  )
+	dispatch))
+  (define (front-queue z) 
+    (z 'front))
+  (define (empty-queue? z)
+    (z 'empty-queue))
+  (define (insert-queue! q z)
+    ((q 'insert!) z)
+    q)
+  (define (delete-queue! q)
+    ((q 'delete!))
+    q)
+  (define (print-queue q)
+    (q 'print)
+    (newline))
+
+  (define q1 (make-queue))
+  (empty-queue? q1)
+  (insert-queue! q1 'a)
+  (print-queue q1)
+  (insert-queue! q1 'b)
+  (print-queue q1)
+  (delete-queue! q1)
+  (print-queue q1)
+  (delete-queue! q1)
+  (print-queue q1)
+#+end_src
+
+#+RESULTS:
+: (a)
+: (a b)
+: (b)
+: ()
+
+Well, makes sense. Not a very hard exercise.
+
+*** DONE Exercise 3.23 dequeue
+    CLOSED: [2019-12-03 Tue 23:24]
+
+#+begin_src scheme :exports both :results result :noweb-ref dequeue
+  (define (front-ptr deque) (car deque))
+  (define (rear-ptr deque)
+    (cdr deque))
+  (define (set-front-ptr! deque item)
+    (set-car! deque item))
+  (define (set-rear-ptr! deque item)
+    (set-cdr! deque item))
+  (define (empty-deque? deque)
+    (null? (front-ptr deque)))
+  (define (make-deque) (cons '() '()))
+  (define (get-item list-elem)
+    (cdr list-elem))
+  (define (get-backlink list-elem)
+    (car list-elem))
+  (define (front-deque deque)
+    (if (empty-deque? deque)
+	(error "FRONT called with an empty deque" deque)
+	(get-item (car (front-ptr deque)))))
+  (define (rear-deque deque)
+    (if (empty-deque? deque)
+	(error "REAR called with an empty deque" deque)
+	(get-item (car (rear-ptr deque)))))
+  (define (rear-insert-deque! deque item)
+    (let ((new-pair (cons (cons #f item) '())))
+      (cond ((empty-deque? deque)
+	     (set-front-ptr! deque new-pair)
+	     (set-rear-ptr! deque new-pair)
+	     deque)
+	    (else
+	     (set-cdr! (rear-ptr deque) new-pair)
+             (set-car! new-pair (rear-ptr deque))
+	     (set-rear-ptr! deque new-pair)
+	     deque))))
+  (define (front-delete-deque! deque)
+    (cond ((empty-deque? deque)
+	   (error "FRONT-DELETE! called with an empty deque" deque))
+	  (else (set-front-ptr! deque (cdr (front-ptr deque)))
+                (set-car! (car (front-ptr deque)) '())
+		deque)))
+  (define (front-insert-deque! deque item)
+    (let ((new-pair (cons (cons '() item) '())))
+      (cond ((empty-deque? deque)
+	     (set-front-ptr! deque new-pair)
+	     (set-rear-ptr! deque new-pair)
+	     deque)
+	    (else
+	     (set-cdr! new-pair (front-ptr deque))
+             (set-car! (car (front-ptr deque)) new-pair)
+             (set-front-ptr! deque new-pair)
+            deque))))
+  (define (rear-delete-deque! deque)
+    (cond ((empty-deque? deque)
+	   (error "REAR-DELETE! called with an empty deque" deque))
+	  (else (set-rear-ptr! deque (caar (rear-ptr deque)))
+                (if (not (null? (rear-ptr deque)))
+                    (set-cdr! (rear-ptr deque) (list))
+                    (set-front-ptr! deque '()))
+		deque)))
+(define (print-deque q)
+  (display q))
+
+
+(define dq1 (make-deque))
+(front-insert-deque! dq1 'a)
+(rear-insert-deque!  dq1 'b)
+(front-delete-deque! dq1)
+(rear-delete-deque!  dq1)
+(empty-deque? dq1)
+#+end_src
+
+#+RESULTS:
+: #t
 
 *** Remark Table operations
 Actually, these table operations are first required in the chapter 2,
@@ -20866,104 +21201,2991 @@ pseudo-chapter so that the appropriate code could be tangled in.
 #+RESULTS:
 : ok
 
-*** TODO Exercise 3.24
-*** TODO Exercise 3.25
+*** DONE Exercise 3.24 tolerant tables
+    CLOSED: [2019-12-04 Wed 18:07]
 
-*** TODO Exercise 3.26
+#+begin_src scheme :exports both :results output
+  (define false #f)
+  (define (make-table . o)
+    (let ((same-key? (if (null? o) equal? (car o))))
+      (let ((local-table (list '*table*)))
+	(define (lookup key-1 key-2)
+	  (let ((subtable
+		 (assoc key-1 (cdr local-table) same-key?)))
+	    (if subtable
+		(let ((record
+		       (assoc key-2 (cdr subtable) same-key?)))
+		  (if record (cdr record) false))
+		false)))
+	(define (insert! key-1 key-2 value)
+	  (let ((subtable
+		 (assoc key-1 (cdr local-table) same-key?)))
+	    (if subtable
+		(let ((record
+		       (assoc key-2 (cdr subtable) same-key?)))
+		  (if record
+		      (set-cdr! record value)
+		      (set-cdr! subtable
+				(cons (cons key-2 value)
+				      (cdr subtable)))))
+		(set-cdr! local-table
+			  (cons (list key-1 (cons key-2 value))
+				(cdr local-table)))))
+	  'ok)
+	(define (dispatch m)
+	  (cond ((eq? m 'lookup-proc) lookup)
+		((eq? m 'insert-proc!) insert!)
+		(else (error "Unknown operation: TABLE" m))))
+	dispatch)))
+  (define (parity-checker a b)
+    (if (= (remainder a 2) (remainder b 2))
+        #t
+        #f)) #;("not a very useful table")
+  (define operation-table (make-table parity-checker))
+  (define get (operation-table 'lookup-proc))
+  (define put (operation-table 'insert-proc!))
+  (put 1 2 (lambda () (display "test1") (newline)))
+  ((get 3 4))
+#+end_src
 
-*** TODO Exercise 3.27
+#+RESULTS:
+: test1
 
-*** TODO Exercise 3.28
+This exercise would have been much-much harder with schemes lower than
+version 7, as the ~assoc~ procedure doesn't take a comparator procedure.
 
-*** TODO Exercise 3.29
+*** DONE Exercise 3.25 multilevel tables
+    CLOSED: [2019-12-06 Fri 20:35]
 
-*** TODO Exercise 3.30
+This exercise illustrates that it is never pays off to save on data
+structures. The two-level structure is not flexible, so we are just using
+nested tables.
 
-*** TODO Exercise 3.31
+#+begin_src scheme :exports both :results output
+(display "Starting\n")
+	 (define (make-table)
+           (let ((local-table (list)))
+	     (define (lookup key-list)
+	       (let ((subtable (assoc (car key-list) local-table)))
+		 (if subtable
+		     (if (null? (cdr key-list))
+                         (cdr subtable)
+                         (((cdr subtable) 'lookup-proc) (cdr key-list)))
+		     #f)))
+	     (define (insert! key-list value)
+	       (let* ((key (car key-list))
+                      (subtable (assoc key local-table)))
+                  (if subtable
+                     (if (null? (cdr key-list))
+                         (set-cdr! subtable value)
+                         (if (procedure? (cdr subtable))
+                             (((cdr subtable) 'insert-proc!) (cdr key-list) value)
+                             (let ((subsubtable (make-table)))
+                                  ((subsubtable 'insert-proc!) (cdr key-list) value)
+                                  (set-cdr! subtable subsubtable))))
+                     (set! local-table 
+                           (cons 
+                              (cons key 
+                                 (if (null? (cdr key-list))
+                                    value
+                                    (let ((subsubtable (make-table)))
+                                       ((subsubtable 'insert-proc!) 
+                                        (cdr key-list) value) subsubtable))) 
+                              local-table)))))
+	     (define (dispatch m)
+	       (cond ((eq? m 'lookup-proc) lookup)
+		     ((eq? m 'insert-proc!) insert!)
+                     (else (error "Unknown operation -- TABLE" m))))
+	     dispatch))
 
-*** TODO Exercise 3.32
+	 (define operation-table (make-table))
+	 (define get (operation-table 'lookup-proc))
+	 (define put (operation-table 'insert-proc!))
 
-*** TODO Exercise 3.33
+  (display (put (list 'key1 'key2 'key3) 'test-value))
+  (newline)
+  (display (get (list 'key1 'key2 'key3)))
+#+end_src
 
-*** TODO Exercise 3.34
+#+RESULTS:
+: Starting
+: #<undef>
+: test-value
 
-*** TODO Exercise 3.35
+*** DONE Exercise 3.26 binary tree table
+    CLOSED: [2019-12-06 Fri 20:53]
 
-*** TODO Exercise 3.36
+It is easy to implement a table lookup system based on an ordered set of
+keys. A binary search tree is an easy example. In such a tree, every node
+represents a key (with some payload value). The left child always has its key
+ordered less than the right one, in every node. Searching is thus easy, you
+start from the top of the tree, and follow right or left, depending whether
+the key you are searching for is greater or less than the one you are looking
+for. 
 
-*** TODO Exercise 3.37
+This should clearly require \(O(\log n)\) steps if the tree is well
+balanced. Insertion, if implemented naively, may work according to the same
+scheme. However, if we try to insert a long list of successive numbers, we
+will get a very deep and very thin tree, which will reduce the problem to the
+implementation based on lists.
 
-*** TODO Exercise 3.38
 
-*** TODO Exercise 3.39
+The problem happens if the tree is _not_ well balanced. Several re-balancing
+algorithms exist, that for example AVL-trees and RB-trees. Those are usually
+applied on ~insert!~, when the tree's "badness" metric exceeds some value.
 
-*** TODO Exercise 3.40
+*** DONE Exercise 3.27 memoization
+    CLOSED: [2019-12-07 Sat 16:08]
 
-*** TODO Exercise 3.41
+It is very straightforward why plain ~(memoize fib)~ would not work. Because
+every call to the same function should be snapped with a call to the
+memoizer. That is the memoization only rememebers a call with which it is
+associated. Since ~fib~ calls ~fib~ again, not ~memo-fib~, only the final
+result would be remembered.
 
-*** TODO Exercise 3.42
+We want to make a diagram for ~(memo-fib 3)~.
 
-*** TODO Exercise 3.43
+#+name: exercise-3-27
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-27.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+       font=\sffamily,pics/two dots/.style={code={
+       \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+       (#1-left) {};
+      \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+      right=0pt of #1-left]
+	  (#1-right) {};
+      \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+      }},
+      every pin edge/.style={<-,very thick},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      node distance=4mm]
 
-*** TODO Exercise 3.44
+    \node (memoize-global)  {memoize: <...>};
+    \node (fake1) [right=100mm of fib-global] {};  
+    \node (memo-fib-global) [below=4mm of memoize-global.west,anchor=west] {memo-fib:};
 
-*** TODO Exercise 3.45
+    \node (g env) [box, fit=(memoize-global) (fake1) (memo-fib-global),
+    pin={[text width=1cm,pin distance=10mm]left:global env}]
+    { };
+    \path
+     node[below=2cm of memo-fib-global.west, anchor=west,align=left] (var-f) {f: lambda (n) <...>\\ 
+      (fib implementation,\\ uses memo-fib)} 
+     node[box,draw, minimum size=1cm, fit=(var-f),pin=left:E1] (E1-env) {}
+     ($ (E1-env.north west)!0.9!(E1-env.north east) $) coordinate (aux3);
+     \draw[->] (aux3) -- (aux3 |- g env.south);
 
-*** TODO Exercise 3.46
+     \node[below=2cm of var-f.west, anchor=west] (table-var) {table: \#<procedure dispatch>}
+     node[right=7cm of table-var] (fake2) {};
+     \node[box,draw, fit=(table-var) (fake2),pin=left:E2] (E2-env) {};
+     \path ($ (E2-env.north west)!0.1!(E2-env.north east) $) coordinate (aux2);
+     \draw[->] (aux2) -- (aux2 |- E1-env.south);
+     \path coordinate[below=1.5cm of table-var.west] (aux)
+     (aux)  pic{two dots=memo-fib}; 
+     \draw[->] (memo-fib-right.center) to (E2-env.south -| memo-fib-right.center);
+     \node[below=10mm of memo-fib-left,align=left,anchor=north] 
+     {parameters: x\\
+     body: <table lookup,\\ or uses f>} 
+     edge[<-] (memo-fib-left.center);
+     \draw[<-,to path={-- ++(-2cm,0) |- ($ (\tikztotarget) - (0,1cm) $)} 
+                       -- (\tikztotarget)] 
+     (memo-fib.west) to (memo-fib-global.east);
+     \path ($ (E2-env.south west)!0.2!(E2-env.south east) $) node(fake) {}
+      node [box,below=1cm of fake] (fake2) {n: 3} edge[->] (fake)
+      node [below=5mm of fake2] {<memo-fib...>};
+     \path ($ (E2-env.south west)!0.4!(E2-env.south east) $) node(fake) {}
+      node [box,below=1cm of fake] (fake2) {n: 2} edge[->] (fake)
+      node [below=5mm of fake2] {<memo-fib...>};
+     \path ($ (E2-env.south west)!0.6!(E2-env.south east) $) node(fake) {}
+      node [box,below=1cm of fake] (fake2) {n: 1} edge[->] (fake)
+      node [below=5mm of fake2] {<memo-fib...>};
 
-*** TODO Exercise 3.47
+\end{tikzpicture}
+#+end_src
 
-*** TODO Exercise 3.48
+#+RESULTS: exercise-3-27
+[[file:exercise-3-27.png]]
 
-*** TODO Exercise 3.49
+I am not sure this is very explanatory, but seems to do the job...
 
-*** TODO Exercise 3.50
 
-*** TODO Exercise 3.51
+*** Circuit simulation code
 
-*** TODO Exercise 3.52
+I am separating the circuit simulation code into a separate section, because
+it is all very messy and scattered, and would be interfering with just
+solving exercises.
 
-*** TODO Exercise 3.53
+#+begin_src scheme :exports both :results value :noweb-ref circuit-simulator-1
+(define delay #f)
+  (define (get-signal wire) (wire 'get-signal))
+  (define (set-signal! wire new-value)
+    ((wire 'set-signal!) new-value))
+  (define (add-action! wire action-procedure)
+    ((wire 'add-action!) action-procedure))
 
-*** TODO Exercise 3.54
+  (define (call-each procedures)
+    (if (null? procedures)
+	'done
+	(begin ((car procedures))
+	       (call-each (cdr procedures)))))
 
-*** TODO Exercise 3.55
+  (define (make-wire)
+    (let ((signal-value 0) (action-procedures '()))
+      (define (set-my-signal! new-value)
+	(if (not (= signal-value new-value))
+	    (begin (set! signal-value new-value)
+		   (call-each action-procedures))
+	    'done))
+      (define (accept-action-procedure! proc)
+	(set! action-procedures
+	  (cons proc action-procedures))
+	(proc))
+      (define (dispatch m)
+	(cond ((eq? m 'get-signal) signal-value)
+	      ((eq? m 'set-signal!) set-my-signal!)
+	      ((eq? m 'add-action!) accept-action-procedure!)
+	      (else (error "Unknown operation: WIRE" m))))
+      dispatch))
 
-*** TODO Exercise 3.56
+  (define a (make-wire))
+  (define b (make-wire))
+  (define c (make-wire))
+  (define d (make-wire))
+  (define e (make-wire))
+  (define s (make-wire))
 
-*** TODO Exercise 3.57
+  (define (half-adder a b s c)
+    (let ((d (make-wire)) (e (make-wire)))
+      (or-gate a b d)
+      (and-gate a b c)
+      (inverter c e)
+      (and-gate d e s)
+      'ok))
 
-*** TODO Exercise 3.58
+  (define (full-adder a b c-in sum c-out)
+    (let ((s (make-wire)) (c1 (make-wire)) (c2 (make-wire)))
+      (half-adder b c-in s c1)
+      (half-adder a s sum c2)
+      (or-gate c1 c2 c-out)
+      'ok))
 
-*** TODO Exercise 3.59
+  (define (inverter input output)
+    (define (invert-input)
+      (let ((new-value (logical-not (get-signal input))))
+        #;(show #t "Inverter-delay=" inverter-delay "\n")        
+	(after-delay inverter-delay
+		     (lambda () (set-signal! output new-value)))))
+    (add-action! input invert-input) 'ok)
+  (define (logical-not s)
+    (cond ((= s 0) 1)
+	  ((= s 1) 0)
+	  (else (error "Invalid signal" s))))  
 
-*** TODO Exercise 3.60
+  (define (after-delay delayd action)
+    (add-to-agenda! (+ delayd (current-time the-agenda))
+		    action
+		    the-agenda))
 
-*** TODO Exercise 3.61
+  (define (propagate)
+    #;(show #t "propagate: agenda=" (displayed the-agenda) "\n")
+    (if (empty-agenda? the-agenda)
+	'done
+	(let ((first-item (first-agenda-item the-agenda)))
+	  (first-item)
+	  (remove-first-agenda-item! the-agenda)
+	  (propagate))))
 
-*** TODO Exercise 3.62
+  (define (probe name wire)
+    (add-action! wire
+		 (lambda ()
+		   (newline)
+		   (display name) (display " ")
+                   (display "time= ")
+		   (display (current-time the-agenda))
+		   (display "  New-value = ")
+		   (display (get-signal wire)))))
 
-*** TODO Exercise 3.63
+  <<queue>>
 
-*** TODO Exercise 3.64
+  (define (make-time-segment time queue)
+    (cons time queue))
+  (define (segment-time s) (car s))
+  (define (segment-queue s) (cdr s))
 
-*** TODO Exercise 3.65
+  (define (make-agenda) (list 0))
+  (define (current-time agenda) (car agenda))
+  (define (set-current-time! agenda time)
+    (set-car! agenda time))
+  (define (segments agenda) (cdr agenda))
+  (define (set-segments! agenda segments)
+    (set-cdr! agenda segments))
+  (define (first-segment agenda) (car (segments agenda)))
+  (define (rest-segments agenda) (cdr (segments agenda)))
 
-*** TODO Exercise 3.66
+  (define (empty-agenda? agenda)
+    (null? (segments agenda)))
 
-*** TODO Exercise 3.67
+  (define (add-to-agenda! time action agenda)
+    (define (belongs-before? segments)
+      (or (null? segments)
+	 (< time (segment-time (car segments)))))
+    (define (make-new-time-segment time action)
+      (let ((q (make-queue)))
+	(insert-queue! q action)
+	(make-time-segment time q)))
+    (define (add-to-segments! segments)
+      (if (= (segment-time (car segments)) time)
+	  (insert-queue! (segment-queue (car segments))
+			 action)
+	  (let ((rest (cdr segments)))
+	    (if (belongs-before? rest)
+		(set-cdr!
+		 segments
+		 (cons (make-new-time-segment time action)
+		       (cdr segments)))
+		(add-to-segments! rest)))))
+    (let ((segments (segments agenda)))
+      (if (belongs-before? segments)
+	  (set-segments!
+	   agenda
+	   (cons (make-new-time-segment time action)
+		 segments))
+	  (add-to-segments! segments))))
 
-*** TODO Exercise 3.68
+  (define (remove-first-agenda-item! agenda)
+    (let ((q (segment-queue (first-segment agenda))))
+      (delete-queue! q)
+      (if (empty-queue? q)
+	  (set-segments! agenda (rest-segments agenda)))))
 
-*** TODO Exercise 3.69
+  (define (first-agenda-item agenda)
+    (if (empty-agenda? agenda)
+	(error "Agenda is empty: FIRST-AGENDA-ITEM")
+	(let ((first-seg (first-segment agenda)))
+          #;(show #t "f-a-i:current-time=" (car agenda) "\n")
+	  (set-current-time! agenda
+			     (segment-time first-seg))
+	  (front-queue (segment-queue first-seg)))))
 
-*** TODO Exercise 3.70
+  (define (logical-and s1 s2)
+    (cond ((and (= 1 s1) (= s2 1)) 1)
+	  (else 0)))
+  (define (and-gate a1 a2 output)
+    (define (and-action-procedure)
+      (let ((new-value
+	     (logical-and (get-signal a1) (get-signal a2))))
+        #;(show #t "And-gate-delay=" and-gate-delay "\n")
+	(after-delay
+	 and-gate-delay
+	 (lambda () (set-signal! output new-value)))))
+    (add-action! a1 and-action-procedure)
+    (add-action! a2 and-action-procedure)
+    'ok)
 
-*** TODO Exercise 3.71
+  <<or-gate-primitive>>
 
-*** TODO Exercise 3.72
+  #;(display "Done defining the circuit simulator.\n")
+  'done-defining-circuit-simulator
+#+end_src
 
-*** TODO Exercise 3.73
+#+RESULTS:
+: done-defining-circuit-simulator
+
+For example, the procedure ~logical-and~ is not implemented
+anywhere, so we will need to write it ourselves.
+
+#+begin_src scheme :exports both :results output 
+    <<circuit-simulator-1>>
+    (define the-agenda (make-agenda))
+    (define inverter-delay 2)
+    (define and-gate-delay 3)
+    (define or-gate-delay 5)
+
+    (define input-1 (make-wire))
+    (define input-2 (make-wire))
+    (define sum (make-wire))
+    (define carry (make-wire))
+    (show #t "(probe 'sum sum):\n")
+    (probe 'sum sum)
+    (show #t "\n(probe 'carry carry):\n")
+    (probe 'carry carry)
+    (show #t "\n(half-adder input-1 input-2 sum carry):\n")
+    (half-adder input-1 input-2 sum carry)
+    (show #t "\n(set-signal! input-1 1):\n")
+    (set-signal! input-1 1)
+    (show #t "\n(propagate):\n")
+    (propagate)
+    (show #t "\n(set-signal! input-2 1):\n")
+    (set-signal! input-2 1)    
+    (show #t "\n(propagate):\n")
+    (propagate)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+(probe 'sum sum):
+
+(probe 'carry carry):
+
+(half-adder input-1 input-2 sum carry):
+
+(set-signal! input-1 1):
+
+(propagate):
+
+(set-signal! input-2 1):
+
+(propagate):
+
+carry time= 11  New-value = 1
+#+end_example
+
+
+
+*** DONE Exercise 3.28 primitive or-gate
+    CLOSED: [2019-12-08 Sun 23:43]
+
+In this exercise, there is one caveat that makes life of programmers
+miserable. That is, 0 does not represent a false value in scheme. So
+writing a readable code was a bit difficult, and the code below is
+probably not correct.
+
+#+begin_src scheme :exports both :results output :noweb-ref or-gate-primitive
+(define (logical-or s1 s2)
+    (cond ((or (= s1 1) (= s2 1)) 1)
+	  (else 0)))
+(define (or-gate a1 a2 output)
+    (define (or-action-procedure)
+      (let ((new-value
+	     (logical-or (get-signal a1) (get-signal a2))))
+        #;(show #t "or-gate-delay=" or-gate-delay "\n")
+	(after-delay
+	 or-gate-delay
+	 (lambda () (set-signal! output new-value)))))
+    (add-action! a1 or-action-procedure)
+    (add-action! a2 or-action-procedure)
+    'ok)
+#+end_src
+
+This code is used in the previous section. [[Circuit simulation code
+]]
+
+*** DONE Exercise 3.29 Compound or-gate
+    CLOSED: [2019-12-08 Sun 23:45]
+
+\( \vee (a,b) = \wedge(\neg a, \neg b)\)
+
+#+begin_src scheme :exports both :results output :noweb-ref or-gate-procedural
+(define (or-gate a b c)
+    (let ((d (make-wire)) (e (make-wire)))
+      (inverter a d)
+      (inverter b e)
+      (and-gate d e c)
+      'ok))
+#+end_src
+
+I have no idea how slow this works, and we don't have a simulation routine
+to check. But the delay should be the sum of the and-gate delay and just one
+of the inverter delays (because the two inverters work in parallel).
+
+*** DONE Exercise 3.30 ripple-carry adder
+    CLOSED: [2019-12-08 Sun 23:58]
+
+#+begin_src scheme :exports both :results output
+<<circuit-simulator-1>>
+<<or-gate-primitive>>
+
+    (define the-agenda (make-agenda))
+    (define inverter-delay 2)
+    (define and-gate-delay 3)
+    (define or-gate-delay 5)
+
+  (define (make-wire-list n my-list)
+    (if (= n 0)
+	my-list
+	(make-wire-list (- n 1) (cons (make-wire) my-list))))
+  (define test-length 2)
+  (define A (make-wire-list test-length '()))
+  (define B (make-wire-list test-length '()))
+  (define S (make-wire-list test-length '()))
+  (define C (make-wire))
+
+  (define (ripple-carry-adder a b s c)
+    (let ((A_n (car a))
+	  (B_n (car b))
+	  (S_n (car s))
+	  (C_n-1 (make-wire)))
+      (full-adder A_n B_n c S_n C_n-1)
+      (if (null? (cdr a))
+	  C_n-1
+	  (ripple-carry-adder (cdr a) (cdr b) (cdr s) C_n-1))))
+  (define C_out (ripple-carry-adder A B S C))
+
+  (probe 'C_out C_out)
+  (set-signal! (list-ref A 1) 1)
+  (set-signal! (list-ref A 0) 1)
+  (set-signal! (list-ref B 1) 1)
+  (propagate)
+#+end_src
+
+#+RESULTS:
+: 
+: C_out time= 0  New-value = 0
+: C_out time= 16  New-value = 1
+
+This ripple-carry-adder is not very efficient. Also, bits are represented in
+the little-ending format. Also, we can still not test it, since the
+simulation function is not given.
+
+*** DONE Exercise 3.31 Initial propagation 
+    CLOSED: [2019-12-09 Mon 00:16]
+
+Initial propagation is needed for in initial intermediate values of
+the wires to be consistent.
+
+In particular, look at the inverter gate. If we don't run
+initialisation, then at time 0, the gate would have it's input as 0
+(which is a normal state for a newly-created wire), and it's output as
+0 too. But this condition for an inverter is wrong.
+
+*** DONE Exercise 3.32 Order matters
+    CLOSED: [2019-12-09 Mon 00:26]
+
+The problem with adding operations in a standard list is that the
+intermediate results are getting in the execution after the final
+ones.
+
+In this particular example, changing (0,1) to (1,0), we have to go
+through (1,1). And it doesn't matter than we are going to (1,0) after,
+because the simulation for (1,1) will be in the queue later. 
+
+*** Constraint propagation system
+
+In this section I will place common code for the constraint
+propagation system, because it is quite big.
+
+#+begin_src scheme :exports both :results value :noweb-ref constraints-system
+  (define false #f)
+  (define true #t)
+  (define (adder a1 a2 sum)
+    (define (process-new-value)
+      (cond ((and (has-value? a1) (has-value? a2))
+	     (set-value! sum
+			 (+ (get-value a1) (get-value a2))
+			 me))
+	    ((and (has-value? a1) (has-value? sum))
+	     (set-value! a2
+			 (- (get-value sum) (get-value a1))
+			 me))
+	    ((and (has-value? a2) (has-value? sum))
+	     (set-value! a1
+			 (- (get-value sum) (get-value a2))
+			 me))))
+    (define (process-forget-value)
+      (forget-value! sum me)
+      (forget-value! a1 me)
+      (forget-value! a2 me)
+      (process-new-value))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+	     (process-new-value))
+	    ((eq? request 'I-lost-my-value) (process-forget-value))
+	    (else (error "Unknown request: ADDER" request))))
+    (connect a1 me)
+    (connect a2 me)
+    (connect sum me)
+    me)
+
+  (define (inform-about-value constraint)
+    (constraint 'I-have-a-value))
+  (define (inform-about-no-value constraint)
+    (constraint 'I-lost-my-value))
+
+  (define (multiplier m1 m2 product)
+    (define (process-new-value)
+      (cond ((or (and (has-value? m1) (= (get-value m1) 0))
+		 (and (has-value? m2) (= (get-value m2) 0)))
+	     (set-value! product 0 me))
+	    ((and (has-value? m1) (has-value? m2))
+	     (set-value! product
+			 (* (get-value m1) (get-value m2))
+			 me))
+	    ((and (has-value? product) (has-value? m1))
+	     (set-value! m2
+			 (/ (get-value product)
+			    (get-value m1))
+			 me))
+	    ((and (has-value? product) (has-value? m2))
+	     (set-value! m1
+			 (/ (get-value product)
+			    (get-value m2))
+			 me))))
+    (define (process-forget-value)
+      (forget-value! product me)
+      (forget-value! m1 me)
+      (forget-value! m2 me)
+      (process-new-value))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+	     (process-new-value))
+	    ((eq? request 'I-lost-my-value) (process-forget-value))
+	    (else (error "Unknown request: MULTIPLIER"
+			 request))))
+    (connect m1 me)
+    (connect m2 me)
+    (connect product me)
+    me)
+
+  (define (constant value connector)
+    (define (me request)
+      (error "Unknown request: CONSTANT" request))
+    (connect connector me)
+    (set-value! connector value me)
+    me)
+
+  (define (probe name connector)
+    (define (print-probe value)
+      (newline) (display "Probe: ") (display name)
+      (display " = ") (display value))
+    (define (process-new-value)
+      (print-probe (get-value connector)))
+    (define (process-forget-value) (print-probe "?"))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+	     (process-new-value))
+	    ((eq? request 'I-lost-my-value) (process-forget-value))
+	    (else (error "Unknown request: PROBE" request))))
+    (connect connector me)
+    me)
+
+  (define (make-connector)
+    (let ((value false) (informant false) (constraints '()))
+      (define (set-my-value newval setter)
+	(cond ((not (has-value? me))
+	       (set! value newval)
+	       (set! informant setter)
+	       (for-each-except setter
+				inform-about-value
+				constraints))
+	      ((not (= value newval))
+	       (error "Contradiction" (list value newval)))
+	      (else 'ignored)))
+      (define (forget-my-value retractor)
+	(if (eq? retractor informant)
+	    (begin (set! informant false)
+		   (for-each-except retractor
+				    inform-about-no-value
+				    constraints))
+	    'ignored))
+      (define (connect new-constraint)
+	(if (not (memq new-constraint constraints))
+	    (set! constraints
+	      (cons new-constraint constraints)))
+	(if (has-value? me)
+	    (inform-about-value new-constraint))
+	'done)
+      (define (me request)
+	(cond ((eq? request 'has-value?)
+	       (if informant true false))
+	      ((eq? request 'value) value)
+	      ((eq? request 'set-value!) set-my-value)
+	      ((eq? request 'forget) forget-my-value)
+	      ((eq? request 'connect) connect)
+	      (else (error "Unknown operation: CONNECTOR"
+			   request))))
+      me))
+
+  (define (for-each-except exception procedure list)
+    (define (loop items)
+      (cond ((null? items) 'done)
+	    ((eq? (car items) exception) (loop (cdr items)))
+	    (else (procedure (car items))
+			 (loop (cdr items)))))
+    (loop list))
+
+  (define (has-value? connector)
+    (connector 'has-value?))
+  (define (get-value connector)
+    (connector 'value))
+  (define (set-value! connector new-value informant)
+    ((connector 'set-value!) new-value informant))
+  (define (forget-value! connector retractor)
+    ((connector 'forget) retractor))
+  (define (connect connector new-constraint)
+    ((connector 'connect) new-constraint))
+
+#+end_src
+
+#+RESULTS:
+: #<undef>
+
+#+begin_src scheme :exports both :results output
+  <<constraints-system>>
+  (define (celsius-fahrenheit-converter c f)
+    (let ((u (make-connector))
+	  (v (make-connector))
+	  (w (make-connector))
+	  (x (make-connector))
+	  (y (make-connector)))
+      (multiplier c w u)
+      (multiplier v x u)
+      (adder v y f)
+      (constant 9 w)
+      (constant 5 x)
+      (constant 32 y)
+      'ok))
+
+  (define C (make-connector))
+  (define F (make-connector))
+
+  (celsius-fahrenheit-converter C F)
+  (probe "Celsius temp" C)
+  (probe "Fahrenheit temp" F)
+
+  (set-value! C 25 'user)
+  #;(set-value! F 212 'user) #;("errors")
+  (forget-value! C 'user)
+  (set-value! F 212 'user)
+
+#+end_src
+
+#+RESULTS:
+: 
+: Probe: Celsius temp = 25
+: Probe: Fahrenheit temp = 77
+: Probe: Celsius temp = ?
+: Probe: Fahrenheit temp = ?
+: Probe: Fahrenheit temp = 212
+: Probe: Celsius temp = 100
+
+*** DONE Exercise 3.33 averager constraint
+    CLOSED: [2019-12-18 Wed 11:29]
+
+#+begin_src scheme :exports both :results output :noweb-ref constraints-averager
+(define (averager a b c)
+    (define (process-new-value)
+      (cond 
+	    ((and (has-value? a) (has-value? b))
+	     (set-value! c
+			 (/ (+ (get-value a) (get-value b)) 2)
+			 me))
+	    ((and (has-value? c) (has-value? a))
+	     (set-value! b
+			 (- (* 2 (get-value product))
+			    (get-value a))
+			 me))
+	    ((and (has-value? c) (has-value? b))
+	     (set-value! a
+			 (- (* 2 (get-value c))
+			    (get-value b))
+			 me))))
+    (define (process-forget-value)
+      (forget-value! c me)
+      (forget-value! a me)
+      (forget-value! b me)
+      (process-new-value))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+	     (process-new-value))
+	    ((eq? request 'I-lost-my-value) (process-forget-value))
+	    (else (error "Unknown request: AVERAGER"
+			 request))))
+    (connect a me)
+    (connect b me)
+    (connect c me)
+    me)
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<constraints-system>>
+<<constraints-averager>>
+
+(define localA (make-connector))
+(define localB (make-connector))
+(define localC (make-connector))
+(averager localA localB localC)
+
+(probe "localA: " localA)
+(probe "localB: " localB)
+(probe "localC: " localC)
+(set-value! localA 25 'user)
+(set-value! localB 27 'user)
+(guard (err 
+         (else (show #t "\nExpected failure: " (displayed err) "\n")))
+  (set-value! localC 22 'user))
+(forget-value! localA 'user)
+(set-value! localC 22 'user)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Probe: localA:  = 25
+Probe: localB:  = 27
+Probe: localC:  = 26
+Expected failure: {Exception #19 user "Contradiction" ((26 22)) #f #f}
+
+Probe: localA:  = ?
+Probe: localC:  = ?
+Probe: localC:  = 22
+Probe: localA:  = 17
+#+end_example
+
+*** DONE Exercise 3.34 Wrong squarer
+    CLOSED: [2019-12-18 Wed 12:30]
+
+The problem with this system is that the inversion procedure wouldn't
+work. That is, the multiplier has three connections, and every two
+define the third one. This is not the case with the squarer, as in the
+formula \( a \cdot a = b \), if we are given \(b\), we immediately get
+the value on both of the connectors leading to \(a\).
+
+*** DONE Exercise 3.35 Correct squarer
+    CLOSED: [2019-12-18 Wed 12:47]
+
+#+begin_src scheme :exports both :results output :noweb-ref constraints-squarer
+          (define (squarer a b)
+            (define (process-new-value)
+              (if (has-value? b)
+                  (if (< (get-value b) 0)
+                      (error "square less than 0 -- SQUARER" (get-value b))
+                      (set-value! a 
+                                  (sqrt (get-value b))
+                                  me))
+                  (if (has-value? a)
+                      (set-value! b
+                                  (* (get-value a) (get-value a))
+                                  me))))
+            (define (process-forget-value) 
+               (forget-value! b me)
+               (forget-value! a me))
+            (define (me request) 
+                (cond ((eq? request 'I-have-a-value)
+	                 (process-new-value))
+	              ((eq? request 'I-lost-my-value) 
+                         (process-forget-value))
+	    (else (error "Unknown request: SQUARER" request))))
+            (connect a me)
+            (connect b me)
+            me)
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<constraints-squarer>>
+<<constraints-system>>
+
+(define localA (make-connector))
+(define localB (make-connector))
+(squarer localA localB)
+(probe "localA: " localA)
+(probe "localB: " localB)
+(set-value! localA 25 'user)
+(guard (err 
+         (else (show #t "\nExpected failure: " (displayed err))))
+  (set-value! localB 22 'user))
+(forget-value! localA 'user)
+(set-value! localB 22 'user)
+#+end_src
+
+#+RESULTS:
+: 
+: Probe: localA:  = 25
+: Probe: localB:  = 625
+: Expected failure: {Exception #19 user "Contradiction" ((625 22)) #f #f}
+: Probe: localA:  = ?
+: Probe: localB:  = ?
+: Probe: localB:  = 22
+: Probe: localA:  = 4.69041575982343
+
+*** DONE Exercise 3.36 Connector environment diagram                   :tikz:
+    CLOSED: [2019-12-21 Sat 20:27]
+
+We are studying the following code:
+#+begin_src scheme :exports both :results output
+(define a (make-connector))
+(define b (make-connector))
+(set-value! a 10 'user)
+#+end_src
+
+#+name: exercise-3-36
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,matrix,quotes}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-3-36.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+       every node/.style={font=\sffamily,align=left},
+       font=\sffamily,pics/two dots/.style={code={
+       \node [draw,minimum size=5mm,circle,colored tokens={black!50}] 
+       (#1-left) {};
+      \node [draw,minimum size=5mm,circle,colored tokens={black!50},
+      right=0pt of #1-left]
+	  (#1-right) {};
+      \node [rectangle, fit=(#1-left) (#1-right)] (#1){};
+      }},
+      every pin edge/.style={<-,very thick},
+      box/.style={draw,rectangle,inner sep=#1},box/.default=2mm,
+      envi/.style={matrix of nodes, align=left,
+                  every node/.style={anchor=west}, 
+                  inner sep={0.7mm},
+                  execute at end cell={\vphantom{()}},
+                  draw},
+      node distance=4mm]
+
+    \node (a-global)  {a:};
+    \node (fake1) [right=150mm of a] {};  
+    \node (b-global) [below=4mm of a-global.west,anchor=west] {b:};
+    \node (iov-global) [below=4mm of b-global.west,anchor=west] {inform-about-value:};
+    \node (sv-global) [below=4mm of iov-global.west,anchor=west] {set-value!:};
+
+    \node (g-env) [box, fit=(a-global) (fake1) (b-global) (iov-global) (sv-global),
+    pin={[text width=1cm,pin distance=10mm]left:global env}]
+    { };
+     \path ($ (g-env.south west)!0.3!(g-env.south east) $) coordinate (fake1)
+      coordinate[below=1cm of fake1] (fake) (fake) pic{two dots=set-to-value}
+      (set-to-value) edge[<-,to path={|- (\tikztotarget)}] (sv-global.east)
+      (set-to-value-right.center) edge[->] (fake1 -| set-to-value-right.center);
+
+     \path ($ (g-env.south west)!0.5!(g-env.south east) $) coordinate (fake1)
+      coordinate[below=1cm of fake1] (fake) (fake) pic{two dots=i-a-v}
+      (i-a-v) edge[<-,to path={|- (\tikztotarget)}] (iov-global.east)
+      (i-a-v-right.center) edge[->] (fake1 -| i-a-v-right.center);
+
+
+     \path ($ (g-env.south west)!0.1!(g-env.south east) $) node(fake) {};
+     \matrix (a) [envi,
+                  below=of fake]
+     {
+       value: 10\\
+       informant: 'user\\
+       constraints: '() \\
+       |(a-set-my-value)| set-my-value: \\
+       |(a-forget-my-value)| forget-my-value: \\
+       |(a-connect)| connect: \\
+       |(a-me)| me:\\
+     } edge[->] (fake);
+
+     \path coordinate[right=2.5cm of a-me] (aux)
+      (aux) pic{two dots=amev}
+      (amev) edge [<-] (a-me) (amev-right.center) 
+             edge [->,to path={|- (\tikztotarget)}] ($ (a.east)$)
+             node[below=0.5cm of amev-left] {parameters: newvalue\\
+                                             \phantom{parameters: }setter\\ 
+                                             body: ... }
+             edge[<-] (amev-left.center);
+     \draw[->] (a-global.east) to[to path={  -| (\tikztotarget)}] (amev);
+
+     \path ($ (g-env.south west)!0.9!(g-env.south east) $) node(fake) {};
+     \matrix (b) [ below=of fake,envi]
+     {
+       value: \#f\\
+       informant: \#f\\
+       constraints: '() \\
+       |(b-set-my-value)| set-my-value: <...>\\
+       |(b-forget-my-value)| forget-my-value: <...> \\
+       |(b-connect)| connect: <...> \\
+       |(b-me)| me:\\
+     } edge[->] (fake);
+
+     \path coordinate[right=40mm of b-me] (aux)
+      (aux) pic{two dots=bmev}
+      (bmev) edge [<-] (b-me) 
+             (bmev-right.center)  
+                edge [->,to path={|- (\tikztotarget)}]
+                  ($ (b.east) + (0,0mm)$)
+             node[below=0.5cm of bmev-left] {parameters: newvalue\\
+                                             \phantom{parameters: }setter\\ 
+                                             body: ... }
+             edge[<-] (bmev-left.center);
+
+     \draw[->] (b-global.east) to[to path={-| (\tikztotarget)}] (bmev);
+
+     \matrix (smv) [below=2cm of a, envi]
+     {
+       newval: 10\\
+       setter: 'user\\
+     } edge[->] (a)
+     ($ (a.south)!0.5!(smv.north) $) node[anchor=east]
+      {(set-my-value 10 'user)};
+
+     \matrix (fee) [below=2cm of smv,envi]
+     {
+      exception: 'user\\
+      |(pp)| procedure:\\
+      constraints: '()\\
+      loop: <...> \\
+     } edge[->] (smv)
+      (pp.east) edge[->, to path={-| (\tikztotarget)}] (i-a-v)
+     ($ (smv.south)!0.5!(fee.north)$) node[anchor=east]
+     {(for-each-except\\
+       'user \\
+       inform-about-value \\
+       '())};
+     \matrix (loop) [below=1cm of fee, envi]
+     {
+       items: '()\\
+     } edge[->] (fee)
+     ($ (fee.south)!0.5!(loop.north) $) node[anchor=east]
+     {(loop '())}
+     node[below=of loop,anchor=north]
+     {(cond\\
+        ((null? items)\\
+          'done)\\
+        ((eq? (car items) exception)\\
+        (loop (cdr items)))\\
+        (else\\
+        (procedure (car items))\\
+        (loop (cdr items))))};
+     
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-3-36
+[[file:exercise-3-36.png]]
+
+Not as much of a difficult drawing exercise, still took me about 5
+hours. Drawing is hard.
+
+*** DONE Exercise 3.37 Expression-based constraints
+    CLOSED: [2019-12-21 Sat 21:20]
+#+begin_src scheme :exports both :results output :noweb-ref constraints-expressions
+  (define (c+ x y)
+    (let ((z (make-connector)))
+      (adder x y z)
+      z))
+  (define (c* x y)
+    (let ((z (make-connector)))
+      (multiplier x y z)
+      z))
+  (define (cv value)
+    (let ((z (make-connector)))
+      (constant value z)
+      z))
+  (define (c/ x y)
+    (let ((z (make-connector)))
+      (multiplier y z x)
+      z))  
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<constraints-system>>
+<<constraints-expressions>>
+  (define (celsius-fahrenheit-converter x)
+    (c+ 
+     (c* 
+      (c/ (cv 9) (cv 5))
+      x)
+     (cv 32)))
+  (define C (make-connector))
+  (define F (celsius-fahrenheit-converter C))
+(probe "Celsius temp" C)
+(probe "Fahrenheit temp" F)
+(set-value! F 212 'user)
+
+#+end_src
+
+#+RESULTS:
+: 
+: Probe: Fahrenheit temp = 212
+: Probe: Celsius temp = 100
+
+This turned out to be a very easy task. The only trick here really is
+to use the multiplies as a divider.
+
+*** TODO Check that every exercise with pictures has tags
+
+
+
+*** TODO Figure 3.29 Sequence diagram                              :plantuml:
+*** TODO Figure 3.30                                                   :tikz:
+*** DONE Exercise 3.38 Timing
+    CLOSED: [2019-12-21 Sat 22:48]
+
+The three users to the following:
+
+Peter: (set! balance (+ balance 10))
+Paul: (set! balance (- balance 20))
+Mary: (set! balance (- balance (/ balance 2)))
+
+**** a
+The three possible code orderings are the following:
+
+#+begin_src scheme :exports both :results value
+(define balance 100)
+(set! balance (+ balance 10))
+(set! balance (- balance 20))
+(set! balance (- balance (/ balance 2)))
+balance
+#+end_src
+
+#+RESULTS:
+: 45
+
+#+begin_src scheme :exports both :results value
+(define balance 100)
+(set! balance (- balance 20))
+(set! balance (- balance (/ balance 2)))
+(set! balance (+ balance 10))
+balance
+#+end_src
+
+#+RESULTS:
+: 50
+
+#+begin_src scheme :exports both :results value
+(define balance 100)
+(set! balance (- balance (/ balance 2)))
+(set! balance (- balance 20))
+(set! balance (+ balance 10))
+balance
+#+end_src
+
+#+RESULTS:
+: 40
+
+**** b
+
+#+begin_src plantuml :exports both :file exercise-3-38.png
+@startuml
+skinparam monochrome true
+actor "   Peter   " as Peter
+actor "   Paul   "  as Paul
+actor "   Mary   "  as Mary 
+entity "   Bank   " as Bank
+rnote over Bank: $100
+Mary -> Bank: Access\n balance
+Bank -> Mary: $100
+note over Mary: $100
+Paul -> Bank: Access\n balance
+Bank -> Paul: $100
+note over Paul: $100
+Peter -> Bank: Access\n balance
+Bank -> Paul: $100
+note over Mary: $100/2=$50
+Mary -> Bank: set-balance! $50
+rnote over Bank: $50
+note over Paul: $100-$20=$80
+Paul -> Bank: set-balance! $80
+rnote over Bank: $80
+note over Peter: $100+$10=$110
+Peter -> Bank: set-balance! $110
+rnote over Bank: $110
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:exercise-3-38.png]]
+
+Obviously, the values of 50, 80 and 110 are wrong. Any of those can
+end up as the final value, depending on the timing of ~set-balance!~.
+*** Implementing ~(parallel-execute)~ and serializers
+
+#+begin_src scheme :exports both :results output :noweb-ref parallel-execute
+(define (parallel-execute . forms)
+  (let ((myo (open-output-string)))
+    (define (create-threads . forms)
+    (if (null? forms)
+	(list)
+	(let ((ctxi (thread-start!
+		     (make-thread
+		      (lambda () (parameterize ((current-output-port myo))
+				((car forms))))))))
+	  (cons ctxi (apply create-threads (cdr forms))))))
+  (define (wait-threads thread-list)
+    (if (null? thread-list)
+	#t
+	(begin (thread-join! (car thread-list))
+	       (wait-threads (cdr thread-list)))))
+  (wait-threads (apply create-threads forms))
+  (display (get-output-string myo))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<parallel-execute>>
+(parallel-execute 
+  (lambda () (thread-sleep! 3) (display "hello1") (newline))
+  (lambda () (display "hello2") (newline)))
+(display "hello3\n")
+#+end_src
+
+#+RESULTS:
+: hello2
+: hello1
+: hello3
+
+#+begin_src scheme :exports both :results value
+<<parallel-execute>>
+(define x 10)
+(parallel-execute
+(lambda () (thread-sleep! 1) (set! x (* x x)))
+(lambda () (set! x (+ x 1))))
+x
+#+end_src
+
+#+RESULTS:
+: 121
+
+#+begin_src scheme :exports both :results output :noweb-ref make-serializer
+  (define false #f)
+  (define true #t)
+  (define central-old-mutex (make-mutex 'global-srfi-18-mutex))
+  (set! make-mutex #f)
+  (define (test-and-set! cell)
+    (mutex-lock! central-old-mutex)
+    (let ((output (if (car cell) true (begin (set-car! cell true) false))))
+      (mutex-unlock! central-old-mutex)
+      output))
+
+  (define (make-mutex)
+    (let ((cell (list false)))
+      (define (the-mutex m)
+	(cond ((eq? m 'acquire)
+	       (if (test-and-set! cell)
+		   (the-mutex 'acquire)))
+	      ((eq? m 'release) (clear! cell))))
+      the-mutex))
+  (define (clear! cell) (set-car! cell false))
+
+  (define (make-serializer)
+    (let ((mutex (make-mutex)))
+      (lambda (p)
+	(define (serialized-p . args)
+	  (mutex 'acquire)
+	  (let ((val (apply p args)))
+	    (mutex 'release)
+	    val))
+	serialized-p)))
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output :noweb-ref make-parallel-account
+  (define (make-account balance)
+    (define (withdraw amount)
+      (if (>= balance amount)
+	  (begin (set! balance (- balance amount))
+		 balance)
+	  "Insufficient funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (let ((protected (make-serializer)))
+      (define (dispatch m)
+	(cond ((eq? m 'withdraw) (protected withdraw))
+	      ((eq? m 'deposit) (protected deposit))
+	      ((eq? m 'balance) balance)
+	      (else (error "Unknown request: MAKE-ACCOUNT"
+			   m))))
+      dispatch))
+#+end_src
+
+*** DONE Exercise 3.39 Serializer
+    CLOSED: [2019-12-23 Mon 05:11]
+
+The original code is the following:
+
+#+begin_src scheme :exports both :results output
+(define x 10)
+(parallel-execute
+(lambda () (set! x (* x x)))
+(lambda () (set! x (+ x 1))))
+#+end_src
+
+The original five outcomes were the following:
+
+ - 101: P1 sets x to 100 and then P2 increments x to 101.
+ - 121: P2 increments x to 11 and then P1 sets x to x * x .
+ - 110: P2 changes x from 10 to 11 between the two times that
+   P1 accesses the value of x during the evaluation of (* x x) .
+ - 11:  P2 accesses x , then P1 sets x to 100, then P2 sets x .
+ - 100: P1 accesses x (twice), then P2 sets x to 11, then P1 sets x .
+
+We are serializing one of the branches:
+
+#+begin_src scheme :exports both :results output
+  (define x 10)
+  (define s (make-serializer))
+  (parallel-execute
+   (lambda () (set! x ((s (lambda () (* x x))))))
+   (s (lambda () (set! x (+ x 1)))))
+#+end_src
+
+In this case, the additive branch is fully serialized, and the
+multiplicative had assignment and multiplication detached. The options
+121 and 101 still remain, as they don't depend on the internal
+serialization. The branch resulting in 110 is disabled, because the
+read access to ~x~ is guaranteed to be sequential. The branch
+resulting in 11 is also disabled, since accessing and setting is
+guaranteed too happen together in the second branch. The branch
+resulting in 100 remains a possible option, since the computation of
+~(* x x)~ and the assignment are not guaranteed to happen in order.
+
+So in the end, the three remaining options are:
+
+ - 101: P1 sets x to 100 and then P2 increments x to 101.
+ - 121: P2 increments x to 11 and then P1 sets x to x * x .
+ - 100: P1 accesses x (twice), then P2 sets x to 11, then P1 sets x .
+
+*** DONE Exercise 3.40 Three parallel multiplications
+    CLOSED: [2019-12-29 Sun 04:32]
+**** Part 1
+#+begin_src scheme :exports both :results output
+(define x 10)
+(parallel-execute (lambda () (set! x (* x x)))
+                  (lambda () (set! x (* x x x))))
+#+end_src
+
+Here there are two read operations and one write operation in the
+first thread, and three read operations and one write operation in the
+second branch. 
+
+So we need to find the number of unique interleavings of two
+sequences: (1 2 3 4) and (a b c). The total number of interleavings is
+\(C_{x+y}^{x}\), which is 35, although it doesn't mean that all
+interleavings produce different outcomes.
+
+Those sequences can be generated algorithmically:
+https://math.stackexchange.com/questions/628120/number-of-possible-interleavings-of-two-strings-of-lengths-m-and-n
+https://stackoverflow.com/questions/36260956/all-possible-ways-to-interleave-two-strings
+
+It should be also possible to write a scheme macro to serialize
+~parallel-execute~. And it should also be possible to do it
+efficiently.
+
+However, at the moment it seems rather feasible to write out
+all possible serializations (interleavings) by hand.
+
+In total this makes the following sequences:
+
+| #op | 1      | 2      | 3       | 4       | 5       | 6       | 7       | Result     |
+|-----+--------+--------+---------+---------+---------+---------+---------+------------|
+|   1 | 1 read | 1 read | 1 write | 2 read  | 2 read  | 2 read  | 2 write | 1 00 00 00 |
+|   2 | 1 read | 1 read | 2 read  | 1 write | 2 read  | 2 read  | 2 write | 1 00 00 0  |
+|   3 | 1 read | 1 read | 2 read  | 2 read  | 1 write | 2 read  | 2 write | 1 00 00    |
+|   4 | 1 read | 1 read | 2 read  | 2 read  | 2 read  | 1 write | 2 write | 1 00 0     |
+|   5 | 1 read | 1 read | 2 read  | 2 read  | 2 read  | 2 write | 1 write | 1 00       |
+|   6 | 1 read | 2 read | 1 read  | 1 write | 2 read  | 2 read  | 2 write | 1 00 00 0  |
+|   7 | 1 read | 2 read | 1 read  | 2 read  | 1 write | 2 read  | 2 write | 1 00 00    |
+|   8 | 1 read | 2 read | 1 read  | 2 read  | 2 read  | 1 write | 2 write | 1 00 0     |
+|   9 | 1 read | 2 read | 1 read  | 2 read  | 2 read  | 2 write | 1 write | 1 00       |
+|  10 | 1 read | 2 read | 2 read  | 1 read  | 1 write | 2 read  | 2 write | 1 00 00    |
+|  11 | 1 read | 2 read | 2 read  | 1 read  | 2 read  | 1 write | 2 write | 1 00 0     |
+|  12 | 1 read | 2 read | 2 read  | 1 read  | 2 read  | 2 write | 1 write | 1 00       |
+|  13 | 1 read | 2 read | 2 read  | 2 read  | 1 read  | 1 write | 2 write | 1 00 0     |
+|  14 | 1 read | 2 read | 2 read  | 2 read  | 1 read  | 2 write | 1 write | 1 00       |
+|  15 | 1 read | 2 read | 2 read  | 2 read  | 2 write | 1 read  | 1 write | 1 00 00    |
+|  16 | 2 read | 1 read | 1 read  | 1 write | 2 read  | 2 read  | 2 write | 1 00 00 0  |
+|  17 | 2 read | 1 read | 1 read  | 2 read  | 1 write | 2 read  | 2 write | 1 00 00    |
+|  18 | 2 read | 1 read | 1 read  | 2 read  | 2 read  | 1 write | 2 write | 1 00 0     |
+|  19 | 2 read | 1 read | 1 read  | 2 read  | 2 read  | 2 write | 1 write | 1 00       |
+|  20 | 2 read | 1 read | 2 read  | 1 read  | 1 write | 2 read  | 2 write | 1 00 00    |
+|  21 | 2 read | 1 read | 2 read  | 1 read  | 2 read  | 1 write | 2 write | 1 00 0     |
+|  22 | 2 read | 1 read | 2 read  | 1 read  | 2 read  | 2 write | 1 write | 1 00       |
+|  23 | 2 read | 1 read | 2 read  | 2 read  | 1 read  | 1 write | 2 write | 1 00 0     |
+|  24 | 2 read | 1 read | 2 read  | 2 read  | 1 read  | 2 write | 1 write | 1 00       |
+|  25 | 2 read | 1 read | 2 read  | 2 read  | 2 write | 1 read  | 1 write | 1 00 00    |
+|  26 | 2 read | 2 read | 1 read  | 1 read  | 1 write | 2 read  | 2 write | 1 00 00    |
+|  27 | 2 read | 2 read | 1 read  | 1 read  | 2 read  | 1 write | 2 write | 1 00 0     |
+|  28 | 2 read | 2 read | 1 read  | 1 read  | 2 read  | 2 write | 1 write | 1 00       |
+|  29 | 2 read | 2 read | 1 read  | 2 read  | 1 read  | 1 write | 2 write | 1 00 0     |
+|  30 | 2 read | 2 read | 1 read  | 2 read  | 1 read  | 2 write | 1 write | 1 00       |
+|  31 | 2 read | 2 read | 1 read  | 2 read  | 2 write | 1 read  | 1 write | 1 00 00    |
+|  32 | 2 read | 2 read | 2 read  | 1 read  | 1 read  | 1 write | 2 write | 1 00 0     |
+|  33 | 2 read | 2 read | 2 read  | 1 read  | 1 read  | 2 write | 1 write | 1 00       |
+|  34 | 2 read | 2 read | 2 read  | 1 read  | 2 write | 1 read  | 1 write | 1 00 00    |
+|  35 | 2 read | 2 read | 2 read  | 2 write | 1 read  | 1 read  | 1 write | 1 00 00 00 |
+
+So the total set of ~x~ values is ~(100, 1000, 10000, 100000,
+1000000)~.
+
+It would not have been to hard to generate all those read/write
+sequences, but I wonder, how would I generate all possible codes to
+check the outcomes?
+
+**** Part 2
+
+When the two serialized procedures are used:
+#+begin_src scheme :exports both :results output
+(define x 10)
+(define s (make-serializer))
+(parallel-execute (s (lambda () (set! x (* x x))))
+                  (s (lambda () (set! x (* x x x)))))
+#+end_src
+
+Only two outcomes are left: when the first function runs, and when the
+second function runs, which is either \(100^3\), or \(1000^2\), which is
+both 1000000.
+
+*** DONE Exercise 3.41 Better protected account
+    CLOSED: [2020-01-02 Thu 10:02]
+
+I don't think that Ben's concern is valid. It may indeed happen that
+the value of ~balance~ changes between the time when the value is
+queried and the time it is returned, however wrapping a value in a
+protective serialized lambda does not solve this issue. Rather the
+whole call to the ~balance~ getter would need to be serialized.
+
+*** DONE Exercise 3.42 Saving on serializers
+    CLOSED: [2020-01-02 Thu 10:35]
+
+This exercise seems to be dealing with a thing called reentrancy,
+which seems to be quite implementation-dependent. The version I wrote
+would be asking to acquire the mutex any way, so I don't see how a
+race condition can appear here.
+
+#+begin_src scheme :exports both :results value
+<<parallel-execute>>
+<<make-serializer>>
+<<make-parallel-account>>
+ (let ((acc (make-account 100))) 
+   (parallel-execute 
+     (lambda () (thread-sleep! 0.1) ((acc 'withdraw) 10)) 
+     (lambda () ((acc 'withdraw) 20))) 
+   (acc 'balance)) 
+
+#+end_src
+
+#+RESULTS:
+: 70
+
+*** DONE Exercise 3.43 Multiple serializations
+    CLOSED: [2020-01-02 Thu 11:33]
+
+#+begin_src scheme :exports both :results output :noweb-ref unsafe-exchange
+  (define (exchange account1 account2)
+    (let ((difference (- (account1 'balance)
+			 (account2 'balance))))
+      ((account1 'withdraw) difference)
+      ((account2 'deposit) difference)))
+#+end_src
+
+It seems to be quite obvious that this code works correctly in a
+single-threaded case. Any inconsistency would arise from an incorrect
+order of mutations, but with one thread, this never happens.
+
+For the parallel case, the following erroneous behaviour may happen:
+
+#+begin_src plantuml :exports both :file exercise-3-43-1.png
+@startuml
+skinparam monochrome true
+actor "   Peter   " as Peter
+
+entity "   Account 1   " as acc1
+entity "   Account 2   " as acc2
+entity "   Account 3   " as acc3
+actor "   Paul   "  as Paul
+rnote over acc1: $10
+rnote over acc2: $20
+rnote over acc3: $30
+rnote over Peter: Exchange\n 1 and 2
+rnote over Paul: Exchange\n 2 and 3
+Peter -> acc1: balance
+acc1 -> Peter: 10
+Peter -> acc2: balance
+acc2 -> Peter: 20
+rnote over Peter: difference=-10
+
+
+Paul -> acc2: balance
+acc2 -> Paul: 20
+Paul -> acc3: balance
+acc3 -> Paul: 30
+rnote over Paul: difference=-10
+
+
+Peter -> acc1: withdraw -10
+rnote over acc1: $20
+
+Paul -> acc2: withdraw -10
+rnote over acc2: $30
+Paul -> acc3: deposit -10
+rnote over acc3: $20
+
+Peter -> acc2: deposit -10
+rnote over acc2: $20
+
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:exercise-3-43.png]]
+
+Even though every balance query is immediately followed by a response,
+still, incorrect ordering of mutations leads to the final accounts'
+states as $20, $20, $20.
+
+A fully non-synchronized version would be more disastrous:
+#+begin_src plantuml :exports both :file exercise-3-43-2.png
+@startuml
+skinparam monochrome true
+actor "   Peter   " as Peter
+
+entity "   Account 1   " as acc1
+entity "   Account 2   " as acc2
+entity "   Account 3   " as acc3
+actor "   Paul   "  as Paul
+rnote over acc1: $10
+rnote over acc2: $20
+rnote over acc3: $30
+rnote over Peter: Exchange\n 1 and 2
+rnote over Paul: Exchange\n 2 and 3
+Peter -> acc1: balance
+acc1 -> Peter: 10
+Peter -> acc2: balance
+
+Paul -> acc2: balance
+acc2 -> Paul: 20
+Paul -> acc3: balance
+acc3 -> Paul: 30
+rnote over Paul: difference=-10
+
+
+acc2 -> Peter: 20
+rnote over Peter: difference=-10
+Peter -> acc1: withdraw -10
+rnote over acc1: $20
+
+
+Peter -> acc2: deposit -10
+Paul -> acc2: withdraw -10
+rnote over acc2: $30
+rnote over acc2: $10
+
+
+Paul -> acc3: deposit -10
+rnote over acc3: $20
+
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:exercise-3-43-2.png]]
+
+Depending on the order of writing the balance variable in the account
+2, the value may be wrong in different ways.
+
+*** DONE Exercise 3.44 Transfer money
+    CLOSED: [2020-01-02 Thu 11:40]
+
+I think that Louis is wrong here. The problem with exchanging amounts
+is that the next value of account A depends on the previous value of
+an account B. However, in this case the dependency is not so
+strict. The next value of an account A only depends on the amount
+~amount~. The dependency would be back though, if there may be not
+enough money on the account B. Then the operation could fail,
+depending on the order of execution.
+
+*** DONE Exercise 3.45 new plus old serializers
+    CLOSED: [2020-01-02 Thu 11:46]
+
+The problem with Louis' suggestion is that the same mutex would be
+acquired twice. That is, we would attempt to serialize an already
+serialized procedure, and would get in a deadlock. 
+
+That is, we would have something like ~(balance-serializer
+(balance-serializer withdraw))~, which would attempt to obtain the
+same lock twice, and thus will wait forever.
+
+*** DONE Exercise 3.46 broken test-and-set!
+    CLOSED: [2020-01-02 Thu 11:56]
+
+#+begin_src plantuml :exports both :file exercise-3-46.png
+@startuml
+skinparam monochrome true
+control "  Process 1   " as p1
+
+entity "   Mutex   " as m
+control "  Process 2   "  as p2
+rnote over m: false
+p1 -> m: test-and-set!
+p2 -> m: test-and-set!
+rnote over m: set-car! cell true
+rnote over m: set-car! cell true
+rnote over m: true
+m -> p1: false
+m -> p2: false
+rnote over p1: acquired
+rnote over p2: acquired
+
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:exercise-3-46.png]]
+
+*** DONE Exercise 3.47 semaphores
+    CLOSED: [2020-01-03 Fri 12:59]
+**** DONE a: In terms of mutexes
+     CLOSED: [2020-01-03 Fri 12:38]
+
+#+begin_src scheme :exports both :results output
+  <<parallel-execute>>
+  <<make-serializer>>
+    (define (make-semaphore max-count)
+      (let ((count 0)
+	    (mutex (make-mutex)))
+	(define (the-semaphore op)
+	  (cond ((eq? op 'acquire)
+		 (begin
+		   (mutex 'acquire)
+		   (if (= count max-count)
+		       (begin
+			 (mutex 'release)
+			 (the-semaphore 'acquire))
+		       (begin
+			 (set! count (+ 1 count))
+			 (mutex 'release)))))
+		((eq? op 'release)
+		 (begin
+		   (mutex 'acquire)
+		   (set! count (max 0 (- count 1)))
+		   (mutex 'release)
+		   'released)))) the-semaphore))
+
+  (define test-semaphore (make-semaphore 2))
+  (parallel-execute 
+       (lambda () (test-semaphore 'acquire) 
+	     (thread-sleep! 3) 
+	     (show #t "Hello1: " (current-second) "\n")
+	     (test-semaphore 'release)) 
+       (lambda () (test-semaphore 'acquire) 
+	     (thread-sleep! 3) 
+             (show #t "Hello2: " (current-second) "\n")
+	     (test-semaphore 'release))
+       (lambda () (test-semaphore 'acquire) 
+	     (thread-sleep! 3) 
+             (show #t "Hello3: " (current-second) "\n")
+	     (test-semaphore 'release)))
+
+#+end_src
+
+#+RESULTS:
+: Hello2: Hello1: 1578026228.6750461578026228.675087
+: 
+: Hello3: 1578026231.676726
+
+On my machine, the output from threads 1 and 2 is interleaved, while
+the output from thread 3 is separate. I consider this to be a proof of
+the fact that my code works as expected.
+
+**** DONE b: In terms of test-and-set! operations
+     CLOSED: [2020-01-03 Fri 12:59]
+
+#+begin_src scheme :exports both :results output
+  <<parallel-execute>>
+  <<make-serializer>>
+    (define (make-semaphore max-count)
+      (let ((count 0)
+            (cell (list false)))
+	(define (the-semaphore op)
+	  (cond ((eq? op 'acquire)
+		 (begin
+                   (if (test-and-set! cell)
+                       (the-semaphore 'acquire))
+		   (if (= count max-count)
+		       (begin
+			 (clear! cell)
+			 (the-semaphore 'acquire))
+		       (begin
+			 (set! count (+ 1 count))
+			 (clear! cell)))))
+		((eq? op 'release)
+		 (begin
+                   (if (test-and-set! cell)
+                       (the-semaphore 'release))
+		   (set! count (max 0 (- count 1)))
+		   (clear! cell)
+		   'released)))) the-semaphore))
+
+  (define test-semaphore (make-semaphore 2))
+  (parallel-execute 
+       (lambda () (test-semaphore 'acquire) 
+	     (thread-sleep! 1) 
+	     (show #t "Hello1: " (current-second) "\n")
+	     (test-semaphore 'release)) 
+       (lambda () (test-semaphore 'acquire) 
+	     (thread-sleep! 1) 
+             (show #t "Hello2: " (current-second) "\n")
+	     (test-semaphore 'release))
+       (lambda () (test-semaphore 'acquire) 
+	     (thread-sleep! 1) 
+             (show #t "Hello3: " (current-second) "\n")
+	     (test-semaphore 'release)))
+
+#+end_src
+
+#+RESULTS:
+: Hello1: Hello2: 1578027561.9465251578027561.946571
+: 
+: Hello3: 1578027562.950841
+
+Also seems to be working fine.
+
+*** DONE Exercise 3.48 serialized-exchange deadlock
+    CLOSED: [2020-01-03 Fri 13:30]
+
+#+begin_src scheme :exports both :results output
+  (define (make-account-and-serializer balance)
+    (define (withdraw amount)
+      (if (>= balance amount)
+	  (begin (set! balance (- balance amount))
+		 balance)
+	  "Insufficient funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (let ((balance-serializer (make-serializer)))
+      (define (dispatch m)
+	(cond ((eq? m 'withdraw) withdraw)
+	      ((eq? m 'deposit) deposit)
+	      ((eq? m 'balance) balance)
+	      ((eq? m 'serializer) balance-serializer)
+	      (else (error "Unknown request: MAKE-ACCOUNT" m))))
+      dispatch))
+
+  (define (deposit account amount)
+    (let ((s (account 'serializer))
+	  (d (account 'deposit)))
+      ((s d) amount)))
+  (define (exchange account1 account2)
+    (let ((difference (- (account1 'balance)
+			 (account2 'balance))))
+      ((account1 'withdraw) difference)
+      ((account2 'deposit) difference)))
+  (define (serialized-exchange account1 account2)
+    (let ((serializer1 (account1 'serializer))
+	  (serializer2 (account2 'serializer)))
+      ((serializer1 (serializer2 exchange))
+       account1
+       account2)))
+
+#+end_src
+
+The following code will thus get stuck in a deadlock:
+
+#+begin_src scheme :exports both :results output
+(define a1 (make-account-and-serializer 20))
+(define a2 (make-account-and-serializer 30))
+
+(parallel-execute
+  (lambda () (serialized-exchange a1 a2))
+  (lambda () (serialized-exchange a2 a1)))
+#+end_src
+
+We add serial numbers to resources:
+
+#+begin_src scheme :exports both :results output
+    <<make-serializer>>
+    <<parallel-execute>>
+    (define (make-account-and-serializer balance serial)
+      (define (withdraw amount)
+	(if (>= balance amount)
+	    (begin (set! balance (- balance amount))
+		   balance)
+	    "Insufficient funds"))
+      (define (deposit amount)
+	(set! balance (+ balance amount))
+	balance)
+      (let ((balance-serializer (make-serializer)))
+	(define (dispatch m)
+	  (cond ((eq? m 'withdraw) withdraw)
+		((eq? m 'deposit) deposit)
+		((eq? m 'balance) balance)
+		((eq? m 'serializer) balance-serializer)
+                ((eq? m 'order) serial)
+		(else (error "Unknown request: MAKE-ACCOUNT" m))))
+	dispatch))
+
+    (define (deposit account amount)
+      (let ((s (account 'serializer))
+	    (d (account 'deposit)))
+	((s d) amount)))
+
+    (define (exchange account1 account2)
+      (let ((difference (- (account1 'balance)
+			   (account2 'balance))))
+	((account1 'withdraw) difference)
+	((account2 'deposit) difference)))
+
+    (define (serialized-exchange account1 account2)
+      (let ((serializer1 (account1 'serializer))
+	    (serializer2 (account2 'serializer)))
+	(if (< (account1 'order) (account2 'order))
+	    ((serializer1 (serializer2 exchange))
+	     account1
+	     account2)
+	    ((serializer2 (serializer1 exchange))
+	     account2
+	     account1))))
+  (define a1 (make-account-and-serializer 20 1))
+  (define a2 (make-account-and-serializer 30 2))
+
+(show #t "Balance start: " (a1 'balance) " " (a2 'balance) "\n")
+
+  (parallel-execute
+    (lambda () (serialized-exchange a1 a2))
+    (lambda () (serialized-exchange a2 a1)))
+(show #t "Balance end: " (a1 'balance) " " (a2 'balance) "\n")
+#+end_src
+
+#+RESULTS:
+: Balance start: 20 30
+: Balance end: 20 30
+
+Exchange seems to go fine.
+
+This works, because if mutexes are ordered, both all parallel
+processes will try to access the same mutex first.
+
+*** DONE Exercise 3.49 When numbering accounts doesn't work
+    CLOSED: [2020-01-03 Fri 13:41]
+The case suggested by the hint of the exercise is the following:
+Suppose we need to transfer the money from account a1 to some other
+account, that is recorded as a list inside account a1, and then remove
+this "pending transfer" from the list of transfers of account a1. To
+do this, we would need to first lock the account a1 to get the pointer
+to account a2, and _then_ lock a2. However, it may very well be that
+the account a2 has a smaller serial number than a1. 
+
+We could, however, unlock a1, lock a2, then lock a1 again, and check
+that the pending transaction from a1 to a2 is still needed.
+
+*** Streams common
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-common
+  (define-syntax cons-stream
+    (syntax-rules ()
+      ((cons-stream a b) (cons a (delay b)))))
+  (define (stream-car stream) (car stream))
+  (define (stream-cdr stream) (force (cdr stream)))
+  (define (stream-ref s n)
+    (if (= n 0)
+	(stream-car s)
+	(stream-ref (stream-cdr s) (- n 1))))
+
+  (define (stream-map proc s)
+    (if (stream-null? s)
+	the-empty-stream
+	(cons-stream (proc (stream-car s))
+		     (stream-map proc (stream-cdr s)))))
+  (define stream-null? null?)
+  (define the-empty-stream '())
+  (define (stream-for-each proc s)
+    (if (stream-null? s)
+	'done
+	(begin (proc (stream-car s))
+	       (stream-for-each proc (stream-cdr s)))))
+  (define (display-stream s)
+    (stream-for-each display-line s))
+
+  (define (display-line x)
+    (newline)
+    (display x))
+  (define (stream-enumerate-interval low high)
+    (if (> low high)
+	the-empty-stream
+	(cons-stream
+	 low
+	 (stream-enumerate-interval (+ low 1) high))))
+  (define (stream-filter pred stream)
+    (cond ((stream-null? stream) the-empty-stream)
+	  ((pred (stream-car stream))
+	   (cons-stream (stream-car stream)
+			(stream-filter pred
+				       (stream-cdr stream))))
+	  (else (stream-filter pred (stream-cdr stream)))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+(display (cons-stream 2 3))
+(newline)
+(display (stream-car (cons-stream 2 3)))
+(newline)
+(display (stream-cdr (cons-stream 2 3)))
+(newline)
+(display-stream (cons-stream 2 (cons-stream 3 the-empty-stream)))
+#+end_src
+
+#+RESULTS:
+: (2 (#f . #<procedure #f>) promise)
+: 2
+: 3
+: 
+: 2
+: 3
+
+NOTE: As far as I understand, ~(delay)~ and ~(force)~ are using
+memoization inside by default in R^7 RS, so we needn't care about it
+ourselves.
+
+*** DONE Exercise 3.50 stream-map multiple arguments
+    CLOSED: [2020-01-03 Fri 21:18]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-multimap
+  (define (stream-map proc . argstreams)
+    (if (stream-null? (car argstreams))
+	the-empty-stream
+	(cons-stream
+	 (apply proc (map stream-car argstreams))
+	 (apply stream-map
+		(cons proc (map stream-cdr argstreams))))))
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+(display-stream (stream-map list (cons-stream 'one the-empty-stream)
+                                 (cons-stream 'two the-empty-stream)))
+
+#+end_src
+
+#+RESULTS:
+: 
+: (one two)
+
+Apparently, works.
+
+*** DONE Exercise 3.51 stream-show
+    CLOSED: [2020-01-03 Fri 21:28]
+
+#+begin_src scheme :exports both :results output
+  <<streams-common>>
+  (define (show x)
+    (display-line x)
+    x)
+  (define x (stream-map show (stream-enumerate-interval 0 10)))
+  (stream-ref x 5)
+  (newline) (display "next call to stream-ref:")
+  (stream-ref x 7)
+  (stream-ref x 7)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+0
+1
+2
+3
+4
+5
+next call to stream-ref:
+6
+7
+#+end_example
+
+Why does it only print 6 and 7 on the second call? The answer is --
+memoization. Since ~force~ already knows the result of calls to
+~(stream-ref 5)~, it doesn't call ~show~ on them again.
+
+*** DONE Exercise 3.52 streams with mind-boggling
+    CLOSED: [2020-01-03 Fri 22:17]
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+  (define sum 0)
+  (show #t "debug1: " sum "\n")
+  (define (accum x)
+    (set! sum (+ x sum))
+    sum)
+  (show #t "debug2: " sum "\n")
+  (define seq (stream-map accum (stream-enumerate-interval 1 20)))
+  (show #t "debug3 (stream-map forces a stream once): " sum "\n")
+  (define y (stream-filter even? seq))
+  (show #t "debug4 1+2+3: " sum "\n")
+  (define z (stream-filter (lambda (x) (= (remainder x 5) 0))
+			   seq))
+  (show #t "debug5 adds 4, as all lower are already evaluated: " sum "\n")
+  (stream-ref y 7)
+  (show #t "debug6 adds sums that are even up to 20: " sum "\n")
+  (display-stream z)
+  (show #t "\ndebug7: " sum "\n")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+debug1: 0
+debug2: 0
+debug3: 1
+debug4: 6
+debug5: 10
+debug6: 136
+
+10
+15
+45
+55
+105
+120
+190
+210
+debug7: 210
+#+end_example
+
+#+begin_src scheme :exports both :results output
+(define delay #f)
+(define force #f)
+(define-syntax delay
+  (syntax-rules ()
+   ((delay x) (lambda () x))))
+(define (force delayed-object) (delayed-object))
+<<streams-common>>
+  (define sum 0)
+  (show #t "debug1: " sum "\n")
+  (define (accum x)
+    (set! sum (+ x sum))
+    sum)
+  (show #t "debug2: " sum "\n")
+  (define seq (stream-map accum (stream-enumerate-interval 1 20)))
+  (show #t "debug3: " sum "\n")
+  (define y (stream-filter even? seq))
+  (show #t "debug4: " sum "\n")
+  (define z (stream-filter (lambda (x) (= (remainder x 5) 0))
+			   seq))
+  (show #t "debug5: " sum "\n")
+  (stream-ref y 7)
+  (show #t "debug6: " sum "\n")
+  (display-stream z)
+  (show #t "\ndebug7: " sum "\n")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+debug1: 0
+debug2: 0
+debug3: 1
+debug4: 6
+debug5: 15
+debug6: 162
+
+15
+180
+230
+305
+debug7: 362
+#+end_example
+
+The difference here, again, lies in memoization. In the first example,
+sum is only evaluated once for every number from 1 to 20, in the
+second, every time ~force~ is called. Every call to ~force~ adds to
+the ~sum~. I find it hard to find when exactly things are added to the
+sum. This can be debugged by adding a print to the ~accum~ procedure,
+but the general rule seems to be: don't use mutation together with
+lazy lists.
+
+*** Some more tools for streams
+#+begin_src scheme :exports both :results output :noweb-ref streams-2
+  (define (add-streams s1 s2)
+    (stream-map + s1 s2))
+  (define ones (cons-stream 1 ones))
+  (define zeros (cons-stream 0 zeros))
+  (define integers (cons-stream 1 (add-streams ones integers)))
+  (define (scale-stream stream factor)
+    (stream-map (lambda (x) (* x factor)) stream))
+
+#+end_src
+*** DONE Exercise 3.53 stream power of two
+    CLOSED: [2020-01-03 Fri 22:40]
+
+Before running the code, I make a hypothesis that the stream
+represents powers of two, because each element is the previous one,
+doubled. 
+
+#+begin_src scheme :exports both :results value
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+(define s (cons-stream 1 (add-streams s s)))
+(stream-ref s 6)
+#+end_src
+
+#+RESULTS:
+: 64
+
+*** DONE Exercise 3.54 mul-streams
+    CLOSED: [2020-01-03 Fri 22:47]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-mul
+  (define (mul-streams s1 s2)
+    (stream-map * s1 s2))
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-mul>>
+(define factorials 
+  (cons-stream 1 (mul-streams factorials integers)))
+(stream-ref factorials 5)
+#+end_src
+
+#+RESULTS:
+: 120
+
+*** DONE Exercise 3.55 streams partial-sums
+    CLOSED: [2020-01-03 Fri 23:05]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-partial-sums
+(define (partial-sums s)
+  (define ps (cons-stream (stream-car s) (add-streams ps (stream-cdr s))))
+  ps)
+#+end_src
+
+#+begin_src scheme :exports both :results output value
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+(define ps (partial-sums integers))
+(list (stream-ref ps 0)
+(stream-ref ps 1)
+(stream-ref ps 2)
+(stream-ref ps 3)
+(stream-ref ps 4))
+
+#+end_src
+
+#+RESULTS:
+| 1 | 3 | 6 | 10 | 15 |
+
+*** DONE Exercise 3.56 Hamming's streams-merge
+    CLOSED: [2020-01-03 Fri 23:26]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-merge
+          (define (merge s1 s2)
+            (cond ((stream-null? s1) s2)
+                  ((stream-null? s2) s1)
+                  (else
+                   (let ((s1car (stream-car s1))
+                         (s2car (stream-car s2)))
+                     (cond ((< s1car s2car)
+                            (cons-stream s1car (merge (stream-cdr s1) s2)))
+                           ((> s1car s2car)
+                            (cons-stream s2car (merge s1 (stream-cdr s2))))
+                           (else
+                            (cons-stream s1car
+                                         (merge (stream-cdr s1)
+                                                (stream-cdr s2)))))))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results value
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-merge>>
+(define S (cons-stream 1 (merge (scale-stream S 2)
+                                (merge (scale-stream S 3)
+                                       (scale-stream S 5)))))
+(stream-ref S 5)
+#+end_src
+
+#+RESULTS:
+: 6
+
+*** DONE Exercise 3.57 exponential additions fibs
+    CLOSED: [2020-01-03 Fri 23:36]
+
+The definition of ~fibs~ is the following:
+
+#+begin_src scheme :exports both :results output
+  (define fibs
+    (cons-stream 0
+		 (cons-stream 1
+			      (add-streams (stream-cdr fibs)
+					   fibs))))
+#+end_src
+
+With memoization, every step just requires \(O(n)\) additions, because
+every ~stream-cdr~ would only add two already computed values.
+
+Without memoization, every step would require computing all previous
+values of the Fibonacci sequence from scratch. It is not hard to
+notice that the element number N would require computing numbers N-1
+and N-2, so every step would roughly double the number
+operations. Thus the total number would be \(O(2^n)\).
+
+*** DONE Exercise 3.58 Cryptic stream
+    CLOSED: [2020-01-03 Fri 23:50]
+This cryptic stream approximates a rational fraction by a decimal
+(radix) one. 
+
+#+begin_src scheme :exports both :results output 
+  <<streams-common>>
+  (define (expand num den radix)
+    (cons-stream
+     (quotient (* num radix) den)
+     (expand (remainder (* num radix) den) den radix)))
+  (do ((i 0 (+ i 1)))
+      ((= i 5) #t)
+    (show #t (stream-ref (expand 1 7 10) i)))
+  (newline)
+  (show #t (/ 1.0 7.0) "\n")
+  (do ((i 0 (+ i 1)))
+      ((= i 5) #t)
+    (show #t (stream-ref (expand 3 8 10) i)))
+  (newline)
+  (show #t (/ 3.0 8.0) "\n")
+
+#+end_src
+
+#+RESULTS:
+: 14285
+: 0.14285714285714285
+: 37500
+: 0.375
+
+*** DONE Exercise 3.59 power series
+    CLOSED: [2020-01-04 Sat 09:58]
+**** DONE integrate series
+     CLOSED: [2020-01-04 Sat 09:49]
+#+begin_src scheme :exports both :results output :noweb-ref streams-integrate-series
+(define (div-streams s1 s2)
+  (stream-map / s1 s2))
+
+(define (integrate-series s)
+ (div-streams s integers))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-integrate-series>>
+
+(define test (integrate-series ones))
+
+(do ((i 0 (+ i 1)))
+      ((= i 5) #t)
+    (show #t (stream-ref test i) " "))
+
+#+end_src
+
+#+RESULTS:
+: 1 1/2 1/3 1/4 1/5 
+
+**** DONE exponential series
+     CLOSED: [2020-01-04 Sat 09:58]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-sin-cos
+(define exp-series
+  (cons-stream 1 (integrate-series exp-series)))
+(define cosine-series
+  (cons-stream 1 (integrate-series (scale-stream sine-series -1))))
+(define sine-series
+  (cons-stream 0 (integrate-series cosine-series)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-integrate-series>>
+<<streams-sin-cos>>
+
+(do ((i 0 (+ i 1)))
+      ((= i 5) #t)
+    (show #t (stream-ref cosine-series i) " "))
+(newline)
+(do ((i 0 (+ i 1)))
+      ((= i 5) #t)
+    (show #t (stream-ref sine-series i) " "))
+#+end_src
+
+#+RESULTS:
+: 1 0 -1/2 0 1/24 
+: 0 1 0 -1/6 0 
+
+*** DONE Exercise 3.60 mul-series
+    CLOSED: [2020-01-04 Sat 11:07]
+Let's write out a formula first:
+
+\(S = \sum_{i=0}^{\infty}a_i \cdot \sum_{j=0}^{\infty}b_j = a_0 \cdot b_0 + b_0 \cdot
+\sum_{i=1}^{\infty}a_i + \sum_{i=0}^{\infty}a_i \cdot \sum_{j=1}^{\infty}b_j\)
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-mul-series
+(define (mul-series s1 s2)
+  (cons-stream (* (stream-car s1) (stream-car s2))
+                (add-streams (scale-stream (stream-cdr s1) (stream-car s2)) 
+                             (mul-series s1 (stream-cdr s2)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-integrate-series>>
+<<streams-sin-cos>>
+<<streams-mul-series>>
+<<streams-partial-sums>>
+(define sum-of-sine-and-cosine
+ (partial-sums (add-streams (mul-series sine-series sine-series)
+                            (mul-series cosine-series cosine-series))))
+(do ((i 0 (+ i 1)))
+      ((= i 10) #t)
+    (show #t (inexact (stream-ref sum-of-sine-and-cosine i)) " "))
+
+#+end_src
+
+#+RESULTS:
+: 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
+
+Converges to 1 quite fast.
+
+*** DONE Exercise 3.61 power-series-inversion
+    CLOSED: [2020-01-04 Sat 13:13]
+#+begin_src scheme :exports both :results output :noweb-ref streams-invert-unit-series
+#;(define (invert-unit-series S)
+  (define x (cons-stream 1
+                         (mul-series
+                          (scale-stream (cons-stream 0 (stream-cdr S)) -1)
+                          x)))
+  x)
+(define (invert-unit-series S)
+    (if (not (= 1 (stream-car S)))
+        (error "First term must be 1 -- INVERT-UNIT-SERIES" (stream-car S))        
+        (let ((Sr (stream-cdr S)))
+            (define X 
+                (cons-stream 
+                    1 
+                    (mul-series 
+                        (scale-stream Sr -1)
+                        X)))
+            X)))
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-integrate-series>>
+<<streams-sin-cos>>
+<<streams-mul-series>>
+<<streams-partial-sums>>
+<<streams-invert-unit-series>>
+
+(define test (partial-sums (mul-series ones (invert-unit-series ones))))
+#;("Should give a series with partial sums converging to 1")
+(do ((i 0 (+ i 1)))
+      ((= i 10) #t)
+    (show #t (inexact (stream-ref test i)) " "))
+
+#+end_src
+
+#+RESULTS:
+: 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
+
+Okay, this exercise gave me hell of a lot of pain. Why on it is so
+dependent on the implementation of ~mul-series~?
+
+So this exercise has been solved with the help of the GitHub user
+ypeels:
+https://github.com/ypeels/sicp/blob/master/exercises/3.61-invert-unit-series.scm
+
+*** DONE Exercise 3.62 div-series
+    CLOSED: [2020-01-04 Sat 13:21]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-div-series
+(define (div-series s1 s2)
+  (let* ((scale-factor (stream-car s2))
+         (scaled-s2 (scale-stream s2 (/ 1 scale-factor)))
+         (scaled-s1 (scale-stream s1 scale-factor))
+         (inverted-s2 (invert-unit-series scaled-s2)))
+   (mul-series scaled-s1 inverted-s2)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-integrate-series>>
+<<streams-sin-cos>>
+<<streams-mul-series>>
+<<streams-partial-sums>>
+<<streams-invert-unit-series>>
+<<streams-div-series>>
+
+(define test (div-series ones exp-series))
+#;("Should give a series with partial sums converging to 1")
+(do ((i 0 (+ i 1)))
+      ((= i 10) #t)
+    (show #t (inexact (stream-ref test i)) " "))
+
+#+end_src
+
+#+RESULTS:
+: 1.0 0.0 0.5 0.3333333333333333 0.375 0.36666666666666664 0.3680555555555556 0.3678571428571429 0.36788194444444444 0.36787918871252206 
+
+Well, not sure this is correct, but it runs.
+
+*** DONE Exercise 3.63 sqrt-stream
+    CLOSED: [2020-01-04 Sat 20:32]
+#+begin_src scheme :exports both :results output :noweb-ref streams-sqrt-stream
+     (define (average x y)
+       (/ (+ x y) 2))
+  (define (sqrt-improve guess x)
+    (average guess (/ x guess)))
+
+  (define (sqrt-stream x)
+    (cons-stream 1.0
+		 (stream-map (lambda (guess)
+			       (sqrt-improve guess x))
+			     (sqrt-stream x))))
+#+end_src
+
+The problem with the second definition is that ~(sqrt-stream x)~, as
+it is called each time, creates a new stream. Since this streams are
+not ~eq?~, memoization doesn't work. In the first implementation, the
+same ~guesses~ is used, and thus, calls to the lambda are cached
+(memoized).
+
+If ~delay~ didn't use memoization, performance would be same for both
+implementations.
+*** DONE Exercise 3.64 stream-limit
+    CLOSED: [2020-01-06 Mon 09:38]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-stream-limit
+(define (stream-limit stream tolerance)
+  (let ((a1 (stream-car stream))
+        (a2 (stream-car (stream-cdr stream))))
+    (if (< (abs (- a1 a2)) tolerance)
+      a2
+      (stream-limit (stream-cdr stream) tolerance))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-sqrt
+  (define (sqrt x tolerance)
+    (stream-limit (sqrt-stream x) tolerance))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-stream-limit>>
+<<streams-sqrt-stream>>
+<<streams-sqrt>>
+
+(show #t "Test sqrt of 17: " (sqrt 17 0.001) "\n")
+
+#+end_src
+
+#+RESULTS:
+: Test sqrt of 17: 4.123105625617805
+
+Seems to be working. I copied some of the ~sqrt~-related code from the
+earlier chapters instead of tangling, because it seems too slow.
+
+*** DONE Exercise 3.65 approximating logarithm
+    CLOSED: [2020-01-06 Mon 10:34]
+
+First let's make sure that the pi-stream is working.
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-print-n
+(define (stream-print-n stream n)
+    (do ((i 0 (+ i 1)))
+      ((= i n) #t)
+    (display (stream-ref stream i))
+    (display " ")))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-pi-summands
+     (define (pi-summands n)
+       (cons-stream (/ 1.0 n)
+                    (stream-map - (pi-summands (+ n 2)))))
+     (define pi-stream
+       (scale-stream (partial-sums (pi-summands 1)) 4))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-pi-summands>>
+<<streams-print-n>>
+(stream-print-n pi-stream 10)
+
+#+end_src
+
+#+RESULTS:
+: 4.0 2.666666666666667 3.466666666666667 2.8952380952380956 3.3396825396825403 2.9760461760461765 3.2837384837384844 3.017071817071818 3.2523659347188767 3.0418396189294032 
+
+Now let us do the same for the logarithm of 2.
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-log-summands
+     (define (log-summands n)
+       (cons-stream (/ 1.0 n)
+                    (stream-map - (log-summands (+ n 1)))))
+     (define log-stream
+       (partial-sums (log-summands 1)))
+#+end_src
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-euler-tableau
+     (define (euler-transform s)
+       (let ((s0 (stream-ref s 0))         
+             (s1 (stream-ref s 1))         
+             (s2 (stream-ref s 2)))        
+         (cons-stream (- s2 (/ (square (- s2 s1))
+                               (+ s0 (* -2 s1) s2)))
+                      (euler-transform (stream-cdr s)))))
+     (define (make-tableau transform s)
+       (cons-stream s
+                    (make-tableau transform
+                                  (transform s))))
+     (define (accelerated-sequence transform s)
+       (stream-map stream-car
+                   (make-tableau transform s)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-log-summands>>
+<<streams-euler-tableau>>
+(do ((i 0 (+ i 1)))
+  ((= i 10) #t)
+  (show #t (stream-ref (log-summands 1) i) " "))
+(newline)
+(stream-print-n log-stream 10)
+(newline)
+(stream-print-n (euler-transform log-stream) 10)
+(newline)
+(stream-print-n (accelerated-sequence euler-transform log-stream) 10)
+
+#+end_src
+
+#+RESULTS:
+: 1.0 -0.5 0.3333333333333333 -0.25 0.2 -0.16666666666666666 0.14285714285714285 -0.125 0.1111111111111111 -0.1 
+: 1.0 0.5 0.8333333333333333 0.5833333333333333 0.7833333333333332 0.6166666666666666 0.7595238095238095 0.6345238095238095 0.7456349206349207 0.6456349206349207 
+: 0.7 0.6904761904761905 0.6944444444444444 0.6924242424242424 0.6935897435897436 0.6928571428571428 0.6933473389355742 0.6930033416875522 0.6932539682539683 0.6930657506744464 
+: 1.0 0.7 0.6932773109243697 0.6931488693329254 0.6931471960735491 0.6931471806635636 0.6931471805604039 0.6931471805599445 0.6931471805599427 0.6931471805599454 
+
+The first stream seems to be converging quite slowly, needing about 10
+steps for 0.01 precision. The "accelerated" sequence converges in
+three steps, which seems to be super fast. Proper convergence analysis
+would require a bit more of a mathematical analysis. 
+
+*** DONE Exercise 3.66 lazy pairs
+    CLOSED: [2020-01-06 Mon 22:55]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-interleave
+  (define (interleave s1 s2)
+    (if (stream-null? s1)
+	s2
+	(cons-stream (stream-car s1)
+		     (interleave s2 (stream-cdr s1)))))
+#+end_src
+  
+#+begin_src scheme :exports both :results output :noweb-ref streams-pairs
+  (define (pairs s t)
+    (cons-stream
+     (list (stream-car s) (stream-car t))
+     (interleave
+      (stream-map (lambda (x) (list (stream-car s) x))
+		  (stream-cdr t))
+      (pairs (stream-cdr s) (stream-cdr t)))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-pairs>>
+
+(stream-print-n (pairs integers integers) 100)
+
+#+end_src
+
+#+RESULTS:
+: (1 1) (1 2) (2 2) (1 3) (2 3) (1 4) (3 3) (1 5) (2 4) (1 6) (3 4) (1 7) (2 5) (1 8) (4 4) (1 9) (2 6) (1 10) (3 5) (1 11) (2 7) (1 12) (4 5) (1 13) (2 8) (1 14) (3 6) (1 15) (2 9) (1 16) (5 5) (1 17) (2 10) (1 18) (3 7) (1 19) (2 11) (1 20) (4 6) (1 21) (2 12) (1 22) (3 8) (1 23) (2 13) (1 24) (5 6) (1 25) (2 14) (1 26) (3 9) (1 27) (2 15) (1 28) (4 7) (1 29) (2 16) (1 30) (3 10) (1 31) (2 17) (1 32) (6 6) (1 33) (2 18) (1 34) (3 11) (1 35) (2 19) (1 36) (4 8) (1 37) (2 20) (1 38) (3 12) (1 39) (2 21) (1 40) (5 7) (1 41) (2 22) (1 42) (3 13) (1 43) (2 23) (1 44) (4 9) (1 45) (2 24) (1 46) (3 14) (1 47) (2 25) (1 48) (6 7) (1 49) (2 26) (1 50) (3 15) (1 51) 
+
+The logic behind the ordering can be seen from the kind of a
+"probabilistic analysis". Let's imagine a table with columns indexed
+by the elements of the first stream, and rows indexed by the second
+stream. Every call to "interleave" takes a row of a table, and another
+instance of the "pairs". This means that the frequency, with which
+elements of every row appear in the output is \(2^{^}{-n}\), where n is
+the number of the row. Therefore the number of a pair (a,b) should be
+something like \(b \cdot a^{n} \).
+
+*** DONE Exercise 3.67 all possible pairs
+    CLOSED: [2020-01-06 Mon 23:09]
+
+Seems not too hard. Just add in one more interleave.
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-pairs-full
+  (define (pairs s t)
+    (cons-stream
+     (list (stream-car s) (stream-car t))
+     (interleave
+      (stream-map (lambda (x) (list (stream-car s) x))
+		  (stream-cdr t))
+      (interleave
+        (stream-map (lambda (x) (list x (stream-car t)))
+		  (stream-cdr s))
+        (pairs (stream-cdr s) (stream-cdr t))))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-pairs-full>>
+
+(stream-print-n (pairs integers integers) 100)
+
+#+end_src
+
+#+RESULTS:
+: (1 1) (1 2) (2 1) (1 3) (2 2) (1 4) (3 1) (1 5) (2 3) (1 6) (4 1) (1 7) (3 2) (1 8) (5 1) (1 9) (2 4) (1 10) (6 1) (1 11) (3 3) (1 12) (7 1) (1 13) (2 5) (1 14) (8 1) (1 15) (4 2) (1 16) (9 1) (1 17) (2 6) (1 18) (10 1) (1 19) (3 4) (1 20) (11 1) (1 21) (2 7) (1 22) (12 1) (1 23) (5 2) (1 24) (13 1) (1 25) (2 8) (1 26) (14 1) (1 27) (4 3) (1 28) (15 1) (1 29) (2 9) (1 30) (16 1) (1 31) (6 2) (1 32) (17 1) (1 33) (2 10) (1 34) (18 1) (1 35) (3 5) (1 36) (19 1) (1 37) (2 11) (1 38) (20 1) (1 39) (7 2) (1 40) (21 1) (1 41) (2 12) (1 42) (22 1) (1 43) (4 4) (1 44) (23 1) (1 45) (2 13) (1 46) (24 1) (1 47) (8 2) (1 48) (25 1) (1 49) (2 14) (1 50) (26 1) (1 51) 
+
+*** DONE Exercise 3.68 pairs-louis
+    CLOSED: [2020-01-06 Mon 23:26]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-pairs-louis
+  (define (pairs s t)
+    (interleave
+      (stream-map (lambda (x) (list (stream-car s) x))
+		  t)
+      (pairs (stream-cdr s) (stream-cdr t))))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-pairs-louis>>
+
+(stream-print-n (pairs integers integers) 30)
+
+#+end_src
+
+#+RESULTS:
+: ERROR: out of stack space
+: > 
+
+This is expected. Remember, the second argument to ~cons-stream~ is
+not evaluated, it's delayed. If we don't separate the first pair from
+the rest, ~interleave~ would run indefinitely.
+
+*** DONE Exercise 3.69 triples
+    CLOSED: [2020-01-07 Tue 11:00]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-triples
+  (define (triples s t u)
+    (cons-stream
+     (list (stream-car s) (stream-car t) (stream-car u))
+     (interleave
+      (stream-map (lambda (x) (cons (stream-car s) x))
+		  (pairs (stream-cdr t) (stream-cdr u)))
+      (triples (stream-cdr s) (stream-cdr t) (stream-cdr u)))))
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-pairs>>
+<<streams-triples>>
+
+(stream-print-n 
+(stream-filter 
+       (lambda (triple) 
+           (let ((i (car triple))
+                 (j (cadr triple))
+                 (k (caddr triple)))
+            (= (* k k) (+ (* i i) (* j j)))))
+(triples integers integers integers))
+    7)
+
+#+end_src
+
+#+RESULTS:
+: (3 4 5) (6 8 10) (5 12 13) (9 12 15) (8 15 17) (12 16 20) 
+
+Seems to be working fine. 
+
+*** DONE Exercise 3.70 merge-weighted
+    CLOSED: [2020-01-07 Tue 11:58]
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-merge-weighted
+  (define (merge-weighted s1 s2 weight)
+    (cond ((stream-null? s1) s2)
+	  ((stream-null? s2) s1)
+	  (else
+	   (let ((s1car (stream-car s1))
+		 (s2car (stream-car s2)))
+	     (cond ((< (weight s1car) (weight s2car))
+		    (cons-stream s1car (merge-weighted (stream-cdr s1) s2 weight)))
+		   ((> (weight s1car) (weight s2car))
+		    (cons-stream s2car (merge-weighted s1 (stream-cdr s2) weight)))
+		   (else
+		    (cons-stream s1car
+				 (merge-weighted (stream-cdr s1)
+						 s2
+                                                 weight))))))))
+
+#+end_src
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-pairs-weighted
+  (define (pairs-weighted s t weight)
+    (cons-stream
+     (list (stream-car s) (stream-car t))
+     (merge-weighted
+      (stream-map (lambda (x) (list (stream-car s) x))
+		  (stream-cdr t))
+      (pairs-weighted (stream-cdr s) (stream-cdr t) weight)
+      weight)))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-merge-weighted>>
+<<streams-pairs-weighted>>
+
+(stream-print-n 
+  (pairs-weighted 
+    integers
+    integers
+    (lambda (p) (+ (car p) (cadr p))))
+ 100)
+(newline)
+(stream-print-n 
+  (pairs-weighted 
+    (stream-filter (lambda (x) (and (not (= 0 (remainder x 2)))
+                              (not (= 0 (remainder x 3)))
+                              (not (= 0 (remainder x 5))))) integers)
+    (stream-filter (lambda (x) (and (not (= 0 (remainder x 2)))
+                              (not (= 0 (remainder x 3)))
+                              (not (= 0 (remainder x 5))))) integers)
+    (lambda (p) (+ (* 2 (car p)) (* 3 (cadr p) (* 5 (car p) (cadr p))))))
+ 100)
+
+#+end_src
+
+#+RESULTS:
+: (1 1) (1 2) (1 3) (2 2) (1 4) (2 3) (1 5) (2 4) (3 3) (1 6) (2 5) (3 4) (1 7) (2 6) (3 5) (4 4) (1 8) (2 7) (3 6) (4 5) (1 9) (2 8) (3 7) (4 6) (5 5) (1 10) (2 9) (3 8) (4 7) (5 6) (1 11) (2 10) (3 9) (4 8) (5 7) (6 6) (1 12) (2 11) (3 10) (4 9) (5 8) (6 7) (1 13) (2 12) (3 11) (4 10) (5 9) (6 8) (7 7) (1 14) (2 13) (3 12) (4 11) (5 10) (6 9) (7 8) (1 15) (2 14) (3 13) (4 12) (5 11) (6 10) (7 9) (8 8) (1 16) (2 15) (3 14) (4 13) (5 12) (6 11) (7 10) (8 9) (1 17) (2 16) (3 15) (4 14) (5 13) (6 12) (7 11) (8 10) (9 9) (1 18) (2 17) (3 16) (4 15) (5 14) (6 13) (7 12) (8 11) (9 10) (1 19) (2 18) (3 17) (4 16) (5 15) (6 14) (7 13) (8 12) (9 11) (10 10) 
+: (1 1) (1 7) (1 11) (1 13) (1 17) (7 7) (1 19) (1 23) (1 29) (7 11) (1 31) (7 13) (11 11) (1 37) (1 41) (1 43) (11 13) (7 17) (13 13) (1 47) (1 49) (7 19) (1 53) (11 17) (1 59) (7 23) (1 61) (13 17) (11 19) (1 67) (13 19) (17 17) (1 71) (1 73) (11 23) (7 29) (1 77) (17 19) (1 79) (7 31) (19 19) (13 23) (1 83) (1 89) (1 91) (17 23) (11 29) (1 97) (7 37) (19 23) (1 101) (11 31) (1 103) (13 29) (1 107) (7 41) (1 109) (23 23) (13 31) (1 113) (7 43) (1 119) (17 29) (1 121) (11 37) (7 47) (19 29) (1 127) (17 31) (7 49) (1 131) (1 133) (13 37) (19 31) (11 41) (1 137) (1 139) (23 29) (7 53) (11 43) (1 143) (13 41) (23 31) (1 149) (1 151) (17 37) (13 43) (11 47) (7 59) (29 29) (1 157) (1 161) (19 37) (7 61) (11 49) (1 163) (29 31) (1 167) (1 169) (17 41) 
+
+Cannot say I understand what the second sequence signifies, but meh.
+
+*** DONE Exercise 3.71 Ramanujan numbers
+    CLOSED: [2020-01-07 Tue 12:49]
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-merge-weighted>>
+<<streams-pairs-weighted>>
+
+(define cubic-pairs 
+  (pairs-weighted 
+    integers
+    integers
+    (lambda (p) (+ (expt (car p) 3) (expt (cadr p) 3)))))
+
+(define sums-of-cubes 
+   (stream-map (lambda (x) (+ (expt (car x) 3)
+                          (expt (cadr x) 3)))
+               cubic-pairs))
+(stream-print-n sums-of-cubes 20)
+(define (first-repetition s)
+ (if (= (stream-car s) (stream-car (stream-cdr s)))
+    s
+    (first-repetition (stream-cdr s))))
+(define (filter-repetitions s)
+  (cons-stream (stream-car (first-repetition s)) 
+               (filter-repetitions 
+                 (stream-cdr (stream-cdr (first-repetition s))))))
+(newline)
+#;(display (stream-car (filter-repetitions s)))
+(stream-print-n (filter-repetitions sums-of-cubes) 6)
+#+end_src
+
+#+RESULTS:
+: 2 9 16 28 35 54 65 72 91 126 128 133 152 189 217 224 243 250 280 341 
+: 1729 4104 13832 20683 32832 39312 
+
+
+This solution is not very good, because it would fail to distinguish
+the Ramanujan 2-numbers from the Ramanujan 4-numbers, but I am too
+lazy to fix it.
+
+*** DONE Exercise 3.72 Ramanujan 3-numbers
+    CLOSED: [2020-01-08 Wed 10:27]
+WARNING: The code below is quite slow. On my machine it takes more time than 
+geiser's default ~geiser-connection-timeout~ permits. 
+Refer to [[Setting chibi arguments. DANGEROUS]] for more information.
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-merge-weighted>>
+<<streams-pairs-weighted>>
+
+(define cubic-pairs 
+  (pairs-weighted 
+    integers
+    integers
+    (lambda (p) (+ (expt (car p) 3) (expt (cadr p) 3)))))
+
+(define sumcubes
+   (lambda (x) (+ (expt (car x) 3)
+                          (expt (cadr x) 3))))
+#;(stream-print-n sums-of-cubes 20)
+(define (first-repetition s)
+ (if (= (sumcubes (stream-car s)) 
+        (sumcubes (stream-car (stream-cdr s))) 
+        (sumcubes (stream-car (stream-cdr (stream-cdr s)))))
+    s
+    (first-repetition (stream-cdr s))))
+(define (filter-repetitions s)
+  (cons-stream (stream-car (first-repetition s)) 
+               (filter-repetitions 
+                 (stream-cdr (stream-cdr (stream-cdr (first-repetition s)))))))
+(display " ")
+(stream-print-n (filter-repetitions cubic-pairs) 1)
+(newline)
+#+end_src
+
+#+RESULTS:
+:  (167 436) 
+
+*** DONE Figure 3.32                                               :plantuml:
+    CLOSED: [2020-01-08 Wed 10:59]
+
+#+begin_src plantuml :exports both :file figure-3-32.png
+@startuml
+skinparam monochrome true
+skinparam componentStyle uml2
+component [scale: dt] as scale
+component [add] as add
+component [cons] as cons
+interface input as input
+interface "initial-value" as initialvalue
+interface " " as fake
+interface integral as integral
+input -> scale
+scale -> add
+add   -> cons
+initialvalue ..> cons
+cons - fake
+fake -> add
+fake -> integral
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:figure-3-32.png]]
+
+*** TODO Figure 3.33 RC-circuit with circuit                           :tikz:
+*** TODO Exercise 3.73 RC-circuit
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-integral
+(define (integral integrand initial-value dt)
+ (define int
+   (cons-stream initial-value
+                (add-streams (scale-stream integrand dt)
+                int)))
+ int)
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<streams-common>>
+<<streams-multimap>>
+<<streams-2>>
+<<streams-partial-sums>>
+<<streams-print-n>>
+<<streams-interleave>>
+<<streams-merge-weighted>>
+<<streams-pairs-weighted>>
+<<streams-integral>>
+
+(define (RC R C dt)
+  (define (model v_0 s)
+   (stream-add
+      (scale-stream (integral s v_0 dt) (/ 1 C))
+      (scale-stream s R)))
+ model)
+
+(define RC1 (RC 5 1 0.5))
+
+(stream-print-n (RC1 0 ones) 5)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Output (exception): {Exception #19 user "undefined variable" (add-stream) #<procedure model> (#f . 108)} 
+Stack trace:
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1202 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from model on line 108
+  called from <anonymous> on line 7
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.WARNING: reference to undefined variable: add-stream
+scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
+  called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
+#+end_example
+
 
 *** TODO Exercise 3.74
 
@@ -20973,6 +24195,7 @@ pseudo-chapter so that the appropriate code could be tangled in.
 
 *** TODO Exercise 3.77
 
+*** TODO Figure 3.35
 *** TODO Exercise 3.78
 
 *** TODO Exercise 3.79
@@ -21130,7 +24353,7 @@ pseudo-chapter so that the appropriate code could be tangled in.
 *** TODO Exercise 4.72
 
 *** TODO Exercise 4.73
-
+    
 *** TODO Exercise 4.74
 
 *** TODO Exercise 4.75
