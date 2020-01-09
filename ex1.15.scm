@@ -1,0 +1,15 @@
+(import (chibi disasm))
+(define (cube x) (* x x x))
+(define (p x) (- (* 3 x) (* 4 (cube x))))
+(define niter 0)
+(define (sine angle)
+  (set! niter (+ niter 1))
+  (if (not (> (abs angle) 0.1))
+      angle
+      (p (sine (/ angle 3.0)))))
+(display "sine=" )
+(display (sine 12.15))
+(display " niter=")
+(display niter)
+(disasm sine)
+

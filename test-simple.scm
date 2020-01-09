@@ -1,0 +1,3 @@
+(display "hello")
+(newline)
+(exit)

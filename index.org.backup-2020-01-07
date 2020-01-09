@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2020-01-09 09:42:16 lockywolf>
+# Time-stamp: <2020-01-07 12:49:28 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -13,26 +13,6 @@
 * noweb + common
 ** Some common code blocks
 
-** Setting chibi arguments. DANGEROUS                       :dangerous:elisp:
-
-#+begin_src elisp :export both :results value
-  (setq geiser-chibi-extra-command-line-parameters
-     '("-m" "chibi" 
-       "-m" "srfi 159" 
-       "-m" "chibi ast" 
-       "-m" "chibi time" 
-       "-m" "srfi 27" 
-       "-m" "chibi process" 
-       "-m" "srfi 42" 
-       "-m" "srfi 78" 
-       "-m" "scheme list"
-       "-m" "srfi 18"))
-  (setq geiser-connection-timeout (* 2 geiser-connection-timeout))
-#+end_src
-
-#+RESULTS:
-| -m | chibi | -m | srfi 159 | -m | chibi ast | -m | chibi time | -m | srfi 27 | -m | chibi process | -m | srfi 42 | -m | srfi 78 | -m | scheme list |
-
 #+name: common
 #+begin_src scheme :results output :exportss none
   (import (chibi ast))
@@ -44,7 +24,7 @@
 
 #+RESULTS: common
 
-* SICP [62%]
+* SICP [59%]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -1866,8 +1846,8 @@ improve by 3/2, which we can observe.
     CLOSED: [2019-09-02 Mon 11:32]
 
 Firstly we need the ~(fast-prime?)~ procedure.
-#+name: random
-#+begin_src scheme :exports both :results value 
+
+#+begin_src scheme :exports both :results value :noweb-ref random
 (define (random x)
   (random-integer x))
 #+end_src
@@ -19131,7 +19111,7 @@ Computer programs.
 
 The main pedagogical conclusion one may infer from this exercise is that it
 is a good idea to read a book on algebra and integer algorithms.
-** TODO Chapter 3: Modularity, Objects and State [88/94]
+** TODO Chapter 3: Modularity, Objects and State [75/91]
 *** DONE Exercise 3.1 accumulators
     CLOSED: [2019-10-29 Tue 10:24]
 
@@ -22301,6 +22281,7 @@ to use the multiplies as a divider.
 *** TODO Check that every exercise with pictures has tags
 
 
+
 *** TODO Figure 3.29 Sequence diagram                              :plantuml:
 *** TODO Figure 3.30                                                   :tikz:
 *** DONE Exercise 3.38 Timing
@@ -23058,8 +23039,8 @@ We could, however, unlock a1, lock a2, then lock a1 again, and check
 that the pending transaction from a1 to a2 is still needed.
 
 *** Streams common
-#+name: streams-common
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-common
   (define-syntax cons-stream
     (syntax-rules ()
       ((cons-stream a b) (cons a (delay b)))))
@@ -23129,8 +23110,8 @@ ourselves.
 
 *** DONE Exercise 3.50 stream-map multiple arguments
     CLOSED: [2020-01-03 Fri 21:18]
-#+name: streams-multimap
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output :noweb-ref streams-multimap
   (define (stream-map proc . argstreams)
     (if (stream-null? (car argstreams))
 	the-empty-stream
@@ -23286,8 +23267,7 @@ but the general rule seems to be: don't use mutation together with
 lazy lists.
 
 *** Some more tools for streams
-#+name: streams-2
-#+begin_src scheme :exports both :results output 
+#+begin_src scheme :exports both :results output :noweb-ref streams-2
   (define (add-streams s1 s2)
     (stream-map + s1 s2))
   (define ones (cons-stream 1 ones))
@@ -23704,8 +23684,7 @@ First let's make sure that the pi-stream is working.
 (define (stream-print-n stream n)
     (do ((i 0 (+ i 1)))
       ((= i n) #t)
-    (display (stream-ref stream i))
-    (display " ")))
+    (show #t (stream-ref stream i) " ")))
 
 #+end_src
 
@@ -24025,6 +24004,13 @@ Cannot say I understand what the second sequence signifies, but meh.
 <<streams-merge-weighted>>
 <<streams-pairs-weighted>>
 
+#;(stream-print-n 
+  (pairs-weighted 
+    integers
+    integers
+    (lambda (p) (+ (expt (car p) 3) (expt (cadr p) 3))))
+ 100)
+
 (define cubic-pairs 
   (pairs-weighted 
     integers
@@ -24053,522 +24039,31 @@ Cannot say I understand what the second sequence signifies, but meh.
 : 2 9 16 28 35 54 65 72 91 126 128 133 152 189 217 224 243 250 280 341 
 : 1729 4104 13832 20683 32832 39312 
 
-
 This solution is not very good, because it would fail to distinguish
 the Ramanujan 2-numbers from the Ramanujan 4-numbers, but I am too
 lazy to fix it.
 
-*** DONE Exercise 3.72 Ramanujan 3-numbers
-    CLOSED: [2020-01-08 Wed 10:27]
-WARNING: The code below is quite slow. On my machine it takes more time than 
-geiser's default ~geiser-connection-timeout~ permits. 
-Refer to [[Setting chibi arguments. DANGEROUS]] for more information.
-#+begin_src scheme :exports both :results output
-<<streams-common>>
-<<streams-multimap>>
-<<streams-2>>
-<<streams-partial-sums>>
-<<streams-print-n>>
-<<streams-interleave>>
-<<streams-merge-weighted>>
-<<streams-pairs-weighted>>
+*** TODO Exercise 3.72 Ramanujan 3-numbers
 
-(define cubic-pairs 
-  (pairs-weighted 
-    integers
-    integers
-    (lambda (p) (+ (expt (car p) 3) (expt (cadr p) 3)))))
+*** TODO Exercise 3.73
 
-(define sumcubes
-   (lambda (x) (+ (expt (car x) 3)
-                          (expt (cadr x) 3))))
-#;(stream-print-n sums-of-cubes 20)
-(define (first-repetition s)
- (if (= (sumcubes (stream-car s)) 
-        (sumcubes (stream-car (stream-cdr s))) 
-        (sumcubes (stream-car (stream-cdr (stream-cdr s)))))
-    s
-    (first-repetition (stream-cdr s))))
-(define (filter-repetitions s)
-  (cons-stream (stream-car (first-repetition s)) 
-               (filter-repetitions 
-                 (stream-cdr (stream-cdr (stream-cdr (first-repetition s)))))))
-(display " ")
-(stream-print-n (filter-repetitions cubic-pairs) 1)
-(newline)
-#+end_src
+*** TODO Exercise 3.74
 
-#+RESULTS:
-:  (167 436) 
+*** TODO Exercise 3.75
 
-*** DONE Figure 3.32                                               :plantuml:
-    CLOSED: [2020-01-08 Wed 10:59]
+*** TODO Exercise 3.76
 
-#+begin_src plantuml :exports both :file figure-3-32.png
-@startuml
-skinparam monochrome true
-skinparam componentStyle uml2
-component [scale: dt] as scale
-component [add] as add
-component [cons] as cons
-interface input as input
-interface "initial-value" as initialvalue
-interface " " as fake
-interface integral as integral
-input -> scale
-scale -> add
-add   -> cons
-initialvalue ..> cons
-cons - fake
-fake -> add
-fake -> integral
-@enduml
-#+end_src
+*** TODO Exercise 3.77
 
-#+RESULTS:
-[[file:figure-3-32.png]]
+*** TODO Exercise 3.78
 
-*** TODO Figure 3.33 RC-circuit with circuit                           :tikz:
-*** DONE Exercise 3.73 RC-circuit
-    CLOSED: [2020-01-08 Wed 13:09]
+*** TODO Exercise 3.79
 
-#+begin_src scheme :exports both :results output :noweb-ref streams-integral
-(define (integral integrand initial-value dt)
- (define int
-   (cons-stream initial-value
-                (add-streams (scale-stream integrand dt)
-                int)))
- int)
-#+end_src
+*** TODO Exercise 3.80
 
-#+begin_src scheme :exports both :results output
-<<streams-common>>
-<<streams-multimap>>
-<<streams-2>>
-<<streams-partial-sums>>
-<<streams-print-n>>
-<<streams-interleave>>
-<<streams-merge-weighted>>
-<<streams-pairs-weighted>>
-<<streams-integral>>
+*** TODO Exercise 3.81
 
-(define (RC R C dt)
-  (define (model v_0 s)
-   (add-streams
-      (scale-stream (integral s v_0 dt) (/ 1 C))
-      (scale-stream s R)))
- model)
-
-(define RC1 (RC 5 1 0.5))
-
-(stream-print-n (RC1 0 ones) 30)
-
-#+end_src
-
-#+RESULTS:
-: 5 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0 10.5 11.0 11.5 12.0 12.5 13.0 13.5 14.0 14.5 15.0 15.5 16.0 16.5 17.0 17.5 18.0 18.5 19.0 19.5 
-
-Hm... is that all?
-
-*** DONE Exercise 3.74 zero-crossings
-    CLOSED: [2020-01-08 Wed 16:50]
-
-#+begin_src scheme :exports both :results output
-<<streams-common>>
-<<streams-multimap>>
-<<streams-2>>
-<<streams-partial-sums>>
-<<streams-print-n>>
-<<streams-interleave>>
-<<streams-merge-weighted>>
-<<streams-pairs-weighted>>
-<<streams-integral>>
-
-
-(define (sign-change-detector v1 v2)
-  (cond ((and (< v1 0) (> v2 0))  1)
-        ((and (> v1 0) (< v2 0)) -1)
-        (else 0))) 
-
- (define (make-zero-crossings input-stream last-value)
-    (cons-stream
-     (sign-change-detector
-      (stream-car input-stream)
-      last-value)
-     (make-zero-crossings
-      (stream-cdr input-stream)
-      (stream-car input-stream))))
-(define sense-data (interleave ones (interleave ones (interleave ones (scale-stream ones -1)))))
-
-(define zero-crossings
-    (make-zero-crossings sense-data 0))
-
-(stream-print-n (make-zero-crossings sense-data 0) 50)
-(newline)
-
-(define zero-crossings
-(stream-map sign-change-detector
-            sense-data
-            (cons-stream 0 sense-data)))
-(stream-print-n zero-crossings 50)
-#+end_src
-
-#+RESULTS:
-: 0 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 
-: 0 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 
-
-Huh, didn't think about it.
-
-*** DONE Exercise 3.75 filtering signals
-    CLOSED: [2020-01-08 Wed 18:11]
-
-This exercise is confusing. The detector needs to be applied to _two_averaged_ values. 
-
-
-#+begin_src scheme :exports both :results output
-<<streams-common>>
-<<streams-multimap>>
-<<streams-2>>
-<<streams-partial-sums>>
-<<streams-print-n>>
-<<streams-interleave>>
-<<streams-merge-weighted>>
-<<streams-pairs-weighted>>
-<<streams-integral>>
-
-
-(define (sign-change-detector v1 v2)
-  (cond ((and (< v1 0) (> v2 0))  1)
-        ((and (> v1 0) (< v2 0)) -1)
-        (else 0))) 
-
-  (define (make-zero-crossings input-stream last-value last-avpt)
-    (let ((avpt (/ (+ (stream-car input-stream)
-		      last-value)
-		   2)))
-      (cons-stream
-       (sign-change-detector avpt last-avpt)
-       (make-zero-crossings
-	(stream-cdr input-stream) (stream-car input-stream) avpt))))
-
-(define sense-data (interleave (scale-stream ones -1) (interleave ones (interleave ones (scale-stream ones 5)))))
-
-(define zero-crossings
-    (make-zero-crossings sense-data 0 0))
-
-(stream-print-n (make-zero-crossings sense-data 0 0) 50)
-
-#+end_src
-
-#+RESULTS:
-: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-
-Well, seems to be working.
-
-*** DONE Exercise 3.76 stream-smooth
-    CLOSED: [2020-01-08 Wed 19:56]
-
-#+begin_src scheme :exports both :results output :noweb-ref streams-smooth
-(define (smooth s smoothener)
- (cons-stream (smoothener (stream-car s) (stream-car (stream-cdr s)))
-    (smooth (stream-cdr s) smoothener)))
-#+end_src
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  <<streams-partial-sums>>
-  <<streams-print-n>>
-  <<streams-interleave>>
-  <<streams-smooth>>
-  (stream-print-n (smooth integers (lambda (x y) (/ (+ x y ) 2))) 5)
-  (newline)
-  (define (sign-change-detector v1 v2)
-    (cond ((and (< v1 0) (> v2 0))  1)
-	  ((and (> v1 0) (< v2 0)) -1)
-	  (else 0))) 
-  (define (make-zero-crossings stream)
-    (cons-stream
-       (sign-change-detector (stream-car stream)
-                             (stream-car (stream-cdr stream)))
-       (make-zero-crossings  (stream-cdr stream))))
-  (define sense-data (interleave (scale-stream ones -1) (interleave ones (interleave ones (scale-stream ones 5)))))
-
-  (define zero-crossings
-      (make-zero-crossings sense-data))
-
-  (stream-print-n zero-crossings 50)
-
-
-#+end_src
-
-#+RESULTS:
-: 3/2 5/2 7/2 9/2 11/2 
-: 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 
-
-Seems to be working.
-
-*** COMMENT Delayed integration
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  (define (integral delayed-integrand initial-value dt)
-    (define int
-      (cons-stream
-       initial-value
-       (let ((integrand (force delayed-integrand)))
-	 (add-streams (scale-stream integrand dt) int))))
-    int)
-  (define (solve f y0 dt)
-    (define y (integral (delay dy) y0 dt))
-    (define dy (stream-map f y))
-    y)
-  (display (stream-ref (solve (lambda (y) y) 1 0.001) 1000))
-#+end_src
-
-#+RESULTS:
-: 2.716923932235896
-
-*** DONE Exercise 3.77
-    CLOSED: [2020-01-08 Wed 20:51]
-
-#+begin_src scheme :exports both :results output :noweb-ref streams-integral-explicit
-  (define (integral integrand initial-value dt)
-    (cons-stream
-     initial-value
-     (if (stream-null? (force integrand))
-	 the-empty-stream
-	 (let ((nv (force integrand)))
-                 (integral (delay (stream-cdr nv))
-		   (+ (* dt (stream-car nv))
-		      initial-value)
-		   dt)))))
-#+end_src
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  <<streams-integral-explicit>>
-
-  (define (solve f y0 dt)
-    (define y (integral (delay dy) y0 dt))
-    (define dy (stream-map f y))
-    y)
-  (display (stream-ref (solve (lambda (y) y) 1 0.001) 1000))
-
-
-#+end_src
-
-#+RESULTS:
-: 2.716923932235896
-
-*** DONE Exercise 3.78 second order differential equation
-    CLOSED: [2020-01-08 Wed 21:47]
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  <<streams-integral-explicit>>
-  <<streams-print-n>>
-(define (solve-2nd y0 dy0 dt a b)
-  (define y   (integral (delay dy)  y0 dt))
-  (define dy  (integral (delay ddy) dy0 dt))
-  (define ddy (add-streams (scale-stream y b)
-                          (scale-stream dy a)))
-  y)
-(stream-print-n (solve-2nd 10 -10 0.001 20 -30) 20)
-#+end_src
-
-#+RESULTS:
-: 10 9.99 9.9795 9.9684903 9.956961021 9.944902101711 9.932303295205589 9.919154165507019 9.905444084115622 9.891162226471431 9.876297568351834 9.860838882203051 9.844774733404241 9.828093476462989 9.81078325114091 9.792831978508096 9.77422735692509 9.75495685795107 9.735007722176862 9.71436695498143 
-
-*** DONE Exercise 3.79 general second-order ode
-    CLOSED: [2020-01-08 Wed 21:57]
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  <<streams-integral-explicit>>
-  <<streams-print-n>>
-  <<streams-mul>>
-(define (solve-2nd y0 dy0 dt f)
-  (define y   (integral (delay dy)  y0 dt))
-  (define dy  (integral (delay ddy) dy0 dt))
-  (define ddy (f y dy))
-  y)
-(stream-print-n (solve-2nd 10 -10 0.001 (lambda (s1 s2) (mul-streams s1 s2))) 20)
-#+end_src
-
-#+RESULTS:
-: 10 9.99 9.9799 9.969699101 9.959396398048069 9.948990980247782 9.938481930766933 9.92786832684759 9.917149239817473 9.906323735102736 9.895390872242148 9.88434970490271 9.873199280896765 9.861938642200586 9.85056682497453 9.83908285958474 9.827485770626463 9.815774576948995 9.803948291682303 9.792005922265352 
-
-Cool. As long as ~f~ is implemented in terms of streams, it works.
-
-*** DONE Figure 3.36
-    CLOSED: [2020-01-08 Wed 23:21]
-
-#+name: figure-3-36
-#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 300
-#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,matrix,quotes,circuits.ee.IEC}")
-#+header: :buffer on
-#+begin_src latex :results raw file :exports both :file figure-3-36.png
-\begin{tikzpicture}
-[color=white,
-circuit ee IEC,
-semithick,
-every info/.style={font=\footnotesize},
-small circuit symbols,
-set resistor graphic=var resistor IEC graphic,
-set diode graphic=var diode IEC graphic,
-set make contact graphic= var make contact IEC graphic,
-circuit declare annotation={direct polarity}{1cm}
-{(0.5cm,0.25cm) node {-} (-0.5cm,0.25cm) node {+}},
-circuit declare annotation={invert polarity}{1cm}
-{(0.5cm,0.25cm) node {+} (-0.5cm,0.25cm) node {-}}
-]
-
-
-\draw (0,0) to [capacitor={info={\(v_C\)},info'={C},invert polarity},
-                current direction'={near end,info=\(i_C\)}] ++(up:2)
-            to [current direction={near start,info'={\(i_R\)}},
-               resistor={info={\(v_R\)},info'={R},direct polarity}]  ++(right:5)
-            to [current direction={very near start, info'={\(i_L\)}},
-                inductor={info={\(v_L\)},info'={L},direct polarity}]  ++(down:2)
-            -- (0,0);
-
-
-\end{tikzpicture}
-#+end_src
-
-#+RESULTS: figure-3-36
-[[file:figure-3-36.png]]
-
-*** DONE Exercise 3.80 RLC circuit
-    CLOSED: [2020-01-08 Wed 23:40]
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  <<streams-integral-explicit>>
-  <<streams-print-n>>
-  <<streams-mul>>
-(define (RLC R L C dt)
-  (define (producer vc0 il0)
-    (define vc (integral (delay dvc) vc0 dt))
-    (define il (integral (delay dil) il0 dt))
-    (define dvc (scale-stream il (/ -1 C)))
-    (define dil (add-streams 
-                   (scale-stream il (/ (* -1 R) L))
-                   (scale-stream vc (/ 1 L))))
-    (cons vc il))
-   producer)
-(define rlc-model (RLC 1 1 0.2 0.1))
-(define pair-of-streams (rlc-model 10 0))
-(stream-print-n (car pair-of-streams) 20)
-(newline)
-(stream-print-n (cdr pair-of-streams) 20)
-#+end_src
-
-#+RESULTS:
-: 10 10 9.5 8.55 7.220000000000001 5.5955 3.77245 1.8519299999999999 -0.0651605000000004 -1.8831384500000004 -3.5160605800000004 -4.8915335745 -5.95365624055 -6.66498996127 -7.0075074978905 -6.982523782785449 -6.609663064296379 -5.924962228516943 -4.978248323100632 -3.829957696800105 
-: 0 1.0 1.9 2.66 3.249 3.6461 3.84104 3.834181 3.6359559 3.2658442599999997 2.750945989 2.1242453320999997 1.4226674414399998 0.6850350732409998 -0.049967430210100305 -0.7457214369781403 -1.3694016715588713 -1.893427810832622 -2.296581252601054 -2.5647479596510117 
-
-Works? I can't believe it.
-
-*** DONE Exercise 3.81  renerator-in-streams
-    CLOSED: [2020-01-09 Thu 00:37]
-
-#+begin_src scheme :exports both :results output
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  <<streams-partial-sums>>
-  <<streams-print-n>>
-  <<streams-interleave>>
-  <<streams-smooth>>
-
-  (define generates (cons-stream 'generate generates))
-  (define resets (cons-stream 100 resets))
-  (define double-resets (interleave generates (interleave generates resets)))
-  
-  (define (random-stream-processor rs seed)
-    (define (rand-update x)
-	(remainder (+ (* x 29)
-		      71)
-		   13))
-    (let ((seed (if (eq? (stream-car rs) 'generate)
-                    seed
-                    (stream-car rs))))
-       (cons-stream (rand-update seed) 
-                    (random-stream-processor 
-                        (stream-cdr rs) 
-                        (rand-update seed))))
-    )
-  (define my-rand (random-stream-processor double-resets 3))
-  (stream-print-n my-rand 20)
-#+end_src
-
-#+RESULTS:
-: 2 12 3 7 1 9 7 7 1 9 7 7 1 9 7 7 1 9 7 7 
-
-Working? Seems to be working. And no assignment used.
-
-*** DONE Exercise 3.82 streams Monte-Carlo
-    CLOSED: [2020-01-09 Thu 09:42]
-
-#+begin_src scheme :exports both :results output
-  <<random>>
-  <<streams-common>>
-  <<streams-multimap>>
-  <<streams-2>>
-  
-(define (random-in-range low high)
-      (let ((range (- high low)))
-      (+ low (random range))))
-  (show #t "Test 01: " (random-in-range 1 2000) "\n")
-
-  (define (is-inside-circle? x y radius)
-    (if (< (+ (expt (- x 1000) 2) (expt (- y 1000) 2)) (expt radius 2))
-	#t
-	#f))
-
-(define (make-integral-estimator P x1 x2 y1 y2)
-   (define (iter sum-in sum-out)
-     (let* ((in?a (P (random-in-range x1 x2) (random-in-range y1 y2)))
-            (sum-in (if in?a (+ 1 sum-in) sum-in))
-            (sum-out (if in?a sum-out (+ 1 sum-out))))
-         (cons-stream  (/ sum-in (+ sum-in sum-out))
-           (iter sum-in sum-out))))
-   (iter 1 1))
-(define pi-estimator 
-       (scale-stream (make-integral-estimator 
-           (lambda (x y) (is-inside-circle? x y 1000))
-           1 
-           2000 
-           1 
-           2000) 4))
-  (define (estimate-pi trials)
-    (inexact (stream-ref pi-estimator trials)))
-  
-   
-
-(show #t "Test 02: " (estimate-pi 100100) "\n")
-#+end_src
-
-#+RESULTS:
-: Test 01: 73
-: Test 02: 3.1463592499725284
-
-Well, works. Random numbers are not obtained from a stream, and are a
-little bit not modular in this respect, but hey, they task is done as
-a stream.
+*** TODO Exercise 3.82
 
 ** TODO Chapter 4: Metalinguistic Abstraction [0/79]
 
