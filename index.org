@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2020-01-09 09:42:16 lockywolf>
+# Time-stamp: <2020-01-21 11:59:35 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -31,10 +31,10 @@
 #+end_src
 
 #+RESULTS:
-| -m | chibi | -m | srfi 159 | -m | chibi ast | -m | chibi time | -m | srfi 27 | -m | chibi process | -m | srfi 42 | -m | srfi 78 | -m | scheme list |
+: 60000
 
 #+name: common
-#+begin_src scheme :results output :exportss none
+#+begin_src scheme :results output :exports none
   (import (chibi ast))
   (import (chibi show))
    (define (disp sexp)
@@ -43,6 +43,12 @@
 #+end_src
 
 #+RESULTS: common
+
+#+name: export-interpreter
+#+begin_src scheme :exports both :results value
+(import (srfi 159))
+#+end_src
+
 
 * SICP [62%]
 :PROPERTIES:
@@ -19131,7 +19137,7 @@ Computer programs.
 
 The main pedagogical conclusion one may infer from this exercise is that it
 is a good idea to read a book on algebra and integer algorithms.
-** TODO Chapter 3: Modularity, Objects and State [88/94]
+** TODO Chapter 3: Modularity, Objects and State [87/94]
 *** DONE Exercise 3.1 accumulators
     CLOSED: [2019-10-29 Tue 10:24]
 
@@ -21158,7 +21164,8 @@ Actually, these table operations are first required in the chapter 2,
 Exercise-2.73. In order to avoid look-aheads, I am introducing this
 pseudo-chapter so that the appropriate code could be tangled in.
 
-#+begin_src scheme :exports both :results value :noweb-ref put-and-get
+#+name: put-and-get
+#+begin_src scheme :exports both :results value
      (define (make-table)
        (let ((local-table (list '*table*)))
          (define (lookup key-1 key-2)
@@ -23901,8 +23908,7 @@ This is expected. Remember, the second argument to ~cons-stream~ is
 not evaluated, it's delayed. If we don't separate the first pair from
 the rest, ~interleave~ would run indefinitely.
 
-*** DONE Exercise 3.69 triples
-    CLOSED: [2020-01-07 Tue 11:00]
+*** TODO Exercise 3.69 triples
 
 #+begin_src scheme :exports both :results output :noweb-ref streams-triples
   (define (triples s t u)
@@ -23938,8 +23944,6 @@ the rest, ~interleave~ would run indefinitely.
 
 #+end_src
 
-#+RESULTS:
-: (3 4 5) (6 8 10) (5 12 13) (9 12 15) (8 15 17) (12 16 20) 
 
 Seems to be working fine. 
 
@@ -24570,165 +24574,974 @@ Well, works. Random numbers are not obtained from a stream, and are a
 little bit not modular in this respect, but hey, they task is done as
 a stream.
 
-** TODO Chapter 4: Metalinguistic Abstraction [0/79]
-
-*** TODO Exercise 4.1
-
-*** TODO Exercise 4.2
-
-*** TODO Exercise 4.3
-
-*** TODO Exercise 4.4
-
-*** TODO Exercise 4.5
-
-*** TODO Exercise 4.6
-
-*** TODO Exercise 4.7
-
-*** TODO Exercise 4.8
-
-*** TODO Exercise 4.9
-
-*** TODO Exercise 4.10
-
-*** TODO Exercise 4.11
-
-*** TODO Exercise 4.12
-
-*** TODO Exercise 4.13
-
-*** TODO Exercise 4.14
-
-*** TODO Exercise 4.15
-
-*** TODO Exercise 4.16
-
-*** TODO Exercise 4.17
-
-*** TODO Exercise 4.18
-
-*** TODO Exercise 4.19
-
-*** TODO Exercise 4.20
-
-*** TODO Exercise 4.21
-
-*** TODO Exercise 4.22
-
-*** TODO Exercise 4.23
-
-*** TODO Exercise 4.24
-
-*** TODO Exercise 4.25
-
-*** TODO Exercise 4.26
-
-*** TODO Exercise 4.27
-
-*** TODO Exercise 4.28
-
-*** TODO Exercise 4.29
-
-*** TODO Exercise 4.30
-
-*** TODO Exercise 4.31
-
-*** TODO Exercise 4.32
-
-*** TODO Exercise 4.33
-
-*** TODO Exercise 4.34
-
-*** TODO Exercise 4.35
-
-*** TODO Exercise 4.36
-
-*** TODO Exercise 4.37
-
-*** TODO Exercise 4.38
-
-*** TODO Exercise 4.39
-
-*** TODO Exercise 4.40
-
-*** TODO Exercise 4.41
-
-*** TODO Exercise 4.42
-
-*** TODO Exercise 4.43
-
-*** TODO Exercise 4.44
-
-*** TODO Exercise 4.45
-
-*** TODO Exercise 4.46
-
-*** TODO Exercise 4.47
-
-*** TODO Exercise 4.48
-
-*** TODO Exercise 4.49
-
-*** TODO Exercise 4.50
-
-*** TODO Exercise 4.51
-
-*** TODO Exercise 4.52
-
-*** TODO Exercise 4.53
-
-*** TODO Exercise 4.54
-
-*** TODO Exercise 4.55
-
-*** TODO Exercise 4.56
-
-*** TODO Exercise 4.57
-
-*** TODO Exercise 4.58
-
-*** TODO Exercise 4.59
-
-*** TODO Exercise 4.60
-
-*** TODO Exercise 4.61
-
-*** TODO Exercise 4.62
-
-*** TODO Exercise 4.63
-
-*** TODO Exercise 4.64
-
-*** TODO Exercise 4.65
-
-*** TODO Exercise 4.66
-
-*** TODO Exercise 4.67
-
-*** TODO Exercise 4.68
-
-*** TODO Exercise 4.69
-
-*** TODO Exercise 4.70
-
-*** TODO Exercise 4.71
-
-*** TODO Exercise 4.72
-
-*** TODO Exercise 4.73
+** TODO Chapter 4: Metalinguistic Abstraction [4/82]
+This chapter started as a bit of a mess. Because it uses quite a bit
+of input-output, and the standard ob-scheme interface is not very open
+to this, I had to be inventive, that is, I repurposed SRFI-22 and
+ob-shell, and transformed the final runnable piece of code into a
+scheme-shell script, so that I could feed input into it as if it was a
+shell block.
+
+This took me about 8 working hours to figure out.
+
+*** 4.1 The Metacircular Evaluator 
+[2020-01-09 Thu 15:46]
+**** 4.1.1 The Core of the Evaluator
+***** Common code of the evaluator
+#+name: s-eval
+#+begin_src scheme :exports both :results value
+   (define (eval exp env)
+       (cond ((self-evaluating? exp) exp)
+             ((variable? exp) (lookup-variable-value exp env))
+             ((quoted? exp) (text-of-quotation exp))
+             ((assignment? exp) (eval-assignment exp env))
+             ((definition? exp) (eval-definition exp env))
+             ((if? exp) (eval-if exp env))
+             ((lambda? exp)
+              (make-procedure (lambda-parameters exp)
+                              (lambda-body exp)
+                              env))
+             ((begin? exp)
+              (eval-sequence (begin-actions exp) env))
+             ((cond? exp) (eval (cond->if exp) env))
+             ((application? exp)
+              (show #t "found application: " exp)
+              (apply (eval (operator exp) env)
+                     (list-of-values (operands exp) env)))
+             (else
+              (error "Unknown expression type -- EVAL" exp))))
+#+end_src
+
+#+RESULTS: s-eval
+: #<undef>
+
+#+name: s-apply
+#+begin_src scheme :exports both :results value
+     (define (apply procedure arguments)
+       (cond ((primitive-procedure? procedure)
+              (apply-primitive-procedure procedure arguments))
+             ((compound-procedure? procedure)
+              (eval-sequence
+                (procedure-body procedure)
+                (extend-environment
+                  (procedure-parameters procedure)
+                  arguments
+                  (procedure-environment procedure))))
+             (else
+              (error
+               "Unknown procedure type -- APPLY" procedure))))
+#+end_src
+
+#+RESULTS: s-apply
+: #<undef>
+
+#+name: s-list-of-values
+#+begin_src scheme :exports both :results value
+     (define (list-of-values exps env)
+       (if (no-operands? exps)
+           '()
+           (cons (eval (first-operand exps) env)
+                 (list-of-values (rest-operands exps) env))))
+#+end_src
+
+#+name: s-conditionals
+#+begin_src scheme :exports both :results value
+  (define (eval-if exp env)
+    (if (true? (eval (if-predicate exp) env))
+	(eval (if-consequent exp) env)
+	(eval (if-alternative exp) env)))
+#+end_src
+
+#+name: s-sequences
+#+begin_src scheme :exports both :results value
+     (define (eval-sequence exps env)
+       (cond ((last-exp? exps) (eval (first-exp exps) env))
+             (else (eval (first-exp exps) env)
+                   (eval-sequence (rest-exps exps) env))))
+#+end_src
+
+#+name: s-assignment
+#+begin_src scheme :exports both :results value
+     (define (eval-assignment exp env)
+       (set-variable-value! (assignment-variable exp)
+                            (eval (assignment-value exp) env)
+                            env)
+       'ok)
+#+end_src
+
+#+name: s-define
+#+begin_src scheme :exports both :results value
+     (define (eval-definition exp env)
+       (define-variable! (definition-variable exp)
+                         (eval (definition-value exp) env)
+                         env)
+       'ok)
+#+end_src
+
+***** DONE Exercise 4.1 list-of-values ordered
+      CLOSED: [2020-01-09 Thu 20:11]
+
+#+name: s-list-of-values-left-to-right
+#+begin_src scheme :exports both :results output
+     (define (list-of-values exps env)
+       (if (no-operands? exps)
+           '()
+           (let* ((p1 (eval (first-operand exps) env))
+                  (p2 (list-of-values (rest-operands exps) env)))
+              (cons p1 p2))))
+#+end_src
+
+#+name: s-list-of-values-left-to-right
+#+begin_src scheme :exports both :results output
+     (define (list-of-values exps env)
+       (if (no-operands? exps)
+           '()
+           (let* ((p2 (list-of-values (rest-operands exps) env))
+                  (p1 (eval (first-operand exps) env)))
+              (cons p1 p2))))
+#+end_src
+
+**** 4.1.2 Representing Expressions
+***** Common code for expressions
+#+name: s-syntax
+#+begin_src scheme :exports both :results value
+(define false #f)
+(define true  #t)
+          (define (self-evaluating? exp)
+            (cond ((number? exp) true)
+                  ((string? exp) true)
+                  (else false)))
+          (define (variable? exp) (symbol? exp))
+          (define (quoted? exp)
+            (tagged-list? exp 'quote))
+
+          (define (text-of-quotation exp) (cadr exp))
+          (define (tagged-list? exp tag)
+            (if (pair? exp)
+                (eq? (car exp) tag)
+                false))
+          (define (assignment? exp)
+            (tagged-list? exp 'set!))
+
+          (define (assignment-variable exp) (cadr exp))
+
+          (define (assignment-value exp) (caddr exp))
+          (define (definition? exp)
+            (tagged-list? exp 'define))
+
+          (define (definition-variable exp)
+            (if (symbol? (cadr exp))
+                (cadr exp)
+                (caadr exp)))
+
+          (define (definition-value exp)
+            (if (symbol? (cadr exp))
+                (caddr exp)
+                (make-lambda (cdadr exp)
+                             (cddr exp))))
+          (define (lambda? exp) (tagged-list? exp 'lambda))
+
+          (define (lambda-parameters exp) (cadr exp))
+
+          (define (lambda-body exp) (cddr exp))
+          (define (make-lambda parameters body)
+            (cons 'lambda (cons parameters body)))
+          (define (if? exp) (tagged-list? exp 'if))
+
+          (define (if-predicate exp) (cadr exp))
+
+          (define (if-consequent exp) (caddr exp))
+
+          (define (if-alternative exp)
+            (if (not (null? (cdddr exp)))
+                (cadddr exp)
+                'false))
+          (define (make-if predicate consequent alternative)
+            (list 'if predicate consequent alternative))
+          (define (begin? exp) (tagged-list? exp 'begin))
+
+          (define (begin-actions exp) (cdr exp))
+
+          (define (last-exp? seq) (null? (cdr seq)))
+
+          (define (first-exp seq) (car seq))
+
+          (define (rest-exps seq) (cdr seq))
+          (define (sequence->exp seq)
+            (cond ((null? seq) seq)
+                  ((last-exp? seq) (first-exp seq))
+                  (else (make-begin seq))))
+
+          (define (make-begin seq) (cons 'begin seq))
+#+end_src
+
+#+name: s-application
+#+begin_src scheme :exports both :results value
+          (define (application? exp) (pair? exp))
+
+          (define (operator exp) (car exp))
+
+          (define (operands exp) (cdr exp))
+
+          (define (no-operands? ops) (null? ops))
+
+          (define (first-operand ops) (car ops))
+
+          (define (rest-operands ops) (cdr ops))
+#+end_src
+
+#+name: s-cond     
+#+begin_src scheme :exports both :results value
+
+     (define (cond? exp) (tagged-list? exp 'cond))
+
+     (define (cond-clauses exp) (cdr exp))
+
+     (define (cond-else-clause? clause)
+       (eq? (cond-predicate clause) 'else))
+
+     (define (cond-predicate clause) (car clause))
+
+     (define (cond-actions clause) (cdr clause))
+
+     (define (cond->if exp)
+       (expand-clauses (cond-clauses exp)))
+
+     (define (expand-clauses clauses)
+       (if (null? clauses)
+           'false 
+           (let ((first (car clauses))
+                 (rest (cdr clauses)))
+             (if (cond-else-clause? first)
+                 (if (null? rest)
+                     (sequence->exp (cond-actions first))
+                     (error "ELSE clause isn't last -- COND->IF"
+                            clauses))
+                 (make-if (cond-predicate first)
+                          (sequence->exp (cond-actions first))
+                          (expand-clauses rest))))))
+
+#+end_src
+
+#+RESULTS: s-cond
+
+At this point we should be able to run the interpreter for some tests that
+don't actually use any environments.
+
+#+begin_src scheme :exports both :results output
+<<s-eval>>
+<<s-apply>>
+<<s-list-of-values>>
+<<s-conditionals>>
+<<s-sequences>>
+<<s-assignment>>
+<<s-define>>
+<<s-syntax>>
+<<s-application>>
+<<s-cond>>
+
+(show #t "Test strings    : " (eval '"hello" '()) "\n")
+(show #t "Test numbers    : " (eval '1 '()) "\n")
+(show #t "Test if true    : " (eval '(if "" "true" "false") '()) "\n")
+(show #t "Test if false   : " (eval '(if '() "true" "false") '()) "\n")
+(show #t "Test quote      : " (eval ''() '()) "\n")
+(show #t "Test assignment : " "Not implemented" "\n")
+(show #t "Test definition : " "Not implemented" "\n")
+(show #t "Test lambda     : " "Not implemented" "\n")
+
+(show #t "Test begin      : " (eval '(begin "One" (if "" "two" '()) "end begin") '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ("" "clause 3") (else "else clause")) '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ('() "clause 3") (else "else clause")) '()) "\n")
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+initializing standard cond
+cond initialized
+Test strings    : hello
+Test numbers    : 1
+Test if true    : true
+Test if false   : false
+Test quote      : ()
+Test assignment : Not implemented
+Test definition : Not implemented
+Test lambda     : Not implemented
+Test begin      : end begin
+Test cond       : clause 3
+Test cond       : else clause
+#+end_example
+
+***** DONE Exercise 4.2 application before assignments
+      CLOSED: [2020-01-09 Thu 20:41]
+****** a 
+Obviously, this won't work, because almost everything in Scheme is a pair!
+So far we haven't cared about the disjointness of types, therefore, since
+~(define x 3)~ is a list, it is also a pair, and formally an application.
+****** b 
+If we define an application as:
+
+#+name: s-application-with-call
+#+begin_src scheme :exports both :results output
+          (define (application? exp) (tagged-list? exp call))
+
+          (define (operator exp) (cadr exp))
+
+          (define (operands exp) (cddr exp))
+
+          (define (no-operands? ops) (null? ops))
+
+          (define (first-operand ops) (car ops))
+
+          (define (rest-operands ops) (cdr ops))
+
+#+end_src
+
+This should work. But this example is not practical, so we won't test it.
+
+***** DONE Exercise 4.3 data-directed eval
+      CLOSED: [2020-01-09 Thu 21:24]
+
+#+name: s-data-driven-eval
+#+begin_src scheme :exports both :results value
+  (define (eval . o) (display "in the wrong eval"))
+  (define (special-form-maybe exp) (if (and (pair? exp) (symbol? (car exp)))
+                              (get 'eval (car exp))
+                              #f))
+
+  (define (eval exp env)
+    (cond ((self-evaluating? exp) exp)
+	  ((variable? exp) (lookup-variable-value exp env))
+          ((special-form-maybe exp) => (lambda (x)  (x exp env)))
+          ((application? exp) (apply (eval (operator exp) env)
+                                     (list-of-values (operands exp) env)))
+	  (else
+	   (error "data-directed-eval: unknown operation" exp))))
+
+  (put 'eval 'quote (lambda (exp env) (text-of-quotation exp)))
+  (put 'eval 'set! (lambda (exp env) (eval-assignment exp env)))
+  (put 'eval 'define (lambda (exp env) (eval-definition exp env)))
+  (put 'eval 'if (lambda (exp env) (eval-if exp env)))
+  (put 'eval 'lambda (lambda (exp env) (make-procedure (lambda-parameters exp)
+			   (lambda-body exp)
+			   env)))
+  (put 'eval 'begin (lambda (exp env) (eval-sequence (begin-actions exp) env)))
+
+  #;(put 'eval 'call (lambda (exp env) (apply (eval (operator exp) env)
+                             (list-of-values (operands exp) env))))
+  (put 'eval 'cond (lambda (exp env) (eval (cond->if exp) env)))
+  
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<export-interpreter>>
+<<put-and-get>>
+<<s-data-driven-eval>>
+<<s-apply>>
+<<s-list-of-values>>
+<<s-truefalse>>
+<<s-conditionals>>
+<<s-sequences>>
+<<s-assignment>>
+<<s-define>>
+<<s-syntax>>
+<<s-application>>
+<<s-cond>>
+
+(show #t "Test strings    : " (eval '"hello" '()) "\n")
+(show #t "Test numbers    : " (eval '1 '()) "\n")
+(show #t "Test if true    : " (eval '(if "" "true" "false") '()) "\n")
+(show #t "Test if false   : " (eval '(if '() "true" "false") '()) "\n")
+(show #t "Test quote      : " (eval ''() '()) "\n")
+(show #t "Test assignment : " "Not implemented" "\n")
+(show #t "Test definition : " "Not implemented" "\n")
+(show #t "Test lambda     : " "Not implemented" "\n")
+(show #t "Test begin      : " (eval '(begin "One" (if "" "two" '()) "end begin") '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ("" "clause 3") (else "else clause")) '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ('() "clause 3") (else "else clause")) '()) "\n")
+
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Test strings    : hello
+Test numbers    : 1
+Test if true    : true
+Test if false   : false
+Test quote      : ()
+Test assignment : Not implemented
+Test definition : Not implemented
+Test lambda     : Not implemented
+Test begin      : end begin
+Test cond       : clause 3
+Test cond       : else clause
+#+end_example
+
+
+
+Well, put and get work, so this should work in general. Let's see if we can
+test it later.
+
+***** DONE Exercise 4.4 eval-and and eval-or
+      CLOSED: [2020-01-09 Thu 22:14]
+
+#+name: s-eval-and
+#+begin_src scheme :exports both :results output
+(define (logical-actions exp) (cdr exp))
+(define (eval-and-sequence exps env)
+       (if (null? exps) 
+            ""
+            (let ((candidate (eval (first-exp exps) env)))
+             (if (not (true? candidate)) 
+                 '()
+                (if (null? (rest-exps exps)) 
+                   candidate
+                   (eval-and-sequence (rest-exps exps) env))))))
+(define (eval-and exp env)
+  (eval-and-sequence (logical-actions exp) env))
+(define (eval-or-sequence exps env)
+       (if (null? exps) 
+            '()
+            (let ((candidate (eval (first-exp exps) env)))
+             (if (true? candidate) 
+                 candidate
+                (if (null? (rest-exps exps)) 
+                   candidate
+                   (eval-or-sequence (rest-exps exps) env))))))
+(define (eval-or exp env)
+  (eval-or-sequence (logical-actions exp) env))
+
+(put 'eval 'and eval-and)
+(put 'eval 'or eval-or)
+
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<put-and-get>>
+<<s-data-driven-eval>>
+<<s-apply>>
+<<s-list-of-values>>
+<<s-truefalse>>
+<<s-conditionals>>
+<<s-sequences>>
+<<s-assignment>>
+<<s-define>>
+<<s-syntax>>
+<<s-application>>
+<<s-cond>>
+<<s-eval-and>>
+
+(show #t "Test strings    : " (eval '"hello" '()) "\n")
+(show #t "Test numbers    : " (eval '1 '()) "\n")
+(show #t "Test if true    : " (eval '(if "" "true" "false") '()) "\n")
+(show #t "Test if false   : " (eval '(if '() "true" "false") '()) "\n")
+(show #t "Test quote      : " (eval ''() '()) "\n")
+(show #t "Test assignment : " "Not implemented" "\n")
+(show #t "Test definition : " "Not implemented" "\n")
+(show #t "Test lambda     : " "Not implemented" "\n")
+(show #t "Test begin      : " (eval '(begin "One" (if "" "two" '()) "end begin") '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ("" "clause 3") (else "else clause")) '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ('() "clause 3") (else "else clause")) '()) "\n")
+(show #t "Test and        : " (true? (eval '(and) '())) "\n")
+(show #t "Test and        : " (true? (eval '(and "") '())) "\n")
+(show #t "Test and        : " (eval '(and "" 123) '()) "\n")
+(show #t "Test or         : " (not (true? (eval '(or) '()))) "\n")
+(show #t "Test or         : " (true? (eval '(or "") '())) "\n")
+(show #t "Test or         : " (eval '(or 122 123) '()) "\n")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Test strings    : hello
+Test numbers    : 1
+Test if true    : true
+Test if false   : false
+Test quote      : ()
+Test assignment : Not implemented
+Test definition : Not implemented
+Test lambda     : Not implemented
+Test begin      : end begin
+Test cond       : clause 3
+Test cond       : else clause
+Test and        : #t
+Test and        : #t
+Test and        : 123
+Test or         : #t
+Test or         : #t
+Test or         : 122
+#+end_example
+
+***** TODO Exercise 4.5 cond with arrow
+
+Notice. I spent a lot of time trying to solve this exercise with only
+the tools available so far. I failed. Unless testing works, it is not
+possible to make sure that the code I wrote to solve exercises is
+correct. I will do the chapter parsing in two passes. And this
+exercise will have forward references.
+
+#+name: s-cond-with-arrow
+#+begin_src scheme :exports both :results value
+     (define (cond? exp) (tagged-list? exp 'cond))
+
+     (define (cond-clauses exp) (cdr exp))
+
+     (define (cond-else-clause? clause)
+       (eq? (cond-predicate clause) 'else))
+
+     (define (cond-predicate clause) (car clause))
+
+     (define (cond-actions clause) (cdr clause))
+
+     (define (cond-actions-arrow? cond-actions)
+          (cond ((null? cond-actions) #f)
+                ((eq? '=> (car cond-actions)) #t)
+                (else #f)))
+     (define (cond-actions-arrow-action cond-actions)
+          (cadr cond-actions))
+     (define (cond->if exp)
+       (expand-clauses (cond-clauses exp)))
+
+     (define (expand-clauses clauses)
+       (if (null? clauses)
+           'false 
+           (let ((first (car clauses))
+                 (rest (cdr clauses)))
+             (if (cond-else-clause? first)
+                 (if (null? rest)
+                     (sequence->exp (cond-actions first))
+                     (error "ELSE clause isn't last -- COND->IF"
+                            clauses))
+                 (if (not (cond-actions-arrow? (cond-actions first)))
+                    (make-if (cond-predicate first)
+                              (sequence->exp (cond-actions first))
+                          (expand-clauses rest))
+                    #;(error "not supported" (list (make-lambda (list 'test-res)
+                             (list (make-if 'test-res
+                                 (list (cond-actions-arrow-action (cond-actions first)) 'test-res)
+                                 (expand-clauses rest)))) 
+                                       (cond-predicate first)))
+                    (list (make-lambda (list 'test-res)
+                             (list (make-if 'test-res
+                                 (list (cond-actions-arrow-action (cond-actions first)) 'test-res)
+                                 (expand-clauses rest))))
+                                       (cond-predicate first))
+                     )))))
+
+#+end_src
+
+#+RESULTS: s-cond-with-arrow
+: #<undef>
+
+
+#+begin_src scheme :exports both :results output
+<<put-and-get>>
+<<s-apply>>
+
+<<s-data-driven-eval>>
+<<s-list-of-values>>
+<<s-conditionals>>
+<<s-sequences>>
+<<s-assignment>>
+<<s-define>>
+<<s-syntax>>
+<<s-application>>
+<<s-cond-with-arrow>>
+<<s-eval-and>>
+
+(show #t "Test strings    : " (eval '"hello" '()) "\n")
+(show #t "Test numbers    : " (eval '1 '()) "\n")
+(show #t "Test if true    : " (eval '(if "" "true" "false") '()) "\n")
+(show #t "Test if false   : " (eval '(if '() "true" "false") '()) "\n")
+(show #t "Test quote      : " (eval ''() '()) "\n")
+(show #t "Test assignment : " "Not implemented" "\n")
+(show #t "Test definition : " "Not implemented" "\n")
+(show #t "Test lambda     : " "Not implemented" "\n")
+(show #t "Test begin      : " (eval '(begin "One" (if "" "two" '()) "end begin") '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ("" "clause 3") (else "else clause")) '()) "\n")
+(show #t "Test cond       : " (eval '(cond ('() "clause 1") ('() 'clause2) ('() "clause 3") (else "else clause")) '()) "\n")
+(show #t "Test cond->if   : " (cond->if '(cond ((assoc 'b '((a 1) (b 2))) => cadr) (else false))))
+(show #t "Test cond arrow : " (eval '(cond ((assoc 'b '((a 1) (b 2))) => cadr) (else false)) '()) "\n")
+(show #t "Test and        : " (true? (eval '(and) '())) "\n")
+(show #t "Test and        : " (true? (eval '(and "") '())) "\n")
+(show #t "Test and        : " (eval '(and "" 123) '()) "\n")
+(show #t "Test or         : " (not (true? (eval '(or) '()))) "\n")
+(show #t "Test or         : " (true? (eval '(or "") '())) "\n")
+(show #t "Test or         : " (eval '(or 122 123) '()) "\n")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Test strings    : hello
+Test numbers    : 1
+Test if true    : true
+Test if false   : false
+Test quote      : ()
+Test assignment : Not implemented
+Test definition : Not implemented
+Test lambda     : Not implemented
+Test begin      : end begin
+Test cond       : clause 3
+Test cond       : else clause
+Test cond->if   : ((lambda (test-res) (if test-res (cadr test-res) false)) (assoc (quote b) (quote ((a 1) (b 2)))))
+Output (exception): {Exception #19 user "slot-ref: bad type" ("Lambda" (lambda (test-res) (if test-res (cadr test-res) false))) #<procedure #f> (#f . 72)} 
+Stack trace:
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymoWARNING: reference to undefined variable: define-variable!
+WARNING: reference to undefined variable: set-variable-value!
+WARNING: reference to undefined variable: make-procedure
+WARNING: reference to undefined variable: procedure-environment
+WARNING: reference to undefined variable: procedure-parameters
+WARNING: reference to undefined variable: extend-environment
+WARNING: reference to undefined variable: procedure-body
+WARNING: reference to undefined variable: compound-procedure?
+us> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1202 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 71
+  called from <anonymous> on line 62
+  called from <anonymous> on line 32
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
+  called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
+#+end_example
+
+
+***** TODO Exercise 4.6
+***** TODO Exercise 4.7
+***** TODO Exercise 4.8
+***** TODO Exercise 4.9
+***** TODO Exercise 4.10
+**** 4.1.3 Evaluator Data Structures
+
+***** Common code for the Evaluator
+#+name: s-truefalse
+#+begin_src scheme :exports both :results output
+  (define (true? v)  (not (eq? v '())))
+  (define (false? x)      (eq? x '()))
+#+end_src
+
+#+name: s-compound-procedures
+#+begin_src scheme :exports both :results value
+  (define (make-procedure parameters body env)
+    (list 'procedure parameters body env))
+  (define (compound-procedure? p)
+    (tagged-list? p 'procedure))
+  (define (procedure-parameters p) (cadr p))
+  (define (procedure-body p) (caddr p))
+  (define (procedure-environment p) (cadddr p))
+#+end_src
+
+#+name: s-environments
+#+begin_src scheme :exports both :results value
+     (define (enclosing-environment env) (cdr env))
+     (define (first-frame env) (car env))
+     (define the-empty-environment '())
+     (define (make-frame variables values)
+       (cons variables values))
+     (define (frame-variables frame) (car frame))
+     (define (frame-values frame) (cdr frame))
+     (define (add-binding-to-frame! var val frame)
+       (set-car! frame (cons var (car frame)))
+       (set-cdr! frame (cons val (cdr frame))))
+     (define (extend-environment vars vals base-env)
+       (if (= (length vars) (length vals))
+           (cons (make-frame vars vals) base-env)
+           (if (< (length vars) (length vals))
+               (error "Too many arguments supplied" vars vals)
+               (error "Too few arguments supplied" vars vals))))
+     (define (lookup-variable-value var env)
+       (define (env-loop env)
+         (define (scan vars vals)
+           (cond ((null? vars)
+                  (env-loop (enclosing-environment env)))
+                 ((eq? var (car vars))
+                  (car vals))
+                 (else (scan (cdr vars) (cdr vals)))))
+         (if (eq? env the-empty-environment)
+             (error "Unbound variable" var)
+             (let ((frame (first-frame env)))
+               (scan (frame-variables frame)
+                     (frame-values frame)))))
+       (env-loop env))
+     (define (set-variable-value! var val env)
+       (define (env-loop env)
+         (define (scan vars vals)
+           (cond ((null? vars)
+                  (env-loop (enclosing-environment env)))
+                 ((eq? var (car vars))
+                  (set-car! vals val))
+                 (else (scan (cdr vars) (cdr vals)))))
+         (if (eq? env the-empty-environment)
+             (error "Unbound variable -- SET!" var)
+             (let ((frame (first-frame env)))
+               (scan (frame-variables frame)
+                     (frame-values frame)))))
+       (env-loop env))
+     (define (define-variable! var val env)
+       (let ((frame (first-frame env)))
+         (define (scan vars vals)
+           (cond ((null? vars)
+                  (add-binding-to-frame! var val frame))
+                 ((eq? var (car vars))
+                  (set-car! vals val))
+                 (else (scan (cdr vars) (cdr vals)))))
+         (scan (frame-variables frame)
+               (frame-values frame))))
+
+#+end_src
+
+***** TODO Exercise 4.11
+
+***** TODO Exercise 4.12
+
+***** TODO Exercise 4.13
+
+**** 4.1.4 Running the Evaluator as a Program
+***** Common code for the Evaluator and primitive-procedure
+
+#+name: s-primitive-procedures
+#+begin_src scheme :exports both :results value
+     (define (setup-environment)
+       (let ((initial-env
+              (extend-environment (primitive-procedure-names)
+                                  (primitive-procedure-objects)
+                                  the-empty-environment)))
+         (define-variable! 'true true initial-env)
+         (define-variable! 'false false initial-env)
+         initial-env))
+     (define the-global-environment (setup-environment))
+     (define (primitive-procedure? proc)
+       (tagged-list? proc 'primitive))
+
+     (define (primitive-implementation proc) (cadr proc))
+     (define primitive-procedures
+       (list (list 'car car)
+             (list 'cdr cdr)
+             (list 'cons cons)
+             (list 'null? null?)
+             <MORE PRIMITIVES>
+             ))
+
+     (define (primitive-procedure-names)
+       (map car
+            primitive-procedures))
+
+     (define (primitive-procedure-objects)
+       (map (lambda (proc) (list 'primitive (cadr proc)))
+            primitive-procedures))
+     (define (apply-primitive-procedure proc args)
+       (apply-in-underlying-scheme
+        (primitive-implementation proc) args))
+     (define input-prompt ";;; M-Eval input:")
+     (define output-prompt ";;; M-Eval value:")
+
+     (define (driver-loop)
+       (prompt-for-input input-prompt)
+       (let ((input (read)))
+         (let ((output (eval input the-global-environment)))
+           (announce-output output-prompt)
+           (user-print output)))
+       (driver-loop))
+     (define (prompt-for-input string)
+       (newline) (newline) (display string) (newline))
+     (define (announce-output string)
+       (newline) (display string) (newline))
+     (define (user-print object)
+       (if (compound-procedure? object)
+           (display (list 'compound-procedure
+                          (procedure-parameters object)
+                          (procedure-body object)
+                          '<procedure-env>))
+           (display object)))
+
+#+end_src
+
+#+NAME: s-input-test1
+#+BEGIN_QUOTE
+     (define (append x y)
+       (if (null? x)
+           y
+           (cons (car x)
+                 (append (cdr x) y))))
+#+END_QUOTE
+
+#+header: :stdin s-input-test1
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme"
+(import (scheme small))
+(define a (read))
+(display a)
+#+end_src
+
+#+RESULTS:
+: (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
+
+
+
+#+header: :stdin s-input-test1
+#+begin_src scheme :exports both :results output
+(define a (read))
+(display a)
+'ended
+#+end_src
+
+#+RESULTS:
+
+***** TODO Exercise 4.14
+
+**** 4.1.5 Data as Programs
+***** TODO Figure 4.2 Factorial as Abstract Machine
+***** TODO Figure 4.3 The evaluator emulating a factorial machine
+***** TODO Exercise 4.15
+
+**** 4.1.6 Internal Definitions
+***** TODO Exercise 4.16
+
+***** TODO Exercise 4.17
+
+***** TODO Exercise 4.18
+
+***** TODO Exercise 4.19
+
+***** TODO Exercise 4.20
+
+***** TODO Exercise 4.21
+
+**** 4.1.7 Separating Syntactic Analysis from Execution
+***** TODO Exercise 4.22
+
+***** TODO Exercise 4.23
+
+***** TODO Exercise 4.24
+
+*** 4.2 Variations on a Scheme − Lazy Evaluation
+**** 4.2.1 Normal Order and Applicative Order
+***** TODO Exercise 4.25
+
+***** TODO Exercise 4.26
+
+**** 4.2.2 An Interpreter with Lazy Evaluation
+***** TODO Exercise 4.27
+
+***** TODO Exercise 4.28
+
+***** TODO Exercise 4.29
+
+***** TODO Exercise 4.30
+
+***** TODO Exercise 4.31
+
+**** 4.2.3 Streams as Lazy Lists
+***** TODO Exercise 4.32
+
+***** TODO Exercise 4.33
+
+***** TODO Exercise 4.34
+
+*** 4.3 Variations on Scheme − Nondeterministic Computing
+**** 4.3.1 Amb and Search
+***** TODO Exercise 4.35
+
+***** TODO Exercise 4.36
+
+***** TODO Exercise 4.37
+
+**** 4.3.2 Examples of Nondeterministic Programming
+***** TODO Exercise 4.38
+
+***** TODO Exercise 4.39
+
+***** TODO Exercise 4.40
+
+***** TODO Exercise 4.41
+
+***** TODO Exercise 4.42
+
+***** TODO Exercise 4.43
+
+***** TODO Exercise 4.44
+
+***** TODO Exercise 4.45
+
+***** TODO Exercise 4.46
+
+***** TODO Exercise 4.47
+
+***** TODO Exercise 4.48
+
+***** TODO Exercise 4.49
+
+**** 4.3.3 Implementing the ~amb~ Evaluator
+***** TODO Exercise 4.50
+
+***** TODO Exercise 4.51
+
+***** TODO Exercise 4.52
+
+***** TODO Exercise 4.53
+
+***** TODO Exercise 4.54
+
+*** 4.4 Logic Programming
+**** 4.4.1 Deductive Information Retrieval
+***** TODO Exercise 4.55
+
+***** TODO Exercise 4.56
+
+***** TODO Exercise 4.57
+
+***** TODO Exercise 4.58
+
+***** TODO Exercise 4.59
+
+***** TODO Exercise 4.60
+
+***** TODO Exercise 4.61
+
+***** TODO Exercise 4.62
+
+***** TODO Exercise 4.63
+
+**** 4.4.2 How the Query System Works
+***** TODO Figure 4.6
+**** 4.4.3 Is Logic Programming Mathematical Logic
+***** TODO Exercise 4.64
+
+***** TODO Exercise 4.65
+
+***** TODO Exercise 4.66
+
+***** TODO Exercise 4.67
+
+***** TODO Exercise 4.68
+
+***** TODO Exercise 4.69
+
+**** 4.4.4 Implementing the Query System
+***** TODO Exercise 4.70
+
+***** TODO Exercise 4.71
+
+***** TODO Exercise 4.72
+
+***** TODO Exercise 4.73
     
-*** TODO Exercise 4.74
+***** TODO Exercise 4.74
 
-*** TODO Exercise 4.75
+***** TODO Exercise 4.75
 
-*** TODO Exercise 4.76
+***** TODO Exercise 4.76
 
-*** TODO Exercise 4.77
+***** TODO Exercise 4.77
 
-*** TODO Exercise 4.78
+***** TODO Exercise 4.78
 
-*** TODO Exercise 4.79
+***** TODO Exercise 4.79
 
 ** TODO Chapter 5: Computing with Register Machines [0/52]
 
