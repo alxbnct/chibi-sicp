@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2020-02-22 22:57:43 lockywolf>
+# Time-stamp: <2020-02-23 20:48:21 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -42220,232 +42220,442 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [3/54]
+** TODO Chapter 5: Computing with Register Machines [5/54]
+*** 5.1 Designing Register Machinese [5/8]
+**** DONE Figure 5.1 Data paths for a Register Machine
+     CLOSED: [2020-02-23 Sun 13:18]
 
-*** DONE Figure 5.1 Data paths for a Register Machine
-    CLOSED: [2020-02-22 Sat 22:18]
+ #+begin_src plantuml :exports both :file figure-5-1.png
+ @startuml
+ skinparam monochrome true
+ skinparam componentStyle uml2
+ top to bottom direction
 
-#+begin_src plantuml :exports both :file figure-5-1.png
-@startuml
-skinparam monochrome true
-skinparam componentStyle uml2
-top to bottom direction
+ component "a" as a
+ component "b" as b
+ component "rem" as rem
+ component "t" as t
+ component "=" as eq
+ component "0" as zero
 
-component "a" as a
-component "b" as b
-component "rem" as rem
-component "t" as t
-component "=" as eq
-component "0" as zero
+ interface "a←b" as ab
+ interface "t←r" as tr
+ interface "b←t" as bt
 
-interface "a←b" as ab
-interface "t←r" as tr
-interface "b←t" as bt
+ b -left- ab
+ ab -left-> a
+ a -down-> rem
+ b -down-> rem
+ rem -down- tr
+ tr -down-> t
+ t -up- bt
+ bt -up-> b
+ b -right-> eq
+ zero -up-> eq
 
-b -left- ab
-ab -left-> a
-a -down-> rem
-b -down-> rem
-rem -down- tr
-tr -down-> t
-t -up- bt
-bt -up-> b
-b -right-> eq
-zero -up-> eq
+ @enduml
+ #+end_src
 
-@enduml
+ #+RESULTS:
+ [[file:figure-5-1.png]]
+
+**** DONE Figure 5.2 Controller for a GCD Machine
+     CLOSED: [2020-02-22 Sat 22:27]
+
+ #+begin_src plantuml :exports both :file figure-5-2.png
+ @startuml
+ skinparam monochrome true
+
+ start
+ while (=) is (no)
+   :t->r;
+   :a->b;
+   :b->t;
+ endwhile (yes)
+ stop
+
+ @enduml
+ #+end_src
+
+ #+RESULTS:
+ [[file:figure-5-2.png]]
+
+ Ugly, but working.
+
+**** DONE Exercise 5.1 Register machine plot
+     CLOSED: [2020-02-22 Sat 22:56]
+ #+begin_src plantuml :exports both :file exercise-5-1-dataflow.png
+ @startuml
+ skinparam monochrome true
+ component n as n
+ component product as product
+ component counter as counter
+
+ component 1 as one
+ component "+" as plus
+ component "*" as mul
+ component ">" as gt
+
+ n --> gt
+ counter -left-> gt
+
+ counter -> mul
+ product -> mul
+ interface "*→p" as mp
+
+ mul -down- mp
+ mp -down-> product 
+
+ one -left-> plus
+ counter -up-> plus
+ interface "+→c" as pc
+ plus -down- pc
+ pc -down-> counter
+
+ @enduml
+ #+end_src
+
+ #+RESULTS:
+ [[file:exercise-5-1.png]]
+
+ The controller is approximately the following: 
+  1. put the argument into ~n~
+  2. put 1 in ~counter~
+  3. put 1 in ~product~
+  4. if > 
+  5. *→p
+  6. +→c
+
+ #+begin_src plantuml :exports both :file figure-5-2-controller.png
+ @startuml
+ skinparam monochrome true
+
+ start
+ while (>) is (no)
+   :∗→p;
+   :+→c;
+ endwhile (yes)
+ stop
+
+ @enduml
+ #+end_src
+
+ #+RESULTS:
+ [[file:figure-5-2-controller.png]]
+
+ Ugly, but seems correct. 
+
+**** DONE Exercise 5.2 Register machine language description of Exercise 5.1
+     CLOSED: [2020-02-23 Sun 13:26]
+
+ #+begin_src scheme :exports code
+   (controller
+    test-b
+    (test (op >) (reg counter) (reg n))
+    (branch (label factorial-done))
+    (assign product (op *) (reg product) (reg counter))
+    (assign counter (op +) (reg counter) (const 1))
+    (goto (label test-b))
+    factorial-done)
+ #+end_src
+
+**** DONE Exercise 5.3 Machine for ~sqrt~ using Newton Method
+     CLOSED: [2020-02-23 Sun 20:47]
+As usual with PlantUML, it's a big ugly, but good enough.
+
+***** Simple version
+
+#+begin_src plantuml :exports both :file exercise-5-3-dataflow-simple.png
+  @startuml
+  skinparam monochrome true
+  
+  component 1 as one
+  component guess as guess
+  interface "1→guess" as og
+  one -down- og
+  og  -down-> guess
+
+  package "good-enough?" as goodenough {
+  }
+  guess -right-> goodenough
+
+  package "improve " as improve {
+  }
+  
+  guess -left-> improve
+  interface "i→g" as itog
+  improve -right- itog
+  itog -right-> guess
+
+  component x as x
+  x -down-> goodenough
+  
+  @enduml
 #+end_src
 
 #+RESULTS:
-[[file:figure-5-1.png]]
+[[file:exercise-5-3-dataflow-simple.png]]
 
-*** DONE Figure 5.2 Controller for a GCD Machine
-    CLOSED: [2020-02-22 Sat 22:27]
 
-#+begin_src plantuml :exports both :file figure-5-2.png
-@startuml
-skinparam monochrome true
+#+begin_src scheme :exports code
+(controller 
+  test-guess
+    (test (op good-enough?) (reg x) (reg guess))
+    (branch (label sqrt-done))
+    (assign guess (op improve) (reg guess))
+    (goto (label test-guess))
+  sqrt-done)
+#+end_src
 
-start
-while (=) is (no)
-  :t->r;
-  :a->b;
-  :b->t;
-endwhile (yes)
-stop
+***** Expanding ~good-enough?~
 
-@enduml
+#+begin_src plantuml :exports both :file exercise-5-3-dataflow-good-enough.png :noweb false
+  @startuml
+  skinparam monochrome true
+  
+  component 1 <<const>> as one
+  component guess <<reg>> as guess
+  interface "1→guess" <<assign>> as og
+  one -down- og
+  og  -down-> guess
+
+  package "good-enough?" as goodenough_package {
+  component square <<op>> as goodenough
+  component abs <<op>> as abs
+  component "−" <<op>> as minus
+  component ">" <<op>> as gt
+  component "0.001" <<const>> as thresh
+  component "square-result" <<reg>> as sqres
+  interface "s→sr" <<assign>> as runsquare
+  goodenough -right- runsquare
+  runsquare -right-> sqres
+  sqres -up-> minus
+  component "minus-result" <<reg>> as minres
+  interface "m→mr" <<assign>> as runminus
+  minus -up- runminus
+  runminus -up-> minres
+  minres -left-> abs
+  interface "a→absres" <<assign>> as runabs
+  abs -down- runabs
+  component "abs-result" <<reg>> as absres
+  runabs -down->absres
+  absres -left-> gt
+  thresh -down- gt
+'  goodenough -[hidden]up- thresh
+  }
+  guess -right-> goodenough
+
+  package "improve " <<op>> as improve {
+  }
+  
+  guess -left-> improve
+  interface "i→g" <<assign>> as itog
+  improve -right- itog
+  itog -right-> guess
+
+  component x <<reg>> as x
+  x -left-> minus
+  
+  @enduml
 #+end_src
 
 #+RESULTS:
-[[file:figure-5-2.png]]
+[[file:exercise-5-3-dataflow-good-enough.png]]
 
-Ugly, but working.
+#+begin_src scheme :exports code
+(controller 
+    (assign guess (const 1))
+  test-guess
+    (assign square-result (op square) (reg guess))
+    (assign minus-result  (op -) (reg x) (reg square-result))
+    (assign abs-result (op abs) (reg minus-result))
+    (test (op >) (reg abs-result) (const 0.001))
+    (branch (label sqrt-done))
+    (assign guess (op improve) (reg guess))
+    (goto (label test-guess))
+  sqrt-done)
+#+end_src
 
-*** DONE Exercise 5.1 Register machine plot
-    CLOSED: [2020-02-22 Sat 22:56]
-#+begin_src plantuml :exports both :file exercise-5-1-dataflow.png
-@startuml
-skinparam monochrome true
-component n as n
-component product as product
-component counter as counter
+***** Expanding ~improve~
 
-component 1 as one
-component "+" as plus
-component "*" as mul
-component ">" as gt
 
-n --> gt
-counter -left-> gt
+#+begin_src plantuml :exports both :file exercise-5-3-dataflow-good-enough-improve.png :noweb false
+  @startuml
+  skinparam monochrome true
+  
+  component 1 <<const>> as one
+  component guess <<reg>> as guess
+  interface "1→guess" <<assign>> as og
+  one -up- og
+  og  -up-> guess
 
-counter -> mul
-product -> mul
-interface "*→p" as mp
+  package "good-enough?" as goodenough_package {
+  component square <<op>> as goodenough
+  component abs <<op>> as abs
+  component "−" <<op>> as minus
+  component ">" <<op>> as gt
+  component "0.001" <<const>> as thresh
+  component "square-result" <<reg>> as sqres
+  interface "s→sr" <<assign>> as runsquare
+  goodenough -- runsquare
+  runsquare --> sqres
+  sqres -up-> minus
+  component "minus-result" <<reg>> as minres
+  interface "m→mr" <<assign>> as runminus
+  minus -up- runminus
+  runminus -up-> minres
+  minres -left-> abs
+  interface "a→absres" <<assign>> as runabs
+  abs -down- runabs
+  component "abs-result" <<reg>> as absres
+  runabs -down->absres
+  absres -left-> gt
+  thresh -down- gt
+'  goodenough -[hidden]up- thresh
+  }
+  guess --> goodenough
 
-mul -down- mp
-mp -down-> product 
+  package "improve " as improve {
+  component "/" <<op>> as div
+  component "div-res" <<reg>> as divres
+  interface "/→" as rundiv
+  div - rundiv
+  rundiv -> divres
+  component average <<op>> as average
+  divres --> average
+  
+  }
+  
+  guess -left-> div
+  interface "i→g" <<assign>> as itog
+  average -down- itog
+  itog --> guess
 
-one -left-> plus
-counter -up-> plus
-interface "+→c" as pc
-plus -down- pc
-pc -down-> counter
-
-@enduml
+  component x <<reg>> as x
+  x --> minus
+  x -> div  
+  x --> average
+  @enduml
 #+end_src
 
 #+RESULTS:
-[[file:exercise-5-1.png]]
+[[file:exercise-5-3-dataflow-good-enough-improve.png]]
 
-The controller is approximately the following: 
- 1. put the argument into ~n~
- 2. put 1 in ~counter~
- 3. put 1 in ~product~
- 4. if > 
- 5. *→p
- 6. +→c
-
-#+begin_src plantuml :exports both :file figure-5-2-controller.png
-@startuml
-skinparam monochrome true
-
-start
-while (>) is (no)
-  :∗→p;
-  :+→c;
-endwhile (yes)
-stop
-
-@enduml
+#+begin_src scheme :exports code
+(controller 
+    (assign guess (const 1))
+  test-guess
+    (assign square-result (op square) (reg guess))
+    (assign minus-result  (op -) (reg x) (reg square-result))
+    (assign abs-result (op abs) (reg minus-result))
+    (test (op >) (reg abs-result) (const 0.001))
+    (branch (label sqrt-done))
+    (assign div-res (op /) (reg x) (reg guess))
+    (assign guess (op average) (reg x) (reg div-res))
+    (goto (label test-guess))
+  sqrt-done)
 #+end_src
 
-#+RESULTS:
-[[file:figure-5-2-controller.png]]
+**** TODO Exercise 5.4 
 
-Ugly, but seems correct. 
+**** TODO Exercise 5.5
 
-*** TODO Exercise 5.2 
+**** TODO Exercise 5.6
 
-*** TODO Exercise 5.3
+*** 5.2 Register-Machine Simulator [0/13]
+**** TODO Exercise 5.7
 
-*** TODO Exercise 5.4
+**** TODO Exercise 5.8
 
-*** TODO Exercise 5.5
+**** TODO Exercise 5.9
 
-*** TODO Exercise 5.6
+**** TODO Exercise 5.10
 
-*** TODO Exercise 5.7
+**** TODO Exercise 5.11
 
-*** TODO Exercise 5.8
+**** TODO Exercise 5.12
 
-*** TODO Exercise 5.9
+**** TODO Exercise 5.13
 
-*** TODO Exercise 5.10
+**** TODO Exercise 5.14
 
-*** TODO Exercise 5.11
+**** TODO Exercise 5.15
 
-*** TODO Exercise 5.12
+**** TODO Exercise 5.16
 
-*** TODO Exercise 5.13
+**** TODO Exercise 5.17
 
-*** TODO Exercise 5.14
+**** TODO Exercise 5.18
 
-*** TODO Exercise 5.15
+**** TODO Exercise 5.19
 
-*** TODO Exercise 5.16
+*** 5.3 Storage Allocation and Garbage Collection [0/3]
+**** TODO Exercise 5.20
 
-*** TODO Exercise 5.17
+**** TODO Exercise 5.21
 
-*** TODO Exercise 5.18
+**** TODO Exercise 5.22
 
-*** TODO Exercise 5.19
+*** 5.4 The Explicit-Control Evaluator [0/8]
+**** TODO Exercise 5.23
 
-*** TODO Exercise 5.20
+**** TODO Exercise 5.24
 
-*** TODO Exercise 5.21
+**** TODO Exercise 5.25
 
-*** TODO Exercise 5.22
+**** TODO Exercise 5.26
 
-*** TODO Exercise 5.23
+**** TODO Exercise 5.27
 
-*** TODO Exercise 5.24
+**** TODO Exercise 5.28
 
-*** TODO Exercise 5.25
+**** TODO Exercise 5.29
 
-*** TODO Exercise 5.26
+**** TODO Exercise 5.30
+*** 5.5 Compilation [0/22]
+**** TODO Exercise 5.31
 
-*** TODO Exercise 5.27
+**** TODO Exercise 5.32
 
-*** TODO Exercise 5.28
+**** TODO Exercise 5.33
 
-*** TODO Exercise 5.29
+**** TODO Exercise 5.34
 
-*** TODO Exercise 5.30
+**** TODO Exercise 5.35
 
-*** TODO Exercise 5.31
+**** TODO Exercise 5.36
 
-*** TODO Exercise 5.32
+**** TODO Exercise 5.37
 
-*** TODO Exercise 5.33
+**** TODO Exercise 5.38
 
-*** TODO Exercise 5.34
+**** TODO Exercise 5.39
 
-*** TODO Exercise 5.35
+**** TODO Exercise 5.40
 
-*** TODO Exercise 5.36
+**** TODO Exercise 5.41
 
-*** TODO Exercise 5.37
+**** TODO Exercise 5.42
 
-*** TODO Exercise 5.38
+**** TODO Exercise 5.43
 
-*** TODO Exercise 5.39
+**** TODO Exercise 5.44
 
-*** TODO Exercise 5.40
+**** TODO Exercise 5.45
 
-*** TODO Exercise 5.41
+**** TODO Exercise 5.46
 
-*** TODO Exercise 5.42
+**** TODO Exercise 5.47
 
-*** TODO Exercise 5.43
+**** TODO Exercise 5.48
 
-*** TODO Exercise 5.44
+**** TODO Exercise 5.49
 
-*** TODO Exercise 5.45
+**** TODO Exercise 5.50
 
-*** TODO Exercise 5.46
+**** TODO Exercise 5.51
 
-*** TODO Exercise 5.47
-
-*** TODO Exercise 5.48
-
-*** TODO Exercise 5.49
-
-*** TODO Exercise 5.50
-
-*** TODO Exercise 5.51
-
-*** TODO Exercise 5.52
+**** TODO Exercise 5.52
 
 * Footnotes
 
