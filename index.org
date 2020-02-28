@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2020-02-28 12:52:02 lockywolf>
+# Time-stamp: <2020-02-28 13:20:40 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -1592,9 +1592,13 @@ As usualy, let's first copy the code of ~fib-iter~.
 The formula for \(T\) is the following:
 
 \begin{eqnarray}
-T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix} aq+bq+ap \\ bp + aq \end{pmatrix} &\\ 
-T_{pq} \left( T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} \right) & = & \begin{pmatrix} (aq+bq+ap)q+(bp + aq)q+(aq+bq+ap)p \\ (bp + aq)p + (aq+bq+ap)q \end{pmatrix} &\\
-T_{p'q'}\begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix}a(2pq + qq) + a(pp+qq) + b(2pq + qq)\\ a(2pq + qq) + b(pp + qq) \end{pmatrix}& \\
+T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix} aq+bq+ap
+ \\ bp + aq \end{pmatrix} &\\ 
+T_{pq} \left( T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} \right) 
+& = & \begin{pmatrix} (aq+bq+ap)q+(bp + aq)q+(aq+bq+ap)p \\ 
+(bp + aq)p + (aq+bq+ap)q \end{pmatrix} &\\
+T_{p'q'}\begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix}a(2pq + qq)
+ + a(pp+qq) + b(2pq + qq)\\ a(2pq + qq) + b(pp + qq) \end{pmatrix}& \\
 \end{eqnarray}
 From here we can easily see the values for \(p\prime\) and \(q'\):
 # \(a(2pq + qq) + a(pp+qq) + b(2pq + qq)\)
@@ -5088,8 +5092,6 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 
 #+begin_src scheme :exports both :results value :noweb-ref wave-bitmap
   (define (wave frame)
-    #;(convert white.gif \( -distort "Affine" "1,1 1,1  1,149 1,200  180,1 200,1"  rogers.png \) -composite  output.gif)
-    #;(convert rogers.png  -alpha set -virtual-pixel transparent +distort affine "1,1 1,1 1,50 1,50 50,1 50,50" -background transparent -splice "50x50" output.png)
     (system "convert" 
 	     (canvas-file-name)
 	     "("
@@ -6259,7 +6261,8 @@ find a serious bug in my implementation of "accumulate".
 *** DONE Exercise 2.59 union-set
     CLOSED: [2019-09-25 Wed 22:00]
 
-#+begin_src scheme :exports both :results value :noweb-ref element-of-set
+#+name: element-of-set
+#+begin_src scheme :exports both :results value
 
   (define (element-of-set? x set)
     (cond ((null? set) false)
@@ -6267,7 +6270,8 @@ find a serious bug in my implementation of "accumulate".
 	  (else (element-of-set? x (cdr set)))))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref union-set
+#+name: union-set
+#+begin_src scheme :exports both :results value
 <<element-of-set>>
   (define (union-set set1 set2)
     (append set1 (filter (lambda (x) (not (element-of-set? x set1))) set2)))
@@ -6567,7 +6571,8 @@ The excellent property of the ~list->tree~ procedure is that is asserts that
 the list given as an argument is already sorted in some way appropriate for
 this represented data. Therefore we can use the function verbatim.
 
-#+begin_src scheme :exports both :results raw value :noweb-ref tree-lookup
+#+name: tree-lookup
+#+begin_src scheme :exports both :results raw value
   (define-record-type dict-entry-type
   (dict-entry x y)
   dict-entry?
@@ -6599,7 +6604,8 @@ necessary here, but I used it do add more "encapsulation" to the data base.
 *** DONE Exercise 2.67 Huffman decode a simple message
     CLOSED: [2019-10-09 Wed 20:20]
 
-#+begin_src scheme :exports both :results value :noweb-ref huffman-base
+#+name: huffman-base
+#+begin_src scheme :exports both :results value
      (define (make-leaf symbol weight)
        (list 'leaf symbol weight))
 
@@ -6662,7 +6668,8 @@ necessary here, but I used it do add more "encapsulation" to the data base.
 #+RESULTS:
 : #<undef>
 
-#+begin_src scheme :exports both :results value :noweb-ref huffman-sample-tree
+#+name:  huffman-sample-tree
+#+begin_src scheme :exports both :results value
   (define sample-tree
     (make-code-tree (make-leaf 'A 4)
 		    (make-code-tree
@@ -6689,7 +6696,8 @@ chapter code is actually working.
 *** DONE Exercise 2.68 Huffman encode a simple message
     CLOSED: [2019-10-09 Wed 20:53]
 
-#+begin_src scheme :exports both :results raw value :noweb-ref huffman-encode
+#+name: huffman-encode
+#+begin_src scheme :exports both :results raw value
 	(define (encode message tree)
 	  (if (null? message)
 	      '()
@@ -6727,7 +6735,8 @@ I spent an hour trying to debug why my code doesn't work, and it turns out
 that although Abelson and Sussman use the word "pair" for the (symbol,
 weight) tuples, they are actually lists.
 
-#+begin_src scheme :exports both :results value :noweb-ref huffman-generate-tree
+#+name: huffman-generate-tree
+#+begin_src scheme :exports both :results value
      (define (generate-huffman-tree pairs)
        (successive-merge (make-leaf-set pairs)))
      #;(leaf-set is sorted by weight)
@@ -6804,8 +6813,8 @@ Let's generate a tree first:
 		     Sha boom
 		     ))
   (define encoded-song (encode song coding-tree))
-  (show #t encoded-song "\n")
-  (show #t (decode encoded-song coding-tree) "\n")
+  (show #t (pretty encoded-song) "\n")
+  (show #t (pretty (decode encoded-song coding-tree)) "\n")
 #+end_src
 
 #+RESULTS:
@@ -6823,8 +6832,46 @@ Tree:((leaf na 16)
       (na yip Get boom Wah Sha job a)
       36)
 
-(1 1 0 0 1 1 1 1 1 1 1 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 1 1 1 1 1 1 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 0 1 1 0 1 0)
-(Get a job Sha na na na na na na na na Get a job Sha na na na na na na na na Wah yip yip yip yip yip yip yip yip yip Sha boom)
+(1 1 0 0 1 1 1 1 1 1 1 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 1 1 1 1 1 1 0 1
+ 1 1 1 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1
+ 0 0 1 1 0 1 0)
+
+(Get a
+     job
+     Sha
+     na
+     na
+     na
+     na
+     na
+     na
+     na
+     na
+     Get
+     a
+     job
+     Sha
+     na
+     na
+     na
+     na
+     na
+     na
+     na
+     na
+     Wah
+     yip
+     yip
+     yip
+     yip
+     yip
+     yip
+     yip
+     yip
+     yip
+     Sha
+     boom)
+
 #+end_example
 
 *** DONE Exercise 2.71 Huffman tree for frequencies 5 and 10
@@ -7132,7 +7179,8 @@ assume that the company only has two divisions.
      (cdr (list-ref record 1)))
 
   (define division-2-set-of-records
-    (cons 'division-2 (list (list 'placeholder 'WangYi 'salary 100 'address 'neverland) (list 'placeholder 'ZhangEr 'salary 200 'address 'this-world))))
+    (cons 'division-2 (list (list 'placeholder 'WangYi 'salary 100 'address 'neverland)
+ (list 'placeholder 'ZhangEr 'salary 200 'address 'this-world))))
 
   (define (division-2-get-record record-set key)
     (define (crawler records key)
@@ -7151,6 +7199,9 @@ assume that the company only has two divisions.
 
 
 #+end_src
+
+#+RESULTS:
+
 
 #+begin_src scheme :exports both :results output
 <<put-and-get>>
@@ -23911,12 +23962,14 @@ First let's make sure that the pi-stream is working.
 <<streams-partial-sums>>
 <<streams-pi-summands>>
 <<streams-print-n>>
-(stream-print-n pi-stream 10)
+(show #t (pretty (stream-sublist-n pi-stream 10)))
 
 #+end_src
 
 #+RESULTS:
-: 4.0 2.666666666666667 3.466666666666667 2.8952380952380956 3.3396825396825403 2.9760461760461765 3.2837384837384844 3.017071817071818 3.2523659347188767 3.0418396189294032 
+: (4.0                2.666666666666667  3.466666666666667  2.8952380952380956
+:  3.3396825396825403 2.9760461760461765 3.2837384837384844 3.017071817071818
+:  3.2523659347188767 3.0418396189294032)
 
 Now let us do the same for the logarithm of 2.
 
@@ -23959,19 +24012,29 @@ Now let us do the same for the logarithm of 2.
   ((= i 10) #t)
   (show #t (stream-ref (log-summands 1) i) " "))
 (newline)
-(stream-print-n log-stream 10)
+(show #t (pretty (stream-sublist-n log-stream 10)))
 (newline)
-(stream-print-n (euler-transform log-stream) 10)
+(show #t (pretty (stream-sublist-n (euler-transform log-stream) 10)))
 (newline)
-(stream-print-n (accelerated-sequence euler-transform log-stream) 10)
+(show #t (pretty (stream-sublist-n (accelerated-sequence euler-transform log-stream) 10)))
 
 #+end_src
 
 #+RESULTS:
-: 1.0 -0.5 0.3333333333333333 -0.25 0.2 -0.16666666666666666 0.14285714285714285 -0.125 0.1111111111111111 -0.1 
-: 1.0 0.5 0.8333333333333333 0.5833333333333333 0.7833333333333332 0.6166666666666666 0.7595238095238095 0.6345238095238095 0.7456349206349207 0.6456349206349207 
-: 0.7 0.6904761904761905 0.6944444444444444 0.6924242424242424 0.6935897435897436 0.6928571428571428 0.6933473389355742 0.6930033416875522 0.6932539682539683 0.6930657506744464 
-: 1.0 0.7 0.6932773109243697 0.6931488693329254 0.6931471960735491 0.6931471806635636 0.6931471805604039 0.6931471805599445 0.6931471805599427 0.6931471805599454 
+#+begin_example
+1.0 -0.5 0.3333333333333333 -0.25 0.2 -0.16666666666666666 0.14285714285714285 -0.125 0.1111111111111111 -0.1 
+(1.0                0.5                0.8333333333333333 0.5833333333333333
+ 0.7833333333333332 0.6166666666666666 0.7595238095238095 0.6345238095238095
+ 0.7456349206349207 0.6456349206349207)
+
+(0.7                0.6904761904761905 0.6944444444444444 0.6924242424242424
+ 0.6935897435897436 0.6928571428571428 0.6933473389355742 0.6930033416875522
+ 0.6932539682539683 0.6930657506744464)
+
+(1.0                0.7                0.6932773109243697 0.6931488693329254
+ 0.6931471960735491 0.6931471806635636 0.6931471805604039 0.6931471805599445
+ 0.6931471805599427 0.6931471805599454)
+#+end_example
 
 The first stream seems to be converging quite slowly, needing about 10
 steps for 0.01 precision. The "accelerated" sequence converges in
@@ -28639,7 +28702,7 @@ it myself.
 #+name: s-user-prompt-print  
 #+begin_src scheme :exports both :results value
   (define (prompt-for-input string)
-    (newline) (newline) (display string) (newline))
+    #;(newline) #;(newline) (display string) (newline))
   (define (announce-output string)
     (newline) (display string) (newline))
   (define (user-print object)
@@ -30538,7 +30601,7 @@ different interpreters.
 (define (fact a b)
   (if (= a 1) b (fact (- a 1) (* a b))))
 (define starttime (current-second))
-(fact 100 1)
+(define useless (fact 100 1))
 (- (current-second) starttime)
 
 
@@ -30579,53 +30642,51 @@ different interpreters.
 
 #+RESULTS: analyzing-speed-test
 #+begin_example
-
-
 ;;; M-Eval input:
-starting testing
-;;; M-Eval value:
-starting testing
+"starting testing"
 
+;;; M-Eval value:
+"starting testing"
 ;;; M-Eval input:
 (define (fact a b) (if (= a 1) b (fact (- a 1) (* a b))))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define starttime (current-second))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
-(fact 100 1)
-;;; M-Eval value:
-93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000
+(define useless (fact 100 1))
 
+;;; M-Eval value:
+ok
 ;;; M-Eval input:
 (- (current-second) starttime)
-;;; M-Eval value:
-0.006088972091674805
 
+;;; M-Eval value:
+0.017518043518066406
 ;;; M-Eval input:
-(define (simple-rec ntimes) (if (= ntimes 1) (quote ok) (simple-rec (- ntimes 1))))
+(define (simple-rec ntimes) (if (= ntimes 1) 'ok (simple-rec (- ntimes 1))))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define starttime (current-second))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (simple-rec 100000)
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (- (current-second) starttime)
-;;; M-Eval value:
-4.303112983703613
 
+;;; M-Eval value:
+3.294917106628418
 ;;; M-Eval input:
 (exit)
 #+end_example
@@ -30666,53 +30727,51 @@ ok
 
 #+RESULTS: original-speed-test
 #+begin_example
-
-
 ;;; M-Eval input:
-starting testing
-;;; M-Eval value:
-starting testing
+"starting testing"
 
+;;; M-Eval value:
+"starting testing"
 ;;; M-Eval input:
 (define (fact a b) (if (= a 1) b (fact (- a 1) (* a b))))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define starttime (current-second))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
-(fact 100 1)
-;;; M-Eval value:
-93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000
+(define useless (fact 100 1))
 
+;;; M-Eval value:
+ok
 ;;; M-Eval input:
 (- (current-second) starttime)
-;;; M-Eval value:
-0.018724918365478516
 
+;;; M-Eval value:
+0.021461009979248047
 ;;; M-Eval input:
-(define (simple-rec ntimes) (if (= ntimes 1) (quote ok) (simple-rec (- ntimes 1))))
+(define (simple-rec ntimes) (if (= ntimes 1) 'ok (simple-rec (- ntimes 1))))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define starttime (current-second))
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (simple-rec 100000)
+
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (- (current-second) starttime)
-;;; M-Eval value:
-14.810719966888428
 
+;;; M-Eval value:
+7.133991956710815
 ;;; M-Eval input:
 (exit)
 #+end_example
@@ -30895,9 +30954,9 @@ as a macro.
 	(user-print output)))
     (driver-loop))
   (define (prompt-for-input string)
-    (newline) (newline) (display string) (newline))
+    #;(newline) #;(newline) (display string) (newline))
   (define (announce-output string)
-    (newline) (display string) (newline))
+    #;(newline) (display string) (newline))
   (define (user-print object)
     (if (compound-procedure? object)
 	(show #t (pretty  (list 'compound-procedure
@@ -31892,25 +31951,35 @@ d)rewrite actual-value
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; L-Eval input:
-(define (f a (b lazy) c (d lazy-memo)) (newline) (display a) (newline) (display b) (newline) (display b) (newline) (display c) (newline) (display d) (newline) (display d) (newline) (quote ok))
+(define (f a (b lazy) c (d lazy-memo))
+  (newline)
+  (display a)
+  (newline)
+  (display b)
+  (newline)
+  (display b)
+  (newline)
+  (display c)
+  (newline)
+  (display d)
+  (newline)
+  (display d)
+  (newline)
+  'ok)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(f (quote a) (begin (display "b-l") (quote b)) (quote c) (begin (display "d-l") (quote d)))
+(f 'a (begin (display "b-l") 'b) 'c (begin (display "d-l") 'd))
+
 a
 b-lb
 b-lb
 c
 d-ld
 d
-
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (exit)
 #+end_example
@@ -31994,73 +32063,70 @@ y)
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; L-Eval input:
 (define (cons x y) (lambda (m) (m x y)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (car z) (z (lambda (p q) p)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (cdr z) (z (lambda (p q) q)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+(define (list-ref items n)
+  (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (map proc items) (if (null? items) (quote ()) (cons (proc (car items)) (map proc (cdr items)))))
+(define (map proc items)
+  (if (null? items) '() (cons (proc (car items)) (map proc (cdr items)))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (scale-list items factor) (map (lambda (x) (* x factor)) items))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (add-lists list1 list2) (cond ((null? list1) list2) ((null? list2) list1) (else (cons (+ (car list1) (car list2)) (add-lists (cdr list1) (cdr list2))))))
+(define (add-lists list1 list2)
+  (cond ((null? list1) list2)
+        ((null? list2) list1)
+        (else
+         (cons (+ (car list1) (car list2))
+               (add-lists (cdr list1) (cdr list2))))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define ones (cons 1 ones))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define integers (cons 1 (add-lists ones integers)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (list-ref integers 17)
 ;;; L-Eval value:
 18
-
 ;;; L-Eval input:
-(define (integral integrand initial-value dt) (define int (cons initial-value (add-lists (scale-list integrand dt) int))) int)
+(define (integral integrand initial-value dt)
+  (define int (cons initial-value (add-lists (scale-list integrand dt) int)))
+  int)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (solve f y0 dt) (define y (integral dy y0 dt)) (define dy (map f y)) y)
+(define (solve f y0 dt)
+  (define y (integral dy y0 dt))
+  (define dy (map f y))
+  y)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (list-ref (solve (lambda (x) x) 1 0.001) 1000)
 ;;; L-Eval value:
 2.716923932235896
-
 ;;; L-Eval input:
 (exit)
 #+end_example
@@ -32339,78 +32405,69 @@ Yay, a tree. You can't do it with simple "streams".
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; L-Eval input:
-(define test1 (quote (test input1 input2)))
+(define test1 '(test input1 input2))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(quote (test input1 input2))
+'(test input1 input2)
 ;;; L-Eval value:
 (test input1 input2)
-
 ;;; L-Eval input:
 (define (cons x y) (lambda (m) (m x y)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (car z) (z (lambda (p q) p)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (cdr z) (z (lambda (p q) q)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+(define (list-ref items n)
+  (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (map proc items) (if (null? items) (quote ()) (cons (proc (car items)) (map proc (cdr items)))))
+(define (map proc items)
+  (if (null? items) '() (cons (proc (car items)) (map proc (cdr items)))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (scale-list items factor) (map (lambda (x) (* x factor)) items))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (add-lists list1 list2) (cond ((null? list1) list2) ((null? list2) list1) (else (cons (+ (car list1) (car list2)) (add-lists (cdr list1) (cdr list2))))))
+(define (add-lists list1 list2)
+  (cond ((null? list1) list2)
+        ((null? list2) list1)
+        (else
+         (cons (+ (car list1) (car list2))
+               (add-lists (cdr list1) (cdr list2))))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define ones (cons 1 ones))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define integers (cons 1 (add-lists ones integers)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-Testing Ben's work
+"Testing Ben's work"
 ;;; L-Eval value:
-Testing Ben's work
-
+"Testing Ben's work"
 ;;; L-Eval input:
-(car (quote (a b c)))
+(car '(a b c))
 ;;; L-Eval value:
 a
-
 ;;; L-Eval input:
-(quote (quote (a b c)))
+''(a b c)
 ;;; L-Eval value:
 (compound-procedure (m) ((m x y)) <procedure-env>)
-
 ;;; L-Eval input:
 (exit)
 #+end_example
@@ -32820,109 +32877,122 @@ EOF
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; Amb-Eval input:
-(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m))))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m))
+        (else (remainder (* base (expmod base (- exp 1) m)) m))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
 (define (random x) (random-integer x))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+(define (fermat-test n)
+  (define (try-it a) (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
 (define prime-test fermat-test)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (fast-prime? n times) (cond ((= times 0) true) ((prime-test n) (fast-prime? n (- times 1))) (else false)))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((prime-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
 (define true #t)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
 (define false #f)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
 (define (prime? x) (fast-prime? x 10))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
 (prime? 7)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 #t
-
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
+(prime-sum-pair '(1 3 5 8) '(20 35 110))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (3 20)
-
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (3 110)
-
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (8 35)
-
 ;;; Amb-Eval input:
 try-again
-;;; There are no more values of
-(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
 
+;;; There are no more values of
+(prime-sum-pair '(1 3 5 8) '(20 35 110))
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -33010,140 +33080,208 @@ EOF
 
 
 ;;; Amb-Eval input:
-(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m))))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m))
+        (else (remainder (* base (expmod base (- exp 1) m)) m))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (random x) (random-integer x))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+(define (fermat-test n)
+  (define (try-it a) (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define prime-test fermat-test)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (fast-prime? n times) (cond ((= times 0) true) ((prime-test n) (fast-prime? n (- times 1))) (else false)))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((prime-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define true #t)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define false #f)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (prime? x) (fast-prime? x 10))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
 (prime? 7)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 #t
 
+
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
+(prime-sum-pair '(1 3 5 8) '(20 35 110))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (3 20)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (3 110)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (8 35)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
+(prime-sum-pair '(1 3 5 8) '(20 35 110))
+
 
 ;;; Amb-Eval input:
-New problem
+"New problem"
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-New problem
+"New problem"
+
 
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (a-pythagorean-triple-between 0 10)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (0 0 0)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (0 1 1)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (0 2 2)
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -33228,156 +33366,235 @@ EOF
 
 
 ;;; Amb-Eval input:
-(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m))))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m))
+        (else (remainder (* base (expmod base (- exp 1) m)) m))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (random x) (random-integer x))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+(define (fermat-test n)
+  (define (try-it a) (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define prime-test fermat-test)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (fast-prime? n times) (cond ((= times 0) true) ((prime-test n) (fast-prime? n (- times 1))) (else false)))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((prime-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define true #t)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define false #f)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (prime? x) (fast-prime? x 10))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
 (prime? 7)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 #t
 
+
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
+(prime-sum-pair '(1 3 5 8) '(20 35 110))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (3 20)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (3 110)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (8 35)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
+(prime-sum-pair '(1 3 5 8) '(20 35 110))
+
 
 ;;; Amb-Eval input:
-New problem
+"New problem"
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-New problem
+"New problem"
+
 
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+
+
+;;; Amb-Eval input:
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
-;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
 
 ;;; Amb-Eval input:
 (a-pythagorean-triple-from 0)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (3 4 5)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (6 8 10)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (5 12 13)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (9 12 15)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (8 15 17)
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -33939,16 +34156,12 @@ floors it is \[\prod_i^m(n-i)\].
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
 
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (an-element-of items)
   (require (not (null? items)))
@@ -33957,8 +34170,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (an-integer-starting-from n)
   (amb n (an-integer-starting-from (+ n 1))))
@@ -33966,8 +34177,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (prime-sum-pair list1 list2)
   (let ((a (an-element-of list1)) (b (an-element-of list2)))
@@ -33977,8 +34186,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (an-integer-between n k)
   (require (< n k))
@@ -33987,8 +34194,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (a-pythagorean-triple-between low high)
   (let ((i (an-integer-between low high)))
@@ -34000,8 +34205,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (a-pythagorean-triple-from start)
   (let ((k (an-integer-starting-from start)))
@@ -34013,8 +34216,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (distinct? items)
   (cond ((null? items) true)
@@ -34025,8 +34226,6 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (define (multiple-dwelling)
   (let ((baker (amb 1 2 3 4 5)))
@@ -34051,44 +34250,30 @@ ok
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
-
 ;;; Amb-Eval input:
 (multiple-dwelling)
 
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ((baker 3) (cooper 2) (fletcher 4) (miller 5) (smith 1))
-
-
 ;;; Amb-Eval input:
 try-again
 
 ;;; There are no more values of
 (multiple-dwelling)
-
-
 ;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem
-
-;;; Amb-Eval input:
+;;; There is no current problem;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem
-
-;;; Amb-Eval input:
+;;; There is no current problem;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem
-
-;;; Amb-Eval input:
+;;; There is no current problem;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem
-
-;;; Amb-Eval input:
+;;; There is no current problem;;; Amb-Eval input:
 (exit)
 
 ;;; Starting a new problem 
@@ -34102,37 +34287,58 @@ Turned out to be easy.
 A long and painful exercise.
 
 #+begin_src scheme :exports both :results output
-(define false #f)
-(define true #t)
-<<s-amb-distinct>>
+  (define false #f)
+  (define true #t)
+  <<s-amb-distinct>>
 
-(display    (let loop1 ((baker '(1 2 3 4 5)))
-      (let ((retval (let loop2 ((cooper '(1 2 3 4 5)))
-		     (let ((retval (let loop3 ((fletcher '(1 2 3 4 5))) 
-				    (let ((retval (let loop4 ((miller '(1 2 3 4 5)))
-						   (let ((retval (let loop5 ((smith '(1 2 3 4 5)))
-								  (if (and (not (= (car    baker) 5))
-									   (not (= (car   cooper) 5))
-									   (not (= (car fletcher) 5))
-									   (not (= (car fletcher) 1))
-									   (not (< (car miller) (car cooper)))
-									   (not (= (abs (- (car smith) (car fletcher))) 1))
-									   (not (= (abs (- (car fletcher) (car cooper))) 1))
-									   (distinct? (list (car baker) (car cooper) (car fletcher) (car miller) (car smith))))
-									   (list (car baker) (car cooper) (car fletcher) (car miller) (car smith))
-									   (if (null? (cdr smith)) #f (loop5 (cdr smith)))))))
-								(if retval
-								    retval
-								    (if (null? (cdr miller)) #f (loop4 (cdr miller))))))))
-						 (if retval
-						     retval
-						     (if (null? (cdr fletcher)) #f (loop3 (cdr fletcher))))))))
-				  (if retval
-				      retval
-				      (if (null? (cdr cooper)) #f (loop2 (cdr cooper))))))))
-		   (if retval
-		       retval
-		       (if (null? (cdr baker)) #f (loop1 (cdr baker)))))))
+  (display    
+   (let loop1 
+       ((baker '(1 2 3 4 5)))
+     (let ((retval 
+	    (let loop2 
+		((cooper '(1 2 3 4 5)))
+	      (let 
+		  ((retval 
+		    (let loop3 
+			((fletcher '(1 2 3 4 5))) 
+		      (let ((retval 
+			     (let loop4 ((miller '(1 2 3 4 5)))
+			       (let ((retval 
+				      (let loop5 ((smith '(1 2 3 4 5)))
+					(if (and (not (= (car    baker) 5))
+						 (not (= (car   cooper) 5))
+						 (not (= (car fletcher) 5))
+						 (not (= (car fletcher) 1))
+						 (not (< (car miller) (car cooper)))
+						 (not (= (abs (- (car smith) 
+								 (car fletcher))) 1))
+						 (not (= (abs (- (car fletcher) 
+								 (car cooper))) 1))
+						 (distinct? (list (car baker) 
+								  (car cooper) 
+								  (car fletcher)
+								  (car miller)
+								  (car smith))))
+					    (list (car baker) (car cooper) 
+						  (car fletcher) (car miller) 
+						  (car smith))
+					    (if (null? (cdr smith)) 
+						#f 
+						(loop5 (cdr smith)))))))
+				 (if retval
+				     retval
+				     (if (null? (cdr miller)) 
+					 #f 
+					 (loop4 (cdr miller))))))))
+			(if retval
+			    retval
+			    (if (null? (cdr fletcher)) #f (loop3 (cdr fletcher))))))))
+		(if retval
+		    retval
+		    (if (null? (cdr cooper)) #f (loop2 (cdr cooper))))))))
+       (if retval
+	   retval
+	   (if (null? (cdr baker)) #f (loop1 (cdr baker)))))))
 #+end_src
 
 #+RESULTS:
@@ -37624,71 +37830,119 @@ try-again
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define count 0)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(let ((x (an-element-of (quote (a b c)))) (y (an-element-of (quote (a b c))))) (permanent-set! count (+ count 1)) (require (not (eq? x y))) (list x y count))
+(let ((x (an-element-of '(a b c))) (y (an-element-of '(a b c))))
+  (permanent-set! count (+ count 1))
+  (require (not (eq? x y)))
+  (list x y count))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (a b 2)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (a c 3)
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -37754,71 +38008,119 @@ Works as expected.
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define count 0)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(let ((x (an-element-of (quote (a b c)))) (y (an-element-of (quote (a b c))))) (set! count (+ count 1)) (require (not (eq? x y))) (list x y count))
+(let ((x (an-element-of '(a b c))) (y (an-element-of '(a b c))))
+  (set! count (+ count 1))
+  (require (not (eq? x y)))
+  (list x y count))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (a b 1)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 (a c 1)
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -37925,52 +38227,61 @@ marked by "try-again" are also unrolled.
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(if-fail (let ((x (an-element-of (quote (1 3 5))))) (require (even? x)) x) (quote all-odd))
+(if-fail (let ((x (an-element-of '(1 3 5)))) (require (even? x)) x) 'all-odd)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 all-odd
-
 ;;; Amb-Eval input:
-(if-fail (let ((x (an-element-of (quote (1 3 5 8))))) (require (even? x)) x) (quote all-odd))
+(if-fail (let ((x (an-element-of '(1 3 5 8)))) (require (even? x)) x)
+         'all-odd)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 8
-
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -38048,114 +38359,191 @@ Just test the code? Hm... too easy to be true.
 
 
 ;;; Amb-Eval input:
-(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m))))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m))
+        (else (remainder (* base (expmod base (- exp 1) m)) m))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (random x) (random-integer x))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+(define (fermat-test n)
+  (define (try-it a) (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define prime-test fermat-test)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (fast-prime? n times) (cond ((= times 0) true) ((prime-test n) (fast-prime? n (- times 1))) (else false)))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((prime-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define true #t)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define false #f)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (prime? x) (fast-prime? x 10))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(let ((pairs (quote ()))) (if-fail (let ((p (prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110))))) (permanent-set! pairs (cons p pairs)) (amb)) pairs))
+(let ((pairs '()))
+  (if-fail
+   (let ((p (prime-sum-pair '(1 3 5 8) '(20 35 110))))
+     (permanent-set! pairs (cons p pairs))
+     (amb))
+   pairs))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ((8 35) (3 110) (3 20))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(let ((pairs (quote ()))) (if-fail (let ((p (prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110))))) (permanent-set! pairs (cons p pairs)) (amb)) pairs))
+(let ((pairs '()))
+  (if-fail
+   (let ((p (prime-sum-pair '(1 3 5 8) '(20 35 110))))
+     (permanent-set! pairs (cons p pairs))
+     (amb))
+   pairs))
+
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -38265,46 +38653,55 @@ And that's it? A neat way to iterate over everything.
 
 #+RESULTS:
 #+begin_example
-
-
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
-
 ;;; Amb-Eval input:
-(if-fail (let ((x (an-element-of (quote (1 3 5))))) (require (even? x)) x) (quote all-odd))
+(if-fail (let ((x (an-element-of '(1 3 5)))) (require (even? x)) x) 'all-odd)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 all-odd
-
 ;;; Amb-Eval input:
-(if-fail (let ((x (an-element-of (quote (1 3 5 8))))) (require (even? x)) x) (quote all-odd))
+(if-fail (let ((x (an-element-of '(1 3 5 8)))) (require (even? x)) x)
+         'all-odd)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 8
-
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -38420,125 +38817,169 @@ add some exercises about the ~call/cc~ operation in the newer RNRS.
 
 ;;; Query input:
 (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Bitdiddle Ben) (computer wizard)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Bitdiddle Ben) 60000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Hacker Alyssa P) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Hacker Alyssa P) 40000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Fect Cy D) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Fect Cy D) 35000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Tweakit Lem E) (computer technician)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Tweakit Lem E) 25000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Reasoner Louis) (computer programmer trainee)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Reasoner Louis) 30000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Warbucks Oliver) (administration big wheel)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Warbucks Oliver) 150000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Scrooge Eben) (accounting chief accountant)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Scrooge Eben) 75000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Cratchet Robert) (accounting scrivener)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Cratchet Robert) 18000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Cratchet Robert) (Scrooge Eben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Aull DeWitt) (administration secretary)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Aull DeWitt) 25000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (computer wizard) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (computer wizard) (computer technician)))
+
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
+
 Assertion added to data base.
 ;;; Query input:
 (job (? x) (computer programmer))
+
 ;;; Query results:
 (job (Fect Cy D) (computer programmer))
 (job (Hacker Alyssa P) (computer programmer))
 ;;; Query input:
 (address (? x) (? y))
+
 ;;; Query results:
 (address (Aull DeWitt) (Slumerville (Onion Square) 5))
 (address (Cratchet Robert) (Allston (N Harvard Street) 16))
@@ -38551,9 +38992,11 @@ Assertion added to data base.
 (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))
 ;;; Query input:
 (supervisor (? x) (? x))
+
 ;;; Query results:
 ;;; Query input:
 (job (? x) (computer (? type)))
+
 ;;; Query results:
 (job (Tweakit Lem E) (computer technician))
 (job (Fect Cy D) (computer programmer))
@@ -38561,6 +39004,7 @@ Assertion added to data base.
 (job (Bitdiddle Ben) (computer wizard))
 ;;; Query input:
 (job (? x) (computer ? type))
+
 ;;; Query results:
 (job (Reasoner Louis) (computer programmer trainee))
 (job (Tweakit Lem E) (computer technician))
@@ -38569,22 +39013,27 @@ Assertion added to data base.
 (job (Bitdiddle Ben) (computer wizard))
 ;;; Query input:
 (and (job (? person) (computer programmer)) (address (? person) (? where)))
+
 ;;; Query results:
 (and (job (Fect Cy D) (computer programmer)) (address (Fect Cy D) (Cambridge (Ames Street) 3)))
 (and (job (Hacker Alyssa P) (computer programmer)) (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
 ;;; Query input:
 (or (supervisor (? x) (Bitdiddle Ben)) (supervisor (? x) (Hacker Alyssa P)))
+
 ;;; Query results:
 (or (supervisor (Tweakit Lem E) (Bitdiddle Ben)) (supervisor (Tweakit Lem E) (Hacker Alyssa P)))
 (or (supervisor (Reasoner Louis) (Bitdiddle Ben)) (supervisor (Reasoner Louis) (Hacker Alyssa P)))
 (or (supervisor (Fect Cy D) (Bitdiddle Ben)) (supervisor (Fect Cy D) (Hacker Alyssa P)))
 (or (supervisor (Hacker Alyssa P) (Bitdiddle Ben)) (supervisor (Hacker Alyssa P) (Hacker Alyssa P)))
 ;;; Query input:
-(and (supervisor (? x) (Bitdiddle Ben)) (not (job (? x) (computer programmer))))
+(and (supervisor (? x) (Bitdiddle Ben))
+     (not (job (? x) (computer programmer))))
+
 ;;; Query results:
 (and (supervisor (Tweakit Lem E) (Bitdiddle Ben)) (not (job (Tweakit Lem E) (computer programmer))))
 ;;; Query input:
 (and (salary (? person) (? amount)) (lisp-value > (? amount) 30000))
+
 ;;; Query results:
 (and (salary (Scrooge Eben) 75000) (lisp-value > 75000 30000))
 (and (salary (Warbucks Oliver) 150000) (lisp-value > 150000 30000))
@@ -38592,41 +39041,65 @@ Assertion added to data base.
 (and (salary (Hacker Alyssa P) 40000) (lisp-value > 40000 30000))
 (and (salary (Bitdiddle Ben) 60000) (lisp-value > 60000 30000))
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
+
 Assertion added to data base.
 ;;; Query input:
 (lives-near (? x) (Bitdiddle Ben))
+
 ;;; Query results:
 (lives-near (Aull DeWitt) (Bitdiddle Ben))
 (lives-near (Reasoner Louis) (Bitdiddle Ben))
 ;;; Query input:
 (and (job (? x) (computer programmer)) (lives-near (? x) (Bitdiddle Ben)))
+
 ;;; Query results:
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
+
 Assertion added to data base.
 ;;; Query input:
 (append-to-form (a b) (c d) (? z))
+
 ;;; Query results:
 (append-to-form (a b) (c d) (a b c d))
 ;;; Query input:
 (append-to-form (a b) (? y) (a b c d))
+
 ;;; Query results:
 (append-to-form (a b) (c d) (a b c d))
 ;;; Query input:
 (append-to-form (? x) (? y) (a b c d))
+
 ;;; Query results:
 (append-to-form (a b c d) () (a b c d))
 (append-to-form () (a b c d) (a b c d))
@@ -38990,6 +39463,9 @@ Assertion added to data base.
 (assert! (can-do-job (computer wizard) (computer technician)))
 Assertion added to data base.
 ;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
 Assertion added to data base.
 ;;; Query input:
@@ -38999,7 +39475,9 @@ Assertion added to data base.
 (and (supervisor (Fect Cy D) (Bitdiddle Ben)) (address (Fect Cy D) (Cambridge (Ames Street) 3)))
 (and (supervisor (Hacker Alyssa P) (Bitdiddle Ben)) (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
 ;;; Query input:
-(and (salary (Bitdiddle Ben) (? amount)) (salary (? name) (? salary)) (lisp-value < (? salary) (? amount)))
+(and (salary (Bitdiddle Ben) (? amount))
+     (salary (? name) (? salary))
+     (lisp-value < (? salary) (? amount)))
 ;;; Query results:
 (and (salary (Bitdiddle Ben) 60000) (salary (Aull DeWitt) 25000) (lisp-value < 25000 60000))
 (and (salary (Bitdiddle Ben) 60000) (salary (Cratchet Robert) 18000) (lisp-value < 18000 60000))
@@ -39008,7 +39486,9 @@ Assertion added to data base.
 (and (salary (Bitdiddle Ben) 60000) (salary (Fect Cy D) 35000) (lisp-value < 35000 60000))
 (and (salary (Bitdiddle Ben) 60000) (salary (Hacker Alyssa P) 40000) (lisp-value < 40000 60000))
 ;;; Query input:
-(and (supervisor (? person) (? name)) (not (job (? name) (computer ? post))) (job (? name) ? x))
+(and (supervisor (? person) (? name))
+     (not (job (? name) (computer ? post)))
+     (job (? name) ? x))
 ;;; Query results:
 (and (supervisor (Aull DeWitt) (Warbucks Oliver)) (not (job (Warbucks Oliver) (computer . ?post))) (job (Warbucks Oliver) (administration big wheel)))
 (and (supervisor (Cratchet Robert) (Scrooge Eben)) (not (job (Scrooge Eben) (computer . ?post))) (job (Scrooge Eben) (accounting chief accountant)))
@@ -39204,36 +39684,61 @@ Assertion added to data base.
 (assert! (can-do-job (computer wizard) (computer technician)))
 Assertion added to data base.
 ;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (same-job (? person1) (? person2)) (and (job (? person1) ? j1) (job (? person2) ? j1) (not (same (? person1) (? person2))))))
+(assert!
+ (rule (same-job (? person1) (? person2))
+       (and (job (? person1) ? j1)
+            (job (? person2) ? j1)
+            (not (same (? person1) (? person2))))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (can-do-job-person (? person1) (? person2)) (and (job (? person1) (? job1)) (job (? person2) (? job2)) (can-do-job (? job2) (? job1)))))
+(assert!
+ (rule (can-do-job-person (? person1) (? person2))
+       (and (job (? person1) (? job1))
+            (job (? person2) (? job2))
+            (can-do-job (? job2) (? job1)))))
 Assertion added to data base.
 ;;; Query input:
 (can-do-job (? job1) (? job2))
 ;;; Query results:
 (can-do-job (administration secretary) (administration big wheel))
+(can-do-job (computer programmer) (computer programmer trainee))
 (can-do-job (computer wizard) (computer technician))
 (can-do-job (computer wizard) (computer programmer))
 ;;; Query input:
@@ -39245,7 +39750,10 @@ Assertion added to data base.
 ;;; Query results:
 (can-do-job-person (Fect Cy D) (Bitdiddle Ben))
 ;;; Query input:
-(assert! (rule (can-replace (? person2) (? person1)) (or (can-do-job-person (? person1) (? person2)) (same-job (? person1) (? person2)))))
+(assert!
+ (rule (can-replace (? person2) (? person1))
+       (or (can-do-job-person (? person1) (? person2))
+           (same-job (? person1) (? person2)))))
 Assertion added to data base.
 ;;; Query input:
 (can-replace (? who) (Fect Cy D))
@@ -39253,7 +39761,11 @@ Assertion added to data base.
 (can-replace (Bitdiddle Ben) (Fect Cy D))
 (can-replace (Hacker Alyssa P) (Fect Cy D))
 ;;; Query input:
-(assert! (rule (has-smaller-salary (? poor) (? rich) (? sa1) (? sa2)) (and (salary (? poor) (? sa1)) (salary (? rich) (? sa2)) (lisp-value < (? sa1) (? sa2)))))
+(assert!
+ (rule (has-smaller-salary (? poor) (? rich) (? sa1) (? sa2))
+       (and (salary (? poor) (? sa1))
+            (salary (? rich) (? sa2))
+            (lisp-value < (? sa1) (? sa2)))))
 Assertion added to data base.
 ;;; Query input:
 (has-smaller-salary (? who) (Bitdiddle Ben) (? sa1) (? sa2))
@@ -39265,7 +39777,13 @@ Assertion added to data base.
 (has-smaller-salary (Fect Cy D) (Bitdiddle Ben) 35000 60000)
 (has-smaller-salary (Hacker Alyssa P) (Bitdiddle Ben) 40000 60000)
 ;;; Query input:
-(assert! (rule (underpaid (? underpaid) (? overpaid) (? salary1) (? salary2)) (and (can-replace (? underpaid) (? overpaid)) (has-smaller-salary (? underpaid) (? overpaid) (? salary1) (? salary2)))))
+(assert!
+ (rule (underpaid (? underpaid) (? overpaid) (? salary1) (? salary2))
+       (and (can-replace (? underpaid) (? overpaid))
+            (has-smaller-salary (? underpaid)
+                                (? overpaid)
+                                (? salary1)
+                                (? salary2)))))
 Assertion added to data base.
 ;;; Query input:
 (underpaid (? underpaid) (? overpaid) (? salary1) (? salary2))
@@ -39332,141 +39850,210 @@ exit
 
 ;;; Query input:
 (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Bitdiddle Ben) (computer wizard)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Bitdiddle Ben) 60000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Hacker Alyssa P) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Hacker Alyssa P) 40000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Fect Cy D) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Fect Cy D) 35000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Tweakit Lem E) (computer technician)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Tweakit Lem E) 25000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Reasoner Louis) (computer programmer trainee)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Reasoner Louis) 30000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Warbucks Oliver) (administration big wheel)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Warbucks Oliver) 150000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Scrooge Eben) (accounting chief accountant)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Scrooge Eben) 75000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Cratchet Robert) (accounting scrivener)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Cratchet Robert) 18000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Cratchet Robert) (Scrooge Eben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Aull DeWitt) (administration secretary)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Aull DeWitt) 25000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (computer wizard) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (computer wizard) (computer technician)))
+
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (big-shot (? person)) (and (job (? person) ((? division) ? rest1)) (or (and (supervisor (? person) (? boss)) (not (job (? boss) ((? division) ? rest2)))) (not (supervisor (? person) (? boss2)))))))
+(assert!
+ (rule (big-shot (? person))
+       (and (job (? person) ((? division) ? rest1))
+            (or
+             (and (supervisor (? person) (? boss))
+                  (not (job (? boss) ((? division) ? rest2))))
+             (not (supervisor (? person) (? boss2)))))))
+
 Assertion added to data base.
 ;;; Query input:
 (big-shot (? who))
+
 ;;; Query results:
 (big-shot (Scrooge Eben))
 (big-shot (Warbucks Oliver))
@@ -39656,25 +40243,41 @@ Assertion added to data base.
 (assert! (can-do-job (computer wizard) (computer technician)))
 Assertion added to data base.
 ;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (meeting accounting (Monday "9am")))
@@ -39700,7 +40303,12 @@ Assertion added to data base.
 ;;; Query results:
 (job (Hacker Alyssa P) (computer programmer))
 ;;; Query input:
-(assert! (rule (meeting-time (? person) (? day-and-time)) (or (and (job (? person) ((? dept) ? rest)) (meeting (? dept) (? day-and-time))) (meeting whole-company (? day-and-time)))))
+(assert!
+ (rule (meeting-time (? person) (? day-and-time))
+       (or
+        (and (job (? person) ((? dept) ? rest))
+             (meeting (? dept) (? day-and-time)))
+        (meeting whole-company (? day-and-time)))))
 Assertion added to data base.
 ;;; Query input:
 (meeting-time (Hacker Alyssa P) (Wednesday ? time))
@@ -39892,25 +40500,41 @@ Assertion added to data base.
 (assert! (can-do-job (computer wizard) (computer technician)))
 Assertion added to data base.
 ;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
 Assertion added to data base.
 ;;; Query input:
 (lives-near (? person) (Hacker Alyssa P))
@@ -39928,7 +40552,10 @@ Assertion added to data base.
 (lives-near (Bitdiddle Ben) (Aull DeWitt))
 (lives-near (Bitdiddle Ben) (Reasoner Louis))
 ;;; Query input:
-(assert! (rule (lives-near-once (? person1) (? person2)) (and (lives-near (? person1) (? person2)) (lisp-value name-is-less (? person1) (? person2)))))
+(assert!
+ (rule (lives-near-once (? person1) (? person2))
+       (and (lives-near (? person1) (? person2))
+            (lisp-value name-is-less (? person1) (? person2)))))
 Assertion added to data base.
 ;;; Query input:
 (lives-near-once (? person1) (? person2))
@@ -40485,25 +41112,41 @@ Assertion added to data base.
 (assert! (can-do-job (computer wizard) (computer technician)))
 Assertion added to data base.
 ;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
 Assertion added to data base.
 ;;; Query input:
 (wheel (? who))
@@ -40868,28 +41511,46 @@ Assertion added to data base.
 (assert! (can-do-job (computer wizard) (computer technician)))
 Assertion added to data base.
 ;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (bens-query (? amount)) (and (job (? x) (computer programmer)) (salary (? x) (? amount)))))
+(assert!
+ (rule (bens-query (? amount))
+       (and (job (? x) (computer programmer)) (salary (? x) (? amount)))))
 Assertion added to data base.
 ;;; Query input:
 (bens-query (? howmuch))
@@ -41675,141 +42336,208 @@ seem to be able to write a symmetric ~reverse~. My bad.
 #+begin_example
 
 ;;; Query input:
-(assert! (rule (lives-near (? person-1) (? person-2)) (and (address (? person-1) ((? town) ? rest-1)) (address (? person-2) ((? town) ? rest-2)) (not (same (? person-1) (? person-2))))))
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (same (? x) (? x))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (wheel (? person)) (and (supervisor (? middle-manager) (? person)) (supervisor (? x) (? middle-manager)))))
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (supervisor (? staff-person) (? middle-manager)) (outranked-by (? middle-manager) (? boss))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (append-to-form () (? y) (? y))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z)) (append-to-form (? v) (? y) (? z))))
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (bad-reverse (() ? x) ((? x)))))
+
 Assertion added to data base.
 ;;; Query input:
 (bad-reverse (? x) (a))
+
 ;;; Query results:
 (bad-reverse (() . a) (a))
 ;;; Query input:
 (assert! (rule (empty-list ())))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (one-element-listp ((? x) ? y)) (empty-list (? y))))
+
 Assertion added to data base.
 ;;; Query input:
 (one-element-listp (a))
+
 ;;; Query results:
 (one-element-listp (a))
 ;;; Query input:
 (one-element-listp (b a))
+
 ;;; Query results:
 ;;; Query input:
-(assert! (rule (not-list (? x)) (and (not (empty-list (? x))) (not (same ((? a) ? b) (? x))))))
+(assert!
+ (rule (not-list (? x))
+       (and (not (empty-list (? x))) (not (same ((? a) ? b) (? x))))))
+
 Assertion added to data base.
 ;;; Query input:
 (not-list a)
+
 ;;; Query results:
 (not-list a)
 ;;; Query input:
 (not-list (a))
+
 ;;; Query results:
 ;;; Query input:
 (assert! (rule (carcdr ((? car) ? cdr) (? car) (? cdr))))
+
 Assertion added to data base.
 ;;; Query input:
 (carcdr (a b) (? car) (? cdr))
+
 ;;; Query results:
 (carcdr (a b) a (b))
 ;;; Query input:
 (carcdr (? l) a (b))
+
 ;;; Query results:
 (carcdr (a b) a (b))
 ;;; Query input:
-(assert! (rule (last-element (? x) (? e)) (and (carcdr (? x) (? car) (? cdr)) (or (and (empty-list (? cdr)) (same (? e) (? car))) (last-element (? cdr) (? e))))))
+(assert!
+ (rule (last-element (? x) (? e))
+       (and (carcdr (? x) (? car) (? cdr))
+            (or (and (empty-list (? cdr)) (same (? e) (? car)))
+                (last-element (? cdr) (? e))))))
+
 Assertion added to data base.
 ;;; Query input:
 (last-element (a b c) (? e))
+
 ;;; Query results:
 (last-element (a b c) c)
 ;;; Query input:
 (append-to-form (a b) c (? form))
+
 ;;; Query results:
 (append-to-form (a b) c (a b . c))
 ;;; Query input:
 (append-to-form (a b) (c) (? form))
+
 ;;; Query results:
 (append-to-form (a b) (c) (a b c))
 ;;; Query input:
-(assert! (rule (all-but-last (? l) (? abl) (? e)) (and (last-element (? l) (? e)) (append-to-form (? abl) ((? e)) (? l)))))
+(assert!
+ (rule (all-but-last (? l) (? abl) (? e))
+       (and (last-element (? l) (? e)) (append-to-form (? abl) ((? e)) (? l)))))
+
 Assertion added to data base.
 ;;; Query input:
 (all-but-last (a b c) (? abl) (? e))
+
 ;;; Query results:
 (all-but-last (a b c) (a b) c)
 ;;; Query input:
 (assert! (rule (reverse-left () ())))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (reverse-left (? a) (? b)) (and (carcdr (? a) (? car) (? cdr)) (reverse-left (? cdr) (? rcdr)) (append-to-form (? rcdr) ((? car)) (? b)))))
+(assert!
+ (rule (reverse-left (? a) (? b))
+       (and (carcdr (? a) (? car) (? cdr))
+            (reverse-left (? cdr) (? rcdr))
+            (append-to-form (? rcdr) ((? car)) (? b)))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (reverse-right () ())))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (reverse-right (? a) (? b)) (and (carcdr (? b) (? car) (? cdr)) (reverse-right (? rcdr) (? cdr)) (append-to-form (? rcdr) ((? car)) (? a)))))
+(assert!
+ (rule (reverse-right (? a) (? b))
+       (and (carcdr (? b) (? car) (? cdr))
+            (reverse-right (? rcdr) (? cdr))
+            (append-to-form (? rcdr) ((? car)) (? a)))))
+
 Assertion added to data base.
 ;;; Query input:
 (reverse-left () (? y))
+
 ;;; Query results:
 (reverse-left () ())
 ;;; Query input:
 (reverse-left (a) (? y))
+
 ;;; Query results:
 (reverse-left (a) (a))
 ;;; Query input:
 (reverse-left (a b) (? y))
+
 ;;; Query results:
 (reverse-left (a b) (b a))
 ;;; Query input:
 (reverse-left (a b c) (? y))
+
 ;;; Query results:
 (reverse-left (a b c) (c b a))
 ;;; Query input:
 (reverse-right (? x) (a b c))
+
 ;;; Query results:
 (reverse-right (c b a) (a b c))
 ;;; Query input:
-(assert! (rule (palindrome (? x)) (and (reverse-left (? x) (? rx)) (same (? x) (? rx)))))
+(assert!
+ (rule (palindrome (? x))
+       (and (reverse-left (? x) (? rx)) (same (? x) (? rx)))))
+
 Assertion added to data base.
 ;;; Query input:
 (palindrome (1 2 2 1))
+
 ;;; Query results:
 (palindrome (1 2 2 1))
 ;;; Query input:
-(assert! (rule (interleave (? x) (? y) (? z)) (or (and (empty-list (? x)) (same (? y) (? z))) (and (empty-list (? y)) (same (? y) (? z))))))
+(assert!
+ (rule (interleave (? x) (? y) (? z))
+       (or (and (empty-list (? x)) (same (? y) (? z)))
+           (and (empty-list (? y)) (same (? y) (? z))))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (interleave (? x) (? y) (? res)) (and (and (carcdr (? x) (? x-car) (? x-cdr)) (carcdr (? y) (? y-car) (? y-cdr))) (interleave (? x-cdr) (? y-cdr) (? int)) (append-to-form ((? x-car) (? y-car)) (? int) (? res)))))
+(assert!
+ (rule (interleave (? x) (? y) (? res))
+       (and
+        (and (carcdr (? x) (? x-car) (? x-cdr))
+             (carcdr (? y) (? y-car) (? y-cdr)))
+        (interleave (? x-cdr) (? y-cdr) (? int))
+        (append-to-form ((? x-car) (? y-car)) (? int) (? res)))))
+
 Assertion added to data base.
-;;; Query input:
-(assert! (rule (reverse () ())))
-Assertion added to data base.
-;;; Query input:
-(assert! (rule (reverse (? x) (? y)) (and (append-to-form ((? car)) (? rest) (? x)) (append-to-form (? rev) ((? car)) (? y)) (reverse (? rest) (? rev)))))
-Assertion added to data base.
-;;; Query input:
-(reverse (? x) (a b c))
-;;; Query results:
-(reverse (c b a) (a b c))
 ;;; Query input:
 exit
 #+end_example
@@ -42039,17 +42767,16 @@ style. ~prompt-for-input~ and ~tagged-list~ were also implemented by me.
   (define (query-driver-loop)
     (prompt-for-input input-prompt)
     (let* ((i (read))
-           (no-use (if #f (begin (display "Read exp=") (write i) (newline) 'read-ok)))
            (q (query-syntax-process i)))
       (show #t (pretty q))
       (cond  ((eq? q 'exit) (exit))
              ((assertion-to-be-added? q)
 	     (add-rule-or-assertion! (add-assertion-body q))
-	     (newline)
+	     #;(newline)
 	     (display "Assertion added to data base.")
 	     (query-driver-loop))
 	    (else
-	     (newline)
+	     #;(newline)
 	     (display output-prompt)
 	     (display-stream
 	      (stream-map
@@ -42946,58 +43673,579 @@ Assertion added to data base.
 
 qeval:depth=1
 query=(dummy (? who))
+
  frame-stream=( )
 
 qeval:depth=2
 query=(dummy (? 1 x))
- frame-stream=( (?who . ?x-1) )
+
+ frame-stream=( (?who . ?x-1) 
+)
 
 qeval:depth=3
 query=(dummy (? 2 x))
- frame-stream=( (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=4
 query=(dummy (? 3 x))
- frame-stream=( (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=5
 query=(dummy (? 4 x))
- frame-stream=( (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=6
 query=(dummy (? 5 x))
- frame-stream=( (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=7
 query=(dummy (? 6 x))
- frame-stream=( (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=8
 query=(dummy (? 7 x))
- frame-stream=( (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=9
 query=(dummy (? 8 x))
- frame-stream=( (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=10
 query=(dummy (? 9 x))
- frame-stream=( (?x-8 . ?x-9) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 
 qeval:depth=11
 query=(dummy (? 10 x))
- frame-stream=( (?x-9 . ?x-10) (?x-8 . ?x-9) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=12
+query=(dummy (? 11 x))
+
+ frame-stream=( (?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=13
+query=(dummy (? 12 x))
+
+ frame-stream=( (?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=14
+query=(dummy (? 13 x))
+
+ frame-stream=( (?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=15
+query=(dummy (? 14 x))
+
+ frame-stream=( (?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=16
+query=(dummy (? 15 x))
+
+ frame-stream=( (?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=17
+query=(dummy (? 16 x))
+
+ frame-stream=( (?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=18
+query=(dummy (? 17 x))
+
+ frame-stream=( (?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=19
+query=(dummy (? 18 x))
+
+ frame-stream=( (?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=20
+query=(dummy (? 19 x))
+
+ frame-stream=( (?x-18 . ?x-19) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+
+qeval:depth=21
+query=(dummy (? 20 x))
+
+ frame-stream=( (?x-19 . ?x-20) 
+(?x-18 . ?x-19) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 Maximum depth reached.
- retval=( (?x-9 . c) (?x-8 . ?x-9) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-8 . c) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-7 . c) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-6 . c) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-5 . c) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-4 . c) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-3 . c) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-2 . c) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-1 . c) (?who . ?x-1) )
- retval=( (?who . c) )
+ retval=( (?x-19 . c) 
+(?x-18 . ?x-19) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-18 . c) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-17 . c) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-16 . c) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-15 . c) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-14 . c) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-13 . c) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-12 . c) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-11 . c) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-10 . c) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-9 . c) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-8 . c) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-7 . c) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-6 . c) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-5 . c) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-4 . c) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-3 . c) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-2 . c) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-1 . c) 
+(?who . ?x-1) 
+)
+ retval=( (?who . c) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
+(dummy c)
+(dummy b)
+(dummy a)
 (dummy c)
 (dummy b)
 (dummy a)
@@ -43094,87 +44342,608 @@ Assertion added to data base.
 
 qeval:depth=1
 query=(dummy (? who))
+
  frame-stream=( )
- retval=( (?who . c) )
+ retval=( (?who . c) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=2
 query=(dummy (? 1 x))
- frame-stream=( (?who . ?x-1) )
- retval=( (?x-1 . c) (?who . ?x-1) )
+
+ frame-stream=( (?who . ?x-1) 
+)
+ retval=( (?x-1 . c) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=3
 query=(dummy (? 2 x))
- frame-stream=( (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-2 . c) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-2 . c) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=4
 query=(dummy (? 3 x))
- frame-stream=( (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-3 . c) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-3 . c) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=5
 query=(dummy (? 4 x))
- frame-stream=( (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-4 . c) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-4 . c) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=6
 query=(dummy (? 5 x))
- frame-stream=( (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-5 . c) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-5 . c) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=7
 query=(dummy (? 6 x))
- frame-stream=( (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-6 . c) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-6 . c) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=8
 query=(dummy (? 7 x))
- frame-stream=( (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-7 . c) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-7 . c) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=9
 query=(dummy (? 8 x))
- frame-stream=( (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-8 . c) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-8 . c) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=10
 query=(dummy (? 9 x))
- frame-stream=( (?x-8 . ?x-9) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
- retval=( (?x-9 . c) (?x-8 . ?x-9) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-9 . c) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 (dummy c)
 (dummy b)
 (dummy a)
 
 qeval:depth=11
 query=(dummy (? 10 x))
- frame-stream=( (?x-9 . ?x-10) (?x-8 . ?x-9) (?x-7 . ?x-8) (?x-6 . ?x-7) (?x-5 . ?x-6) (?x-4 . ?x-5) (?x-3 . ?x-4) (?x-2 . ?x-3) (?x-1 . ?x-2) (?who . ?x-1) )
+
+ frame-stream=( (?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-10 . c) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=12
+query=(dummy (? 11 x))
+
+ frame-stream=( (?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-11 . c) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=13
+query=(dummy (? 12 x))
+
+ frame-stream=( (?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-12 . c) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=14
+query=(dummy (? 13 x))
+
+ frame-stream=( (?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-13 . c) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=15
+query=(dummy (? 14 x))
+
+ frame-stream=( (?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-14 . c) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=16
+query=(dummy (? 15 x))
+
+ frame-stream=( (?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-15 . c) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=17
+query=(dummy (? 16 x))
+
+ frame-stream=( (?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-16 . c) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=18
+query=(dummy (? 17 x))
+
+ frame-stream=( (?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-17 . c) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=19
+query=(dummy (? 18 x))
+
+ frame-stream=( (?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-18 . c) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=20
+query=(dummy (? 19 x))
+
+ frame-stream=( (?x-18 . ?x-19) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+ retval=( (?x-19 . c) 
+(?x-18 . ?x-19) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
+(dummy c)
+(dummy b)
+(dummy a)
+
+qeval:depth=21
+query=(dummy (? 20 x))
+
+ frame-stream=( (?x-19 . ?x-20) 
+(?x-18 . ?x-19) 
+(?x-17 . ?x-18) 
+(?x-16 . ?x-17) 
+(?x-15 . ?x-16) 
+(?x-14 . ?x-15) 
+(?x-13 . ?x-14) 
+(?x-12 . ?x-13) 
+(?x-11 . ?x-12) 
+(?x-10 . ?x-11) 
+(?x-9 . ?x-10) 
+(?x-8 . ?x-9) 
+(?x-7 . ?x-8) 
+(?x-6 . ?x-7) 
+(?x-5 . ?x-6) 
+(?x-4 . ?x-5) 
+(?x-3 . ?x-4) 
+(?x-2 . ?x-3) 
+(?x-1 . ?x-2) 
+(?who . ?x-1) 
+)
 Maximum depth reached.
 ;;; Query input:
 exit
@@ -44614,6 +46383,8 @@ job of restoring and saving the return address. They can be removed.
 #+begin_src scheme :exports code
 (import (scheme small))
 (import (scheme list))
+(import (srfi 159))
+(import (chibi show pretty))
 (define false #t)
 (define true #t)
 (define (tagged-list? exp tag)
@@ -46068,17 +47839,26 @@ Seems to be working.
   (display (get-register-contents test-machine 'val))
   (newline)
   (display "metadata=") 
-  (map (lambda (x) (newline) (display x)) (test-machine 'get-metadata))
+  (map (lambda (x) (newline) (show #t (pretty x))) (test-machine 'get-metadata))
   (newline)
 #+end_src
 
 #+RESULTS:
-: (reg val) has 55
-: metadata=
-: (instructions (assign test branch save goto restore))
-: (entry-points (continue))
-: (stack-registers (continue n val))
-: (datapaths ((val ((reg n)) ((op +) (reg val) (reg n))) (n ((reg val)) ((op -) (reg n) (const 2)) ((op -) (reg n) (const 1))) (continue ((label afterfib-n-2)) ((label afterfib-n-1)) ((label fib-done)))))
+#+begin_example
+(reg val) has 55
+metadata=
+(instructions (assign test branch save goto restore))
+
+(entry-points (continue))
+
+(stack-registers (continue n val))
+
+(datapaths
+ ((val ((reg n)) ((op +) (reg val) (reg n)))
+  (n ((reg val)) ((op -) (reg n) (const 2)) ((op -) (reg n) (const 1)))
+  (continue ((label afterfib-n-2)) ((label afterfib-n-1)) ((label fib-done)))))
+
+#+end_example
 
 **** DONE Exercise 5.13 Registers from controller
      CLOSED: [2020-02-27 Thu 10:57]
@@ -46270,7 +48050,7 @@ Seems to be working.
 
   (set-register-contents! test-machine 'n 10)
   (display "metadata=") 
-  (map (lambda (x) (newline) (display x)) (test-machine 'get-metadata))
+  (map (lambda (x) (newline) (show #t (pretty x))) (test-machine 'get-metadata))
   (newline)
   (start test-machine)
   (display "(reg val) has ")
@@ -46279,13 +48059,22 @@ Seems to be working.
 #+end_src
 
 #+RESULTS:
-: assemble:allregs=(continue n val)
-: metadata=
-: (instructions (assign test branch save goto restore))
-: (entry-points (continue))
-: (stack-registers (continue n val))
-: (datapaths ((val ((reg n)) ((op +) (reg val) (reg n))) (n ((reg val)) ((op -) (reg n) (const 2)) ((op -) (reg n) (const 1))) (continue ((label afterfib-n-2)) ((label afterfib-n-1)) ((label fib-done)))))
-: (reg val) has 55
+#+begin_example
+assemble:allregs=(continue n val)
+metadata=
+(instructions (assign test branch save goto restore))
+
+(entry-points (continue))
+
+(stack-registers (continue n val))
+
+(datapaths
+ ((val ((reg n)) ((op +) (reg val) (reg n)))
+  (n ((reg val)) ((op -) (reg n) (const 2)) ((op -) (reg n) (const 1)))
+  (continue ((label afterfib-n-2)) ((label afterfib-n-1)) ((label fib-done)))))
+
+(reg val) has 55
+#+end_example
 
 Seems to be working. I am keeping the interface with the empty first
 argument just in case.
