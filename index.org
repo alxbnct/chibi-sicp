@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2020-02-28 12:17:34 lockywolf>
+# Time-stamp: <2020-02-28 12:52:02 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -17630,19 +17630,19 @@ part in the division by the gcd, but hey, formally the exercise is done.
 		(sub (make-polynomial 'x '(1 2 0 0 0 1))
 		     (make-polynomial 'x '((4 2)))) "\n")
 	  (show #t "Test12: Dividing x^2 + 2x + 1 by x+1: "
-		(displayed
+		(pretty
 		 (div (make-polynomial 'x '((2 1) (1 2) (0 1)))
 		      (make-polynomial 'x '(      (1 1) (0 1)))) ) "\n")
 	  (show #t "Test14: Adding polynomials of two variables: "
-		(displayed
+		(pretty
 		 (add (make-polynomial 'x '((1 1)))
 		      (make-polynomial 'y '((1 1))))))
-	  (show #t "Test14: Adding polynomials of two variables, when one of them is nonexistant: "
-		(displayed
+	  (show #t "Test14: Adding polynomials of two variables,\n when one of them is nonexistant: \n"
+		(pretty
 		 (add (make-polynomial 'x '((1 1)))
 		      (make-polynomial 'y '((0 1))))))
 	  (show #t "Test25: multiplying different variables: "
-	      (displayed (mul (make-polynomial 'x '((1 1)))
+	      (pretty (mul (make-polynomial 'x '((1 1)))
 			      (make-polynomial 'y '((1 1))))) "\n")
       (begin
       (define p1 (make-polynomial 'x '((2 1) (0 1))))
@@ -17727,9 +17727,19 @@ div-terms: L1=((2 1) (1 2) (0 1)), L2=((1 1) (0 1))
 div-terms: L1=((1 1) (0 1)), L2=((1 1) (0 1))
 div-terms: L1=(), L2=((1 1) (0 1))
 Test12: Dividing x^2 + 2x + 1 by x+1: ((x (1 1) (0 1)) (x))
-Test14: Adding polynomials of two variables: (polynomial x (1 1) (0 (polynomial y (1 1))))Test14: Adding polynomials of two variables, when one of them is nonexistant: (polynomial x (1 1) (0 (polynomial y (0 1))))zero-poly?: poly=(y (1 1))
+
+Test14: Adding polynomials of two variables: (polynomial x
+                                                         (1 1)
+                                                         (0
+                                                          (polynomial y (1 1))))
+Test14: Adding polynomials of two variables,
+ when one of them is nonexistant: 
+(polynomial x (1 1) (0 (polynomial y (0 1))))
 zero-poly?: poly=(y (1 1))
-Test25: multiplying different variables: (polynomial x (1 (polynomial y (1 1))))
+zero-poly?: poly=(y (1 1))
+Test25: multiplying different variables: (polynomial x
+                                                     (1 (polynomial y (1 1))))
+
 Test 26: make-rational-polynomial: (rational (polynomial x (3 1) (0 1)) polynomial x (2 1) (0 1))
 Test 27: add-rational
 rational not droppable: #f
@@ -17956,7 +17966,7 @@ implementing term reduction requires extending the polynomial package.
 	    (show #t "Test 31:" (equal? (make-scheme-number 1) 1) "\n")
 
 	    #;(check (add (make-scheme-number 1) (make-scheme-number 1)) => 2)
-
+	  (define (reduce a b) (apply-generic 'reduce a b))
 	    (define (install-rational-package)
 	      (define (numer x) (car x))
 	      (define (denom x) (cdr x))
@@ -18279,7 +18289,7 @@ implementing term reduction requires extending the polynomial package.
 		   (let ((g (gcd n d)))
 		     (list (/ n g) (/ d g))))
 	  (put 'reduce '(integer integer) reduce-integers)
-	  (define (reduce a b) (apply-generic 'reduce a b))
+
 	  (define (install-polynomial-package)
 	    #;(define (contents generic-object)
 	      (cdr generic-object))
@@ -18793,8 +18803,8 @@ implementing term reduction requires extending the polynomial package.
 		  (displayed
 		   (add (make-polynomial 'x '((1 1)))
 			(make-polynomial 'y '((1 1))))))
-	    (show #t "Test14: Adding polynomials of two variables, when one of them is nonexistant: "
-		  (displayed
+	    (show #t "Test14: Adding polynomials of two variables,\n when one of them is nonexistant: \n"
+		  (pretty
 		   (add (make-polynomial 'x '((1 1)))
 			(make-polynomial 'y '((0 1))))))
 	    (show #t "Test25: multiplying different variables: "
@@ -18899,7 +18909,10 @@ div-terms: L1=((2 1) (1 2) (0 1)), L2=((1 1) (0 1))
 div-terms: L1=((1 1) (0 1)), L2=((1 1) (0 1))
 div-terms: L1=(), L2=((1 1) (0 1))
 Test12: Dividing x^2 + 2x + 1 by x+1: ((x (1 1) (0 1)) (x))
-Test14: Adding polynomials of two variables: (polynomial x (1 1) (0 (polynomial y (1 1))))Test14: Adding polynomials of two variables, when one of them is nonexistant: (polynomial x (1 1) (0 (polynomial y (0 1))))zero-poly?: poly=(y (1 1))
+Test14: Adding polynomials of two variables: (polynomial x (1 1) (0 (polynomial y (1 1))))Test14: Adding polynomials of two variables,
+ when one of them is nonexistant: 
+(polynomial x (1 1) (0 (polynomial y (0 1))))
+zero-poly?: poly=(y (1 1))
 zero-poly?: poly=(y (1 1))
 Test25: multiplying different variables: (polynomial x (1 (polynomial y (1 1))))
 Test 26:start
@@ -23997,12 +24010,23 @@ would require a bit more of a mathematical analysis.
 <<streams-interleave>>
 <<streams-pairs>>
 
-(stream-print-n (pairs integers integers) 100)
+(show #t (pretty (stream-sublist-n (pairs integers integers) 100)))
 
 #+end_src
 
 #+RESULTS:
-: (1 1) (1 2) (2 2) (1 3) (2 3) (1 4) (3 3) (1 5) (2 4) (1 6) (3 4) (1 7) (2 5) (1 8) (4 4) (1 9) (2 6) (1 10) (3 5) (1 11) (2 7) (1 12) (4 5) (1 13) (2 8) (1 14) (3 6) (1 15) (2 9) (1 16) (5 5) (1 17) (2 10) (1 18) (3 7) (1 19) (2 11) (1 20) (4 6) (1 21) (2 12) (1 22) (3 8) (1 23) (2 13) (1 24) (5 6) (1 25) (2 14) (1 26) (3 9) (1 27) (2 15) (1 28) (4 7) (1 29) (2 16) (1 30) (3 10) (1 31) (2 17) (1 32) (6 6) (1 33) (2 18) (1 34) (3 11) (1 35) (2 19) (1 36) (4 8) (1 37) (2 20) (1 38) (3 12) (1 39) (2 21) (1 40) (5 7) (1 41) (2 22) (1 42) (3 13) (1 43) (2 23) (1 44) (4 9) (1 45) (2 24) (1 46) (3 14) (1 47) (2 25) (1 48) (6 7) (1 49) (2 26) (1 50) (3 15) (1 51) 
+#+begin_example
+((1 1)  (1 2)  (2 2)  (1 3)  (2 3)  (1 4)  (3 3)  (1 5)  (2 4)  (1 6)  (3 4)
+ (1 7)  (2 5)  (1 8)  (4 4)  (1 9)  (2 6)  (1 10) (3 5)  (1 11) (2 7)  (1 12)
+ (4 5)  (1 13) (2 8)  (1 14) (3 6)  (1 15) (2 9)  (1 16) (5 5)  (1 17) (2 10)
+ (1 18) (3 7)  (1 19) (2 11) (1 20) (4 6)  (1 21) (2 12) (1 22) (3 8)  (1 23)
+ (2 13) (1 24) (5 6)  (1 25) (2 14) (1 26) (3 9)  (1 27) (2 15) (1 28) (4 7)
+ (1 29) (2 16) (1 30) (3 10) (1 31) (2 17) (1 32) (6 6)  (1 33) (2 18) (1 34)
+ (3 11) (1 35) (2 19) (1 36) (4 8)  (1 37) (2 20) (1 38) (3 12) (1 39) (2 21)
+ (1 40) (5 7)  (1 41) (2 22) (1 42) (3 13) (1 43) (2 23) (1 44) (4 9)  (1 45)
+ (2 24) (1 46) (3 14) (1 47) (2 25) (1 48) (6 7)  (1 49) (2 26) (1 50) (3 15)
+ (1 51))
+#+end_example
 
 The logic behind the ordering can be seen from the kind of a
 "probabilistic analysis". Let's imagine a table with columns indexed
@@ -24576,7 +24600,8 @@ Seems to be working.
 *** DONE Exercise 3.77
     CLOSED: [2020-01-08 Wed 20:51]
 
-#+begin_src scheme :exports both :results output :noweb-ref streams-integral-explicit
+#+name: streams-integral-explicit
+#+begin_src scheme :exports both :results output
   (define (integral integrand initial-value dt)
     (cons-stream
      initial-value
@@ -24622,11 +24647,15 @@ Seems to be working.
   (define ddy (add-streams (scale-stream y b)
                           (scale-stream dy a)))
   y)
-(stream-print-n (solve-2nd 10 -10 0.001 20 -30) 20)
+(show #t (pretty (stream-sublist-n (solve-2nd 10 -10 0.001 20 -30) 20)))
 #+end_src
 
 #+RESULTS:
-: 10 9.99 9.9795 9.9684903 9.956961021 9.944902101711 9.932303295205589 9.919154165507019 9.905444084115622 9.891162226471431 9.876297568351834 9.860838882203051 9.844774733404241 9.828093476462989 9.81078325114091 9.792831978508096 9.77422735692509 9.75495685795107 9.735007722176862 9.71436695498143 
+: (10                9.99              9.9795            9.9684903
+:  9.956961021       9.944902101711    9.932303295205589 9.919154165507019
+:  9.905444084115622 9.891162226471431 9.876297568351834 9.860838882203051
+:  9.844774733404241 9.828093476462989 9.81078325114091  9.792831978508096
+:  9.77422735692509  9.75495685795107  9.735007722176862 9.71436695498143)
 
 *** DONE Exercise 3.79 general second-order ode
     CLOSED: [2020-01-08 Wed 21:57]
@@ -24643,11 +24672,15 @@ Seems to be working.
   (define dy  (integral (delay ddy) dy0 dt))
   (define ddy (f y dy))
   y)
-(stream-print-n (solve-2nd 10 -10 0.001 (lambda (s1 s2) (mul-streams s1 s2))) 20)
+(show #t (pretty (stream-sublist-n (solve-2nd 10 -10 0.001 (lambda (s1 s2) (mul-streams s1 s2))) 20)))
 #+end_src
 
 #+RESULTS:
-: 10 9.99 9.9799 9.969699101 9.959396398048069 9.948990980247782 9.938481930766933 9.92786832684759 9.917149239817473 9.906323735102736 9.895390872242148 9.88434970490271 9.873199280896765 9.861938642200586 9.85056682497453 9.83908285958474 9.827485770626463 9.815774576948995 9.803948291682303 9.792005922265352 
+: (10                9.99              9.9799            9.969699101
+:  9.959396398048069 9.948990980247782 9.938481930766933 9.92786832684759
+:  9.917149239817473 9.906323735102736 9.895390872242148 9.88434970490271
+:  9.873199280896765 9.861938642200586 9.85056682497453  9.83908285958474
+:  9.827485770626463 9.815774576948995 9.803948291682303 9.792005922265352)
 
 Cool. As long as ~f~ is implemented in terms of streams, it works.
 
@@ -24712,14 +24745,29 @@ circuit declare annotation={invert polarity}{1cm}
    producer)
 (define rlc-model (RLC 1 1 0.2 0.1))
 (define pair-of-streams (rlc-model 10 0))
-(stream-print-n (car pair-of-streams) 20)
+(show #t (pretty (stream-sublist-n (car pair-of-streams) 20)))
 (newline)
-(stream-print-n (cdr pair-of-streams) 20)
+(show #t (pretty (stream-sublist-n (cdr pair-of-streams) 20)))
 #+end_src
 
 #+RESULTS:
-: 10 10 9.5 8.55 7.220000000000001 5.5955 3.77245 1.8519299999999999 -0.0651605000000004 -1.8831384500000004 -3.5160605800000004 -4.8915335745 -5.95365624055 -6.66498996127 -7.0075074978905 -6.982523782785449 -6.609663064296379 -5.924962228516943 -4.978248323100632 -3.829957696800105 
-: 0 1.0 1.9 2.66 3.249 3.6461 3.84104 3.834181 3.6359559 3.2658442599999997 2.750945989 2.1242453320999997 1.4226674414399998 0.6850350732409998 -0.049967430210100305 -0.7457214369781403 -1.3694016715588713 -1.893427810832622 -2.296581252601054 -2.5647479596510117 
+#+begin_example
+(10                  10                  9.5
+ 8.55                7.220000000000001   5.5955
+ 3.77245             1.8519299999999999  -0.0651605000000004
+ -1.8831384500000004 -3.5160605800000004 -4.8915335745
+ -5.95365624055      -6.66498996127      -7.0075074978905
+ -6.982523782785449  -6.609663064296379  -5.924962228516943
+ -4.978248323100632  -3.829957696800105)
+
+(0                     1.0                   1.9
+ 2.66                  3.249                 3.6461
+ 3.84104               3.834181              3.6359559
+ 3.2658442599999997    2.750945989           2.1242453320999997
+ 1.4226674414399998    0.6850350732409998    -0.049967430210100305
+ -0.7457214369781403   -1.3694016715588713   -1.893427810832622
+ -2.296581252601054    -2.5647479596510117)
+#+end_example
 
 Works? I can't believe it.
 
@@ -30852,11 +30900,11 @@ as a macro.
     (newline) (display string) (newline))
   (define (user-print object)
     (if (compound-procedure? object)
-	(display (list 'compound-procedure
+	(show #t (pretty  (list 'compound-procedure
 		       (procedure-parameters object)
 		       (procedure-body object)
-		       '<procedure-env>))
-	(display object)))
+		       '<procedure-env>)))
+	(show #t (pretty  object))))
 #+end_src
 
 #+name: s-lazy-thunks
@@ -32098,66 +32146,105 @@ Seems to work.
 
 ;;; L-Eval input:
 (define (cons x y) (lambda (m) (m x y)))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (car z) (z (lambda (p q) p)))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (cdr z) (z (lambda (p q) q)))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+(define (list-ref items n)
+  (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (map proc items) (if (null? items) (quote ()) (cons (proc (car items)) (map proc (cdr items)))))
+(define (map proc items)
+  (if (null? items) '() (cons (proc (car items)) (map proc (cdr items)))))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (scale-list items factor) (map (lambda (x) (* x factor)) items))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (add-lists list1 list2) (cond ((null? list1) list2) ((null? list2) list1) (else (cons (+ (car list1) (car list2)) (add-lists (cdr list1) (cdr list2))))))
+(define (add-lists list1 list2)
+  (cond ((null? list1) list2)
+        ((null? list2) list1)
+        (else
+         (cons (+ (car list1) (car list2))
+               (add-lists (cdr list1) (cdr list2))))))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define ones (cons 1 ones))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define integers (cons 1 (add-lists ones integers)))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define node (cons 1 p))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define p (cons 1 (cons p p)))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (print-tree tree depth rightmost) (if (= depth 0) (quote ok) (begin (display (car tree)) (print-tree (car (cdr tree)) (- depth 1) #f) (if rightmost (newline)) (print-tree (cdr (cdr tree)) (- depth 1) (if rightmost #t #f)))) (quote ok))
+(define (print-tree tree depth rightmost)
+  (if (= depth 0)
+      'ok
+      (begin (display (car tree))
+             (print-tree (car (cdr tree)) (- depth 1) #f)
+             (if rightmost (newline))
+             (print-tree (cdr (cdr tree)) (- depth 1) (if rightmost #t #f))))
+  'ok)
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (begin (newline) (print-tree p 5 #t))
+
 1111111111111111
 11111111
 1111
@@ -32166,6 +32253,7 @@ ok
 
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (exit)
@@ -32356,13 +32444,13 @@ I will set the default depth of printing to 10 just because it seems reasonable.
   (define (lazy-pair? o) (tagged-list? o 'lazy-pair))
   (define (user-print object)
     (cond ((compound-procedure? object)
-	     (display (list 'compound-procedure
+	     (show #t (pretty  (list 'compound-procedure
 		       (procedure-parameters object)
 		       (procedure-body object)
-		       '<procedure-env>)))
+		       '<procedure-env>))))
           ((lazy-pair? object ) (apply (cdr object) (list "bla" 0) 
                                       (procedure-environment (cdr object))))
-	  (else (display object))))
+	  (else (show #t (pretty object)))))
 #+end_src
 
 
@@ -32471,97 +32559,164 @@ I will set the default depth of printing to 10 just because it seems reasonable.
 
 
 ;;; L-Eval input:
-(define test1 (quote (test input1 input2)))
+(define test1 '(test input1 input2))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(quote (test input1 input2))
+'(test input1 input2)
+
 ;;; L-Eval value:
 (test input1 input2)
 
+
 ;;; L-Eval input:
 (define kons cons)
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define kar car)
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define kdr cdr)
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (tagged-list? exp tag) (if (pair? exp) (eq? (kar exp) tag) #f))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (lazy-pair? x) (tagged-list? x (quote lazy-pair)))
+(define (lazy-pair? x) (tagged-list? x 'lazy-pair))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (cons x y) (let ((already-printed #f)) (define (print depth) (if already-printed (begin (display "#=") (display already-printed)) (begin (set! already-printed depth) (display "[") (display already-printed) (display "]") (display "(") (if (lazy-pair? x) (if (< depth 30) ((kdr x) "print" (+ depth 1)) (display "...")) (display x)) (display ",") (if (lazy-pair? y) (if (< depth 30) ((kdr y) "print" (+ depth 1)) (display "...")) (display y)) (display ")") (set! already-printed #f)))) (kons (quote lazy-pair) (lambda (m d) (if (null? d) (m x y) (print d))))))
+(define (cons x y)
+  (let ((already-printed #f))
+    (define (print depth)
+      (if already-printed
+          (begin (display "#=") (display already-printed))
+          (begin (set! already-printed depth)
+                 (display "[")
+                 (display already-printed)
+                 (display "]")
+                 (display "(")
+                 (if (lazy-pair? x)
+                     (if (< depth 30)
+                         ((kdr x) "print" (+ depth 1))
+                         (display "..."))
+                     (display x))
+                 (display ",")
+                 (if (lazy-pair? y)
+                     (if (< depth 30)
+                         ((kdr y) "print" (+ depth 1))
+                         (display "..."))
+                     (display y))
+                 (display ")")
+                 (set! already-printed #f))))
+    (kons 'lazy-pair (lambda (m d) (if (null? d) (m x y) (print d))))))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (car z) ((kdr z) (lambda (p q) p) (list)))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (cdr z) ((kdr z) (lambda (p q) q) (list)))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+(define (list-ref items n)
+  (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (map proc items) (if (null? items) (quote ()) (cons (proc (car items)) (map proc (cdr items)))))
+(define (map proc items)
+  (if (null? items) '() (cons (proc (car items)) (map proc (cdr items)))))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define (scale-list items factor) (map (lambda (x) (* x factor)) items))
+
 ;;; L-Eval value:
 ok
 
+
 ;;; L-Eval input:
-(define (add-lists list1 list2) (cond ((null? list1) list2) ((null? list2) list1) (else (cons (+ (car list1) (car list2)) (add-lists (cdr list1) (cdr list2))))))
+(define (add-lists list1 list2)
+  (cond ((null? list1) list2)
+        ((null? list2) list1)
+        (else
+         (cons (+ (car list1) (car list2))
+               (add-lists (cdr list1) (cdr list2))))))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define ones (cons 1 ones))
+
 ;;; L-Eval value:
 ok
+
 
 ;;; L-Eval input:
 (define integers (cons 1 (add-lists ones integers)))
+
 ;;; L-Eval value:
 ok
 
-;;; L-Eval input:
-Testing Ben's work
-;;; L-Eval value:
-Testing Ben's work
 
 ;;; L-Eval input:
-(car (quote (a b c)))
+"Testing Ben's work"
+
+;;; L-Eval value:
+"Testing Ben's work"
+
+
+;;; L-Eval input:
+(car '(a b c))
+
 ;;; L-Eval value:
 a
 
+
 ;;; L-Eval input:
-(quote (a b c d e f))
+'(a b c d e f)
+
 ;;; L-Eval value:
 [0](a,[1](b,[2](c,[3](d,[4](e,[5](f,()))))))
 
@@ -33537,91 +33692,160 @@ EOF
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (multiple-dwelling) (let ((baker (amb 1 2 3 4 5)) (cooper (amb 1 2 3 4 5)) (fletcher (amb 1 2 3 4 5)) (miller (amb 1 2 3 4 5)) (smith (amb 1 2 3 4 5))) (require (distinct? (list baker cooper fletcher miller smith))) (require (not (= baker 5))) (require (not (= cooper 1))) (require (not (= fletcher 5))) (require (not (= fletcher 1))) (require (> miller cooper)) (require (not (= (abs (- fletcher cooper)) 1))) (list (list (quote baker) baker) (list (quote cooper) cooper) (list (quote fletcher) fletcher) (list (quote miller) miller) (list (quote smith) smith))))
+(define (multiple-dwelling)
+  (let ((baker (amb 1 2 3 4 5)) (cooper (amb 1 2 3 4 5))
+                                (fletcher (amb 1 2 3 4 5))
+                                (miller (amb 1 2 3 4 5))
+                                (smith (amb 1 2 3 4 5)))
+    (require (distinct? (list baker cooper fletcher miller smith)))
+    (require (not (= baker 5)))
+    (require (not (= cooper 1)))
+    (require (not (= fletcher 5)))
+    (require (not (= fletcher 1)))
+    (require (> miller cooper))
+    (require (not (= (abs (- fletcher cooper)) 1)))
+    (list (list 'baker baker)
+          (list 'cooper cooper)
+          (list 'fletcher fletcher)
+          (list 'miller miller)
+          (list 'smith smith))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (multiple-dwelling)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ((baker 1) (cooper 2) (fletcher 4) (miller 3) (smith 5))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 ((baker 1) (cooper 2) (fletcher 4) (miller 5) (smith 3))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 ((baker 1) (cooper 4) (fletcher 2) (miller 5) (smith 3))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 ((baker 3) (cooper 2) (fletcher 4) (miller 5) (smith 1))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 ((baker 3) (cooper 4) (fletcher 2) (miller 5) (smith 1))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
 (multiple-dwelling)
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -33719,87 +33943,154 @@ floors it is \[\prod_i^m(n-i)\].
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (multiple-dwelling) (let ((baker (amb 1 2 3 4 5))) (require (not (= baker 5))) (let ((cooper (amb 1 2 3 4 5))) (require (not (= cooper 1))) (let ((miller (amb 1 2 3 4 5))) (require (> miller cooper)) (let ((fletcher (amb 1 2 3 4 5))) (require (not (= fletcher 5))) (require (not (= fletcher 1))) (require (not (= (abs (- fletcher cooper)) 1))) (let ((smith (amb 1 2 3 4 5))) (require (not (= (abs (- smith fletcher)) 1))) (require (distinct? (list baker cooper fletcher miller smith))) (list (list (quote baker) baker) (list (quote cooper) cooper) (list (quote fletcher) fletcher) (list (quote miller) miller) (list (quote smith) smith))))))))
+(define (multiple-dwelling)
+  (let ((baker (amb 1 2 3 4 5)))
+    (require (not (= baker 5)))
+    (let ((cooper (amb 1 2 3 4 5)))
+      (require (not (= cooper 1)))
+      (let ((miller (amb 1 2 3 4 5)))
+        (require (> miller cooper))
+        (let ((fletcher (amb 1 2 3 4 5)))
+          (require (not (= fletcher 5)))
+          (require (not (= fletcher 1)))
+          (require (not (= (abs (- fletcher cooper)) 1)))
+          (let ((smith (amb 1 2 3 4 5)))
+            (require (not (= (abs (- smith fletcher)) 1)))
+            (require (distinct? (list baker cooper fletcher miller smith)))
+            (list (list 'baker baker)
+                  (list 'cooper cooper)
+                  (list 'fletcher fletcher)
+                  (list 'miller miller)
+                  (list 'smith smith))))))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (multiple-dwelling)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ((baker 3) (cooper 2) (fletcher 4) (miller 5) (smith 1))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
 (multiple-dwelling)
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There is no current problem
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There is no current problem
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There is no current problem
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There is no current problem
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -33933,77 +34224,139 @@ this is even as efficient as a naive implementation can be.
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (xor p q) (if p (not q) q))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (liars) (let ((betty (amb 1 2 3 4 5)) (ethel (amb 1 2 3 4 5)) (joan (amb 1 2 3 4 5)) (kitty (amb 1 2 3 4 5)) (mary (amb 1 2 3 4 5))) (require (distinct? (list betty ethel joan kitty mary))) (require (xor (= kitty 2) (= betty 3))) (require (xor (= ethel 1) (= joan 2))) (require (xor (= joan 3) (= ethel 5))) (require (xor (= kitty 2) (= mary 4))) (require (xor (= mary 4) (= betty 1))) (list (list (quote betty) betty) (list (quote ethel) ethel) (list (quote joan) joan) (list (quote kitty) kitty) (list (quote mary) mary))))
+(define (liars)
+  (let ((betty (amb 1 2 3 4 5)) (ethel (amb 1 2 3 4 5))
+                                (joan (amb 1 2 3 4 5))
+                                (kitty (amb 1 2 3 4 5))
+                                (mary (amb 1 2 3 4 5)))
+    (require (distinct? (list betty ethel joan kitty mary)))
+    (require (xor (= kitty 2) (= betty 3)))
+    (require (xor (= ethel 1) (= joan 2)))
+    (require (xor (= joan 3) (= ethel 5)))
+    (require (xor (= kitty 2) (= mary 4)))
+    (require (xor (= mary 4) (= betty 1)))
+    (list (list 'betty betty)
+          (list 'ethel ethel)
+          (list 'joan joan)
+          (list 'kitty kitty)
+          (list 'mary mary))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (liars)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ((betty 3) (ethel 5) (joan 2) (kitty 1) (mary 4))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
 (liars)
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -34348,95 +34701,163 @@ Exercise 4.43, the Louis's version of the eight queens.
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define empty-board (quote ()))
+(define empty-board '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (adjoin-position new-row k rest-of-queens) (cons (cons k new-row) rest-of-queens))
+(define (adjoin-position new-row k rest-of-queens)
+  (cons (cons k new-row) rest-of-queens))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (safe? k positions) (cond ((null? (cdr positions)) #t) ((= k 1) #t) ((= (cdar positions) (cdadr positions)) #f) ((= (abs (- (cdar positions) (cdadr positions))) (abs (- (caar positions) (caadr positions)))) #f) (else (safe? k (cons (car positions) (cddr positions))))))
+(define (safe? k positions)
+  (cond ((null? (cdr positions)) #t)
+        ((= k 1) #t)
+        ((= (cdar positions) (cdadr positions)) #f)
+        ((= (abs (- (cdar positions) (cdadr positions)))
+            (abs (- (caar positions) (caadr positions)))) #f)
+        (else (safe? k (cons (car positions) (cddr positions))))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (define (xor p q) (if p (not q) q))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (queens board-size) (define (queen-cols rest-of-queens k) (if (> k board-size) rest-of-queens (let ((new-row (an-integer-between 1 (+ 1 board-size)))) (let ((retval (adjoin-position new-row k rest-of-queens))) (require (safe? k retval)) (queen-cols retval (+ k 1)))))) (queen-cols empty-board 1))
+(define (queens board-size)
+  (define (queen-cols rest-of-queens k)
+    (if (> k board-size)
+        rest-of-queens
+        (let ((new-row (an-integer-between 1 (+ 1 board-size))))
+          (let ((retval (adjoin-position new-row k rest-of-queens)))
+            (require (safe? k retval))
+            (queen-cols retval (+ k 1))))))
+  (queen-cols empty-board 1))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
+
 
 ;;; Amb-Eval input:
 (queens 8)
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ((8 . 4) (7 . 2) (6 . 7) (5 . 3) (4 . 6) (3 . 8) (2 . 5) (1 . 1))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
 ((8 . 5) (7 . 2) (6 . 4) (5 . 7) (4 . 3) (3 . 8) (2 . 6) (1 . 1))
 
+
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -34544,131 +34965,212 @@ try-again
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define empty-board (quote ()))
+(define empty-board '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (adjoin-position new-row k rest-of-queens) (cons (cons k new-row) rest-of-queens))
+(define (adjoin-position new-row k rest-of-queens)
+  (cons (cons k new-row) rest-of-queens))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (safe? k positions) (cond ((null? (cdr positions)) #t) ((= k 1) #t) ((= (cdar positions) (cdadr positions)) #f) ((= (abs (- (cdar positions) (cdadr positions))) (abs (- (caar positions) (caadr positions)))) #f) (else (safe? k (cons (car positions) (cddr positions))))))
+(define (safe? k positions)
+  (cond ((null? (cdr positions)) #t)
+        ((= k 1) #t)
+        ((= (cdar positions) (cdadr positions)) #f)
+        ((= (abs (- (cdar positions) (cdadr positions)))
+            (abs (- (caar positions) (caadr positions)))) #f)
+        (else (safe? k (cons (car positions) (cddr positions))))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define nouns (quote (noun student professor cat class)))
+(define nouns '(noun student professor cat class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define verbs (quote (verb studies lectures eats sleeps)))
+(define verbs '(verb studies lectures eats sleeps))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define articles (quote (article the a)))
+(define articles '(article the a))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-sentence) (list (quote sentence) (parse-noun-phrase) (parse-word verbs)))
+(define (parse-sentence)
+  (list 'sentence (parse-noun-phrase) (parse-word verbs)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-noun-phrase) (list (quote noun-phrase) (parse-word articles) (parse-word nouns)))
+(define (parse-noun-phrase)
+  (list 'noun-phrase (parse-word articles) (parse-word nouns)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-word word-list) (require (not (null? *unparsed*))) (require (memq (car *unparsed*) (cdr word-list))) (let ((found-word (car *unparsed*))) (set! *unparsed* (cdr *unparsed*)) (list (car word-list) found-word)))
+(define (parse-word word-list)
+  (require (not (null? *unparsed*)))
+  (require (memq (car *unparsed*) (cdr word-list)))
+  (let ((found-word (car *unparsed*)))
+    (set! *unparsed* (cdr *unparsed*))
+    (list (car word-list) found-word)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define *unparsed* (quote ()))
+(define *unparsed* '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse input) (set! *unparsed* input) (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+(define (parse input)
+  (set! *unparsed* input)
+  (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(parse (quote (the cat eats)))
+(parse '(the cat eats))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (sentence (noun-phrase (article the) (noun cat)) (verb eats))
 
+
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(parse (quote (the cat eats)))
+(parse '(the cat eats))
+
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -34785,171 +35287,299 @@ try-again
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define empty-board (quote ()))
+(define empty-board '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (adjoin-position new-row k rest-of-queens) (cons (cons k new-row) rest-of-queens))
+(define (adjoin-position new-row k rest-of-queens)
+  (cons (cons k new-row) rest-of-queens))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (safe? k positions) (cond ((null? (cdr positions)) #t) ((= k 1) #t) ((= (cdar positions) (cdadr positions)) #f) ((= (abs (- (cdar positions) (cdadr positions))) (abs (- (caar positions) (caadr positions)))) #f) (else (safe? k (cons (car positions) (cddr positions))))))
+(define (safe? k positions)
+  (cond ((null? (cdr positions)) #t)
+        ((= k 1) #t)
+        ((= (cdar positions) (cdadr positions)) #f)
+        ((= (abs (- (cdar positions) (cdadr positions)))
+            (abs (- (caar positions) (caadr positions)))) #f)
+        (else (safe? k (cons (car positions) (cddr positions))))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define nouns (quote (noun student professor cat class)))
+(define nouns '(noun student professor cat class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define verbs (quote (verb studies lectures eats sleeps)))
+(define verbs '(verb studies lectures eats sleeps))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define articles (quote (article the a)))
+(define articles '(article the a))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define prepositions (quote (prep for to in by with)))
+(define prepositions '(prep for to in by with))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-prepositional-phrase) (list (quote prep-phrase) (parse-word prepositions) (parse-noun-phrase)))
+(define (parse-prepositional-phrase)
+  (list 'prep-phrase (parse-word prepositions) (parse-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-sentence) (list (quote sentence) (parse-noun-phrase) (parse-verb-phrase)))
+(define (parse-sentence)
+  (list 'sentence (parse-noun-phrase) (parse-verb-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-verb-phrase) (define (maybe-extend verb-phrase) (amb verb-phrase (maybe-extend (list (quote verb-phrase) verb-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-word verbs)))
+(define (parse-verb-phrase)
+  (define (maybe-extend verb-phrase)
+    (amb verb-phrase
+         (maybe-extend
+          (list 'verb-phrase verb-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-word verbs)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-simple-noun-phrase) (list (quote simple-noun-phrase) (parse-word articles) (parse-word nouns)))
+(define (parse-simple-noun-phrase)
+  (list 'simple-noun-phrase (parse-word articles) (parse-word nouns)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-noun-phrase) (define (maybe-extend noun-phrase) (amb noun-phrase (maybe-extend (list (quote noun-phrase) noun-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-simple-noun-phrase)))
+(define (parse-noun-phrase)
+  (define (maybe-extend noun-phrase)
+    (amb noun-phrase
+         (maybe-extend
+          (list 'noun-phrase noun-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-simple-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-word word-list) (require (not (null? *unparsed*))) (require (memq (car *unparsed*) (cdr word-list))) (let ((found-word (car *unparsed*))) (set! *unparsed* (cdr *unparsed*)) (list (car word-list) found-word)))
+(define (parse-word word-list)
+  (require (not (null? *unparsed*)))
+  (require (memq (car *unparsed*) (cdr word-list)))
+  (let ((found-word (car *unparsed*)))
+    (set! *unparsed* (cdr *unparsed*))
+    (list (car word-list) found-word)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define *unparsed* (quote ()))
+(define *unparsed* '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse input) (set! *unparsed* input) (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+(define (parse input)
+  (set! *unparsed* input)
+  (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(parse (quote (the student with the cat sleeps in the class)))
+(parse '(the student with the cat sleeps in the class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))) (verb-phrase (verb sleeps) (prep-phrase (prep in) (simple-noun-phrase (article the) (noun class)))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article the) (noun student))
+              (prep-phrase (prep with)
+                           (simple-noun-phrase (article the) (noun cat))))
+ (verb-phrase (verb sleeps)
+              (prep-phrase (prep in)
+                           (simple-noun-phrase (article the) (noun class)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(parse (quote (the student with the cat sleeps in the class)))
+(parse '(the student with the cat sleeps in the class))
+
 
 ;;; Amb-Eval input:
-(parse (quote (the professor lectures to the student with the cat)))
+(parse '(the professor lectures to the student with the cat))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb-phrase (verb lectures) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb lectures)
+                        (prep-phrase (prep to)
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))))
+           (prep-phrase (prep with)
+                        (simple-noun-phrase (article the) (noun cat)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb lectures) (prep-phrase (prep to) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase (verb lectures)
+                       (prep-phrase (prep to)
+                                    (noun-phrase
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))
+                                     (prep-phrase (prep with)
+                                                  (simple-noun-phrase
+                                                   (article the)
+                                                   (noun cat)))))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(parse (quote (the professor lectures to the student with the cat)))
+(parse '(the professor lectures to the student with the cat))
+
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -35023,157 +35653,313 @@ try-again
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define nouns (quote (noun student professor cat class)))
+(define nouns '(noun student professor cat class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define verbs (quote (verb studies lectures eats sleeps)))
+(define verbs '(verb studies lectures eats sleeps))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define articles (quote (article the a)))
+(define articles '(article the a))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define prepositions (quote (prep for to in by with)))
+(define prepositions '(prep for to in by with))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-prepositional-phrase) (list (quote prep-phrase) (parse-word prepositions) (parse-noun-phrase)))
+(define (parse-prepositional-phrase)
+  (list 'prep-phrase (parse-word prepositions) (parse-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-sentence) (list (quote sentence) (parse-noun-phrase) (parse-verb-phrase)))
+(define (parse-sentence)
+  (list 'sentence (parse-noun-phrase) (parse-verb-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-verb-phrase) (define (maybe-extend verb-phrase) (amb verb-phrase (maybe-extend (list (quote verb-phrase) verb-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-word verbs)))
+(define (parse-verb-phrase)
+  (define (maybe-extend verb-phrase)
+    (amb verb-phrase
+         (maybe-extend
+          (list 'verb-phrase verb-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-word verbs)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-simple-noun-phrase) (list (quote simple-noun-phrase) (parse-word articles) (parse-word nouns)))
+(define (parse-simple-noun-phrase)
+  (list 'simple-noun-phrase (parse-word articles) (parse-word nouns)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-noun-phrase) (define (maybe-extend noun-phrase) (amb noun-phrase (maybe-extend (list (quote noun-phrase) noun-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-simple-noun-phrase)))
+(define (parse-noun-phrase)
+  (define (maybe-extend noun-phrase)
+    (amb noun-phrase
+         (maybe-extend
+          (list 'noun-phrase noun-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-simple-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-word word-list) (require (not (null? *unparsed*))) (require (memq (car *unparsed*) (cdr word-list))) (let ((found-word (car *unparsed*))) (set! *unparsed* (cdr *unparsed*)) (list (car word-list) found-word)))
+(define (parse-word word-list)
+  (require (not (null? *unparsed*)))
+  (require (memq (car *unparsed*) (cdr word-list)))
+  (let ((found-word (car *unparsed*)))
+    (set! *unparsed* (cdr *unparsed*))
+    (list (car word-list) found-word)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define *unparsed* (quote ()))
+(define *unparsed* '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse input) (set! *unparsed* input) (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+(define (parse input)
+  (set! *unparsed* input)
+  (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(parse (quote (the professor lectures to the student in the class with the cat)))
+(parse '(the professor lectures to the student in the class with the cat))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb-phrase (verb-phrase (verb lectures) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))) (prep-phrase (prep in) (simple-noun-phrase (article the) (noun class)))) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase
+            (verb-phrase (verb lectures)
+                         (prep-phrase (prep to)
+                                      (simple-noun-phrase (article the)
+                                                          (noun student))))
+            (prep-phrase (prep in)
+                         (simple-noun-phrase (article the) (noun class))))
+           (prep-phrase (prep with)
+                        (simple-noun-phrase (article the) (noun cat)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb-phrase (verb lectures) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))) (prep-phrase (prep in) (noun-phrase (simple-noun-phrase (article the) (noun class)) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb lectures)
+                        (prep-phrase (prep to)
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))))
+           (prep-phrase (prep in)
+                        (noun-phrase
+                         (simple-noun-phrase (article the) (noun class))
+                         (prep-phrase (prep with)
+                                      (simple-noun-phrase (article the)
+                                                          (noun cat)))))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb-phrase (verb lectures) (prep-phrase (prep to) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep in) (simple-noun-phrase (article the) (noun class)))))) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb lectures)
+                        (prep-phrase (prep to)
+                                     (noun-phrase
+                                      (simple-noun-phrase (article the)
+                                                          (noun student))
+                                      (prep-phrase (prep in)
+                                                   (simple-noun-phrase
+                                                    (article the)
+                                                    (noun class))))))
+           (prep-phrase (prep with)
+                        (simple-noun-phrase (article the) (noun cat)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb lectures) (prep-phrase (prep to) (noun-phrase (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep in) (simple-noun-phrase (article the) (noun class)))) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase (verb lectures)
+                       (prep-phrase (prep to)
+                                    (noun-phrase
+                                     (noun-phrase
+                                      (simple-noun-phrase (article the)
+                                                          (noun student))
+                                      (prep-phrase (prep in)
+                                                   (simple-noun-phrase
+                                                    (article the)
+                                                    (noun class))))
+                                     (prep-phrase (prep with)
+                                                  (simple-noun-phrase
+                                                   (article the)
+                                                   (noun cat)))))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb lectures) (prep-phrase (prep to) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep in) (noun-phrase (simple-noun-phrase (article the) (noun class)) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase (verb lectures)
+                       (prep-phrase (prep to)
+                                    (noun-phrase
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))
+                                     (prep-phrase (prep in)
+                                                  (noun-phrase
+                                                   (simple-noun-phrase
+                                                    (article the)
+                                                    (noun class))
+                                                   (prep-phrase (prep with)
+                                                                (simple-noun-phrase
+                                                                 (article the)
+                                                                 (noun cat)))))))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(parse (quote (the professor lectures to the student in the class with the cat)))
+(parse '(the professor lectures to the student in the class with the cat))
+
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -35441,184 +36227,328 @@ sentences to the parsing system.
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define empty-board (quote ()))
+(define empty-board '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (adjoin-position new-row k rest-of-queens) (cons (cons k new-row) rest-of-queens))
+(define (adjoin-position new-row k rest-of-queens)
+  (cons (cons k new-row) rest-of-queens))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (safe? k positions) (cond ((null? (cdr positions)) #t) ((= k 1) #t) ((= (cdar positions) (cdadr positions)) #f) ((= (abs (- (cdar positions) (cdadr positions))) (abs (- (caar positions) (caadr positions)))) #f) (else (safe? k (cons (car positions) (cddr positions))))))
+(define (safe? k positions)
+  (cond ((null? (cdr positions)) #t)
+        ((= k 1) #t)
+        ((= (cdar positions) (cdadr positions)) #f)
+        ((= (abs (- (cdar positions) (cdadr positions)))
+            (abs (- (caar positions) (caadr positions)))) #f)
+        (else (safe? k (cons (car positions) (cddr positions))))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define nouns (quote (noun student professor cat class)))
+(define nouns '(noun student professor cat class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define verbs (quote (verb studies lectures eats sleeps)))
+(define verbs '(verb studies lectures eats sleeps))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define articles (quote (article the a)))
+(define articles '(article the a))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define prepositions (quote (prep for to in by with)))
+(define prepositions '(prep for to in by with))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-prepositional-phrase) (list (quote prep-phrase) (parse-word prepositions) (parse-noun-phrase)))
+(define (parse-prepositional-phrase)
+  (list 'prep-phrase (parse-word prepositions) (parse-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-sentence) (list (quote sentence) (parse-noun-phrase) (parse-verb-phrase)))
+(define (parse-sentence)
+  (list 'sentence (parse-noun-phrase) (parse-verb-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-verb-phrase) (define (maybe-extend verb-phrase) (amb verb-phrase (maybe-extend (list (quote verb-phrase) verb-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-word verbs)))
+(define (parse-verb-phrase)
+  (define (maybe-extend verb-phrase)
+    (amb verb-phrase
+         (maybe-extend
+          (list 'verb-phrase verb-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-word verbs)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-simple-noun-phrase) (list (quote simple-noun-phrase) (parse-word articles) (parse-word nouns)))
+(define (parse-simple-noun-phrase)
+  (list 'simple-noun-phrase (parse-word articles) (parse-word nouns)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-noun-phrase) (define (maybe-extend noun-phrase) (amb noun-phrase (maybe-extend (list (quote noun-phrase) noun-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-simple-noun-phrase)))
+(define (parse-noun-phrase)
+  (define (maybe-extend noun-phrase)
+    (amb noun-phrase
+         (maybe-extend
+          (list 'noun-phrase noun-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-simple-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-word word-list) (require (not (null? *unparsed*))) (require (memq (car *unparsed*) (cdr word-list))) (let ((found-word (car *unparsed*))) (set! *unparsed* (cdr *unparsed*)) (list (car word-list) found-word)))
+(define (parse-word word-list)
+  (require (not (null? *unparsed*)))
+  (require (memq (car *unparsed*) (cdr word-list)))
+  (let ((found-word (car *unparsed*)))
+    (set! *unparsed* (cdr *unparsed*))
+    (list (car word-list) found-word)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define conjunctions (quote (conjunction and therefore however but)))
+(define conjunctions '(conjunction and therefore however but))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-compound-sentence) (define (maybe-extend my-sent) (amb my-sent (maybe-extend (list (quote compound-sentence) my-sent (parse-word conjunctions) (parse-compound-sentence))))) (maybe-extend (parse-sentence)))
+(define (parse-compound-sentence)
+  (define (maybe-extend my-sent)
+    (amb my-sent
+         (maybe-extend
+          (list 'compound-sentence
+                my-sent
+                (parse-word conjunctions)
+                (parse-compound-sentence)))))
+  (maybe-extend (parse-sentence)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define *unparsed* (quote ()))
+(define *unparsed* '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse input) (set! *unparsed* input) (let ((sent (parse-compound-sentence))) (require (null? *unparsed*)) sent))
+(define (parse input)
+  (set! *unparsed* input)
+  (let ((sent (parse-compound-sentence))) (require (null? *unparsed*)) sent))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(parse (quote (the student with the cat sleeps in the class)))
+(parse '(the student with the cat sleeps in the class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))) (verb-phrase (verb sleeps) (prep-phrase (prep in) (simple-noun-phrase (article the) (noun class)))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article the) (noun student))
+              (prep-phrase (prep with)
+                           (simple-noun-phrase (article the) (noun cat))))
+ (verb-phrase (verb sleeps)
+              (prep-phrase (prep in)
+                           (simple-noun-phrase (article the) (noun class)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; There are no more values of
-(parse (quote (the student with the cat sleeps in the class)))
+(parse '(the student with the cat sleeps in the class))
+
 
 ;;; Amb-Eval input:
-(parse (quote (the professor lectures to the student with the cat)))
+(parse '(the professor lectures to the student with the cat))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb-phrase (verb lectures) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb lectures)
+                        (prep-phrase (prep to)
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))))
+           (prep-phrase (prep with)
+                        (simple-noun-phrase (article the) (noun cat)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun professor)) (verb-phrase (verb lectures) (prep-phrase (prep to) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep with) (simple-noun-phrase (article the) (noun cat)))))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase (verb lectures)
+                       (prep-phrase (prep to)
+                                    (noun-phrase
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))
+                                     (prep-phrase (prep with)
+                                                  (simple-noun-phrase
+                                                   (article the)
+                                                   (noun cat)))))))
+
 
 ;;; Amb-Eval input:
-(parse (quote (the professor lectures but the cat sleeps)))
+(parse '(the professor lectures but the cat sleeps))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(compound-sentence (sentence (simple-noun-phrase (article the) (noun professor)) (verb lectures)) (conjunction but) (sentence (simple-noun-phrase (article the) (noun cat)) (verb sleeps)))
+(compound-sentence
+ (sentence (simple-noun-phrase (article the) (noun professor))
+           (verb lectures))
+ (conjunction but)
+ (sentence (simple-noun-phrase (article the) (noun cat)) (verb sleeps)))
+
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -35710,202 +36640,390 @@ try-again
 
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+(define (prime-sum-pair list1 list2)
+  (let ((a (an-element-of list1)) (b (an-element-of list2)))
+    (require (prime? (+ a b)))
+    (list a b)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (an-integer-between n k) (require (< n k)) (amb n (an-integer-between (+ n 1) k)))
+(define (an-integer-between n k)
+  (require (< n k))
+  (amb n (an-integer-between (+ n 1) k)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-between low high) (let ((i (an-integer-between low high))) (let ((j (an-integer-between i high))) (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-between low high)
+  (let ((i (an-integer-between low high)))
+    (let ((j (an-integer-between i high)))
+      (let ((k (an-integer-between j high)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-pythagorean-triple-from start) (let ((k (an-integer-starting-from start))) (let ((j (an-integer-between 0 k))) (let ((i (an-integer-between 0 j))) (require (= (+ (* i i) (* j j)) (* k k))) (list i j k)))))
+(define (a-pythagorean-triple-from start)
+  (let ((k (an-integer-starting-from start)))
+    (let ((j (an-integer-between 0 k)))
+      (let ((i (an-integer-between 0 j)))
+        (require (= (+ (* i i) (* j j)) (* k k)))
+        (list i j k)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define empty-board (quote ()))
+(define empty-board '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (adjoin-position new-row k rest-of-queens) (cons (cons k new-row) rest-of-queens))
+(define (adjoin-position new-row k rest-of-queens)
+  (cons (cons k new-row) rest-of-queens))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (safe? k positions) (cond ((null? (cdr positions)) #t) ((= k 1) #t) ((= (cdar positions) (cdadr positions)) #f) ((= (abs (- (cdar positions) (cdadr positions))) (abs (- (caar positions) (caadr positions)))) #f) (else (safe? k (cons (car positions) (cddr positions))))))
+(define (safe? k positions)
+  (cond ((null? (cdr positions)) #t)
+        ((= k 1) #t)
+        ((= (cdar positions) (cdadr positions)) #f)
+        ((= (abs (- (cdar positions) (cdadr positions)))
+            (abs (- (caar positions) (caadr positions)))) #f)
+        (else (safe? k (cons (car positions) (cddr positions))))))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define nouns (quote (noun student professor cat class)))
+(define nouns '(noun student professor cat class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define verbs (quote (verb studies lectures eats sleeps)))
+(define verbs '(verb studies lectures eats sleeps))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define articles (quote (article the a)))
+(define articles '(article the a))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define prepositions (quote (prep for to in by with)))
+(define prepositions '(prep for to in by with))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-prepositional-phrase) (list (quote prep-phrase) (parse-word prepositions) (parse-noun-phrase)))
+(define (parse-prepositional-phrase)
+  (list 'prep-phrase (parse-word prepositions) (parse-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-sentence) (list (quote sentence) (parse-noun-phrase) (parse-verb-phrase)))
+(define (parse-sentence)
+  (list 'sentence (parse-noun-phrase) (parse-verb-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-verb-phrase) (define (maybe-extend verb-phrase) (amb verb-phrase (maybe-extend (list (quote verb-phrase) verb-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-word verbs)))
+(define (parse-verb-phrase)
+  (define (maybe-extend verb-phrase)
+    (amb verb-phrase
+         (maybe-extend
+          (list 'verb-phrase verb-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-word verbs)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-simple-noun-phrase) (list (quote simple-noun-phrase) (parse-word articles) (parse-word nouns)))
+(define (parse-simple-noun-phrase)
+  (list 'simple-noun-phrase (parse-word articles) (parse-word nouns)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-noun-phrase) (define (maybe-extend noun-phrase) (amb noun-phrase (maybe-extend (list (quote noun-phrase) noun-phrase (parse-prepositional-phrase))))) (maybe-extend (parse-simple-noun-phrase)))
+(define (parse-noun-phrase)
+  (define (maybe-extend noun-phrase)
+    (amb noun-phrase
+         (maybe-extend
+          (list 'noun-phrase noun-phrase (parse-prepositional-phrase)))))
+  (maybe-extend (parse-simple-noun-phrase)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (a-random-of l) (require (not (null? l))) (ramb (a-random-of (cdr l)) (car l) (ramb)))
+(define (a-random-of l)
+  (require (not (null? l)))
+  (ramb (a-random-of (cdr l)) (car l) (ramb)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse-word word-list) (require (not (null? *unparsed*))) (let ((found-word (a-random-of (cdr word-list)))) (set! *unparsed* (cdr *unparsed*)) (list (car word-list) found-word)))
+(define (parse-word word-list)
+  (require (not (null? *unparsed*)))
+  (let ((found-word (a-random-of (cdr word-list))))
+    (set! *unparsed* (cdr *unparsed*))
+    (list (car word-list) found-word)))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define *unparsed* (quote ()))
+(define *unparsed* '())
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(define (parse input) (set! *unparsed* input) (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+(define (parse input)
+  (set! *unparsed* input)
+  (let ((sent (parse-sentence))) (require (null? *unparsed*)) sent))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 
+
 ;;; Amb-Eval input:
-(parse (quote (the student with the cat sleeps in the class)))
+(parse '(the student with the cat sleeps in the class))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun professor)))))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article a) (noun cat))
+              (prep-phrase (prep to)
+                           (noun-phrase
+                            (simple-noun-phrase (article the) (noun student))
+                            (prep-phrase (prep with)
+                                         (simple-noun-phrase (article the)
+                                                             (noun student))))))
+ (verb studies))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun professor)))))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article a) (noun cat))
+              (prep-phrase (prep to)
+                           (noun-phrase
+                            (simple-noun-phrase (article the) (noun student))
+                            (prep-phrase (prep with)
+                                         (simple-noun-phrase (article the)
+                                                             (noun student))))))
+ (verb studies))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article a) (noun cat))
+              (prep-phrase (prep to)
+                           (noun-phrase
+                            (simple-noun-phrase (article the) (noun student))
+                            (prep-phrase (prep with)
+                                         (simple-noun-phrase (article the)
+                                                             (noun student))))))
+ (verb lectures))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article a) (noun cat))
+              (prep-phrase (prep to)
+                           (noun-phrase
+                            (simple-noun-phrase (article the) (noun student))
+                            (prep-phrase (prep with)
+                                         (simple-noun-phrase (article the)
+                                                             (noun student))))))
+ (verb studies))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article a) (noun cat))
+              (prep-phrase (prep to)
+                           (noun-phrase
+                            (simple-noun-phrase (article the) (noun student))
+                            (prep-phrase (prep in)
+                                         (simple-noun-phrase (article the)
+                                                             (noun student))))))
+ (verb lectures))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep for) (simple-noun-phrase (article a) (noun professor)))))))
+(sentence
+ (noun-phrase (simple-noun-phrase (article a) (noun cat))
+              (prep-phrase (prep to)
+                           (noun-phrase
+                            (simple-noun-phrase (article the) (noun student))
+                            (prep-phrase (prep in)
+                                         (simple-noun-phrase (article the)
+                                                             (noun student))))))
+ (verb studies))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (simple-noun-phrase (article the) (noun student)) (verb-phrase (verb studies) (prep-phrase (prep for) (noun-phrase (simple-noun-phrase (article the) (noun student)) (prep-phrase (prep for) (simple-noun-phrase (article a) (noun student)))))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb eats)
+                        (prep-phrase (prep for)
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))))
+           (prep-phrase (prep for)
+                        (simple-noun-phrase (article a) (noun student)))))
+
 
 ;;; Amb-Eval input:
-(parse (quote (the professor lectures to the student with the cat)))
+(parse '(the professor lectures to the student with the cat))
+
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(sentence (noun-phrase (simple-noun-phrase (article the) (noun cat)) (prep-phrase (prep for) (simple-noun-phrase (article the) (noun student)))) (verb-phrase (verb studies) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun professor)))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb studies)
+                        (prep-phrase (prep for)
+                                     (simple-noun-phrase (article the)
+                                                         (noun professor))))
+           (prep-phrase (prep for)
+                        (simple-noun-phrase (article the) (noun student)))))
+
 
 ;;; Amb-Eval input:
 try-again
+
 ;;; Amb-Eval value:
-(sentence (noun-phrase (simple-noun-phrase (article the) (noun cat)) (prep-phrase (prep for) (simple-noun-phrase (article the) (noun student)))) (verb-phrase (verb studies) (prep-phrase (prep to) (simple-noun-phrase (article the) (noun student)))))
+(sentence (simple-noun-phrase (article the) (noun professor))
+          (verb-phrase
+           (verb-phrase (verb studies)
+                        (prep-phrase (prep for)
+                                     (simple-noun-phrase (article the)
+                                                         (noun student))))
+           (prep-phrase (prep for)
+                        (simple-noun-phrase (article the) (noun student)))))
+
 
 ;;; Amb-Eval input:
 try-again
-;;; Amb-Eval value:
-(sentence (noun-phrase (noun-phrase (simple-noun-phrase (article the) (noun cat)) (prep-phrase (prep for) (simple-noun-phrase (article the) (noun student)))) (prep-phrase (prep for) (simple-noun-phrase (article the) (noun professor)))) (verb studies))
+
+;;; There are no more values of
+(parse '(the professor lectures to the student with the cat))
+
 
 ;;; Amb-Eval input:
 (exit)
+
 ;;; Starting a new problem 
 #+end_example
 
@@ -39857,236 +40975,556 @@ recursive infinite rule.
 
 ;;; Query input:
 (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Bitdiddle Ben) (computer wizard)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Bitdiddle Ben) 60000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Hacker Alyssa P) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Hacker Alyssa P) 40000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Fect Cy D) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Fect Cy D) 35000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Tweakit Lem E) (computer technician)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Tweakit Lem E) 25000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Reasoner Louis) (computer programmer trainee)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Reasoner Louis) 30000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Warbucks Oliver) (administration big wheel)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Warbucks Oliver) 150000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Scrooge Eben) (accounting chief accountant)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Scrooge Eben) 75000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Cratchet Robert) (accounting scrivener)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Cratchet Robert) 18000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Cratchet Robert) (Scrooge Eben)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (job (Aull DeWitt) (administration secretary)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (salary (Aull DeWitt) 25000))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (computer wizard) (computer programmer)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (computer wizard) (computer technician)))
+
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (can-do-job (administration secretary) (administration big wheel)))
+
 Assertion added to data base.
 ;;; Query input:
 (assert! (rule (loop (? x)) (or (loop (? x)))))
+
 Assertion added to data base.
 ;;; Query input:
-(assert! (rule (outranked-by (? staff-person) (? boss)) (or (supervisor (? staff-person) (? boss)) (and (outranked-by (? middle-manager) (? boss)) (supervisor (? staff-person) (? middle-manager))))))
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (outranked-by (? middle-manager) (? boss))
+                (supervisor (? staff-person) (? middle-manager))))))
+
 Assertion added to data base.
 ;;; Query input:
 (outranked-by (Bitdiddle Ben) (? who))
+
 ;;; Query results:
 
 qeval:depth=1
 query=(outranked-by (Bitdiddle Ben) (? who))
+
  frame-stream=( )
 
 qeval:depth=2
-query=(or (supervisor (? 1 staff-person) (? 1 boss)) (and (outranked-by (? 1 middle-manager) (? 1 boss)) (supervisor (? 1 staff-person) (? 1 middle-manager))))
- frame-stream=( (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(or (supervisor (? 1 staff-person) (? 1 boss))
+    (and (outranked-by (? 1 middle-manager) (? 1 boss))
+         (supervisor (? 1 staff-person) (? 1 middle-manager))))
+
+ frame-stream=( (?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=3
 query=(supervisor (? 1 staff-person) (? 1 boss))
- frame-stream=( (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-1 . (Warbucks Oliver)) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-1 . (Warbucks Oliver)) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-1 . (Warbucks Oliver)) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-1 . (Warbucks Oliver)) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-1 . (Warbucks Oliver)) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-1 . (Warbucks Oliver)) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 (outranked-by (Bitdiddle Ben) (Warbucks Oliver))
 
 qeval:depth=4
-query=(and (outranked-by (? 1 middle-manager) (? 1 boss)) (supervisor (? 1 staff-person) (? 1 middle-manager)))
- frame-stream=( (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(and (outranked-by (? 1 middle-manager) (? 1 boss))
+     (supervisor (? 1 staff-person) (? 1 middle-manager)))
+
+ frame-stream=( (?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=5
 query=(outranked-by (? 1 middle-manager) (? 1 boss))
- frame-stream=( (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=6
-query=(or (supervisor (? 2 staff-person) (? 2 boss)) (and (outranked-by (? 2 middle-manager) (? 2 boss)) (supervisor (? 2 staff-person) (? 2 middle-manager))))
- frame-stream=( (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(or (supervisor (? 2 staff-person) (? 2 boss))
+    (and (outranked-by (? 2 middle-manager) (? 2 boss))
+         (supervisor (? 2 staff-person) (? 2 middle-manager))))
+
+ frame-stream=( (?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=7
 query=(supervisor (? 2 staff-person) (? 2 boss))
- frame-stream=( (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-2 . (Warbucks Oliver)) (?staff-person-2 . (Aull DeWitt)) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-2 . (Warbucks Oliver)) (?staff-person-2 . (Aull DeWitt)) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-2 . (Warbucks Oliver)) (?staff-person-2 . (Aull DeWitt)) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-2 . (Warbucks Oliver)) 
+(?staff-person-2 . (Aull DeWitt)) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-2 . (Warbucks Oliver)) 
+(?staff-person-2 . (Aull DeWitt)) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-2 . (Warbucks Oliver)) 
+(?staff-person-2 . (Aull DeWitt)) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=8
 query=(supervisor (? 1 staff-person) (? 1 middle-manager))
- frame-stream=( (?boss-2 . (Warbucks Oliver)) (?staff-person-2 . (Aull DeWitt)) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-2 . (Warbucks Oliver)) 
+(?staff-person-2 . (Aull DeWitt)) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=9
-query=(and (outranked-by (? 2 middle-manager) (? 2 boss)) (supervisor (? 2 staff-person) (? 2 middle-manager)))
- frame-stream=( (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(and (outranked-by (? 2 middle-manager) (? 2 boss))
+     (supervisor (? 2 staff-person) (? 2 middle-manager)))
+
+ frame-stream=( (?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=10
 query=(outranked-by (? 2 middle-manager) (? 2 boss))
- frame-stream=( (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=11
-query=(or (supervisor (? 3 staff-person) (? 3 boss)) (and (outranked-by (? 3 middle-manager) (? 3 boss)) (supervisor (? 3 staff-person) (? 3 middle-manager))))
- frame-stream=( (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(or (supervisor (? 3 staff-person) (? 3 boss))
+    (and (outranked-by (? 3 middle-manager) (? 3 boss))
+         (supervisor (? 3 staff-person) (? 3 middle-manager))))
+
+ frame-stream=( (?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=12
 query=(supervisor (? 3 staff-person) (? 3 boss))
- frame-stream=( (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-3 . (Warbucks Oliver)) (?staff-person-3 . (Aull DeWitt)) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-3 . (Warbucks Oliver)) (?staff-person-3 . (Aull DeWitt)) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-3 . (Warbucks Oliver)) (?staff-person-3 . (Aull DeWitt)) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-3 . (Warbucks Oliver)) 
+(?staff-person-3 . (Aull DeWitt)) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-3 . (Warbucks Oliver)) 
+(?staff-person-3 . (Aull DeWitt)) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-3 . (Warbucks Oliver)) 
+(?staff-person-3 . (Aull DeWitt)) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=13
 query=(supervisor (? 2 staff-person) (? 2 middle-manager))
- frame-stream=( (?boss-3 . (Warbucks Oliver)) (?staff-person-3 . (Aull DeWitt)) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-3 . (Warbucks Oliver)) 
+(?staff-person-3 . (Aull DeWitt)) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=14
-query=(and (outranked-by (? 3 middle-manager) (? 3 boss)) (supervisor (? 3 staff-person) (? 3 middle-manager)))
- frame-stream=( (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(and (outranked-by (? 3 middle-manager) (? 3 boss))
+     (supervisor (? 3 staff-person) (? 3 middle-manager)))
+
+ frame-stream=( (?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=15
 query=(outranked-by (? 3 middle-manager) (? 3 boss))
- frame-stream=( (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=16
-query=(or (supervisor (? 4 staff-person) (? 4 boss)) (and (outranked-by (? 4 middle-manager) (? 4 boss)) (supervisor (? 4 staff-person) (? 4 middle-manager))))
- frame-stream=( (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(or (supervisor (? 4 staff-person) (? 4 boss))
+    (and (outranked-by (? 4 middle-manager) (? 4 boss))
+         (supervisor (? 4 staff-person) (? 4 middle-manager))))
+
+ frame-stream=( (?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=17
 query=(supervisor (? 4 staff-person) (? 4 boss))
- frame-stream=( (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-4 . (Warbucks Oliver)) (?staff-person-4 . (Aull DeWitt)) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-4 . (Warbucks Oliver)) (?staff-person-4 . (Aull DeWitt)) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?boss-4 . (Warbucks Oliver)) (?staff-person-4 . (Aull DeWitt)) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-4 . (Warbucks Oliver)) 
+(?staff-person-4 . (Aull DeWitt)) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-4 . (Warbucks Oliver)) 
+(?staff-person-4 . (Aull DeWitt)) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?boss-4 . (Warbucks Oliver)) 
+(?staff-person-4 . (Aull DeWitt)) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=18
 query=(supervisor (? 3 staff-person) (? 3 middle-manager))
- frame-stream=( (?boss-4 . (Warbucks Oliver)) (?staff-person-4 . (Aull DeWitt)) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-4 . (Warbucks Oliver)) 
+(?staff-person-4 . (Aull DeWitt)) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=19
-query=(and (outranked-by (? 4 middle-manager) (? 4 boss)) (supervisor (? 4 staff-person) (? 4 middle-manager)))
- frame-stream=( (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(and (outranked-by (? 4 middle-manager) (? 4 boss))
+     (supervisor (? 4 staff-person) (? 4 middle-manager)))
+
+ frame-stream=( (?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=20
 query=(outranked-by (? 4 middle-manager) (? 4 boss))
- frame-stream=( (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+
+ frame-stream=( (?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 
 qeval:depth=21
-query=(or (supervisor (? 5 staff-person) (? 5 boss)) (and (outranked-by (? 5 middle-manager) (? 5 boss)) (supervisor (? 5 staff-person) (? 5 middle-manager))))
- frame-stream=( (?boss-4 . ?boss-5) (?middle-manager-4 . ?staff-person-5) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+query=(or (supervisor (? 5 staff-person) (? 5 boss))
+    (and (outranked-by (? 5 middle-manager) (? 5 boss))
+         (supervisor (? 5 staff-person) (? 5 middle-manager))))
+
+ frame-stream=( (?boss-4 . ?boss-5) 
+(?middle-manager-4 . ?staff-person-5) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
 Maximum depth reached.
  retval=
 
 qeval:depth=21
 query=(supervisor (? 4 staff-person) (? 4 middle-manager))
+
  frame-stream=
 Maximum depth reached.
  retval=
- retval=( (?staff-person-3 . (Cratchet Robert)) (?boss-4 . (Warbucks Oliver)) (?staff-person-4 . (Scrooge Eben)) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?staff-person-3 . (Cratchet Robert)) (?boss-4 . (Warbucks Oliver)) (?staff-person-4 . (Scrooge Eben)) (?boss-3 . ?boss-4) (?middle-manager-3 . ?staff-person-4) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?staff-person-2 . (Cratchet Robert)) (?boss-3 . (Warbucks Oliver)) (?staff-person-3 . (Scrooge Eben)) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
- retval=( (?staff-person-2 . (Cratchet Robert)) (?boss-3 . (Warbucks Oliver)) (?staff-person-3 . (Scrooge Eben)) (?boss-2 . ?boss-3) (?middle-manager-2 . ?staff-person-3) (?boss-1 . ?boss-2) (?middle-manager-1 . ?staff-person-2) (?who . ?boss-1) (?staff-person-1 . (Bitdiddle Ben)) )
+ retval=( (?staff-person-3 . (Cratchet Robert)) 
+(?boss-4 . (Warbucks Oliver)) 
+(?staff-person-4 . (Scrooge Eben)) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?staff-person-3 . (Cratchet Robert)) 
+(?boss-4 . (Warbucks Oliver)) 
+(?staff-person-4 . (Scrooge Eben)) 
+(?boss-3 . ?boss-4) 
+(?middle-manager-3 . ?staff-person-4) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?staff-person-2 . (Cratchet Robert)) 
+(?boss-3 . (Warbucks Oliver)) 
+(?staff-person-3 . (Scrooge Eben)) 
+(?boss-2 . ?boss-3) 
+(?middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
+ retval=( (?staff-person-2 . (Cratchet Robert)) 
+(?boss-3 . (Warbucks Oliver)) 
+(?staff-person-3 . (Scrooge Eben)) 
+(?boss-2 . ?boss-3) 
+(?Middle-manager-2 . ?staff-person-3) 
+(?boss-1 . ?boss-2) 
+(?middle-manager-1 . ?staff-person-2) 
+(?who . ?boss-1) 
+(?staff-person-1 . (Bitdiddle Ben)) 
+)
  retval=
  retval=
 ;;; Query input:
@@ -40566,10 +42004,12 @@ style. ~prompt-for-input~ and ~tagged-list~ were also implemented by me.
 		     '()
 		   (lambda (v f)
 		     (contract-question-mark v))))
-        (display ") "))
+        (display ") ")
+        (newline))
      (display "( ")
      (map print-binding frame)
-     (display ")") 'print-finished)
+     (display ")")
+      'print-finished)
 #+end_src
 
 #+name: prolog-glue
@@ -40577,6 +42017,8 @@ style. ~prompt-for-input~ and ~tagged-list~ were also implemented by me.
   (import (scheme small))
   (import (scheme list))
   (import (chibi ast))
+  (import (srfi 159))
+  (import (chibi show pretty))
   (define true #t)
   (define false #f)
   (define debug #f)
@@ -40599,7 +42041,7 @@ style. ~prompt-for-input~ and ~tagged-list~ were also implemented by me.
     (let* ((i (read))
            (no-use (if #f (begin (display "Read exp=") (write i) (newline) 'read-ok)))
            (q (query-syntax-process i)))
-      (display q)
+      (show #t (pretty q))
       (cond  ((eq? q 'exit) (exit))
              ((assertion-to-be-added? q)
 	     (add-rule-or-assertion! (add-assertion-body q))
@@ -40644,7 +42086,7 @@ style. ~prompt-for-input~ and ~tagged-list~ were also implemented by me.
 	(begin
 	  (set! current-qeval-depth (+ 1 current-qeval-depth)) 
 	  (display "\n\nqeval:depth=") (display current-qeval-depth)
-	  (display "\n\ query=") (display query)
+	  (display "\n\ query=") (show #t (pretty query))
 	  #;(display "\n instantiations=")
 	  #;(map (lambda (frame) (display (instantiate
 	  query
