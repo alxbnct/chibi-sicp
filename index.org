@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;  -*-
-# Time-stamp: <2020-02-28 13:20:40 lockywolf>
+# Time-stamp: <2020-03-02 09:30:32 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [343/404]
+* SICP [352/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -6444,7 +6444,8 @@ Let me copy the two code pieces here, I will need them later.
 
 Firstly, I want to see what it is exactly that the function outputs.
 
-#+begin_src scheme :exports both :results output :noweb-ref list-tree
+#+name: list-tree
+#+begin_src scheme :exports both :results output
      (define (entry tree) (car tree))
 
      (define (left-branch tree) (cadr tree))
@@ -6591,13 +6592,25 @@ this represented data. Therefore we can use the function verbatim.
 #+begin_src scheme :exports both :results output
 <<list-tree>>
 <<tree-lookup>>
-(show #t " " (list->tree (list (dict-entry 1 'John) (dict-entry 2 'James) (dict-entry 3 'Baloo) (dict-entry 4 'Carry))) "\n")
-(show #t " " (tree-lookup 3 (list->tree (list (dict-entry 1 'John) (dict-entry 2 'James) (dict-entry 3 'Baloo) (dict-entry 4 'Carry)))) "\n")
+(show #t " " (pretty (list->tree (list (dict-entry 1 'John) 
+                                      (dict-entry 2 'James)
+                                      (dict-entry 3 'Baloo)
+                                      (dict-entry 4 'Carry)))) "\n")
+(show #t " " (pretty (tree-lookup 
+                        3 
+                        (list->tree (list (dict-entry 1 'John) 
+                                          (dict-entry 2 'James) 
+                                          (dict-entry 3 'Baloo)
+                                          (dict-entry 4 'Carry))))) "\n")
 #+end_src
 
 #+RESULTS:
-:  ({dict-entry-type #63 2 James} ({dict-entry-type #63 1 John} () ()) ({dict-entry-type #63 3 Baloo} () ({dict-entry-type #63 4 Carry} () ())))
-:  {dict-entry-type #63 3 Baloo}
+:  ({dict-entry-type #65 2 James}
+:   ({dict-entry-type #65 1 John} () ())
+:   ({dict-entry-type #65 3 Baloo} () ({dict-entry-type #65 4 Carry} () ())))
+: 
+:  {dict-entry-type #65 3 Baloo}
+: 
 
 This exercise used the r7rs ~define-record-type~. It is not strictly
 necessary here, but I used it do add more "encapsulation" to the data base.
@@ -17873,545 +17886,545 @@ Here is the solution of the exercise. I have to copy the code again, because
 implementing term reduction requires extending the polynomial package.
 
 #+begin_src scheme :exports both :results output
-	  (define (thingy-source thingy)
-	    (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
-		  ((procedure? thingy) (list "procedure" (procedure-name thingy)))
-		  ((pair? thingy) (list "pair" (pair-source thingy)))
-		  (else "No source? refactor")))
+  (define (thingy-source thingy)
+    (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
+	  ((procedure? thingy) (list "procedure" (procedure-name thingy)))
+	  ((pair? thingy) (list "pair" (pair-source thingy)))
+	  (else "No source? refactor")))
 
-	    (define (accumulate op initial sequence)
-	      (if (null? sequence)
-		  initial
-		  (accumulate op (op initial (car sequence)) (cdr sequence))))
-	    (define false #f)
-	    (define true  #t)
-	    (define (make-table)
-	      (let ((local-table (list '*table*)))
-		(define (lookup key-1 key-2)
-		  (let ((subtable (assoc key-1 (cdr local-table))))
-		    (if subtable
-			(let ((record (assoc key-2 (cdr subtable))))
-			  (if record
-			      (cdr record)
-			      false))
-			false)))
-		(define (insert! key-1 key-2 value)
-		  (let ((subtable (assoc key-1 (cdr local-table))))
-		    (if subtable
-			(let ((record (assoc key-2 (cdr subtable))))
-			  (if record
-			      (set-cdr! record value)
-			      (set-cdr! subtable
-					(cons (cons key-2 value)
-					      (cdr subtable)))))
-			(set-cdr! local-table
-				  (cons (list key-1
-					      (cons key-2 value))
-					(cdr local-table)))))
-		  'ok)
-		(define (dispatch m)
-		  (cond ((eq? m 'lookup-proc) lookup)
-			((eq? m 'insert-proc!) insert!)
-			(else (error "Unknown operation -- TABLE" m))))
-		dispatch))
+  (define (accumulate op initial sequence)
+    (if (null? sequence)
+	initial
+	(accumulate op (op initial (car sequence)) (cdr sequence))))
+  (define false #f)
+  (define true  #t)
+  (define (make-table)
+    (let ((local-table (list '*table*)))
+      (define (lookup key-1 key-2)
+	(let ((subtable (assoc key-1 (cdr local-table))))
+	  (if subtable
+	      (let ((record (assoc key-2 (cdr subtable))))
+		(if record
+		    (cdr record)
+		    false))
+	      false)))
+      (define (insert! key-1 key-2 value)
+	(let ((subtable (assoc key-1 (cdr local-table))))
+	  (if subtable
+	      (let ((record (assoc key-2 (cdr subtable))))
+		(if record
+		    (set-cdr! record value)
+		    (set-cdr! subtable
+			      (cons (cons key-2 value)
+				    (cdr subtable)))))
+	      (set-cdr! local-table
+			(cons (list key-1
+				    (cons key-2 value))
+			      (cdr local-table)))))
+	'ok)
+      (define (dispatch m)
+	(cond ((eq? m 'lookup-proc) lookup)
+	      ((eq? m 'insert-proc!) insert!)
+	      (else (error "Unknown operation -- TABLE" m))))
+      dispatch))
 
-	    (define operation-table (make-table))
-	    (define get (operation-table 'lookup-proc))
-	    (define put (operation-table 'insert-proc!))
+  (define operation-table (make-table))
+  (define get (operation-table 'lookup-proc))
+  (define put (operation-table 'insert-proc!))
 
-	    (define coercion-table (make-table))
-	    (define get-coercion (coercion-table 'lookup-proc))
-	    (define put-coercion (coercion-table 'insert-proc!))
+  (define coercion-table (make-table))
+  (define get-coercion (coercion-table 'lookup-proc))
+  (define put-coercion (coercion-table 'insert-proc!))
 
-	    (define (attach-tag type-tag contents)
-	      (cons type-tag contents))
+  (define (attach-tag type-tag contents)
+    (cons type-tag contents))
 
-	    (define (type-tag datum)
-	      (cond ((pair? datum) (car datum))
-		    ((exact-integer? datum) 'integer)
-		    ((real? datum) 'scheme-number)
-		    (error "Bad tagged datum -- TYPE-TAG" datum)))
+  (define (type-tag datum)
+    (cond ((pair? datum) (car datum))
+	  ((exact-integer? datum) 'integer)
+	  ((real? datum) 'scheme-number)
+	  (error "Bad tagged datum -- TYPE-TAG" datum)))
 
-	  (define (contents datum)
-	      (cond ((pair? datum) (cdr datum))
-		    ((integer? datum) datum)
-		    ((real? datum) datum)
-		    (else (error "Bad tagged datum -- CONTENTS" datum))))
+  (define (contents datum)
+    (cond ((pair? datum) (cdr datum))
+	  ((integer? datum) datum)
+	  ((real? datum) datum)
+	  (else (error "Bad tagged datum -- CONTENTS" datum))))
 
-	    (define (integer? x)
-	      (eq? (type-tag x) 'integer))
-	    (define (rectangular? z)
-	      (eq? (type-tag z) 'rectangular))
+  (define (integer? x)
+    (eq? (type-tag x) 'integer))
+  (define (rectangular? z)
+    (eq? (type-tag z) 'rectangular))
 
-	    (define (polar? z)
-	      (eq? (type-tag z) 'polar))
-
-
-	    (define (real-part z) (apply-generic 'real-part z))
-	    (define (imag-part z) (apply-generic 'imag-part z))
-	    (define (magnitude z) (apply-generic 'magnitude z))
-	    (define (angle z) (apply-generic 'angle z))
-
-	    (define (add x y) 
-	       #;(show #t "debug:add: x=" x ", y=" y ", starting apply-generic\n")
-	       #;(show #t "debug:add: (type-tags x,y)=(" (type-tag x) "," (type-tag y) ")" "\n")
-	       #;(show #t "debug:add:can we access apply-generic?" (written apply-generic)
-			"\n" )
-	       #;(error "Debug1")
-	       (apply-generic 'add x y))
-	    (define (sub x y) (apply-generic 'sub x y))
-	    (define (mul x y) (apply-generic 'mul x y))
-	    (define (div x y) (apply-generic 'div x y))
-
-	    (define (equ? x y)
-	      (apply-generic 'equ? x y))
-	    (define (zero? x) (apply-generic 'zero? x))
-
-	    (define (exp x y) (apply-generic 'exp x y))
-
-	    (define (install-scheme-number-package)
-	      (define (tag x)
-		#;(attach-tag 'scheme-number x) x)
-	      (show #t "(tag 5)=" (tag 5) "\n")
-	      (put 'add '(scheme-number scheme-number)
-		   (lambda (x y) #;(show #t "debug:found plus dispatch\n") (tag (+ x y))))
-	      (put 'sub '(scheme-number scheme-number)
-		   (lambda (x y) (tag (- x y))))
-	      (put 'mul '(scheme-number scheme-number)
-		   (lambda (x y) (tag (* x y))))
-	      (put 'div '(scheme-number scheme-number)
-		   (lambda (x y) (tag (/ x y))))
-	      (put 'make 'scheme-number
-		   (lambda (x) #;(show #t "debug:found 'make 'scheme-number\n") (tag x)))
-	      (put 'equ? '(scheme-number scheme-number)
-		   (lambda (x y) (= x y)))
-	      (put 'zero? '(scheme-number)
-		   (lambda (x) (= 0 x)))
-	      (put 'exp '(scheme-number scheme-number)
-		   (lambda (x y) (tag (expt x y))))
-	      (put 'project '(scheme-number)
-		   (lambda (x)
-		     (if (finite? x)
-			(exact (truncate x))
-			0)))
-	      (put 'sine '(scheme-number) sin)
-	      (put 'cosine '(scheme-number) cos)
-	      (put 'square-root '(scheme-number) sqrt)
-	      (put 'arctangent '(schemer-number) atan)
-	      'done)
-    (install-scheme-number-package)
-	  (define (integer->scheme-number x)
-	     (make-scheme-number (inexact (contents x))))
-	  (put-coercion 'integer 'scheme-number integer->scheme-number)  
-
-	    (define (sine x) (apply-generic 'sine x))
-	    (define (cosine x) (apply-generic 'cosine x))
-	    (define (square-root x) (apply-generic 'square-root x))
-	    (define (arctangent x) (apply-generic 'arctangent x))
-
-	    (define (make-scheme-number n)
-	       #;(show #t "debug:make-scheme-number: n=" n "\n")
-	      ((get 'make 'scheme-number) n))
-	    #;(check (+ 1 1) => 2)
-	    (show #t "Test 31: start\n")
-	    (show #t "Test 31:" (equal? (make-scheme-number 1) 1) "\n")
-
-	    #;(check (add (make-scheme-number 1) (make-scheme-number 1)) => 2)
-	  (define (reduce a b) (apply-generic 'reduce a b))
-	    (define (install-rational-package)
-	      (define (numer x) (car x))
-	      (define (denom x) (cdr x))
-	      (define (make-rat n d)
-		(show #t "make-rat: n=" n ", d="d "\n")
-		#;(let ((g (gcd n d)))
-		  (cons (/ n g) (/ d g)))
-		  (let ((new-list (reduce n d)))
-		     (cons (car new-list) (cadr new-list))))
-	      (define (add-rat x y)
-		(make-rat (add (mul (numer x) (denom y))
-			     (mul (numer y) (denom x)))
-			  (mul (denom x) (denom y))))
-	      (define (sub-rat x y)
-		(make-rat (sub (mul (numer x) (denom y))
-			     (mul (numer y) (denom x)))
-			  (mul (denom x) (denom y))))
-	      (define (mul-rat x y)
-		(make-rat (mul (numer x) (numer y))
-			  (mul (denom x) (denom y))))
-	      (define (div-rat x y)
-		(make-rat (mul (numer x) (denom y))
-			  (mul (denom x) (numer y))))
-
-	      (define (tag x) (attach-tag 'rational x))
-	      (put 'add '(rational rational)
-		   (lambda (x y) (tag (add-rat x y))))
-	      (put 'sub '(rational rational)
-		   (lambda (x y) (tag (sub-rat x y))))
-	      (put 'mul '(rational rational)
-		   (lambda (x y) (tag (mul-rat x y))))
-	      (put 'div '(rational rational)
-		   (lambda (x y) (tag (div-rat x y))))
-
-	      (put 'make 'rational
-		   (lambda (n d) (tag (make-rat n d))))
-	      (put 'equ? '(rational rational)
-		   (lambda (x y) (zero? (numer (sub-rat x y)))))
-	      (put 'zero? '(rational) (lambda (x) (zero? (numer x))))
-	      #;(put 'project '(rational) (lambda (x) 
-					  (exact (truncate (/ (numer x) (denom x))))))
-	      #;(put 'to-real '(rational) (lambda (x) (/ (numer (contents x)) (denom (contents x)))))
-	      'done)
-
-	    (define (make-rational n d)
-	      ((get 'make 'rational) n d))
-
-	    (define (install-rectangular-package)
-
-	      (define (real-part z) (car z))
-	      (define (imag-part z) (cdr z))
-	      (define (make-from-real-imag x y) (cons x y))
-	      (define (magnitude z)
-		(square-root (add (square (real-part z))
-				  (square (imag-part z)))))
-	      (define (angle z)
-		(arctangent (imag-part z) (real-part z)))
-	      (define (make-from-mag-ang r a)
-		(cons (mul r (cosine a)) (mul r (sine a))))
-
-	      (define (tag x) (attach-tag 'rectangular x))
-	      (put 'real-part '(rectangular) real-part)
-	      (put 'imag-part '(rectangular) imag-part)
-	      (put 'magnitude '(rectangular) magnitude)
-	      (put 'angle '(rectangular) angle)
-	      (put 'make-from-real-imag 'rectangular
-		   (lambda (x y) (tag (make-from-real-imag x y))))
-	      (put 'make-from-mag-ang 'rectangular
-		   (lambda (r a) (tag (make-from-mag-ang r a))))
-	      'done)
-
-	    (define (install-polar-package)
-
-	      (define (magnitude z) (car z))
-	      (define (angle z) (cdr z))
-	      (define (make-from-mag-ang r a) (cons r a))
-	      (define (real-part z)
-		(mul (magnitude z) (cosine (angle z))))
-	      (define (imag-part z)
-		(mul (magnitude z) (sine (angle z))))
-	      (define (make-from-real-imag x y)
-		(cons (square-root (add (square x) (square y)))
-		      (arctangent y x)))
-
-	      (define (tag x) (attach-tag 'polar x))
-	      (put 'real-part '(polar) real-part)
-	      (put 'imag-part '(polar) imag-part)
-	      (put 'magnitude '(polar) magnitude)
-	      (put 'angle '(polar) angle)
-	      (put 'make-from-real-imag 'polar
-		   (lambda (x y) (tag (make-from-real-imag x y))))
-	      (put 'make-from-mag-ang 'polar
-		   (lambda (r a) (tag (make-from-mag-ang r a))))
-	      'done)
-
-	    (define (install-complex-package)
-	      (define (make-from-real-imag x y)
-		((get 'make-from-real-imag 'rectangular) x y))
-	      (define (make-from-mag-ang r a)
-		((get 'make-from-mag-ang 'polar) r a))
-	      (define (add-complex z1 z2)
-		(make-from-real-imag (add (real-part z1) (real-part z2))
-				     (add (imag-part z1) (imag-part z2))))
-	      (define (sub-complex z1 z2)
-		(make-from-real-imag (sub (real-part z1) (real-part z2))
-				     (sub (imag-part z1) (imag-part z2))))
-	      (define (mul-complex z1 z2)
-		(make-from-mag-ang (mul (magnitude z1) (magnitude z2))
-				   (add (angle z1) (angle z2))))
-	      (define (div-complex z1 z2)
-		(make-from-mag-ang (div (magnitude z1) (magnitude z2))
-				   (sub (angle z1) (angle z2))))
-	      (define (tag z) (attach-tag 'complex z))
-	      (put 'add '(complex complex)
-		   (lambda (z1 z2) (tag (add-complex z1 z2))))
-	      (put 'sub '(complex complex)
-		   (lambda (z1 z2) (tag (sub-complex z1 z2))))
-	      (put 'mul '(complex complex)
-		   (lambda (z1 z2) (tag (mul-complex z1 z2))))
-	      (put 'div '(complex complex)
-		   (lambda (z1 z2) (tag (div-complex z1 z2))))
-	      (put 'make-from-real-imag 'complex
-		   (lambda (x y) (tag (make-from-real-imag x y))))
-	      (put 'make-from-mag-ang 'complex
-		   (lambda (r a) (tag (make-from-mag-ang r a))))
-	      (put 'equ? '(complex complex)
-		   (lambda (x y) (and (= 0 (real-part (sub-complex x y)))
-				      (= 0 (imag-part (sub-complex x y))))))
-	      (put 'equ? '(rectangular polar) equ?)
-	      (put 'equ? '(polar rectangular) equ?)
-	      (put 'zero? '(complex)
-		   (lambda (x) (equ? (tag x) (tag (make-from-real-imag 0 0)))))
-	      (put 'project '(complex) (lambda (z) (real-part z)))
-	      'done)
-
-	    (define (make-complex-from-real-imag x y)
-	      ((get 'make-from-real-imag 'complex) x y))
-
-	    (define (make-complex-from-mag-ang r a)
-	      ((get 'make-from-mag-ang 'complex) r a))
-
-	    (install-rectangular-package)
-	    (install-polar-package)
-	    (install-rational-package)
-
-	    (install-complex-package)
-
-	    (put 'real-part '(complex) real-part)
-	    (put 'imag-part '(complex) imag-part)
-	    (put 'magnitude '(complex) magnitude)
-	    (put 'angle '(complex) angle)
-	    (define (polynomial? x)
-	      (eq? (type-tag x) 'polynomial))
-	    (define numeric-tower (list 'integer 'scheme-number 'complex))
-	    (define (numeric? x)
-	      (memq x numeric-tower))
-	    (define (type1<=type2? type1 type2)
-	      (if (not (memq type1 numeric-tower))
-		  (error "Type 1 not in the numeric tower"))
-	      (if (not (memq type2 numeric-tower))
-		  (error "Type 2 not in the numeric tower"))
-	      (let loop ((types numeric-tower))
-		(cond ((null? types) (error "Type 1 and type 2 are incomparable" type1 type2))
-		      ((eq? (car types) type1) #t)
-		      ((eq? (car types) type2) #f)
-		      (else (loop (cdr types))))))
-	    (define (comparable? type1 type2) 
-	      (and (memq type1 numeric-tower) 
-		  (memq type2 numeric-tower)))
-	    (define (raise-type x)
-	    #;(show #t "Raising type of: " (displayed x) "\n")
-	      (let ((converter (get-coercion (type-tag x) (higher-type (type-tag x)))))
-		(if converter
-		    (converter x)
-		    (error "No coercion found for x" (type-tag x) x))))
-	  (define (higher-type x)
-	    (let ((tail (memq x numeric-tower)))
-	      (cond ((eq? #f tail) (error "Type not in the tower" x))
-		    ((null? (cdr tail)) (error "Already the highest type:" x))
-		    (else (cadr tail)))))
-
-	  (show #t "Test: Higher than 'integer: " (higher-type 'integer) "\n")
-	    (define (remainder-integer a b)
-	      (when (or (not (integer? a)) (not (integer? b)))
-		(error "Arguments must be integers" a b))
-	      (remainder a b))
-
-	    (put 'remainder '(integer integer) remainder-integer)
-	    (define (remainder-generalized a b) (apply-generic 'remainder a b))
-
-	    (define (project obj)
-	      (apply-generic 'project obj))
-	    (define (droppable? obj)
-	      #;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
-	      (cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
-		    ((not (memq (type-tag obj) numeric-tower)) #f)
-		    ((eq? (type-tag obj) (car numeric-tower)) #f)
-		    ((equ? obj (raise-type (project obj))) #t)
-		    (else #f)))
-	    (define (drop obj) 
-	      (if (droppable? obj)
-		  (drop (project obj))
-		  obj))
-
-	    (define (apply-generic op . args)
-	      #;(show #t "apply-generic:entry\n")
-	      #;(error "debug")
-	      (define (variable poly) (car poly))
-	      (define (all-argtypes-same? . args)
-		(let ((type (type-tag (car args))))
-		  (accumulate (lambda (x y) (and x y)) #t (map (lambda (x) (eq? type x)) args))))
-	      (define (coercion-if-exists? type arg-tags)
-		(let ((coercion-list (map (lambda (x) 
-					    (if (eq? type x)
-						identity
-						(get-coercion x type))) arg-tags)))
-		  (if (accumulate (lambda (x y) (and x y)) #t coercion-list)
-		      coercion-list
-		      #f)))
-	      (drop (let* ((type-tags (map type-tag args))
-			   (proc (get op type-tags)))
-		     #;(show #t "apply-generic: type-tags=" 
-			       (displayed type-tags)
-			       " proc=" (written proc)
-			       " proc-source=" (thingy-source proc) "\n")
-		      (cond (proc (apply proc (map contents args)))
-			    ((= 1 (length args))
-		     #;(show #t "No proc found for op=" op ", type-tags=" type-tags ", arg=" (displayed args) "\n")
-			     (apply-generic op (raise-type (car args))))
-			    ((= 2 (length args))
-			     (cond ((and (eq? 'polynomial (car type-tags))
-				       (numeric? (cadr type-tags)))
-				    (apply-generic op
-						   (car args)
-						   (make-polynomial (variable (contents (car args)))
-								    (list (list 0 (cadr args))))))
-				   ((and (numeric? (car type-tags))
-				 (eq? 'polynomial (cadr type-tags)))
-				    (apply-generic op
-						   (make-polynomial (variable (contents (cadr args)))
-								    (list (list 0 (car args))))
-						   (cadr args)))			 
-				   ((and (get-coercion (car type-tags) (cadr type-tags))
-				       (not (eq? (car type-tags) (cadr type-tags))))
-				    (apply-generic op
-						   ((get-coercion
-						     (car type-tags)
-						     (cadr type-tags)) (car args))
-						   (cadr args)))
-				   ((and (get-coercion (cadr type-tags) (car type-tags))
-				       (not (eq? (car type-tags) (cadr type-tags))))
-				    (apply-generic op
-						   (car args)
-						   ((get-coercion
-						     (cadr type-tags)
-						     (car type-tags)) (cadr args) )))
-				   ((comparable? (car type-tags) (cadr type-tags))
-				    (if
-				     (type1<=type2? (car type-tags) (cadr type-tags))
-				     (apply-generic op (raise-type (car args)) (cadr args))
-				     (apply-generic op (car args)  (raise-type (cadr args)))))
-				   (else (error "apply-generic:Incomparable types: (type-tags,args)=" type-tags args))))
-			    ((and (> (length args) 2) (not (all-argtypes-same? args)))
-			     (let types-loop ((types type-tags))
-			       (let ((list-of-coercion-functions
-				      (coercion-if-exists? (car types) type-tags)))
-				 (if list-of-coercion-functions
-				     (apply apply-generic (cons op (map (lambda (fun arg) (fun arg))
-									list-of-coercion-functions
-									args)))
-				     (if (not (null? (cdr types)))
-					 (types-loop (cdr types))
-					 (error "apply-generic:Even coercions failed. No method for these types."))))))
-			    (else (error "apply-generic:No method for these types"
-					 (list op type-tags)))))))
-	    (show #t "Test 30: start\n")
-	    (show #t "Test 30:(add (make-scheme-number 1) (make-scheme-number 1))= "
-	       (add (make-scheme-number 1) (make-scheme-number 1)) "\n")
-	    #;(error "Debug6")
-	    (define (scheme-number->complex n)
-	      (make-complex-from-real-imag (contents n) 0))
-	    (put-coercion 'scheme-number
-			  'complex
-			  scheme-number->complex)
-
-	    (show #t "Test 32: start")
-	    (show #t "Test 32: Subtracting complex numbers: "
-		  (sub
-		   (make-complex-from-real-imag 1.1 2)
-		   (make-complex-from-real-imag 0 2)) "\n")
+  (define (polar? z)
+    (eq? (type-tag z) 'polar))
 
 
+  (define (real-part z) (apply-generic 'real-part z))
+  (define (imag-part z) (apply-generic 'imag-part z))
+  (define (magnitude z) (apply-generic 'magnitude z))
+  (define (angle z) (apply-generic 'angle z))
 
-	    (put 'max3-magnitude '(complex complex complex) (lambda (z1 z2 z3)
-							      (max (magnitude z1) (magnitude z2) (magnitude z3))))
-	    (define (max3-magnitude x1 x2 x3) (apply-generic 'max3-magnitude x1 x2 x3))
-	    (define (identity x) x)
+  (define (add x y) 
+    #;(show #t "debug:add: x=" x ", y=" y ", starting apply-generic\n")
+    #;(show #t "debug:add: (type-tags x,y)=(" (type-tag x) "," (type-tag y) ")" "\n")
+    #;(show #t "debug:add:can we access apply-generic?" (written apply-generic)
+    "\n" )
+    #;(error "Debug1")
+    (apply-generic 'add x y))
+  (define (sub x y) (apply-generic 'sub x y))
+  (define (mul x y) (apply-generic 'mul x y))
+  (define (div x y) (apply-generic 'div x y))
 
-	  #;(define numeric-tower (list 'integer 'rational 'scheme-number 'complex))
+  (define (equ? x y)
+    (apply-generic 'equ? x y))
+  (define (zero? x) (apply-generic 'zero? x))
+
+  (define (exp x y) (apply-generic 'exp x y))
+
+  (define (install-scheme-number-package)
+    (define (tag x)
+      #;(attach-tag 'scheme-number x) x)
+    (show #t "(tag 5)=" (tag 5) "\n")
+    (put 'add '(scheme-number scheme-number)
+	 (lambda (x y) #;(show #t "debug:found plus dispatch\n") (tag (+ x y))))
+    (put 'sub '(scheme-number scheme-number)
+	 (lambda (x y) (tag (- x y))))
+    (put 'mul '(scheme-number scheme-number)
+	 (lambda (x y) (tag (* x y))))
+    (put 'div '(scheme-number scheme-number)
+	 (lambda (x y) (tag (/ x y))))
+    (put 'make 'scheme-number
+	 (lambda (x) #;(show #t "debug:found 'make 'scheme-number\n") (tag x)))
+    (put 'equ? '(scheme-number scheme-number)
+	 (lambda (x y) (= x y)))
+    (put 'zero? '(scheme-number)
+	 (lambda (x) (= 0 x)))
+    (put 'exp '(scheme-number scheme-number)
+	 (lambda (x y) (tag (expt x y))))
+    (put 'project '(scheme-number)
+	 (lambda (x)
+	   (if (finite? x)
+	       (exact (truncate x))
+	       0)))
+    (put 'sine '(scheme-number) sin)
+    (put 'cosine '(scheme-number) cos)
+    (put 'square-root '(scheme-number) sqrt)
+    (put 'arctangent '(schemer-number) atan)
+    'done)
+  (install-scheme-number-package)
+  (define (integer->scheme-number x)
+    (make-scheme-number (inexact (contents x))))
+  (put-coercion 'integer 'scheme-number integer->scheme-number)  
+
+  (define (sine x) (apply-generic 'sine x))
+  (define (cosine x) (apply-generic 'cosine x))
+  (define (square-root x) (apply-generic 'square-root x))
+  (define (arctangent x) (apply-generic 'arctangent x))
+
+  (define (make-scheme-number n)
+    #;(show #t "debug:make-scheme-number: n=" n "\n")
+    ((get 'make 'scheme-number) n))
+  #;(check (+ 1 1) => 2)
+  (show #t "Test 31: start\n")
+  (show #t "Test 31:" (equal? (make-scheme-number 1) 1) "\n")
+
+  #;(check (add (make-scheme-number 1) (make-scheme-number 1)) => 2)
+  (define (reduce a b) (apply-generic 'reduce a b))
+  (define (install-rational-package)
+    (define (numer x) (car x))
+    (define (denom x) (cdr x))
+    (define (make-rat n d)
+      (show #t "make-rat: n=" n ", d="d "\n")
+      #;(let ((g (gcd n d)))
+      (cons (/ n g) (/ d g)))
+      (let ((new-list (reduce n d)))
+	(cons (car new-list) (cadr new-list))))
+    (define (add-rat x y)
+      (make-rat (add (mul (numer x) (denom y))
+		     (mul (numer y) (denom x)))
+		(mul (denom x) (denom y))))
+    (define (sub-rat x y)
+      (make-rat (sub (mul (numer x) (denom y))
+		     (mul (numer y) (denom x)))
+		(mul (denom x) (denom y))))
+    (define (mul-rat x y)
+      (make-rat (mul (numer x) (numer y))
+		(mul (denom x) (denom y))))
+    (define (div-rat x y)
+      (make-rat (mul (numer x) (denom y))
+		(mul (denom x) (numer y))))
+
+    (define (tag x) (attach-tag 'rational x))
+    (put 'add '(rational rational)
+	 (lambda (x y) (tag (add-rat x y))))
+    (put 'sub '(rational rational)
+	 (lambda (x y) (tag (sub-rat x y))))
+    (put 'mul '(rational rational)
+	 (lambda (x y) (tag (mul-rat x y))))
+    (put 'div '(rational rational)
+	 (lambda (x y) (tag (div-rat x y))))
+
+    (put 'make 'rational
+	 (lambda (n d) (tag (make-rat n d))))
+    (put 'equ? '(rational rational)
+	 (lambda (x y) (zero? (numer (sub-rat x y)))))
+    (put 'zero? '(rational) (lambda (x) (zero? (numer x))))
+    #;(put 'project '(rational) (lambda (x) 
+    (exact (truncate (/ (numer x) (denom x))))))
+    #;(put 'to-real '(rational) (lambda (x) (/ (numer (contents x)) (denom (contents x)))))
+    'done)
+
+  (define (make-rational n d)
+    ((get 'make 'rational) n d))
+
+  (define (install-rectangular-package)
+
+    (define (real-part z) (car z))
+    (define (imag-part z) (cdr z))
+    (define (make-from-real-imag x y) (cons x y))
+    (define (magnitude z)
+      (square-root (add (square (real-part z))
+			(square (imag-part z)))))
+    (define (angle z)
+      (arctangent (imag-part z) (real-part z)))
+    (define (make-from-mag-ang r a)
+      (cons (mul r (cosine a)) (mul r (sine a))))
+
+    (define (tag x) (attach-tag 'rectangular x))
+    (put 'real-part '(rectangular) real-part)
+    (put 'imag-part '(rectangular) imag-part)
+    (put 'magnitude '(rectangular) magnitude)
+    (put 'angle '(rectangular) angle)
+    (put 'make-from-real-imag 'rectangular
+	 (lambda (x y) (tag (make-from-real-imag x y))))
+    (put 'make-from-mag-ang 'rectangular
+	 (lambda (r a) (tag (make-from-mag-ang r a))))
+    'done)
+
+  (define (install-polar-package)
+
+    (define (magnitude z) (car z))
+    (define (angle z) (cdr z))
+    (define (make-from-mag-ang r a) (cons r a))
+    (define (real-part z)
+      (mul (magnitude z) (cosine (angle z))))
+    (define (imag-part z)
+      (mul (magnitude z) (sine (angle z))))
+    (define (make-from-real-imag x y)
+      (cons (square-root (add (square x) (square y)))
+	    (arctangent y x)))
+
+    (define (tag x) (attach-tag 'polar x))
+    (put 'real-part '(polar) real-part)
+    (put 'imag-part '(polar) imag-part)
+    (put 'magnitude '(polar) magnitude)
+    (put 'angle '(polar) angle)
+    (put 'make-from-real-imag 'polar
+	 (lambda (x y) (tag (make-from-real-imag x y))))
+    (put 'make-from-mag-ang 'polar
+	 (lambda (r a) (tag (make-from-mag-ang r a))))
+    'done)
+
+  (define (install-complex-package)
+    (define (make-from-real-imag x y)
+      ((get 'make-from-real-imag 'rectangular) x y))
+    (define (make-from-mag-ang r a)
+      ((get 'make-from-mag-ang 'polar) r a))
+    (define (add-complex z1 z2)
+      (make-from-real-imag (add (real-part z1) (real-part z2))
+			   (add (imag-part z1) (imag-part z2))))
+    (define (sub-complex z1 z2)
+      (make-from-real-imag (sub (real-part z1) (real-part z2))
+			   (sub (imag-part z1) (imag-part z2))))
+    (define (mul-complex z1 z2)
+      (make-from-mag-ang (mul (magnitude z1) (magnitude z2))
+			 (add (angle z1) (angle z2))))
+    (define (div-complex z1 z2)
+      (make-from-mag-ang (div (magnitude z1) (magnitude z2))
+			 (sub (angle z1) (angle z2))))
+    (define (tag z) (attach-tag 'complex z))
+    (put 'add '(complex complex)
+	 (lambda (z1 z2) (tag (add-complex z1 z2))))
+    (put 'sub '(complex complex)
+	 (lambda (z1 z2) (tag (sub-complex z1 z2))))
+    (put 'mul '(complex complex)
+	 (lambda (z1 z2) (tag (mul-complex z1 z2))))
+    (put 'div '(complex complex)
+	 (lambda (z1 z2) (tag (div-complex z1 z2))))
+    (put 'make-from-real-imag 'complex
+	 (lambda (x y) (tag (make-from-real-imag x y))))
+    (put 'make-from-mag-ang 'complex
+	 (lambda (r a) (tag (make-from-mag-ang r a))))
+    (put 'equ? '(complex complex)
+	 (lambda (x y) (and (= 0 (real-part (sub-complex x y)))
+			    (= 0 (imag-part (sub-complex x y))))))
+    (put 'equ? '(rectangular polar) equ?)
+    (put 'equ? '(polar rectangular) equ?)
+    (put 'zero? '(complex)
+	 (lambda (x) (equ? (tag x) (tag (make-from-real-imag 0 0)))))
+    (put 'project '(complex) (lambda (z) (real-part z)))
+    'done)
+
+  (define (make-complex-from-real-imag x y)
+    ((get 'make-from-real-imag 'complex) x y))
+
+  (define (make-complex-from-mag-ang r a)
+    ((get 'make-from-mag-ang 'complex) r a))
+
+  (install-rectangular-package)
+  (install-polar-package)
+  (install-rational-package)
+
+  (install-complex-package)
+
+  (put 'real-part '(complex) real-part)
+  (put 'imag-part '(complex) imag-part)
+  (put 'magnitude '(complex) magnitude)
+  (put 'angle '(complex) angle)
+  (define (polynomial? x)
+    (eq? (type-tag x) 'polynomial))
+  (define numeric-tower (list 'integer 'scheme-number 'complex))
+  (define (numeric? x)
+    (memq x numeric-tower))
+  (define (type1<=type2? type1 type2)
+    (if (not (memq type1 numeric-tower))
+	(error "Type 1 not in the numeric tower"))
+    (if (not (memq type2 numeric-tower))
+	(error "Type 2 not in the numeric tower"))
+    (let loop ((types numeric-tower))
+      (cond ((null? types) (error "Type 1 and type 2 are incomparable" type1 type2))
+	    ((eq? (car types) type1) #t)
+	    ((eq? (car types) type2) #f)
+	    (else (loop (cdr types))))))
+  (define (comparable? type1 type2) 
+    (and (memq type1 numeric-tower) 
+	 (memq type2 numeric-tower)))
+  (define (raise-type x)
+    #;(show #t "Raising type of: " (displayed x) "\n")
+    (let ((converter (get-coercion (type-tag x) (higher-type (type-tag x)))))
+      (if converter
+	  (converter x)
+	  (error "No coercion found for x" (type-tag x) x))))
+  (define (higher-type x)
+    (let ((tail (memq x numeric-tower)))
+      (cond ((eq? #f tail) (error "Type not in the tower" x))
+	    ((null? (cdr tail)) (error "Already the highest type:" x))
+	    (else (cadr tail)))))
+
+  (show #t "Test: Higher than 'integer: " (higher-type 'integer) "\n")
+  (define (remainder-integer a b)
+    (when (or (not (integer? a)) (not (integer? b)))
+      (error "Arguments must be integers" a b))
+    (remainder a b))
+
+  (put 'remainder '(integer integer) remainder-integer)
+  (define (remainder-generalized a b) (apply-generic 'remainder a b))
+
+  (define (project obj)
+    (apply-generic 'project obj))
+  (define (droppable? obj)
+    #;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
+    (cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
+	  ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj) 
+    (if (droppable? obj)
+	(drop (project obj))
+	obj))
+
+  (define (apply-generic op . args)
+    #;(show #t "apply-generic:entry\n")
+    #;(error "debug")
+    (define (variable poly) (car poly))
+    (define (all-argtypes-same? . args)
+      (let ((type (type-tag (car args))))
+	(accumulate (lambda (x y) (and x y)) #t (map (lambda (x) (eq? type x)) args))))
+    (define (coercion-if-exists? type arg-tags)
+      (let ((coercion-list (map (lambda (x) 
+				  (if (eq? type x)
+				      identity
+				      (get-coercion x type))) arg-tags)))
+	(if (accumulate (lambda (x y) (and x y)) #t coercion-list)
+	    coercion-list
+	    #f)))
+    (drop (let* ((type-tags (map type-tag args))
+		 (proc (get op type-tags)))
+	    #;(show #t "apply-generic: type-tags=" 
+	    (displayed type-tags)
+	    " proc=" (written proc)
+	    " proc-source=" (thingy-source proc) "\n")
+	    (cond (proc (apply proc (map contents args)))
+		  ((= 1 (length args))
+		   #;(show #t "No proc found for op=" op ", type-tags=" type-tags ", arg=" (displayed args) "\n")
+		   (apply-generic op (raise-type (car args))))
+		  ((= 2 (length args))
+		   (cond ((and (eq? 'polynomial (car type-tags))
+			       (numeric? (cadr type-tags)))
+			  (apply-generic op
+					 (car args)
+					 (make-polynomial (variable (contents (car args)))
+							  (list (list 0 (cadr args))))))
+			 ((and (numeric? (car type-tags))
+			       (eq? 'polynomial (cadr type-tags)))
+			  (apply-generic op
+					 (make-polynomial (variable (contents (cadr args)))
+							  (list (list 0 (car args))))
+					 (cadr args)))			 
+			 ((and (get-coercion (car type-tags) (cadr type-tags))
+			       (not (eq? (car type-tags) (cadr type-tags))))
+			  (apply-generic op
+					 ((get-coercion
+					   (car type-tags)
+					   (cadr type-tags)) (car args))
+					 (cadr args)))
+			 ((and (get-coercion (cadr type-tags) (car type-tags))
+			       (not (eq? (car type-tags) (cadr type-tags))))
+			  (apply-generic op
+					 (car args)
+					 ((get-coercion
+					   (cadr type-tags)
+					   (car type-tags)) (cadr args) )))
+			 ((comparable? (car type-tags) (cadr type-tags))
+			  (if
+			   (type1<=type2? (car type-tags) (cadr type-tags))
+			   (apply-generic op (raise-type (car args)) (cadr args))
+			   (apply-generic op (car args)  (raise-type (cadr args)))))
+			 (else (error "apply-generic:Incomparable types: (type-tags,args)=" type-tags args))))
+		  ((and (> (length args) 2) (not (all-argtypes-same? args)))
+		   (let types-loop ((types type-tags))
+		     (let ((list-of-coercion-functions
+			    (coercion-if-exists? (car types) type-tags)))
+		       (if list-of-coercion-functions
+			   (apply apply-generic (cons op (map (lambda (fun arg) (fun arg))
+							      list-of-coercion-functions
+							      args)))
+			   (if (not (null? (cdr types)))
+			       (types-loop (cdr types))
+			       (error "apply-generic:Even coercions failed. No method for these types."))))))
+		  (else (error "apply-generic:No method for these types"
+			       (list op type-tags)))))))
+  (show #t "Test 30: start\n")
+  (show #t "Test 30:(add (make-scheme-number 1) (make-scheme-number 1))= "
+	(add (make-scheme-number 1) (make-scheme-number 1)) "\n")
+  #;(error "Debug6")
+  (define (scheme-number->complex n)
+    (make-complex-from-real-imag (contents n) 0))
+  (put-coercion 'scheme-number
+		'complex
+		scheme-number->complex)
+
+  (show #t "Test 32: start")
+  (show #t "Test 32: Subtracting complex numbers: "
+	(sub
+	 (make-complex-from-real-imag 1.1 2)
+	 (make-complex-from-real-imag 0 2)) "\n")
 
 
-	  #;(define (higher-type x)
-	    (show #t "higher-type:x=" (displayed x) "\n")
-	      (define (find-higher-type x types)
-		(cond ((or (null? types) (null? (cdr types))) (error "No type higher than given" x types))
-		      ((eq? x (car types)) (cadr types))
-		      (else (find-higher-type x (cdr types)))))
-	      (find-higher-type x numeric-tower))
 
-	  #;(show #t "Test: Higher than 'complex: " (higher-type 'complex) "\n")
+  (put 'max3-magnitude '(complex complex complex) (lambda (z1 z2 z3)
+						    (max (magnitude z1) (magnitude z2) (magnitude z3))))
+  (define (max3-magnitude x1 x2 x3) (apply-generic 'max3-magnitude x1 x2 x3))
+  (define (identity x) x)
 
-	    #;(define (integer->rational x)
-	      (make-rational x 1))
-
-	    #;(define (rational->scheme-number x)
-	      (make-scheme-number ((get 'to-real '(rational)) x)))
-	    #;(put-coercion 'integer 'rational integer->rational)
-	    #;(put-coercion 'rational 'scheme-number rational->scheme-number)
-	      (define (reduce-integers n d)
-		   (let ((g (gcd n d)))
-		     (list (/ n g) (/ d g))))
-	  (put 'reduce '(integer integer) reduce-integers)
-
-	  (define (install-polynomial-package)
-	    #;(define (contents generic-object)
-	      (cdr generic-object))
-	      (define (make-poly variable term-list)
-		(cons variable term-list))
-	      (define (variable p) (car p))
-	      (define (term-list p)
-		(cdr p))
-	      (define (variable? x) (symbol? x))
-	      (define (same-variable? v1 v2)
-		(and (variable? v1) (variable? v2) (eq? v1 v2)))
-	      (define (=number? exp num)
-		(and (number? exp) (= exp num)))
-	      (define (the-empty-termlist) '())
-
-	      (define (rest-terms term-list) (cdr term-list))
-	      (define (empty-termlist? term-list) (null? term-list))
-
-	      (define (make-term order coeff) (list order coeff))
-	      (define (order term) (car term))
-	      (define (coeff term) (cadr term))
-	      (define (tag p) (attach-tag 'polynomial p))
-	      (put 'make 'polynomial
-		   (lambda (var terms) (tag (make-poly var terms))))
-	      #;(continued on next page)
-
-	      (define (add-poly p1 p2)
-		#;(show #t "add-poly: p1=" p1 ", p2=" p2 "\n")
-		(if (same-variable? (variable p1) (variable p2))
-		    (make-poly (variable p1)
-			       (add-terms (term-list p1)
-					  (term-list p2)))
-		    (let ((res (cdr (if (variable_1-order<variable_2-order (variable p1) (variable p2))
-			(add (tag p1) (tag (make-poly (variable p1) (list (make-term 0 (tag p2))))))
-			(add (tag (make-poly (variable p2) (list (make-term 0 (tag p1))))) (tag p2))))))
-		      #;(show #t "add-poly:result: " (displayed res) "\n") res)))
-
-	      (show #t "TestY2: poly of poly: "
-		    (make-poly 'x (list
-				   (make-term 3 (make-poly
-						 'y (list (make-term 1 1) (make-term 0 1))))
-				   (make-term 1 2)
-				   (make-term 0 4))) "\n")
-
-	      (define (sub-poly p1 p2)
-		(add-poly p1 (mul-poly p2 (make-poly (variable p2) (list (make-term 0 -1))))))
-	      (define (add-terms L1 L2)
-		(cond ((empty-termlist? L1) L2)
-		      ((empty-termlist? L2) L1)
-		      (else
-		       (let ((t1 (first-term L1)) (t2 (first-term L2)))
-			 (cond ((> (order t1) (order t2))
-				(adjoin-term
-				 t1 (add-terms (rest-terms L1) L2)))
-			       ((< (order t1) (order t2))
-				(adjoin-term
-				 t2 (add-terms L1 (rest-terms L2))))
-			       (else
-				(adjoin-term
-				 (make-term (order t1)
-					    (add (coeff t1) (coeff t2)))
-				 (add-terms (rest-terms L1)
-					    (rest-terms L2)))))))))
+  #;(define numeric-tower (list 'integer 'rational 'scheme-number 'complex))
 
 
-	      (define (mul-poly p1 p2)
-		(if (same-variable? (variable p1) (variable p2))
-		    (make-poly (variable p1)
-			       (mul-terms (term-list p1)
-					  (term-list p2)))
-		    (contents (if (variable_1-order<variable_2-order (variable p1) (variable p2))
+  #;(define (higher-type x)
+  (show #t "higher-type:x=" (displayed x) "\n")
+  (define (find-higher-type x types)
+  (cond ((or (null? types) (null? (cdr types))) (error "No type higher than given" x types))
+  ((eq? x (car types)) (cadr types))
+  (else (find-higher-type x (cdr types)))))
+  (find-higher-type x numeric-tower))
+
+  #;(show #t "Test: Higher than 'complex: " (higher-type 'complex) "\n")
+
+  #;(define (integer->rational x)
+  (make-rational x 1))
+
+  #;(define (rational->scheme-number x)
+  (make-scheme-number ((get 'to-real '(rational)) x)))
+  #;(put-coercion 'integer 'rational integer->rational)
+  #;(put-coercion 'rational 'scheme-number rational->scheme-number)
+  (define (reduce-integers n d)
+    (let ((g (gcd n d)))
+      (list (/ n g) (/ d g))))
+  (put 'reduce '(integer integer) reduce-integers)
+
+  (define (install-polynomial-package)
+    #;(define (contents generic-object)
+    (cdr generic-object))
+    (define (make-poly variable term-list)
+      (cons variable term-list))
+    (define (variable p) (car p))
+    (define (term-list p)
+      (cdr p))
+    (define (variable? x) (symbol? x))
+    (define (same-variable? v1 v2)
+      (and (variable? v1) (variable? v2) (eq? v1 v2)))
+    (define (=number? exp num)
+      (and (number? exp) (= exp num)))
+    (define (the-empty-termlist) '())
+
+    (define (rest-terms term-list) (cdr term-list))
+    (define (empty-termlist? term-list) (null? term-list))
+
+    (define (make-term order coeff) (list order coeff))
+    (define (order term) (car term))
+    (define (coeff term) (cadr term))
+    (define (tag p) (attach-tag 'polynomial p))
+    (put 'make 'polynomial
+	 (lambda (var terms) (tag (make-poly var terms))))
+    #;(continued on next page)
+
+    (define (add-poly p1 p2)
+      #;(show #t "add-poly: p1=" p1 ", p2=" p2 "\n")
+      (if (same-variable? (variable p1) (variable p2))
+	  (make-poly (variable p1)
+		     (add-terms (term-list p1)
+				(term-list p2)))
+	  (let ((res (cdr (if (variable_1-order<variable_2-order (variable p1) (variable p2))
+			      (add (tag p1) (tag (make-poly (variable p1) (list (make-term 0 (tag p2))))))
+			      (add (tag (make-poly (variable p2) (list (make-term 0 (tag p1))))) (tag p2))))))
+	    #;(show #t "add-poly:result: " (displayed res) "\n") res)))
+
+    (show #t "TestY2: poly of poly: "
+	  (make-poly 'x (list
+			 (make-term 3 (make-poly
+				       'y (list (make-term 1 1) (make-term 0 1))))
+			 (make-term 1 2)
+			 (make-term 0 4))) "\n")
+
+    (define (sub-poly p1 p2)
+      (add-poly p1 (mul-poly p2 (make-poly (variable p2) (list (make-term 0 -1))))))
+    (define (add-terms L1 L2)
+      (cond ((empty-termlist? L1) L2)
+	    ((empty-termlist? L2) L1)
+	    (else
+	     (let ((t1 (first-term L1)) (t2 (first-term L2)))
+	       (cond ((> (order t1) (order t2))
+		      (adjoin-term
+		       t1 (add-terms (rest-terms L1) L2)))
+		     ((< (order t1) (order t2))
+		      (adjoin-term
+		       t2 (add-terms L1 (rest-terms L2))))
+		     (else
+		      (adjoin-term
+		       (make-term (order t1)
+				  (add (coeff t1) (coeff t2)))
+		       (add-terms (rest-terms L1)
+				  (rest-terms L2)))))))))
+
+
+    (define (mul-poly p1 p2)
+      (if (same-variable? (variable p1) (variable p2))
+	  (make-poly (variable p1)
+		     (mul-terms (term-list p1)
+				(term-list p2)))
+	  (contents (if (variable_1-order<variable_2-order (variable p1) (variable p2))
 			(mul (tag p1)
 			     (make-polynomial (variable p1)
 					      (adjoin-term
@@ -18422,493 +18435,496 @@ implementing term reduction requires extending the polynomial package.
 					      (adjoin-term
 					       (make-term 0
 							  (tag p1)) (the-empty-termlist))))))
-		    #;(error "Polys not in same var -- MUL-POLY"
-			   (list p1 p2))))
-	      (define (div-poly p1 p2)
-		(show #t "div-poly: p1=" p1 ", p2=" p2 "\n")
-		(if (same-variable? (variable p1) (variable p2))
-		    (let ((quotient-and-remainder (div-terms (term-list p1)
-							     (term-list p2))))
-		      (list (make-poly (variable p1) (car  quotient-and-remainder))
-			    (make-poly (variable p1) (cadr quotient-and-remainder))))
-		      (error "div-poly: Polys not in the same var" p1 p2)))
-	      (define (div-terms L1 L2)
-		      (show #t "div-terms: L1=" L1 ", L2=" L2 "\n")
-		      (if (empty-termlist? L1)
-			  (list (the-empty-termlist) (the-empty-termlist))
-			  (let ((t1 (first-term L1))
-				(t2 (first-term L2)))
-			    (if (> (order t2) (order t1))
-				(list (the-empty-termlist) L1)
-				(let ((new-c (div (coeff t1) (coeff t2)))
-				      (new-o (- (order t1) (order t2))))
-				  (let ((rest-of-result (div-terms (term-list
-								    (sub-poly
-								     (make-poly 'fake-var L1)
-								     (mul-poly
-								      (make-poly 'fake-var (list (make-term new-o new-c)))
-								      (make-poly 'fake-var L2))))
-								   L2)
-							))
-				    #;(show #t "div-terms: rest-of-result: " (displayed rest-of-result) "\n")
-				    (list (adjoin-term (make-term new-o new-c) (car rest-of-result)) (cadr rest-of-result))
-				    ))))))
-	      (define (gcd-terms a b)
-	      (show #t "gcd-terms: a=" a ", b=" b "\n")
-		(if (empty-termlist? b)
-		    a
-		    (gcd-terms b (pseudoremainder-terms a b))))
-	      (define (pseudoremainder-terms P Q)
-		(let ((O1 (order (first-term P)))
-		      (O2 (order (first-term Q)))
-		      (c  (coeff (first-term Q))))
-		   (show #t "pseudoremainder-terms: P=" P "\n")
-		   (show #t "pseudoremainder-terms: Q=" Q "\n")
-		   (show #t "pseudoremainder-terms: O1=" O1 "\n")
-		   (show #t "pseudoremainder-terms: O2=" O2 "\n")
-		   (show #t "pseudoremainder-terms: c=" c "\n")
+	  #;(error "Polys not in same var -- MUL-POLY"
+	  (list p1 p2))))
+    (define (div-poly p1 p2)
+      (show #t "div-poly: p1=" p1 ", p2=" p2 "\n")
+      (if (same-variable? (variable p1) (variable p2))
+	  (let ((quotient-and-remainder (div-terms (term-list p1)
+						   (term-list p2))))
+	    (list (make-poly (variable p1) (car  quotient-and-remainder))
+		  (make-poly (variable p1) (cadr quotient-and-remainder))))
+	  (error "div-poly: Polys not in the same var" p1 p2)))
+    (define (div-terms L1 L2)
+      (show #t "div-terms: L1=" L1 ", L2=" L2 "\n")
+      (if (empty-termlist? L1)
+	  (list (the-empty-termlist) (the-empty-termlist))
+	  (let ((t1 (first-term L1))
+		(t2 (first-term L2)))
+	    (if (> (order t2) (order t1))
+		(list (the-empty-termlist) L1)
+		(let ((new-c (div (coeff t1) (coeff t2)))
+		      (new-o (- (order t1) (order t2))))
+		  (let ((rest-of-result (div-terms (term-list
+						    (sub-poly
+						     (make-poly 'fake-var L1)
+						     (mul-poly
+						      (make-poly 'fake-var (list (make-term new-o new-c)))
+						      (make-poly 'fake-var L2))))
+						   L2)
+					))
+		    #;(show #t "div-terms: rest-of-result: " (displayed rest-of-result) "\n")
+		    (list (adjoin-term (make-term new-o new-c) (car rest-of-result)) (cadr rest-of-result))
+		    ))))))
+    (define (gcd-terms a b)
+      (show #t "gcd-terms: a=" a ", b=" b "\n")
+      (if (empty-termlist? b)
+	  a
+	  (gcd-terms b (pseudoremainder-terms a b))))
+    (define (pseudoremainder-terms P Q)
+      (let ((O1 (order (first-term P)))
+	    (O2 (order (first-term Q)))
+	    (c  (coeff (first-term Q))))
+	(show #t "pseudoremainder-terms: P=" P "\n")
+	(show #t "pseudoremainder-terms: Q=" Q "\n")
+	(show #t "pseudoremainder-terms: O1=" O1 "\n")
+	(show #t "pseudoremainder-terms: O2=" O2 "\n")
+	(show #t "pseudoremainder-terms: c=" c "\n")
 
-		   (show #t "pseudoremainder-terms: the integerizing factor="
-		      (make-term 0 (exp c (add 1 (sub O1 O2)))) "\n" )
-		   (show #t "pseudoremainder-terms: P after multiplication="
-		     (mul-term-by-all-terms 
-					 (make-term 0 (exp c (add 1 (sub O1 O2)))) P)  "\n" )
-		   (cadr (div-terms (mul-term-by-all-terms 
-					 (make-term 0 (exp c (add 1 (sub O1 O2)))) P) Q))))
-		(define (maprest operation term-list)
-		(show #t "maprest: operation=" (written operation) "term-list=" term-list "\n" )
-		     (if (empty-termlist? term-list)
-			 '()
-			 (cons (operation term-list) (maprest operation (rest-terms term-list))))
-		)
-		(define (gcd-poly p1 p2)
-		(show #t "gcd-poly:p1=" p1 ", p2=" p2 "\n") 
+	(show #t "pseudoremainder-terms: the integerizing factor="
+	      (make-term 0 (exp c (add 1 (sub O1 O2)))) "\n" )
+	(show #t "pseudoremainder-terms: P after multiplication="
+	      (mul-term-by-all-terms 
+	       (make-term 0 (exp c (add 1 (sub O1 O2)))) P)  "\n" )
+	(cadr (div-terms (mul-term-by-all-terms 
+			  (make-term 0 (exp c (add 1 (sub O1 O2)))) P) Q))))
+    (define (maprest operation term-list)
+      (show #t "maprest: operation=" (written operation) "term-list=" term-list "\n" )
+      (if (empty-termlist? term-list)
+	  '()
+	  (cons (operation term-list) (maprest operation (rest-terms term-list))))
+      )
+    (define (gcd-poly p1 p2)
+      (show #t "gcd-poly:p1=" p1 ", p2=" p2 "\n") 
 
-		(if (same-variable? (variable p1) (variable p2))
-		    (let* ((unoptimized-termlist (gcd-terms (term-list p1) (term-list p2)))
-			   (first-terms (maprest first-term unoptimized-termlist))
-			  (coefficients (map coeff first-terms))
-			  (coeff-gcd (apply gcd coefficients))
-			  (optimized-termlist (mul-term-by-all-terms 
-					 (make-term 0 (div 1 coeff-gcd)) unoptimized-termlist)))
-		       (show #t "gcd-poly: unoptimized-termlist=" unoptimized-termlist "\n")
-		       (show #t "gcd-poly: first-terms=" first-terms "\n")
-		       (show #t "gcd-poly: coefficients=" coefficients "\n")
-		       (show #t "gcd-poly: coeff-gcd=" coeff-gcd "\n")
-		       (make-poly (variable p1) optimized-termlist))
-		    (error "div-poly: Polys not in the same var" p1 p2)))
-	      (put 'gcd '(polynomial polynomial)
-		   (lambda (x y) (tag (gcd-poly x y))))
-	      (put 'gcd '(integer integer) gcd)
+      (if (same-variable? (variable p1) (variable p2))
+	  (let* ((unoptimized-termlist (gcd-terms (term-list p1) (term-list p2)))
+		 (first-terms (maprest first-term unoptimized-termlist))
+		 (coefficients (map coeff first-terms))
+		 (coeff-gcd (apply gcd coefficients))
+		 (optimized-termlist (mul-term-by-all-terms 
+				      (make-term 0 (div 1 coeff-gcd)) unoptimized-termlist)))
+	    (show #t "gcd-poly: unoptimized-termlist=" unoptimized-termlist "\n")
+	    (show #t "gcd-poly: first-terms=" first-terms "\n")
+	    (show #t "gcd-poly: coefficients=" coefficients "\n")
+	    (show #t "gcd-poly: coeff-gcd=" coeff-gcd "\n")
+	    (make-poly (variable p1) optimized-termlist))
+	  (error "div-poly: Polys not in the same var" p1 p2)))
+    (put 'gcd '(polynomial polynomial)
+	 (lambda (x y) (tag (gcd-poly x y))))
+    (put 'gcd '(integer integer) gcd)
 
-	      (define (mul-terms L1 L2)
-		(if (empty-termlist? L1)
-		    (the-empty-termlist)
-		    (add-terms (mul-term-by-all-terms (first-term L1) L2)
-			       (mul-terms (rest-terms L1) L2))))
+    (define (mul-terms L1 L2)
+      (if (empty-termlist? L1)
+	  (the-empty-termlist)
+	  (add-terms (mul-term-by-all-terms (first-term L1) L2)
+		     (mul-terms (rest-terms L1) L2))))
 
-	      (define (mul-term-by-all-terms t1 L)
-		(if (empty-termlist? L)
-		    (the-empty-termlist)
-		    (let ((t2 (first-term L)))
-		      (adjoin-term
-		       (make-term (+ (order t1) (order t2))
-				  (mul (coeff t1) (coeff t2)))
-		       (mul-term-by-all-terms t1 (rest-terms L))))))
+    (define (mul-term-by-all-terms t1 L)
+      (if (empty-termlist? L)
+	  (the-empty-termlist)
+	  (let ((t2 (first-term L)))
+	    (adjoin-term
+	     (make-term (+ (order t1) (order t2))
+			(mul (coeff t1) (coeff t2)))
+	     (mul-term-by-all-terms t1 (rest-terms L))))))
 
-	      (define (reduce-terms termlist-1 termlist-2)
-		(show #t "reduce-terms: termlist-1=" termlist-1
-				     ", termlist-2=" termlist-2 "\n")
-		(let* ((poly-gcd (gcd-terms termlist-1 termlist-2))
-		      (O1 (max (order (first-term termlist-1))
-                               (order (first-term termlist-2))))
-		      (O2 (order (first-term poly-gcd)))
-		      (c  (coeff (first-term poly-gcd)))
-		      (int-factor (exp c (+ 1 (- O1 O2))))
-		      (int-term (make-term 0 int-factor)) 
-		      (impr-termlist-1 (mul-term-by-all-terms int-term termlist-1))
-		      (impr-termlist-2 (mul-term-by-all-terms int-term termlist-2))
-		      (new-t1 (car (div-terms impr-termlist-1 poly-gcd)))
-		      (new-t2 (car (div-terms impr-termlist-2 poly-gcd)))
-		      (new-t1-terms (map coeff (maprest first-term new-t1)))
-		      (new-t2-terms (map coeff (maprest first-term new-t2)))
-		      (full-list (append new-t1-terms new-t2-terms))
-		      (new-gcd (begin (show #t "full-list=" full-list "\n")
-                                      (apply gcd full-list)))
-		      (divisor-term (make-term 0 (div 1 new-gcd)))
-		      (new-t1-impr (mul-term-by-all-terms divisor-term new-t1))
-		      (new-t2-impr (mul-term-by-all-terms divisor-term new-t2)))
-		  (list new-t1-impr new-t2-impr)))
-	      (define (reduce-poly p1 p2)
-		(show #t "reduce-poly: p1=" p1 ", p2=" p2 "\n")
-		(if (same-variable? (variable p1) (variable p2))
-		    (let* ((num-den-list (reduce-terms (term-list p1) (term-list p2)))
-			   (my-var (variable p1))
-			   (new-p1 (make-poly my-var (car num-den-list)))
-			   (new-p2 (make-poly my-var (cadr num-den-list))))
-			(list (tag new-p1) (tag new-p2)))
-		    (error "reduce-poly: different variables")))
-	      (put 'reduce '(polynomial polynomial) reduce-poly)
-	      (define (zero-poly? poly)
-		(show #t "zero-poly?: poly=" (displayed poly) "\n")
-		(cond ((empty-termlist? (term-list poly)) #t)
-		      ((not (zero? (coeff (first-term (term-list poly))))) #f)
-		      (else (zero-poly? 
-			     (make-poly (variable poly)
-					(rest-terms (term-list poly)))))))
+    (define (reduce-terms termlist-1 termlist-2)
+      (show #t "reduce-terms: termlist-1=" termlist-1
+	    ", termlist-2=" termlist-2 "\n")
+      (let* ((poly-gcd (gcd-terms termlist-1 termlist-2))
+	     (O1 (max (order (first-term termlist-1))
+		      (order (first-term termlist-2))))
+	     (O2 (order (first-term poly-gcd)))
+	     (c  (coeff (first-term poly-gcd)))
+	     (int-factor (exp c (+ 1 (- O1 O2))))
+	     (int-term (make-term 0 int-factor)) 
+	     (impr-termlist-1 (mul-term-by-all-terms int-term termlist-1))
+	     (impr-termlist-2 (mul-term-by-all-terms int-term termlist-2))
+	     (new-t1 (car (div-terms impr-termlist-1 poly-gcd)))
+	     (new-t2 (car (div-terms impr-termlist-2 poly-gcd)))
+	     (new-t1-terms (map coeff (maprest first-term new-t1)))
+	     (new-t2-terms (map coeff (maprest first-term new-t2)))
+	     (full-list (append new-t1-terms new-t2-terms))
+	     (new-gcd (begin (show #t "full-list=" full-list "\n")
+			     (apply gcd full-list)))
+	     (divisor-term (make-term 0 (div 1 new-gcd)))
+	     (new-t1-impr (mul-term-by-all-terms divisor-term new-t1))
+	     (new-t2-impr (mul-term-by-all-terms divisor-term new-t2)))
+	(list new-t1-impr new-t2-impr)))
+    (define (reduce-poly p1 p2)
+      (show #t "reduce-poly: p1=" p1 ", p2=" p2 "\n")
+      (if (same-variable? (variable p1) (variable p2))
+	  (let* ((num-den-list (reduce-terms (term-list p1) (term-list p2)))
+		 (my-var (variable p1))
+		 (new-p1 (make-poly my-var (car num-den-list)))
+		 (new-p2 (make-poly my-var (cadr num-den-list))))
+	    (list (tag new-p1) (tag new-p2)))
+	  (error "reduce-poly: different variables")))
+    (put 'reduce '(polynomial polynomial) reduce-poly)
+    (define (zero-poly? poly)
+      (show #t "zero-poly?: poly=" (displayed poly) "\n")
+      (cond ((empty-termlist? (term-list poly)) #t)
+	    ((not (zero? (coeff (first-term (term-list poly))))) #f)
+	    (else (zero-poly? 
+		   (make-poly (variable poly)
+			      (rest-terms (term-list poly)))))))
 
-	      (define (termlist-type-of term-list)
-		#;(show #t "t-t-o: term-list=" (displayed term-list) "\n")
-		(cond ((null? term-list) 'sparse)
-		      ((pair? (car term-list)) 'sparse)
-		      ((list? term-list) 'dense)
-		      (else (error "Unknown type of list" term-list))))
-	      (define (adjoin-term term term-list)
-		((get 'adjoin-term (termlist-type-of term-list)) term term-list))
-	      (define (first-term term-list)
-		((get 'first-term (termlist-type-of term-list)) term-list))
-	      (define (variable_1-order<variable_2-order variable_1 variable_2)
-		#;(show #t "var_1-..: variable_1=" variable_1 " variable_2=" variable_2 "\n")
-		#;(show #t "var12string=" (symbol->string variable_1) "var22string=" (symbol->string variable_2) "\n")
-		(string<=? (symbol->string variable_1) (symbol->string variable_2)))
-	      (define (normalize-fully poly)
-		(if (normal-polynomial? poly)
-		    poly
-		    (normalize-fully (normalize-once poly))))
-	      (put 'add '(polynomial polynomial)
-		   (lambda (p1 p2) 
-		     #;(show #t "generic-add-poly:Polynomial dispatch found: p1="
-			    (displayed p1) " p2=" (displayed p2) "\n")
-		     (normalize-fully (tag (add-poly p1 p2)))))
-	      (put 'mul '(polynomial polynomial)
-		   (lambda (p1 p2) (normalize-fully (tag (mul-poly p1 p2)))))
-	      (put 'sub '(polynomial polynomial)
-		   (lambda (p1 p2) (tag (sub-poly p1 p2))))
+    (define (termlist-type-of term-list)
+      #;(show #t "t-t-o: term-list=" (displayed term-list) "\n")
+      (cond ((null? term-list) 'sparse)
+	    ((pair? (car term-list)) 'sparse)
+	    ((list? term-list) 'dense)
+	    (else (error "Unknown type of list" term-list))))
+    (define (adjoin-term term term-list)
+      ((get 'adjoin-term (termlist-type-of term-list)) term term-list))
+    (define (first-term term-list)
+      ((get 'first-term (termlist-type-of term-list)) term-list))
+    (define (variable_1-order<variable_2-order variable_1 variable_2)
+      #;(show #t "var_1-..: variable_1=" variable_1 " variable_2=" variable_2 "\n")
+      #;(show #t "var12string=" (symbol->string variable_1) "var22string=" (symbol->string variable_2) "\n")
+      (string<=? (symbol->string variable_1) (symbol->string variable_2)))
+    (define (normalize-fully poly)
+      (if (normal-polynomial? poly)
+	  poly
+	  (normalize-fully (normalize-once poly))))
+    (put 'add '(polynomial polynomial)
+	 (lambda (p1 p2) 
+	   #;(show #t "generic-add-poly:Polynomial dispatch found: p1="
+	   (displayed p1) " p2=" (displayed p2) "\n")
+	   (normalize-fully (tag (add-poly p1 p2)))))
+    (put 'mul '(polynomial polynomial)
+	 (lambda (p1 p2) (normalize-fully (tag (mul-poly p1 p2)))))
+    (put 'sub '(polynomial polynomial)
+	 (lambda (p1 p2) (tag (sub-poly p1 p2))))
 
-	      (put 'zero? '(polynomial) zero-poly?)
-	      (put 'div '(polynomial polynomial) div-poly)
-	      #;(put-coercion 'rational 'scheme-number rational->scheme-number)
-	      (define (monomial-flip-variables monomial)
-		#;(show #t "m-f-v: monomial=" monomial "\n")
-		(let* ((mono (contents monomial))
-		       (inner-polynomial (contents (coeff (first-term (term-list mono)))))
-		       (inner-poly (contents inner-polynomial))
-		       (outer-order (order (first-term (term-list mono))))
-		       (outer-var (variable mono))
-		       (inner-var (variable inner-polynomial))
-		       (inner-term-list (term-list inner-poly)))
-		  #;(show #t "m-f-v: inner-poly=" inner-poly "\n")
-		  (if (same-variable? inner-var outer-var)
-		      (mul
-		       (make-polynomial outer-var (adjoin-term (make-term outer-order 1) (the-empty-termlist)))
-		       (tag inner-polynomial))
-		      (tag (make-poly inner-var
-				      (mul-term-by-all-terms (make-term
-							      0
-							      (make-polynomial
-							       outer-var
-							       (list (make-term
-								      outer-order
-								      1)))) inner-poly))))))
-	      #;(show #t "TestXX: sorting variables: Is 'x < 'y?: "
-		    (variable_1-order<variable_2-order 'x 'y) "\n")
-	      #;(show #t "TestXX: sorting variables: Is 'z < 'y?: "
-		    (variable_1-order<variable_2-order 'z 'y) "\n")
-	      #;(show #t "TestXX: (adding two basic poly): "
-		    (add (make-polynomial 'x (list (make-term 1 2) (make-term 0 4)))
-			 (make-polynomial 'y (list (make-term 2 3) (make-term 0 5)))) "\n")
+    (put 'zero? '(polynomial) zero-poly?)
+    (put 'div '(polynomial polynomial) div-poly)
+    #;(put-coercion 'rational 'scheme-number rational->scheme-number)
+    (define (monomial-flip-variables monomial)
+      #;(show #t "m-f-v: monomial=" monomial "\n")
+      (let* ((mono (contents monomial))
+	     (inner-polynomial (contents (coeff (first-term (term-list mono)))))
+	     (inner-poly (contents inner-polynomial))
+	     (outer-order (order (first-term (term-list mono))))
+	     (outer-var (variable mono))
+	     (inner-var (variable inner-polynomial))
+	     (inner-term-list (term-list inner-poly)))
+	#;(show #t "m-f-v: inner-poly=" inner-poly "\n")
+	(if (same-variable? inner-var outer-var)
+	    (mul
+	     (make-polynomial outer-var (adjoin-term (make-term outer-order 1) (the-empty-termlist)))
+	     (tag inner-polynomial))
+	    (tag (make-poly inner-var
+			    (mul-term-by-all-terms (make-term
+						    0
+						    (make-polynomial
+						     outer-var
+						     (list (make-term
+							    outer-order
+							    1)))) inner-poly))))))
+    #;(show #t "TestXX: sorting variables: Is 'x < 'y?: "
+    (variable_1-order<variable_2-order 'x 'y) "\n")
+    #;(show #t "TestXX: sorting variables: Is 'z < 'y?: "
+    (variable_1-order<variable_2-order 'z 'y) "\n")
+    #;(show #t "TestXX: (adding two basic poly): "
+    (add (make-polynomial 'x (list (make-term 1 2) (make-term 0 4)))
+    (make-polynomial 'y (list (make-term 2 3) (make-term 0 5)))) "\n")
 
-	      (define (polynomial->sum-of-first-and-rest poly)
-		#;(show #t "p->s-o-f-a-r: " (displayed poly) "\n")
-		(if (zero? poly)
-		    poly
-		    (let* ((poly1 (contents poly))
-			   (first-monomial (tag
-					    (make-poly
-					     (variable poly1)
-					     (list (first-term (term-list poly1)))))))
-		      #;(show #t "p->s-o-f-a-r: " (displayed first-monomial) "\n")
-		      (add
-			first-monomial
-			(polynomial->sum-of-first-and-rest
-			 (tag (make-poly (variable poly1) (rest-terms (term-list poly1)))))))))
+    (define (polynomial->sum-of-first-and-rest poly)
+      #;(show #t "p->s-o-f-a-r: " (displayed poly) "\n")
+      (if (zero? poly)
+	  poly
+	  (let* ((poly1 (contents poly))
+		 (first-monomial (tag
+				  (make-poly
+				   (variable poly1)
+				   (list (first-term (term-list poly1)))))))
+	    #;(show #t "p->s-o-f-a-r: " (displayed first-monomial) "\n")
+	    (add
+	     first-monomial
+	     (polynomial->sum-of-first-and-rest
+	      (tag (make-poly (variable poly1) (rest-terms (term-list poly1)))))))))
 
-	      (show #t "Test13: Expanding a polynomial as monomials: "
-		    (displayed
-		     (polynomial->sum-of-first-and-rest
-		      (make-polynomial 'y
-				       (list (make-term 2 (make-polynomial
-							   'x
-							   (list (make-term 2 1) (make-term 0 1))))
-					     (make-term 0 2))))) "\n")
+    (show #t "Test13: Expanding a polynomial as monomials: "
+	  (displayed
+	   (polynomial->sum-of-first-and-rest
+	    (make-polynomial 'y
+			     (list (make-term 2 (make-polynomial
+						 'x
+						 (list (make-term 2 1) (make-term 0 1))))
+				   (make-term 0 2))))) "\n")
 
-	      (show #t "\nTest20: start monomial: "
-		    (displayed (make-polynomial 'x
-						(list
-						 (make-term
-						  2
-						  (make-polynomial
-						   'y
-						   (list
-						    (make-term 2 1) (make-term 0 1))))))) "\n")
-	      (show #t "Test20: Flipping a monomial variable: "
-		    (displayed
-		     (monomial-flip-variables
-		      (make-polynomial 'x
-				       (list (make-term 1 (make-polynomial
-							   'y
-							   (list
-							    (make-term 2 1)
-							    (make-term 0 1)))))))) "\n\n")
-
-
-	      (define (normal-polynomial? poly)
-		#;(show #t "n-p?: poly=" poly "\n")
-		(cond ((not (polynomial? poly)) #t)
-		      ((null? (term-list (contents poly))) #t)
-		      (else (let* ((poly1 (contents poly))
-				   (outer-var (variable poly1)))
-			      #;(show #t "Inner-let: outer-var=" (displayed outer-var) "\n")
-			      (let loop ((terms (term-list poly1)))
-				#;(show #t "n-p?-loop: terms=" (displayed terms) "\n")
-				(cond ((null? terms) #t)
-				      ((not (polynomial? (coeff (first-term terms)))) (loop (rest-terms terms)))
-				      ((not (variable_1-order<variable_2-order 
-					   outer-var
-					   (variable (contents (coeff (first-term terms)))))) (begin #;(show #t "wrong variable order \n") #f))
-				      ((not (normal-polynomial? (coeff (first-term terms)))) (begin #;(show #t "not normal poly\n") #f))
-				      (else (loop (rest-terms terms)))))
-			      ))))
-	      (define (normalize-once poly)
-		#;(show #t "normalize-once poly= " (displayed poly) "\n")
-		(if (zero? poly)
-		    poly
-		    (let* ((poly1 (contents poly))
-			   (first-monomial (tag
-					    (make-poly
-					     (variable poly1)
-					     (list (make-term
-						    (order (first-term (term-list poly1)))
-						    (if (polynomial? (coeff (first-term (term-list poly1))))
-							(normalize-once (coeff (first-term (term-list poly1))))
-							(coeff (first-term (term-list poly1))))))))))
-		      #;(show #t "p->s-o-f-a-r: " (displayed first-monomial) "\n")
-		      (add
-		       (if (and (polynomial?
-			       (coeff
-				(first-term
-				 (term-list
-				  (contents first-monomial)))))
-			      (variable_1-order<variable_2-order
-			       (variable
-				(contents
-				 (coeff
-				  (first-term
-				   (term-list
-				    (contents first-monomial))))))
-			       (variable
-				(contents first-monomial))))
-			   (monomial-flip-variables first-monomial)
-			   first-monomial)
-			(polynomial->sum-of-first-and-rest
-			 (tag (make-poly (variable poly1) (rest-terms (term-list poly1)))))))))
-
-	      (show #t "Test21: normal-polynomial?:start: " (displayed (make-polynomial 'y
-						     (list (make-term 2 (make-polynomial
-									 'x
-							   (list (make-term 2 1) (make-term 0 1))))
-							   (make-term 0 2)))) "\n")
-	      #;(show #t "Test21: normal-polynomial?:result:" (normal-polynomial? (make-polynomial 'y
-						     (list (make-term 2 (make-polynomial
-									 'x
-							   (list (make-term 2 1) (make-term 0 1))))
-							   (make-term 0 2)))) "\n")
-	      #;(show #t "Test22: normal-polynomial?-good:start: "
-		    (displayed
-		     (make-polynomial 'x
-				      (list (make-term 2 (make-polynomial
-							  'y
-							  (list (make-term 2 1) (make-term 0 1))))
-					    (make-term 0 2)))) "\n")
-	      #;(show #t "Test22: normal-polynomial?-good:result:"
-		    (normal-polynomial?
-		     (make-polynomial 'x
-				      (list (make-term 2 (make-polynomial
-							  'y
-							  (list (make-term 2 1) (make-term 0 1))))
-					    (make-term 0 2)))) "\n")
-
-	      #;(show #t "Test23:input: normalizing a bad polynomial: "
-		    (make-polynomial 'y
-				       (list (make-term 2 (make-polynomial
-							   'x
-							   (list (make-term 2 1) (make-term 0 1))))
-					     (make-term 0 2))) "\n")
-	      #;(show #t "Test23:result: normalizing a bad polynomial: "
-		    (normalize-once (make-polynomial 'y
-						     (list (make-term 2 (make-polynomial
-									 'x
-							   (list (make-term 2 1) (make-term 0 1))))
-							   (make-term 0 2)))) "\n")
-	      #;(show #t "Test24:input: normalizing a bad polynomial: "
-		    (make-polynomial 'x
-				       (list (make-term 2 (make-polynomial
-							   'x
-							   (list (make-term 2 1) (make-term 0 1))))
-					     (make-term 0 2))) "\n")
-	      #;(show #t "Test24:result: normalizing a bad polynomial: "
-		    (normalize-once (make-polynomial 'x
-						     (list (make-term 2 (make-polynomial
-									 'x
-							   (list (make-term 2 1) (make-term 0 1))))
-							   (make-term 0 2)))) "\n")
+    (show #t "\nTest20: start monomial: "
+	  (displayed (make-polynomial 'x
+				      (list
+				       (make-term
+					2
+					(make-polynomial
+					 'y
+					 (list
+					  (make-term 2 1) (make-term 0 1))))))) "\n")
+    (show #t "Test20: Flipping a monomial variable: "
+	  (displayed
+	   (monomial-flip-variables
+	    (make-polynomial 'x
+			     (list (make-term 1 (make-polynomial
+						 'y
+						 (list
+						  (make-term 2 1)
+						  (make-term 0 1)))))))) "\n\n")
 
 
-	      #;(show #t "Test24:input: normalize-fully a bad polynomial: "
-		    (make-polynomial 'y
-				       (list (make-term 2 (make-polynomial
-							   'x
-							   (list (make-term 2 1) (make-term 0 1))))
-					     (make-term 0 2))) "\n")
-	      #;(show #t "Test24:result: normalize-fully a bad polynomial: "
-		    (normalize-fully (make-polynomial 'y
-						     (list (make-term 2 (make-polynomial
-									 'x
-							   (list (make-term 2 1) (make-term 0 1))))
-							   (make-term 0 2)))) "\n")
+    (define (normal-polynomial? poly)
+      #;(show #t "n-p?: poly=" poly "\n")
+      (cond ((not (polynomial? poly)) #t)
+	    ((null? (term-list (contents poly))) #t)
+	    (else (let* ((poly1 (contents poly))
+			 (outer-var (variable poly1)))
+		    #;(show #t "Inner-let: outer-var=" (displayed outer-var) "\n")
+		    (let loop ((terms (term-list poly1)))
+		      #;(show #t "n-p?-loop: terms=" (displayed terms) "\n")
+		      (cond ((null? terms) #t)
+			    ((not (polynomial? (coeff (first-term terms))))
+			     (loop (rest-terms terms)))
+			    ((not (variable_1-order<variable_2-order 
+				   outer-var
+				   (variable (contents (coeff (first-term terms)))))) 
+			     (begin #;(show #t "wrong variable order \n") #f))
+			    ((not (normal-polynomial? (coeff (first-term terms)))) 
+			     (begin #;(show #t "not normal poly\n") #f))
+			    (else (loop (rest-terms terms)))))
+		    ))))
+    (define (normalize-once poly)
+      #;(show #t "normalize-once poly= " (displayed poly) "\n")
+      (if (zero? poly)
+	  poly
+	  (let* ((poly1 (contents poly))
+		 (first-monomial (tag
+				  (make-poly
+				   (variable poly1)
+				   (list (make-term
+					  (order (first-term (term-list poly1)))
+					  (if (polynomial? (coeff (first-term (term-list poly1))))
+					      (normalize-once (coeff (first-term (term-list poly1))))
+					      (coeff (first-term (term-list poly1))))))))))
+	    #;(show #t "p->s-o-f-a-r: " (displayed first-monomial) "\n")
+	    (add
+	     (if (and (polynomial?
+		       (coeff
+			(first-term
+			 (term-list
+			  (contents first-monomial)))))
+		      (variable_1-order<variable_2-order
+		       (variable
+			(contents
+			 (coeff
+			  (first-term
+			   (term-list
+			    (contents first-monomial))))))
+		       (variable
+			(contents first-monomial))))
+		 (monomial-flip-variables first-monomial)
+		 first-monomial)
+	     (polynomial->sum-of-first-and-rest
+	      (tag (make-poly (variable poly1) (rest-terms (term-list poly1)))))))))
+
+    (show #t "Test21: normal-polynomial?:start: " (displayed (make-polynomial 'y
+									      (list (make-term 2 (make-polynomial
+												  'x
+												  (list (make-term 2 1) (make-term 0 1))))
+										    (make-term 0 2)))) "\n")
+    #;(show #t "Test21: normal-polynomial?:result:" (normal-polynomial? (make-polynomial 'y
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2)))) "\n")
+    #;(show #t "Test22: normal-polynomial?-good:start: "
+    (displayed
+    (make-polynomial 'x
+    (list (make-term 2 (make-polynomial
+    'y
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2)))) "\n")
+    #;(show #t "Test22: normal-polynomial?-good:result:"
+    (normal-polynomial?
+    (make-polynomial 'x
+    (list (make-term 2 (make-polynomial
+    'y
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2)))) "\n")
+
+    #;(show #t "Test23:input: normalizing a bad polynomial: "
+    (make-polynomial 'y
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2))) "\n")
+    #;(show #t "Test23:result: normalizing a bad polynomial: "
+    (normalize-once (make-polynomial 'y
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2)))) "\n")
+    #;(show #t "Test24:input: normalizing a bad polynomial: "
+    (make-polynomial 'x
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2))) "\n")
+    #;(show #t "Test24:result: normalizing a bad polynomial: "
+    (normalize-once (make-polynomial 'x
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2)))) "\n")
+
+
+    #;(show #t "Test24:input: normalize-fully a bad polynomial: "
+    (make-polynomial 'y
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2))) "\n")
+    #;(show #t "Test24:result: normalize-fully a bad polynomial: "
+    (normalize-fully (make-polynomial 'y
+    (list (make-term 2 (make-polynomial
+    'x
+    (list (make-term 2 1) (make-term 0 1))))
+    (make-term 0 2)))) "\n")
 
 
 
-	      'done)
+    'done)
 
 
-	    (define (install-polynomial-sparse-package)
-	      (define (coeff term) (cadr term))
-	      (define (first-term-sparse term-list) (car term-list))
-	      (define (adjoin-term-sparse term term-list)
-		(if (zero? (coeff term))
-		    term-list
-		    (cons term term-list)))
-	      (put 'adjoin-term 'sparse adjoin-term-sparse)
-	      (put 'first-term 'sparse first-term-sparse)
-	      'done)
-	    (install-polynomial-sparse-package)
+  (define (install-polynomial-sparse-package)
+    (define (coeff term) (cadr term))
+    (define (first-term-sparse term-list) (car term-list))
+    (define (adjoin-term-sparse term term-list)
+      (if (zero? (coeff term))
+	  term-list
+	  (cons term term-list)))
+    (put 'adjoin-term 'sparse adjoin-term-sparse)
+    (put 'first-term 'sparse first-term-sparse)
+    'done)
+  (install-polynomial-sparse-package)
 
-	    (define (install-polynomial-dense-package)
-	      (define (make-term order coeff) (list order coeff))
-	      (define (order term) (car term))
-	      (define (coeff term) (cadr term))
+  (define (install-polynomial-dense-package)
+    (define (make-term order coeff) (list order coeff))
+    (define (order term) (car term))
+    (define (coeff term) (cadr term))
 
-	      (define (adjoin-term-dense term term-list)
-		  (if (zero? (coeff term))
-		      term-list
-		      (if (> (order term) (length term-list))
-			  (append (list (coeff term))
-				  (make-list (- (order term) (length term-list)) 0)
-				  term-list)
-			  (error "adjoin-term:Appending a smaller order term. Recheck."))))
-	      (define (first-term-dense term-list) 
-		 #;(show #t "first-term-dense: " (displayed (make-term (car term-list) (length (cdr term-list)))) "\n")
-		 (make-term (length (cdr term-list)) (car term-list) ))
-	      (put 'adjoin-term 'dense adjoin-term-dense)
-	      (put 'first-term 'dense first-term-dense)
-	      'done)
-	    #;(install-polynomial-dense-package)
+    (define (adjoin-term-dense term term-list)
+      (if (zero? (coeff term))
+	  term-list
+	  (if (> (order term) (length term-list))
+	      (append (list (coeff term))
+		      (make-list (- (order term) (length term-list)) 0)
+		      term-list)
+	      (error "adjoin-term:Appending a smaller order term. Recheck."))))
+    (define (first-term-dense term-list) 
+      #;(show #t "first-term-dense: " (displayed (make-term (car term-list) (length (cdr term-list)))) "\n")
+      (make-term (length (cdr term-list)) (car term-list) ))
+    (put 'adjoin-term 'dense adjoin-term-dense)
+    (put 'first-term 'dense first-term-dense)
+    'done)
+  #;(install-polynomial-dense-package)
 
-	    (define (make-polynomial var terms)
-	      ((get 'make 'polynomial) var terms))
+  (define (make-polynomial var terms)
+    ((get 'make 'polynomial) var terms))
 
-	  (install-polynomial-package)
+  (install-polynomial-package)
 
 
-	    (show #t "Test 2: Making polynomials: " 
-		  (make-polynomial 'x (list (list 5 1) (list 4 2))) "\n")
-	    (show #t "Test 3: Zero?: " 
-		  (zero? (make-polynomial 'x (list (list 5 1) (list 4 2)))) "\n")
-	    (show #t "Test 4: Adding polynomials: "
-		  (add (make-polynomial 'x '((5 1) (4 2) (0 1)))
-		       (make-polynomial 'x '((5 1)))) "\n")
-	    (show #t "Test 4: Zero?: " (zero? (make-polynomial 'x '((5 0) (3 1)))) "\n")
+  (show #t "Test 2: Making polynomials: " 
+	(make-polynomial 'x (list (list 5 1) (list 4 2))) "\n")
+  (show #t "Test 3: Zero?: " 
+	(zero? (make-polynomial 'x (list (list 5 1) (list 4 2)))) "\n")
+  (show #t "Test 4: Adding polynomials: "
+	(add (make-polynomial 'x '((5 1) (4 2) (0 1)))
+	     (make-polynomial 'x '((5 1)))) "\n")
+  (show #t "Test 4: Zero?: " (zero? (make-polynomial 'x '((5 0) (3 1)))) "\n")
 
-	    (show #t "Test 5: Subtracting polynomials: "
-		  (sub (make-polynomial 'x '((5 1) (4 2) (0 1)))
-		       (make-polynomial 'x '((0 1)))) "\n")
+  (show #t "Test 5: Subtracting polynomials: "
+	(sub (make-polynomial 'x '((5 1) (4 2) (0 1)))
+	     (make-polynomial 'x '((0 1)))) "\n")
 
-	    #;(show #t "Test 6: Making a dense polynomial: " (make-polynomial 'x '(1 2 3 4 5)) "\n")
-	    #;(show #t "Test 7: zero? dense polynomial: " (displayed (zero? (make-polynomial 'x '(0)))) "\n")
-	    #;(show #t "Test 8: zero? dense polynomial: " (displayed (zero? (make-polynomial 'x '(1)))) "\n")
-	    #;(show #t "Test 9: Adding dense polynomials: "
-		  (add (make-polynomial 'x '(1 2 0 0 0 1))
-		       (make-polynomial 'x '(1 0 0 0 0 0))) "\n")
-	    #;(show #t "Test10: Subtracting dense polynomials: "
-		  (sub (make-polynomial 'x '(1 2 0 0 0 1))
-		       (make-polynomial 'x '(1 0 0 0 0 0))) "\n")
-	    #;(show #t "Test11: Subtracting dense and sparse polynomials: "
-		  (sub (make-polynomial 'x '(1 2 0 0 0 1))
-		       (make-polynomial 'x '((4 2)))) "\n")
-	    (show #t "Test12: Dividing x^2 + 2x + 1 by x+1: "
-		  (displayed
-		   (div (make-polynomial 'x '((2 1) (1 2) (0 1)))
-			(make-polynomial 'x '(      (1 1) (0 1)))) ) "\n")
-	    (show #t "Test14: Adding polynomials of two variables: "
-		  (displayed
-		   (add (make-polynomial 'x '((1 1)))
-			(make-polynomial 'y '((1 1))))))
-	    (show #t "Test14: Adding polynomials of two variables,\n when one of them is nonexistant: \n"
-		  (pretty
-		   (add (make-polynomial 'x '((1 1)))
-			(make-polynomial 'y '((0 1))))))
-	    (show #t "Test25: multiplying different variables: "
-		(displayed (mul (make-polynomial 'x '((1 1)))
-				(make-polynomial 'y '((1 1))))) "\n")
-	(begin
-	(show #t "Test 26:start\n")
-	(define p1 (make-polynomial 'x '((2 1) (0 1))))
-	(define p2 (make-polynomial 'x '((3 1) (0 1))))
-	(define rf (make-rational p2 p1))
+  #;(show #t "Test 6: Making a dense polynomial: " (make-polynomial 'x '(1 2 3 4 5)) "\n")
+  #;(show #t "Test 7: zero? dense polynomial: " (displayed (zero? (make-polynomial 'x '(0)))) "\n")
+  #;(show #t "Test 8: zero? dense polynomial: " (displayed (zero? (make-polynomial 'x '(1)))) "\n")
+  #;(show #t "Test 9: Adding dense polynomials: "
+  (add (make-polynomial 'x '(1 2 0 0 0 1))
+  (make-polynomial 'x '(1 0 0 0 0 0))) "\n")
+  #;(show #t "Test10: Subtracting dense polynomials: "
+  (sub (make-polynomial 'x '(1 2 0 0 0 1))
+  (make-polynomial 'x '(1 0 0 0 0 0))) "\n")
+  #;(show #t "Test11: Subtracting dense and sparse polynomials: "
+  (sub (make-polynomial 'x '(1 2 0 0 0 1))
+  (make-polynomial 'x '((4 2)))) "\n")
+  (show #t "Test12: Dividing x^2 + 2x + 1 by x+1: "
+	(displayed
+	 (div (make-polynomial 'x '((2 1) (1 2) (0 1)))
+	      (make-polynomial 'x '(      (1 1) (0 1)))) ) "\n")
+  (show #t "Test14: Adding polynomials of two variables: "
+	(displayed
+	 (add (make-polynomial 'x '((1 1)))
+	      (make-polynomial 'y '((1 1))))))
+  (show #t "Test14: Adding polynomials of two variables,\n when one of them is nonexistant: \n"
+	(pretty
+	 (add (make-polynomial 'x '((1 1)))
+	      (make-polynomial 'y '((0 1))))))
+  (show #t "Test25: multiplying different variables: "
+	(displayed (mul (make-polynomial 'x '((1 1)))
+			(make-polynomial 'y '((1 1))))) "\n")
+  (begin
+    (show #t "Test 26:start\n")
+    (define p1 (make-polynomial 'x '((2 1) (0 1))))
+    (define p2 (make-polynomial 'x '((3 1) (0 1))))
+    (define rf (make-rational p2 p1))
 
-	(show #t "Test 26: make-rational-polynomial: " rf "\n")
-	(show #t "Test 27: add-rational\n")
-	(show #t "Test 27: " (add rf rf) "\n")
-	)
+    (show #t "Test 26: make-rational-polynomial: " rf "\n")
+    (show #t "Test 27: add-rational\n")
+    (show #t "Test 27: " (add rf rf) "\n")
+    )
 
-	(show #t "Test 28: polynomial-gcd: start\n")
-	(define (greatest-common-divisor p1 p2) (apply-generic 'gcd p1 p2))
-	(begin
-	  (define p1 (make-polynomial
-		       'x '((4 1) (3 -1) (2 -2) (1 2))))
-	  (define p2 (make-polynomial 'x '((3 1) (1 -1))))
+  (show #t "Test 28: polynomial-gcd: start\n")
+  (define (greatest-common-divisor p1 p2) (apply-generic 'gcd p1 p2))
+  (begin
+    (define p1 (make-polynomial
+		'x '((4 1) (3 -1) (2 -2) (1 2))))
+    (define p2 (make-polynomial 'x '((3 1) (1 -1))))
 
-	  (show #t "Test 28: polynomial-gcd: " (greatest-common-divisor p1 p2) "\n"))
+    (show #t "Test 28: polynomial-gcd: " (greatest-common-divisor p1 p2) "\n"))
 
-	(begin
-	    (define p1 (make-polynomial
-			 'x '((2 1) (1 -2) (0 1))))
-	    (define p2 (make-polynomial 'x '((2 11) (0 7))))
+  (begin
+    (define p1 (make-polynomial
+		'x '((2 1) (1 -2) (0 1))))
+    (define p2 (make-polynomial 'x '((2 11) (0 7))))
 
-	    (define p3 (make-polynomial 'x '((1 13) (0 5))))
-	    (define q1 (mul p1 p2))
-	    (define q2 (mul p1 p3))
-	    (show #t "Test 29: gcd-integer-problem: start\n")
-	    (show #t "Test 29: p1=" p1 "\n")
-	    (show #t "Test 29: p2=" p2 "\n")
-	    (show #t "Test 29: p3=" p3 "\n")
-	    (show #t "Test 29: q1=" q1 "\n")
-	    (show #t "Test 29: q2=" q2 "\n")
-	    (show #t "Test 29: gcd : " (greatest-common-divisor q1 q2) "\n")      
-	  )
+    (define p3 (make-polynomial 'x '((1 13) (0 5))))
+    (define q1 (mul p1 p2))
+    (define q2 (mul p1 p3))
+    (show #t "Test 29: gcd-integer-problem: start\n")
+    (show #t "Test 29: p1=" p1 "\n")
+    (show #t "Test 29: p2=" p2 "\n")
+    (show #t "Test 29: p3=" p3 "\n")
+    (show #t "Test 29: q1=" q1 "\n")
+    (show #t "Test 29: q2=" q2 "\n")
+    (show #t "Test 29: gcd : " (greatest-common-divisor q1 q2) "\n")      
+    )
 
   (begin 
-                 (show #t "Test 30: start\n")
-		 (define p1 (make-polynomial 'x '((1 1)(0 1))))
-		 (define p2 (make-polynomial 'x '((3 1)(0 -1))))
-		 (define p3 (make-polynomial 'x '((1 1))))
-		 (define p4 (make-polynomial 'x '((2 1)(0 -1))))
+    (show #t "Test 30: start\n")
+    (define p1 (make-polynomial 'x '((1 1)(0 1))))
+    (define p2 (make-polynomial 'x '((3 1)(0 -1))))
+    (define p3 (make-polynomial 'x '((1 1))))
+    (define p4 (make-polynomial 'x '((2 1)(0 -1))))
 
-		 (define rf1 (make-rational p1 p2))
-		 (define rf2 (make-rational p3 p4))
+    (define rf1 (make-rational p1 p2))
+    (define rf2 (make-rational p3 p4))
 
-		 (show #t "Test 33: " (add rf1 rf2) "\n"))
+    (show #t "Test 33: " (add rf1 rf2) "\n"))
 
 
 #+end_src
@@ -23303,8 +23319,9 @@ that the pending transaction from a1 to a2 is still needed.
     (stream-for-each display-line s))
 
   (define (display-line x)
-    (newline)
-    (display x))
+    #;(newline)
+    #;(display x)
+    (show #t (pretty x)))
   (define (stream-enumerate-interval low high)
     (if (> low high)
 	the-empty-stream
@@ -39470,30 +39487,53 @@ Assertion added to data base.
 Assertion added to data base.
 ;;; Query input:
 (and (supervisor (? person) (Bitdiddle Ben)) (address (? person) (? street)))
-;;; Query results:
-(and (supervisor (Tweakit Lem E) (Bitdiddle Ben)) (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
-(and (supervisor (Fect Cy D) (Bitdiddle Ben)) (address (Fect Cy D) (Cambridge (Ames Street) 3)))
-(and (supervisor (Hacker Alyssa P) (Bitdiddle Ben)) (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+;;; Query results:(and (supervisor (Tweakit Lem E) (Bitdiddle Ben))
+     (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+(and (supervisor (Fect Cy D) (Bitdiddle Ben))
+     (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+(and (supervisor (Hacker Alyssa P) (Bitdiddle Ben))
+     (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+
 ;;; Query input:
 (and (salary (Bitdiddle Ben) (? amount))
      (salary (? name) (? salary))
      (lisp-value < (? salary) (? amount)))
-;;; Query results:
-(and (salary (Bitdiddle Ben) 60000) (salary (Aull DeWitt) 25000) (lisp-value < 25000 60000))
-(and (salary (Bitdiddle Ben) 60000) (salary (Cratchet Robert) 18000) (lisp-value < 18000 60000))
-(and (salary (Bitdiddle Ben) 60000) (salary (Reasoner Louis) 30000) (lisp-value < 30000 60000))
-(and (salary (Bitdiddle Ben) 60000) (salary (Tweakit Lem E) 25000) (lisp-value < 25000 60000))
-(and (salary (Bitdiddle Ben) 60000) (salary (Fect Cy D) 35000) (lisp-value < 35000 60000))
-(and (salary (Bitdiddle Ben) 60000) (salary (Hacker Alyssa P) 40000) (lisp-value < 40000 60000))
+;;; Query results:(and (salary (Bitdiddle Ben) 60000)
+     (salary (Aull DeWitt) 25000)
+     (lisp-value < 25000 60000))
+(and (salary (Bitdiddle Ben) 60000)
+     (salary (Cratchet Robert) 18000)
+     (lisp-value < 18000 60000))
+(and (salary (Bitdiddle Ben) 60000)
+     (salary (Reasoner Louis) 30000)
+     (lisp-value < 30000 60000))
+(and (salary (Bitdiddle Ben) 60000)
+     (salary (Tweakit Lem E) 25000)
+     (lisp-value < 25000 60000))
+(and (salary (Bitdiddle Ben) 60000)
+     (salary (Fect Cy D) 35000)
+     (lisp-value < 35000 60000))
+(and (salary (Bitdiddle Ben) 60000)
+     (salary (Hacker Alyssa P) 40000)
+     (lisp-value < 40000 60000))
+
 ;;; Query input:
 (and (supervisor (? person) (? name))
      (not (job (? name) (computer ? post)))
      (job (? name) ? x))
-;;; Query results:
-(and (supervisor (Aull DeWitt) (Warbucks Oliver)) (not (job (Warbucks Oliver) (computer . ?post))) (job (Warbucks Oliver) (administration big wheel)))
-(and (supervisor (Cratchet Robert) (Scrooge Eben)) (not (job (Scrooge Eben) (computer . ?post))) (job (Scrooge Eben) (accounting chief accountant)))
-(and (supervisor (Scrooge Eben) (Warbucks Oliver)) (not (job (Warbucks Oliver) (computer . ?post))) (job (Warbucks Oliver) (administration big wheel)))
-(and (supervisor (Bitdiddle Ben) (Warbucks Oliver)) (not (job (Warbucks Oliver) (computer . ?post))) (job (Warbucks Oliver) (administration big wheel)))
+;;; Query results:(and (supervisor (Aull DeWitt) (Warbucks Oliver))
+     (not (job (Warbucks Oliver) (computer . ?post)))
+     (job (Warbucks Oliver) (administration big wheel)))
+(and (supervisor (Cratchet Robert) (Scrooge Eben))
+     (not (job (Scrooge Eben) (computer . ?post)))
+     (job (Scrooge Eben) (accounting chief accountant)))
+(and (supervisor (Scrooge Eben) (Warbucks Oliver))
+     (not (job (Warbucks Oliver) (computer . ?post)))
+     (job (Warbucks Oliver) (administration big wheel)))
+(and (supervisor (Bitdiddle Ben) (Warbucks Oliver))
+     (not (job (Warbucks Oliver) (computer . ?post)))
+     (job (Warbucks Oliver) (administration big wheel)))
+
 ;;; Query input:
 exit
 #+end_example
@@ -45690,7 +45730,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [13/54]
+** TODO Chapter 5: Computing with Register Machines [24/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -46376,7 +46416,7 @@ In the [[Exercise 5.5 Hand simulation for factorial and Fibonacci]], after
 the label ~afterfib-n-1~, there are lines 10 and 12, which do useless
 job of restoring and saving the return address. They can be removed.
 
-*** 5.2 Register-Machine Simulator [7/13]
+*** 5.2 Register-Machine Simulator [13/13]
 **** Common code
 
 #+name: regmac-glue1
@@ -46393,19 +46433,26 @@ job of restoring and saving the return address. They can be removed.
                 false))
 #+end_src
 
+#+name: regmac-controller-gcd-machine
+#+begin_src scheme :exports code
+(test-b (test (op =) (reg b) (const 0))
+	      (branch (label gcd-done))
+	      (assign t (op rem) (reg a) (reg b))
+	      (assign a (reg b))
+	      (assign b (reg t))
+	      (goto (label test-b))
+	      gcd-done)
+#+end_src
+
 #+name: regmac-test-gcd-1
 #+begin_src scheme :exports code
 (define gcd-machine
     (make-machine
      '(a b t)
      (list (list 'rem remainder) (list '= =))
-     '(test-b (test (op =) (reg b) (const 0))
-	      (branch (label gcd-done))
-	      (assign t (op rem) (reg a) (reg b))
-	      (assign a (reg b))
-	      (assign b (reg t))
-	      (goto (label test-b))
-	      gcd-done)))
+     (quote 
+<<regmac-controller-gcd-machine>>
+)))
   
   (set-register-contents! gcd-machine 'a 206)
   (set-register-contents! gcd-machine 'b 40)
@@ -46551,7 +46598,8 @@ job of restoring and saving the return address. They can be removed.
 
   (define (get-register machine reg-name)
     ((machine 'get-register) reg-name))
-
+  (define (advance-pc pc)
+    (set-contents! pc (cdr (get-contents pc))))
 #+end_src
 
 #+name: regmac-extract-labels
@@ -46563,7 +46611,7 @@ job of restoring and saving the return address. They can be removed.
 	 (cdr text)
 	 (lambda (insts labels)
 	   (let ((next-inst (car text)))
-	     (if (symbol? next-inst)
+	     (if (symbol? next-inst) ;; i.e. label
 		 (receive insts
 		     (cons (make-label-entry next-inst
 					     insts)
@@ -46596,11 +46644,13 @@ job of restoring and saving the return address. They can be removed.
 	   (instruction-text inst)
 	   labels machine pc flag stack ops)))
        insts)))
+
   (define (make-instruction text) (cons text '()))
   (define (instruction-text inst) (car inst))
   (define (instruction-execution-proc inst) (cdr inst))
   (define (set-instruction-execution-proc! inst proc)
     (set-cdr! inst proc))
+
   (define (make-label-entry label-name insts)
     (cons label-name insts))
   (define (lookup-label labels label-name)
@@ -46657,8 +46707,7 @@ job of restoring and saving the return address. They can be removed.
     (cadr assign-instruction))
   (define (assign-value-exp assign-instruction)
     (cddr assign-instruction))
-  (define (advance-pc pc)
-    (set-contents! pc (cdr (get-contents pc))))
+
 #+end_src
 
 #+name: regmac-make-test
@@ -46825,6 +46874,8 @@ job of restoring and saving the return address. They can be removed.
 	       (print-statistics))
 	      (else (error "Unknown request: STACK" message))))
       dispatch))
+  (define (pop stack) (stack 'pop))
+  (define (push stack value) ((stack 'push) value))
 #+end_src
 
 #+RESULTS: regmac-make-stack-with-performance
@@ -47179,8 +47230,10 @@ it work like this: ~(assign (reg a) (reg b))~.
     (cadadr assign-instruction))
   (define (assign-value-exp assign-instruction)
     (cddr assign-instruction))
-  (define (advance-pc pc)
-    (set-contents! pc (cdr (get-contents pc))))
+#+end_src
+
+#+begin_src scheme :exports code
+
 #+end_src
 
 
@@ -47747,6 +47800,8 @@ Extend the assembler to store:
 
   (define (get-register machine reg-name)
     ((machine 'get-register) reg-name))
+  (define (advance-pc pc)
+    (set-contents! pc (cdr (get-contents pc))))
 
 #+end_src
 
@@ -47790,7 +47845,7 @@ Extend the assembler to store:
   
   (set-register-contents! test-machine 'a -1)
   (start test-machine)
-  (display "(reg a) has")
+  (display "(reg a) has ")
   (display (get-register-contents test-machine 'a))
   (newline)
   (display "metadata=") 
@@ -47894,7 +47949,6 @@ metadata=
 
   (define (assemble controller-text machine)
     (let ((allregs (extract-registers controller-text)))
-     (display "assemble:allregs=") (display allregs) (newline)
      (for-each 
        (lambda (reg) ((machine 'allocate-register) reg))
        allregs))
@@ -48013,7 +48067,7 @@ metadata=
 #+end_src
 
 #+RESULTS:
-: assemble:allregs=(a b)
+: (a b)
 : (reg a) has 3
 : metadata=
 : (instructions (goto save assign))
@@ -48079,7 +48133,38 @@ metadata=
 Seems to be working. I am keeping the interface with the empty first
 argument just in case.
 
-**** TODO Exercise 5.14 
+**** DONE Exercise 5.14 Profiling
+     CLOSED: [2020-02-28 Fri 20:21]
+
+Let us define the factorial machine first:
+
+#+name: regmac-controller-factorial-511
+#+begin_src scheme :exports code
+  (controller
+   (assign continue (label fact-done)) ;set up final return address
+   fact-loop
+   (test (op =) (reg n) (const 1))
+   (branch (label base-case))
+   ;; Set up for the recursive call by saving n and continue.
+   ;; Set up continue so that the computation will continue
+   ;; at after-fact when the subroutine returns.
+   (save continue)
+   (save n)
+   (assign n (op -) (reg n) (const 1))
+   (assign continue (label after-fact))
+   (goto (label fact-loop))
+   after-fact
+   (restore n)
+   (restore continue)
+   (assign val (op *) (reg n) (reg val)) ;val now contains n(n - 1)!
+   (goto (reg continue)) ;return to caller
+   base-case
+   (assign val (const 1)) ;base case: 1! = 1
+   (goto (reg continue))  ;return to caller
+   fact-done)
+#+end_src
+
+Let us test the simulator on the unmodified machine.
 
 #+header: :stdin empty
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
@@ -48101,41 +48186,2705 @@ argument just in case.
   (define test-machine
     (make-machine
      '()
-     (list (list '= =) (list '< <) (list '- -) (list '+ +))
+     (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *))
      (quote 
-<<regmac-controller-fibonacci-512>>)))
-
+<<regmac-controller-factorial-511>>)))
 
   (set-register-contents! test-machine 'n 10)
-  (display "metadata=") 
-  (map (lambda (x) (newline) (display x)) (test-machine 'get-metadata))
-  (newline)
+  (display "metadata=\n") 
+  (map (lambda (x)  (show #t "  "(pretty  x))) (test-machine 'get-metadata))
   (start test-machine)
   (display "(reg val) has ")
-  (display (get-register-contents test-machine 'val))
-  (newline)
+  (show #t (pretty (get-register-contents test-machine 'val)))
+#+end_src
+
+#+RESULTS:
+: metadata=
+:   (instructions (assign test branch save goto restore))
+:   (entry-points (continue))
+:   (stack-registers (continue n))
+:   (datapaths
+:    ((val ((const 1)) ((op *) (reg n) (reg val)))
+:     (n ((op -) (reg n) (const 1)))
+:     (continue ((label after-fact)) ((label fact-done)))))
+: (reg val) has 3628800
+
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+  <<regmac-glue1>>
+  <<regmac-make-machine>>
+  <<regmac-make-register>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata>>
+  <<regmac-extract-labels-improved>>
+  <<regmac-assembler-with-metadata-and-register-allocation>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  (define test-machine
+    (make-machine
+     '()
+     (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *) 
+           (list 'null? null?) (list 'print display)
+           (list 'newdata (let ((argin '(2 4 6 8 10 12 -1))) 
+                                  (lambda () (let ((retval (car argin)))
+                                       (set! argin (cdr argin))
+                                       retval)))))
+     (quote 
+(controller
+   meta-start
+   (assign n (op newdata))
+   (test (op =) (reg n) (const -1))
+   (branch (label final-end))
+   (perform (op print) (const "\nn="))
+   (perform (op print) (reg n))
+   (perform (op initialize-stack))
+   (perform (op print-stack-statistics))
+   (assign continue (label fact-done)) ;set up final return address
+   fact-loop
+   (test (op =) (reg n) (const 1))
+   (branch (label base-case))
+   ;; Set up for the recursive call by saving n and continue.
+   ;; Set up continue so that the computation will continue
+   ;; at after-fact when the subroutine returns.
+   (save continue)
+   (save n)
+   (assign n (op -) (reg n) (const 1))
+   (assign continue (label after-fact))
+   (goto (label fact-loop))
+   after-fact
+   (restore n)
+   (restore continue)
+   (assign val (op *) (reg n) (reg val)) ;val now contains n(n - 1)!
+   (goto (reg continue)) ;return to caller
+   base-case
+   (assign val (const 1)) ;base case: 1! = 1
+   (goto (reg continue))  ;return to caller
+   fact-done
+   (perform (op print-stack-statistics))
+   (perform (op print) (const "\nreg val has "))
+   (perform (op print) (reg val))
+   (goto (label meta-start))
+   final-end
+)
+)))
+
+  (set-register-contents! test-machine 'n 10)
+  (display "metadata=\n") 
+  (map (lambda (x)  (show #t "  "(pretty  x))) (test-machine 'get-metadata))
+  (start test-machine)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+metadata=
+  (instructions (assign test branch perform save goto restore))
+  (entry-points (continue))
+  (stack-registers (continue n))
+  (datapaths
+   ((val ((const 1)) ((op *) (reg n) (reg val)))
+    (continue ((label after-fact)) ((label fact-done)))
+    (n ((op -) (reg n) (const 1)) ((op newdata)))))
+
+n=2
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 2 maximum-depth = 2)
+reg val has 2
+n=4
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 6 maximum-depth = 6)
+reg val has 24
+n=6
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 10 maximum-depth = 10)
+reg val has 720
+n=8
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 14 maximum-depth = 14)
+reg val has 40320
+n=10
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 18 maximum-depth = 18)
+reg val has 3628800
+n=12
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 22 maximum-depth = 22)
+reg val has 479001600
+#+end_example
+
+Works. Now let's rewrite the machine. 
+
+The linear function formula seems to be \(2n - 2\)
+
+**** DONE Exercise 5.15 Instruction counting
+     CLOSED: [2020-02-28 Fri 21:36]
+
+#+name: regmac-make-new-machine-with-metadata-instr-count
+#+begin_src scheme :exports code
+  (define (make-new-machine)
+    (let ((pc (make-register 'pc))
+	  (flag (make-register 'flag))
+	  (stack (make-stack))
+	  (the-instruction-sequence '())
+          (the-instruction-counter 0)
+	  (metadata '()))
+      (let ((the-ops
+	     (list (list 'initialize-stack
+			 (lambda () (stack 'initialize)))
+		   (list 'print-stack-statistics
+			 (lambda () (stack 'print-statistics)))
+                   (list 'reset-instruction-counter
+                         (lambda () (set! the-instruction-counter 0)))))
+
+	    (register-table
+	     (list (list 'pc pc) (list 'flag flag))))
+	(define (allocate-register name)
+	  (if (assoc name register-table)
+	      (error "Multiply defined register: " name)
+	      (set! register-table
+		(cons (list name (make-register name))
+		      register-table)))
+	  'register-allocated)
+	(define (lookup-register name)
+	  (let ((val (assoc name register-table)))
+	    (if val
+		(cadr val)
+		(error "Unknown register:" name))))
+	(define (execute)
+	  (let ((insts (get-contents pc)))
+            (set! the-instruction-counter (+ the-instruction-counter 1))
+	    (if (null? insts)
+		'done
+		(begin
+		  ((instruction-execution-proc (car insts)))
+		  (execute)))))
+	(define (dispatch message)
+	  (cond ((eq? message 'start)
+		 (set-contents! pc the-instruction-sequence)
+		 (execute))
+		((eq? message 'install-instruction-sequence)
+		 (lambda (seq)
+		   (set! the-instruction-sequence seq)))
+		((eq? message 'allocate-register)
+		 allocate-register)
+		((eq? message 'get-register)
+		 lookup-register)
+		((eq? message 'install-operations)
+		 (lambda (ops)
+		   (set! the-ops (append the-ops ops))))
+		((eq? message 'stack) stack)
+		((eq? message 'operations) the-ops)
+		((eq? message 'set-metadata!) (lambda (new-metadata) (set! metadata new-metadata)))
+		((eq? message 'get-metadata) metadata)
+                ((eq? message 'get-instruction-count) the-instruction-counter)
+                ((eq? message 'reset-instruction-count) (set! the-instruction-counter 0))
+		(else (error "Unknown request: MACHINE"
+			     message))))
+	dispatch)))
+  (define (start machine) (machine 'start))
+  (define (get-register-contents machine register-name)
+    (get-contents (get-register machine register-name)))
+  (define (set-register-contents! machine register-name value)
+    (set-contents! (get-register machine register-name)
+		   value)
+    'done)
+
+  (define (get-register machine reg-name)
+    ((machine 'get-register) reg-name))
+  (define (advance-pc pc)
+    (set-contents! pc (cdr (get-contents pc))))
+
 #+end_src
 
 
-**** TODO Exercise 5.15
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+    <<regmac-glue1>>
+    <<regmac-make-machine>>
+    <<regmac-make-register>>
+    <<regmac-make-stack-with-performance>>
+    <<regmac-make-new-machine-with-metadata-instr-count>>
+    <<regmac-extract-labels-improved>>
+    <<regmac-assembler-with-metadata-and-register-allocation>>
+    <<regmac-generating-execution-procedures>>
+    <<regmac-make-operation-exp-improved>>
+    <<regmac-make-operation-exp-syntax>>
+    <<regmac-make-assign>>
+    <<regmac-make-test>>
+    <<regmac-make-save-restore>>
+    <<regmac-other-instructions>>
 
-**** TODO Exercise 5.16
+    (define test-machine
+      (make-machine
+       '()
+       (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *) 
+	     (list 'null? null?) (list 'print display)
+	     (list 'newdata (let ((argin '(2 4 6 8 10 12 -1))) 
+				    (lambda () (let ((retval (car argin)))
+					 (set! argin (cdr argin))
+					 retval)))))
+       (quote 
+  (controller
+     meta-start
+     (assign n (op newdata))
+     (test (op =) (reg n) (const -1))
+     (branch (label final-end))
+     (perform (op print) (const "\nn="))
+     (perform (op print) (reg n))
+     (perform (op initialize-stack))
+     (perform (op print-stack-statistics))
+     (assign continue (label fact-done)) ;set up final return address
+     fact-loop
+     (test (op =) (reg n) (const 1))
+     (branch (label base-case))
+     ;; Set up for the recursive call by saving n and continue.
+     ;; Set up continue so that the computation will continue
+     ;; at after-fact when the subroutine returns.
+     (save continue)
+     (save n)
+     (assign n (op -) (reg n) (const 1))
+     (assign continue (label after-fact))
+     (goto (label fact-loop))
+     after-fact
+     (restore n)
+     (restore continue)
+     (assign val (op *) (reg n) (reg val)) ;val now contains n(n - 1)!
+     (goto (reg continue)) ;return to caller
+     base-case
+     (assign val (const 1)) ;base case: 1! = 1
+     (goto (reg continue))  ;return to caller
+     fact-done
+     (perform (op print-stack-statistics))
+     (perform (op print) (const "\nreg val has "))
+     (perform (op print) (reg val))
+     (goto (label meta-start))
+     final-end
+  )
+  )))
 
-**** TODO Exercise 5.17
+    (set-register-contents! test-machine 'n 10)
+    (display "metadata=\n") 
+    (map (lambda (x)  (show #t "  "(pretty  x))) (test-machine 'get-metadata))
+    (start test-machine)
+    (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
+#+end_src
 
-**** TODO Exercise 5.18
+#+RESULTS:
+#+begin_example
+metadata=
+  (instructions (assign test branch perform save goto restore))
+  (entry-points (continue))
+  (stack-registers (continue n))
+  (datapaths
+   ((val ((const 1)) ((op *) (reg n) (reg val)))
+    (continue ((label after-fact)) ((label fact-done)))
+    (n ((op -) (reg n) (const 1)) ((op newdata)))))
 
-**** TODO Exercise 5.19
+n=2
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 2 maximum-depth = 2)
+reg val has 2
+n=4
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 6 maximum-depth = 6)
+reg val has 24
+n=6
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 10 maximum-depth = 10)
+reg val has 720
+n=8
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 14 maximum-depth = 14)
+reg val has 40320
+n=10
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 18 maximum-depth = 18)
+reg val has 3628800
+n=12
+(total-pushes = 0 maximum-depth = 0)
+(total-pushes = 22 maximum-depth = 22)
+reg val has 479001600
+Instructions executed: 496
+#+end_example
 
-*** 5.3 Storage Allocation and Garbage Collection [0/3]
-**** TODO Exercise 5.20
+**** DONE Exercise 5.16 Tracing execution
+     CLOSED: [2020-02-28 Fri 22:59]
 
-**** TODO Exercise 5.21
+#+name: regmac-make-new-machine-with-metadata-instr-count-trace
+#+begin_src scheme :exports code
+  (define (make-new-machine)
+    (let ((pc (make-register 'pc))
+	  (flag (make-register 'flag))
+	  (stack (make-stack))
+	  (the-instruction-sequence '())
+          (the-instruction-counter 0)
+          (tracing-flag #f)
+	  (metadata '()))
+      (let ((the-ops
+	     (list (list 'initialize-stack
+			 (lambda () (stack 'initialize)))
+		   (list 'print-stack-statistics
+			 (lambda () (stack 'print-statistics)))))
 
-**** TODO Exercise 5.22
+	    (register-table
+	     (list (list 'pc pc) (list 'flag flag))))
+	(define (allocate-register name)
+	  (if (assoc name register-table)
+	      (error "Multiply defined register: " name)
+	      (set! register-table
+		(cons (list name (make-register name))
+		      register-table)))
+	  'register-allocated)
+	(define (lookup-register name)
+	  (let ((val (assoc name register-table)))
+	    (if val
+		(cadr val)
+		(error "Unknown register:" name))))
+	(define (execute)
+	  (let ((insts (get-contents pc)))
+            (set! the-instruction-counter (+ the-instruction-counter 1))
+	    (if (null? insts)
+		'done
+		(begin
+                  (if tracing-flag
+                     (begin 
+                        (display "\ninstruction: ")
+                        (display (instruction-text (car insts)))))
+		  ((instruction-execution-proc (car insts)))
+		  (execute)))))
+	(define (dispatch message)
+	  (cond ((eq? message 'start)
+		 (set-contents! pc the-instruction-sequence)
+		 (execute))
+		((eq? message 'install-instruction-sequence)
+		 (lambda (seq)
+		   (set! the-instruction-sequence seq)))
+		((eq? message 'allocate-register)
+		 allocate-register)
+		((eq? message 'get-register)
+		 lookup-register)
+		((eq? message 'install-operations)
+		 (lambda (ops)
+		   (set! the-ops (append the-ops ops))))
+		((eq? message 'stack) stack)
+		((eq? message 'operations) the-ops)
+		((eq? message 'set-metadata!) (lambda (new-metadata) (set! metadata new-metadata)))
+		((eq? message 'get-metadata) metadata)
+                ((eq? message 'get-instruction-count) the-instruction-counter)
+                ((eq? message 'reset-instruction-count) (set! the-instruction-counter 0))
+                ((eq? message 'trace-on) (set! tracing-flag #t))
+                ((eq? message 'trace-off) (set! tracing-flag #f))
+		(else (error "Unknown request: MACHINE"
+			     message))))
+	dispatch)))
+  (define (start machine) (machine 'start))
+  (define (get-register-contents machine register-name)
+    (get-contents (get-register machine register-name)))
+  (define (set-register-contents! machine register-name value)
+    (set-contents! (get-register machine register-name)
+		   value)
+    'done)
+
+  (define (get-register machine reg-name)
+    ((machine 'get-register) reg-name))
+  (define (advance-pc pc)
+    (set-contents! pc (cdr (get-contents pc))))
+
+#+end_src
+
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+    <<regmac-glue1>>
+    <<regmac-make-machine>>
+    <<regmac-make-register>>
+    <<regmac-make-stack-with-performance>>
+    <<regmac-make-new-machine-with-metadata-instr-count-trace>>
+    <<regmac-extract-labels-improved>>
+    <<regmac-assembler-with-metadata-and-register-allocation>>
+    <<regmac-generating-execution-procedures>>
+    <<regmac-make-operation-exp-improved>>
+    <<regmac-make-operation-exp-syntax>>
+    <<regmac-make-assign>>
+    <<regmac-make-test>>
+    <<regmac-make-save-restore>>
+    <<regmac-other-instructions>>
+
+    (define test-machine
+      (make-machine
+       '()
+       (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *) 
+	     (list 'null? null?) (list 'print display)
+	     (list 'newdata (let ((argin '(2 4 -1))) 
+				    (lambda () (let ((retval (car argin)))
+					 (set! argin (cdr argin))
+					 retval)))))
+       (quote 
+  (controller
+     meta-start
+     (assign n (op newdata))
+     (test (op =) (reg n) (const -1))
+     (branch (label final-end))
+     (perform (op print) (const "\nn="))
+     (perform (op print) (reg n))
+     (perform (op initialize-stack))
+     (perform (op print-stack-statistics))
+     (assign continue (label fact-done)) ;set up final return address
+     fact-loop
+     (test (op =) (reg n) (const 1))
+     (branch (label base-case))
+     ;; Set up for the recursive call by saving n and continue.
+     ;; Set up continue so that the computation will continue
+     ;; at after-fact when the subroutine returns.
+     (save continue)
+     (save n)
+     (assign n (op -) (reg n) (const 1))
+     (assign continue (label after-fact))
+     (goto (label fact-loop))
+     after-fact
+     (restore n)
+     (restore continue)
+     (assign val (op *) (reg n) (reg val)) ;val now contains n(n - 1)!
+     (goto (reg continue)) ;return to caller
+     base-case
+     (assign val (const 1)) ;base case: 1! = 1
+     (goto (reg continue))  ;return to caller
+     fact-done
+     (perform (op print-stack-statistics))
+     (perform (op print) (const "\nreg val has "))
+     (perform (op print) (reg val))
+     (goto (label meta-start))
+     final-end
+  )
+  )))
+
+    (set-register-contents! test-machine 'n 10)
+    (display "metadata=\n") 
+    (map (lambda (x)  (show #t "  "(pretty  x))) (test-machine 'get-metadata))
+    (test-machine 'trace-on)
+    (start test-machine)
+    (test-machine 'trace-off)
+    (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+metadata=
+  (instructions (assign test branch perform save goto restore))
+  (entry-points (continue))
+  (stack-registers (continue n))
+  (datapaths
+   ((val ((const 1)) ((op *) (reg n) (reg val)))
+    (continue ((label after-fact)) ((label fact-done)))
+    (n ((op -) (reg n) (const 1)) ((op newdata)))))
+
+instruction: (assign n (op newdata))
+instruction: (test (op =) (reg n) (const -1))
+instruction: (branch (label final-end))
+instruction: (perform (op print) (const "\nn="))
+n=
+instruction: (perform (op print) (reg n))2
+instruction: (perform (op initialize-stack))
+instruction: (perform (op print-stack-statistics))
+(total-pushes = 0 maximum-depth = 0)
+instruction: (assign continue (label fact-done))
+instruction: (test (op =) (reg n) (const 1))
+instruction: (branch (label base-case))
+instruction: (save continue)
+instruction: (save n)
+instruction: (assign n (op -) (reg n) (const 1))
+instruction: (assign continue (label after-fact))
+instruction: (goto (label fact-loop))
+instruction: (test (op =) (reg n) (const 1))
+instruction: (branch (label base-case))
+instruction: (assign val (const 1))
+instruction: (goto (reg continue))
+instruction: (restore n)
+instruction: (restore continue)
+instruction: (assign val (op *) (reg n) (reg val))
+instruction: (goto (reg continue))
+instruction: (perform (op print-stack-statistics))
+(total-pushes = 2 maximum-depth = 2)
+instruction: (perform (op print) (const "\nreg val has "))
+reg val has 
+instruction: (perform (op print) (reg val))2
+instruction: (goto (label meta-start))
+instruction: (assign n (op newdata))
+instruction: (test (op =) (reg n) (const -1))
+instruction: (branch (label final-end))
+instruction: (perform (op print) (const "\nn="))
+n=
+instruction: (perform (op print) (reg n))4
+instruction: (perform (op initialize-stack))
+instruction: (perform (op print-stack-statistics))
+(total-pushes = 0 maximum-depth = 0)
+instruction: (assign continue (label fact-done))
+instruction: (test (op =) (reg n) (const 1))
+instruction: (branch (label base-case))
+instruction: (save continue)
+instruction: (save n)
+instruction: (assign n (op -) (reg n) (const 1))
+instruction: (assign continue (label after-fact))
+instruction: (goto (label fact-loop))
+instruction: (test (op =) (reg n) (const 1))
+instruction: (branch (label base-case))
+instruction: (save continue)
+instruction: (save n)
+instruction: (assign n (op -) (reg n) (const 1))
+instruction: (assign continue (label after-fact))
+instruction: (goto (label fact-loop))
+instruction: (test (op =) (reg n) (const 1))
+instruction: (branch (label base-case))
+instruction: (save continue)
+instruction: (save n)
+instruction: (assign n (op -) (reg n) (const 1))
+instruction: (assign continue (label after-fact))
+instruction: (goto (label fact-loop))
+instruction: (test (op =) (reg n) (const 1))
+instruction: (branch (label base-case))
+instruction: (assign val (const 1))
+instruction: (goto (reg continue))
+instruction: (restore n)
+instruction: (restore continue)
+instruction: (assign val (op *) (reg n) (reg val))
+instruction: (goto (reg continue))
+instruction: (restore n)
+instruction: (restore continue)
+instruction: (assign val (op *) (reg n) (reg val))
+instruction: (goto (reg continue))
+instruction: (restore n)
+instruction: (restore continue)
+instruction: (assign val (op *) (reg n) (reg val))
+instruction: (goto (reg continue))
+instruction: (perform (op print-stack-statistics))
+(total-pushes = 6 maximum-depth = 6)
+instruction: (perform (op print) (const "\nreg val has "))
+reg val has 
+instruction: (perform (op print) (reg val))24
+instruction: (goto (label meta-start))
+instruction: (assign n (op newdata))
+instruction: (test (op =) (reg n) (const -1))
+instruction: (branch (label final-end))
+Instructions executed: 80
+#+end_example
+
+**** DONE Exercise 5.17 Printing labels
+     CLOSED: [2020-02-29 Sat 17:43]
+
+Firstly, let us make the assembler save labels.
+
+#+name: regmac-extract-labels-improved-labels
+#+begin_src scheme :exports code
+  (define (add-inst-label! instr label)
+    (let* ((label-cell (cddr instr)))
+      (set-car! label-cell (cons label (car label-cell)))))
+  (define (instruction-labels inst) (caddr inst))
+
+  (define (extract-labels text receive)
+    (if (null? text)
+	(receive '() '())
+	(extract-labels
+	 (cdr text)
+	 (lambda (insts labels)
+	   (let ((next-inst (car text)))
+	     (if (symbol? next-inst)
+		 (receive insts
+		     (if (assoc next-inst labels)
+			 (error "extract-labels: ambiguous label" next-inst)
+			 (begin (unless (null? insts)
+				  (add-inst-label! (car insts) next-inst))
+				(cons (make-label-entry next-inst insts)
+				      labels))))
+		 (receive (cons (make-instruction next-inst)
+				insts)
+		     labels)))))))
+#+end_src
+
+
+#+name: regmac-assembler-with-metadata-register-labels
+#+begin_src scheme :exports code
+  (define (goto-inst? inst) (tagged-list? (instruction-text inst) 'goto))
+  (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
+  (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
+  (define (assign-inst? inst) (tagged-list? (instruction-text inst) 'assign))
+
+
+  (define (instruction-text-type inst) (car (instruction-text inst)))
+
+  (define (extract-reg source)
+    (append-map (lambda (sexp) (if (tagged-list? sexp 'reg)
+			      (list (cadr sexp))
+			      '())) source))
+  (define (extract-registers text)
+    (delete-duplicates 
+     (append-map 
+      (lambda (sexp)
+	(cond ((symbol? sexp) '())
+              ((tagged-list? sexp 'assign)
+	            (cons (cadr sexp) (extract-reg (cddr sexp))))
+              ((tagged-list? sexp 'save) (cdr sexp))
+              ((tagged-list? sexp 'restore) (cdr sexp))  	      
+              (else (extract-reg (cdr sexp))))) 
+      text)))
+
+
+  (define (assemble controller-text machine)
+    (let ((allregs (extract-registers controller-text)))
+     (for-each 
+       (lambda (reg) ((machine 'allocate-register) reg))
+       allregs))
+    (extract-labels
+     controller-text
+     (lambda (insts labels)
+       (let* ((meta-instructions (delete-duplicates (map instruction-text-type insts)))
+	      (meta-entry-registers (delete-duplicates (append-map 
+							(lambda (inst) 
+							  (if (and (goto-inst? inst) 
+								   (register-exp? (goto-dest (instruction-text inst))))
+							      (list (register-exp-reg (goto-dest (instruction-text inst))))
+							      '())) insts)))
+	      (meta-stack-registers (delete-duplicates (append-map 
+							(lambda (inst) 
+							  (if (or (save-inst? inst) 
+								  (restore-inst? inst))
+							      (list (cadr (instruction-text inst)))
+							      '())) insts)))
+	      (meta-datapaths (let* ((todo (append-map 
+					    (lambda (inst) 
+					      (if (assign-inst? inst)
+						  (list (cons (cadr (instruction-text inst)) (cddr (instruction-text inst))))
+						  '())) insts))
+				     (s '()))
+				(for-each 
+				 (lambda (sspair)
+				   (let ((reg (assoc (car sspair) s)))
+				     (if reg
+					 (set-cdr! reg (lset-adjoin equal? (cdr reg) (cdr sspair)))
+					 (set! s (cons (cons (car sspair) (list (cdr sspair))) s)))))
+				 todo) s)))
+	 ((machine 'set-metadata!) (make-metadata 
+				    (list 'instructions meta-instructions) 
+				    (list 'entry-points meta-entry-registers)
+				    (list 'stack-registers meta-stack-registers)
+				    (list 'datapaths meta-datapaths)))
+	 (update-insts! insts labels machine))
+       insts)))
+  (define make-metadata list)
+
+  (define (update-insts! insts labels machine)
+    (let ((pc (get-register machine 'pc))
+	  (flag (get-register machine 'flag))
+	  (stack (machine 'stack))
+	  (ops (machine 'operations)))
+      (for-each
+       (lambda (inst)
+	 (set-instruction-execution-proc!
+	  inst
+	  (make-execution-procedure
+	   (instruction-text inst)
+	   labels machine pc flag stack ops)))
+       insts)))
+
+  (define (make-instruction text) (list text '() '())) ;; text, procedure, labels
+  (define (instruction-text inst) (car inst)) 
+  (define (instruction-execution-proc inst) (cadr inst))
+
+  (define (set-instruction-execution-proc! inst proc)
+    (set-car! (cdr inst) proc))
+
+  (define (make-label-entry label-name insts)
+    (cons label-name insts))
+  (define (lookup-label labels label-name)
+    (let ((val (assoc label-name labels)))
+      (if val
+	  (cdr val)
+	  (error "Undefined label: ASSEMBLE"
+		 label-name))))
+#+end_src
+
+#+name: regmac-make-new-machine-with-metadata-instr-count-trace-labels
+#+begin_src scheme :exports code
+  (define (make-new-machine)
+    (let ((pc (make-register 'pc))
+	  (flag (make-register 'flag))
+	  (stack (make-stack))
+	  (the-instruction-sequence '())
+          (the-instruction-counter 0)
+          (tracing-flag #f)
+          (labels-flag #f)
+	  (metadata '()))
+      (let ((the-ops
+	     (list (list 'initialize-stack
+			 (lambda () (stack 'initialize)))
+		   (list 'print-stack-statistics
+			 (lambda () (stack 'print-statistics)))))
+
+	    (register-table
+	     (list (list 'pc pc) (list 'flag flag))))
+	(define (allocate-register name)
+	  (if (assoc name register-table)
+	      (error "Multiply defined register: " name)
+	      (set! register-table
+		(cons (list name (make-register name))
+		      register-table)))
+	  'register-allocated)
+	(define (lookup-register name)
+	  (let ((val (assoc name register-table)))
+	    (if val
+		(cadr val)
+		(error "Unknown register:" name))))
+	(define (execute)
+	  (let ((insts (get-contents pc)))
+            (set! the-instruction-counter (+ the-instruction-counter 1))
+	    (if (null? insts)
+		'done
+		(begin
+                  (if (and labels-flag (not (null? (instruction-labels (car insts)))))
+                     (begin 
+                        (display "\nlabels: ")
+                        (display (instruction-labels (car insts)))))
+                  (if tracing-flag
+                     (begin 
+                        (display "\ninstruction text: ")
+                        (display (instruction-text (car insts)))))
+                  
+		  ((instruction-execution-proc (car insts)))
+		  (execute)))))
+	(define (dispatch message)
+	  (cond ((eq? message 'start)
+		 (set-contents! pc the-instruction-sequence)
+		 (execute))
+		((eq? message 'install-instruction-sequence)
+		 (lambda (seq)
+		   (set! the-instruction-sequence seq)))
+		((eq? message 'allocate-register)
+		 allocate-register)
+		((eq? message 'get-register)
+		 lookup-register)
+		((eq? message 'install-operations)
+		 (lambda (ops)
+		   (set! the-ops (append the-ops ops))))
+		((eq? message 'stack) stack)
+		((eq? message 'operations) the-ops)
+		((eq? message 'set-metadata!) (lambda (new-metadata) (set! metadata new-metadata)))
+		((eq? message 'get-metadata) metadata)
+                ((eq? message 'get-instruction-count) the-instruction-counter)
+                ((eq? message 'reset-instruction-count) (set! the-instruction-counter 0))
+                ((eq? message 'trace-on) (set! tracing-flag #t))
+                ((eq? message 'trace-off) (set! tracing-flag #f))
+                ((eq? message 'labels-on) (set! labels-flag #t))
+                ((eq? message 'labels-off) (set! labels-flag #f))
+		(else (error "Unknown request: MACHINE"
+			     message))))
+	dispatch)))
+  (define (start machine) (machine 'start))
+  (define (get-register-contents machine register-name)
+    (get-contents (get-register machine register-name)))
+  (define (set-register-contents! machine register-name value)
+    (set-contents! (get-register machine register-name)
+		   value)
+    'done)
+
+  (define (get-register machine reg-name)
+    ((machine 'get-register) reg-name))
+  (define (advance-pc pc)
+    (set-contents! pc (cdr (get-contents pc))))
+
+#+end_src
+
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+    <<regmac-glue1>>
+    <<regmac-make-machine>>
+    <<regmac-make-register>>
+    <<regmac-make-stack-with-performance>>
+    <<regmac-make-new-machine-with-metadata-instr-count-trace-labels>>
+    <<regmac-extract-labels-improved-labels>>
+    <<regmac-assembler-with-metadata-register-labels>>
+    <<regmac-generating-execution-procedures>>
+    <<regmac-make-operation-exp-improved>>
+    <<regmac-make-operation-exp-syntax>>
+    <<regmac-make-assign>>
+    <<regmac-make-test>>
+    <<regmac-make-save-restore>>
+    <<regmac-other-instructions>>
+
+    (define test-machine
+      (make-machine
+       '()
+       (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *) 
+	     (list 'null? null?) (list 'print display)
+	     (list 'newdata (let ((argin '(2 4 -1))) 
+				    (lambda () (let ((retval (car argin)))
+					 (set! argin (cdr argin))
+					 retval)))))
+       (quote 
+  (controller
+     meta-start
+     (assign n (op newdata))
+     (test (op =) (reg n) (const -1))
+     (branch (label final-end))
+     (perform (op print) (const "\nn="))
+     (perform (op print) (reg n))
+     (perform (op initialize-stack))
+     (perform (op print-stack-statistics))
+     (assign continue (label fact-done)) ;set up final return address
+     fact-loop
+     (test (op =) (reg n) (const 1))
+     (branch (label base-case))
+     ;; Set up for the recursive call by saving n and continue.
+     ;; Set up continue so that the computation will continue
+     ;; at after-fact when the subroutine returns.
+     (save continue)
+     (save n)
+     (assign n (op -) (reg n) (const 1))
+     (assign continue (label after-fact))
+     (goto (label fact-loop))
+     after-fact
+     (restore n)
+     (restore continue)
+     (assign val (op *) (reg n) (reg val)) ;val now contains n(n - 1)!
+     (goto (reg continue)) ;return to caller
+     base-case
+     (assign val (const 1)) ;base case: 1! = 1
+     (goto (reg continue))  ;return to caller
+     fact-done
+     (perform (op print-stack-statistics))
+     (perform (op print) (const "\nreg val has"))
+     (perform (op print) (reg val))
+     (goto (label meta-start))
+     final-end
+  )
+  )))
+
+    (set-register-contents! test-machine 'n 10)
+    (display "metadata=\n") 
+    (map (lambda (x)  (show #t "  "(pretty  x))) (test-machine 'get-metadata))
+    (test-machine 'trace-on)
+    (test-machine 'labels-on)
+    (start test-machine)
+    (test-machine 'trace-off)
+    (test-machine 'labels-off)
+    (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+metadata=
+  (instructions (assign test branch perform save goto restore))
+  (entry-points (continue))
+  (stack-registers (continue n))
+  (datapaths
+   ((val ((const 1)) ((op *) (reg n) (reg val)))
+    (continue ((label after-fact)) ((label fact-done)))
+    (n ((op -) (reg n) (const 1)) ((op newdata)))))
+
+labels: (controller meta-start)
+instruction text: (assign n (op newdata))
+instruction text: (test (op =) (reg n) (const -1))
+instruction text: (branch (label final-end))
+instruction text: (perform (op print) (const "\nn="))
+n=
+instruction text: (perform (op print) (reg n))2
+instruction text: (perform (op initialize-stack))
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 0 maximum-depth = 0)
+instruction text: (assign continue (label fact-done))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+labels: (base-case)
+instruction text: (assign val (const 1))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+instruction text: (goto (reg continue))
+labels: (fact-done)
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 2 maximum-depth = 2)
+instruction text: (perform (op print) (const "\nreg val has"))
+reg val has
+instruction text: (perform (op print) (reg val))2
+instruction text: (goto (label meta-start))
+labels: (controller meta-start)
+instruction text: (assign n (op newdata))
+instruction text: (test (op =) (reg n) (const -1))
+instruction text: (branch (label final-end))
+instruction text: (perform (op print) (const "\nn="))
+n=
+instruction text: (perform (op print) (reg n))4
+instruction text: (perform (op initialize-stack))
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 0 maximum-depth = 0)
+instruction text: (assign continue (label fact-done))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+labels: (base-case)
+instruction text: (assign val (const 1))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+instruction text: (goto (reg continue))
+labels: (fact-done)
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 6 maximum-depth = 6)
+instruction text: (perform (op print) (const "\nreg val has"))
+reg val has
+instruction text: (perform (op print) (reg val))24
+instruction text: (goto (label meta-start))
+labels: (controller meta-start)
+instruction text: (assign n (op newdata))
+instruction text: (test (op =) (reg n) (const -1))
+instruction text: (branch (label final-end))
+Instructions executed: 80
+#+end_example
+
+Seems to be working, and the labels don't interfere with instruction counting.
+
+**** DONE Exercise 5.18 Register tracing
+     CLOSED: [2020-02-29 Sat 14:07]
+
+#+name: regmac-make-register-tracing
+#+begin_src scheme :exports code
+  (define (make-register name)
+    (let ((contents '*unassigned*)
+          (tracing-flag #f))
+      (define (dispatch message)
+	(cond ((eq? message 'get) contents)
+	      ((eq? message 'set)
+	       (lambda (value) 
+                 (when tracing-flag
+                  (show #t "\ntrace: (assign (reg " 
+                           (written name) ") (old-value " 
+                           (written contents)
+                           ") (new-value "
+                           (written value) "))"))
+                 (set! contents value)))
+              ((eq? message 'trace-on) (set! tracing-flag #t))
+              ((eq? message 'trace-off) (set! tracing-flag #f))
+	      (else
+	       (error "Unknown request: REGISTER" message))))
+      dispatch))
+  (define (get-contents register) (register 'get))
+  (define (set-contents! register value)
+    ((register 'set) value))
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+    <<regmac-glue1>>
+    <<regmac-make-machine>>
+    <<regmac-make-register-tracing>>
+    <<regmac-make-stack-with-performance>>
+    <<regmac-make-new-machine-with-metadata-instr-count-trace-labels>>
+    <<regmac-extract-labels-improved-labels>>
+    <<regmac-assembler-with-metadata-register-labels>>
+    <<regmac-generating-execution-procedures>>
+    <<regmac-make-operation-exp-improved>>
+    <<regmac-make-operation-exp-syntax>>
+    <<regmac-make-assign>>
+    <<regmac-make-test>>
+    <<regmac-make-save-restore>>
+    <<regmac-other-instructions>>
+
+    (define test-machine
+      (make-machine
+       '()
+       (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *) 
+	     (list 'null? null?) (list 'print display)
+	     (list 'newdata (let ((argin '(2 4 -1))) 
+				    (lambda () (let ((retval (car argin)))
+					 (set! argin (cdr argin))
+					 retval)))))
+       (quote 
+  (controller
+     meta-start
+     (assign n (op newdata))
+     (test (op =) (reg n) (const -1))
+     (branch (label final-end))
+     (perform (op print) (const "\nn="))
+     (perform (op print) (reg n))
+     (perform (op initialize-stack))
+     (perform (op print-stack-statistics))
+     (assign continue (label fact-done)) ;set up final return address
+     fact-loop
+     (test (op =) (reg n) (const 1))
+     (branch (label base-case))
+     ;; Set up for the recursive call by saving n and continue.
+     ;; Set up continue so that the computation will continue
+     ;; at after-fact when the subroutine returns.
+     (save continue)
+     (save n)
+     (assign n (op -) (reg n) (const 1))
+     (assign continue (label after-fact))
+     (goto (label fact-loop))
+     after-fact
+     (restore n)
+     (restore continue)
+     (assign val (op *) (reg n) (reg val)) ;val now contains n(n - 1)!
+     (goto (reg continue)) ;return to caller
+     base-case
+     (assign val (const 1)) ;base case: 1! = 1
+     (goto (reg continue))  ;return to caller
+     fact-done
+     (perform (op print-stack-statistics))
+     (perform (op print) (const "\nreg val has"))
+     (perform (op print) (reg val))
+     (goto (label meta-start))
+     final-end
+  )
+  )))
+
+    (set-register-contents! test-machine 'n 10)
+    (display "metadata=\n") 
+    (map (lambda (x)  (show #t "  "(pretty  x))) (test-machine 'get-metadata))
+    (test-machine 'trace-on)
+    (test-machine 'labels-on)
+    ((get-register test-machine 'val) 'trace-on)
+    (start test-machine)
+    (test-machine 'trace-off)
+    (test-machine 'labels-off)
+    (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+metadata=
+  (instructions (assign test branch perform save goto restore))
+  (entry-points (continue))
+  (stack-registers (continue n))
+  (datapaths
+   ((val ((const 1)) ((op *) (reg n) (reg val)))
+    (continue ((label after-fact)) ((label fact-done)))
+    (n ((op -) (reg n) (const 1)) ((op newdata)))))
+
+labels: (controller meta-start)
+instruction text: (assign n (op newdata))
+instruction text: (test (op =) (reg n) (const -1))
+instruction text: (branch (label final-end))
+instruction text: (perform (op print) (const "\nn="))
+n=
+instruction text: (perform (op print) (reg n))2
+instruction text: (perform (op initialize-stack))
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 0 maximum-depth = 0)
+instruction text: (assign continue (label fact-done))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+labels: (base-case)
+instruction text: (assign val (const 1))
+trace: (assign (reg val) (old-value *unassigned*) (new-value 1))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+trace: (assign (reg val) (old-value 1) (new-value 2))
+instruction text: (goto (reg continue))
+labels: (fact-done)
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 2 maximum-depth = 2)
+instruction text: (perform (op print) (const "\nreg val has"))
+reg val has
+instruction text: (perform (op print) (reg val))2
+instruction text: (goto (label meta-start))
+labels: (controller meta-start)
+instruction text: (assign n (op newdata))
+instruction text: (test (op =) (reg n) (const -1))
+instruction text: (branch (label final-end))
+instruction text: (perform (op print) (const "\nn="))
+n=
+instruction text: (perform (op print) (reg n))4
+instruction text: (perform (op initialize-stack))
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 0 maximum-depth = 0)
+instruction text: (assign continue (label fact-done))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+instruction text: (save continue)
+instruction text: (save n)
+instruction text: (assign n (op -) (reg n) (const 1))
+instruction text: (assign continue (label after-fact))
+instruction text: (goto (label fact-loop))
+labels: (fact-loop)
+instruction text: (test (op =) (reg n) (const 1))
+instruction text: (branch (label base-case))
+labels: (base-case)
+instruction text: (assign val (const 1))
+trace: (assign (reg val) (old-value 2) (new-value 1))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+trace: (assign (reg val) (old-value 1) (new-value 2))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+trace: (assign (reg val) (old-value 2) (new-value 6))
+instruction text: (goto (reg continue))
+labels: (after-fact)
+instruction text: (restore n)
+instruction text: (restore continue)
+instruction text: (assign val (op *) (reg n) (reg val))
+trace: (assign (reg val) (old-value 6) (new-value 24))
+instruction text: (goto (reg continue))
+labels: (fact-done)
+instruction text: (perform (op print-stack-statistics))
+(total-pushes = 6 maximum-depth = 6)
+instruction text: (perform (op print) (const "\nreg val has"))
+reg val has
+instruction text: (perform (op print) (reg val))24
+instruction text: (goto (label meta-start))
+labels: (controller meta-start)
+instruction text: (assign n (op newdata))
+instruction text: (test (op =) (reg n) (const -1))
+instruction text: (branch (label final-end))
+Instructions executed: 80
+#+end_example
+
+Seems to be working okay.
+
+**** DONE Exercise 5.19 Breakpoints 
+     CLOSED: [2020-02-29 Sat 17:42]
+
+Since the exercise 5.17 we already have label information embedded
+into the instruction sequence. 
+
+#+name: regmac-extract-labels-improved-labels-brk
+#+begin_src scheme :exports code
+  (define (add-inst-label! instr label)
+    (let* ((label-cell (cddr instr)))
+      (set-car! label-cell (cons label (car label-cell)))))
+  (define (instruction-labels inst) (caddr inst))
+
+  (define (extract-labels text receive)
+    (if (null? text)
+	(receive '() '())
+	(extract-labels
+	 (cdr text)
+	 (lambda (insts labels)
+	   (let ((next-inst (car text)))
+	     (if (symbol? next-inst)
+		 (receive insts
+		     (if (assoc next-inst labels)
+			 (error "extract-labels: ambiguous label" next-inst)
+			 (begin (unless (null? insts)
+				  (add-inst-label! (car insts) next-inst))
+				(cons (make-label-entry next-inst insts)
+				      labels))))
+		 (receive (cons (make-instruction next-inst)
+				insts)
+		     labels)))))))
+#+end_src
+
+
+#+name: regmac-assembler-with-metadata-register-labels-brk
+#+begin_src scheme :exports code
+  (define (goto-inst? inst) (tagged-list? (instruction-text inst) 'goto))
+  (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
+  (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
+  (define (assign-inst? inst) (tagged-list? (instruction-text inst) 'assign))
+
+
+  (define (instruction-text-type inst) (car (instruction-text inst)))
+
+  (define (extract-reg source)
+    (append-map (lambda (sexp) (if (tagged-list? sexp 'reg)
+			      (list (cadr sexp))
+			      '())) source))
+  (define (extract-registers text)
+    (delete-duplicates 
+     (append-map 
+      (lambda (sexp)
+	(cond ((symbol? sexp) '())
+              ((tagged-list? sexp 'assign)
+	            (cons (cadr sexp) (extract-reg (cddr sexp))))
+              ((tagged-list? sexp 'save) (cdr sexp))
+              ((tagged-list? sexp 'restore) (cdr sexp))  	      
+              (else (extract-reg (cdr sexp))))) 
+      text)))
+
+
+  (define (assemble controller-text machine)
+    (let ((allregs (extract-registers controller-text)))
+     (for-each 
+       (lambda (reg) ((machine 'allocate-register) reg))
+       allregs))
+    (extract-labels
+     controller-text
+     (lambda (insts labels)
+       (let* ((meta-instructions (delete-duplicates (map instruction-text-type insts)))
+	      (meta-entry-registers (delete-duplicates (append-map 
+							(lambda (inst) 
+							  (if (and (goto-inst? inst) 
+								   (register-exp? (goto-dest (instruction-text inst))))
+							      (list (register-exp-reg (goto-dest (instruction-text inst))))
+							      '())) insts)))
+	      (meta-stack-registers (delete-duplicates (append-map 
+							(lambda (inst) 
+							  (if (or (save-inst? inst) 
+								  (restore-inst? inst))
+							      (list (cadr (instruction-text inst)))
+							      '())) insts)))
+	      (meta-datapaths (let* ((todo (append-map 
+					    (lambda (inst) 
+					      (if (assign-inst? inst)
+						  (list (cons (cadr (instruction-text inst)) (cddr (instruction-text inst))))
+						  '())) insts))
+				     (s '()))
+				(for-each 
+				 (lambda (sspair)
+				   (let ((reg (assoc (car sspair) s)))
+				     (if reg
+					 (set-cdr! reg (lset-adjoin equal? (cdr reg) (cdr sspair)))
+					 (set! s (cons (cons (car sspair) (list (cdr sspair))) s)))))
+				 todo) s)))
+	 ((machine 'set-metadata!) (make-metadata 
+				    (list 'instructions meta-instructions) 
+				    (list 'entry-points meta-entry-registers)
+				    (list 'stack-registers meta-stack-registers)
+				    (list 'datapaths meta-datapaths)))
+         ((machine 'set-labels) labels)
+	 (update-insts! insts labels machine))
+       insts)))
+  (define make-metadata list)
+
+  (define (update-insts! insts labels machine)
+    (let ((pc (get-register machine 'pc))
+	  (flag (get-register machine 'flag))
+	  (stack (machine 'stack))
+	  (ops (machine 'operations)))
+      (for-each
+       (lambda (inst)
+	 (set-instruction-execution-proc!
+	  inst
+	  (make-execution-procedure
+	   (instruction-text inst)
+	   labels machine pc flag stack ops)))
+       insts)))
+
+  (define (make-instruction text) (list text '() '() '())) ;; text, procedure, labels
+  (define (instruction-text inst) (car inst)) 
+  (define (instruction-execution-proc inst) (cadr inst))
+  (define (instruction-breakpoints inst) (list-ref inst 3))
+  (define (set-instruction-breakpoint! inst break)
+      (set-car! (list-tail inst 3) 
+                (lset-adjoin equal? (list-tail inst 3) break)))
+  (define (clear-instruction-breakpoint! inst break)
+      (set-car! (list-tail inst 3) 
+                (lset-difference equal? (list-tail inst 3) (list break))))
+
+  (define (set-instruction-execution-proc! inst proc)
+    (set-car! (cdr inst) proc))
+
+  (define (make-label-entry label-name insts)
+    (cons label-name insts))
+  (define (lookup-label labels label-name)
+    (let ((val (assoc label-name labels)))
+      (if val
+	  (cdr val)
+	  (error "Undefined label: ASSEMBLE"
+		 label-name))))
+#+end_src
+
+
+#+name: regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk
+#+begin_src scheme :exports code
+
+  (define (make-breakpoint label offset)
+    (list label offset))
+  (define (breakpoint-label brk)
+    (car brk))
+  (define (breakpoint-offset brk)
+    (cadr brk))
+
+  (define (make-new-machine)
+    (let ((pc (make-register 'pc))
+	  (flag (make-register 'flag))
+	  (stack (make-stack))
+	  (the-instruction-sequence '())
+	  (the-instruction-counter 0)
+	  (tracing-flag #f)
+	  (labels-flag #f)
+	  (the-labels '())
+	  (the-breakpoints '())
+	  (reverse-breakpoints '())
+	  (metadata '())
+	  (resume-continuation '()))
+      (let ((the-ops
+	     (list (list 'initialize-stack
+			 (lambda () (stack 'initialize)))
+		   (list 'print-stack-statistics
+			 (lambda () (stack 'print-statistics)))))
+
+	    (register-table
+	     (list (list 'pc pc) (list 'flag flag))))
+	(define (allocate-register name)
+	  (if (assoc name register-table)
+	      (error "Multiply defined register: " name)
+	      (set! register-table
+		(cons (list name (make-register name))
+		      register-table)))
+	  'register-allocated)
+	(define (lookup-register name)
+	  (let ((val (assoc name register-table)))
+	    (if val
+		(cadr val)
+		(error "Unknown register:" name))))
+	(define (set-breakpoint label offset) ;; brk has label and offset
+	  (let ((break (make-breakpoint label offset))
+		(target (lookup-label the-labels label)))
+	    (when (assoc break the-breakpoints)
+	      (error "Breakpoint already set" break))
+	    (unless target
+	      (error "Label not found" label))
+	    (when (< (length target) offset)
+	      (error "Wrong offset" offset target))
+	    (set! the-breakpoints (cons (list break (list-tail target offset))
+					the-breakpoints))
+	    (set! reverse-breakpoints (cons (list (list-tail target offset) break) 
+					    reverse-breakpoints))))
+	(define (cancel-breakpoint label offset)
+	  (let ((breakpoint (make-breakpoint label offset)))
+	    (unless (assoc breakpoint the-breakpoints)
+	      (error "No such breakpoint" breakpoint))
+	    (let* ((break (assoc breakpoint the-breakpoints)))
+	      (unless (assoc (cadr break) reverse-breakpoints)
+		(error "Breakpoints inconsistent: " (cadr break)))
+	      (set! the-breakpoints (alist-delete breakpoint the-breakpoints equal?))
+	      (set! reverse-breakpoints (alist-delete (cadr break) reverse-breakpoints equal?)))))
+	(define (execute continuation)
+	  (let ((insts (get-contents pc)))
+	    (set! the-instruction-counter (+ the-instruction-counter 1))
+	    (if (or (null? insts) (eq? (car (car insts)) 'exit))
+		'done
+		(begin
+		  (if (and labels-flag (not (null? (instruction-labels (car insts)))))
+		      (begin 
+			(display "\nlabels: ")
+			(display (instruction-labels (car insts)))))
+		  (if tracing-flag
+		      (begin 
+			(display "\ninstruction text: ")
+			(display (instruction-text (car insts)))))
+		  (when (assoc insts reverse-breakpoints)
+		      (show #t "\nBreakpoint: " 
+			    (pretty (cdr (assoc insts reverse-breakpoints)))
+			    "Inst=" 
+			    (pretty (car insts)))
+		      (call/cc (lambda (res) 
+				 (set! resume-continuation res)
+				 (continuation)))
+                      (show #t "\nResuming."))
+		  ((instruction-execution-proc (car insts)))
+		  (execute continuation)))))
+	(define (dispatch message)
+	  (cond ((eq? message 'start)
+		 (set-contents! pc the-instruction-sequence)
+		 (call/cc execute))
+		((eq? message 'install-instruction-sequence)
+		 (lambda (seq)
+		   (set! the-instruction-sequence seq)))
+		((eq? message 'allocate-register)
+		 allocate-register)
+		((eq? message 'get-register)
+		 lookup-register)
+		((eq? message 'install-operations)
+		 (lambda (ops)
+		   (set! the-ops (append the-ops ops))))
+		((eq? message 'stack) stack)
+		((eq? message 'operations) the-ops)
+		((eq? message 'set-metadata!) (lambda (new-metadata) (set! metadata new-metadata)))
+		((eq? message 'get-metadata) metadata)
+		((eq? message 'get-instruction-count) the-instruction-counter)
+		((eq? message 'reset-instruction-count) (set! the-instruction-counter 0))
+		((eq? message 'trace-on) (set! tracing-flag #t))
+		((eq? message 'trace-off) (set! tracing-flag #f))
+		((eq? message 'labels-on) (set! labels-flag #t))
+		((eq? message 'labels-off) (set! labels-flag #f))
+		((eq? message 'set-breakpoint) set-breakpoint)
+		((eq? message 'cancel-breakpoint) cancel-breakpoint)
+		((eq? message 'cancel-all-breakpoints) 
+		 (set! the-breakpoints '())
+		 (set! reverse-breakpoints '()))
+		((eq? message 'proceed) (resume-continuation))
+		((eq? message 'set-labels) (lambda (l) (set! the-labels l)))
+		(else (error "Unknown request: MACHINE"
+			     message))))
+	dispatch)))
+  (define (start machine) (machine 'start))
+  (define (get-register-contents machine register-name)
+    (get-contents (get-register machine register-name)))
+  (define (set-register-contents! machine register-name value)
+    (set-contents! (get-register machine register-name)
+		   value)
+    'done)
+
+  (define (get-register machine reg-name)
+    ((machine 'get-register) reg-name))
+  (define (advance-pc pc)
+    (set-contents! pc (cdr (get-contents pc))))
+  (define (set-breakpoint machine label offset)
+    ((machine 'set-breakpoint) label offset))
+  (define (cancel-breakpoint machine label offset)
+    ((machine 'cancel-breakpoint) label offset))
+  (define (cancel-all-breakpoints machine)
+    (machine 'cancel-all-breakpoints))
+  (define (proceed-machine machine) (machine 'proceed))
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+      <<regmac-glue1>>
+      <<regmac-make-machine>>
+      <<regmac-make-register-tracing>>
+      <<regmac-make-stack-with-performance>>
+      <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+      <<regmac-extract-labels-improved-labels-brk>>
+      <<regmac-assembler-with-metadata-register-labels-brk>>
+      <<regmac-generating-execution-procedures>>
+      <<regmac-make-operation-exp-improved>>
+      <<regmac-make-operation-exp-syntax>>
+      <<regmac-make-assign>>
+      <<regmac-make-test>>
+      <<regmac-make-save-restore>>
+      <<regmac-other-instructions>>
+
+      (define gcd-machine
+	(make-machine
+	 '()
+	 (list (list '= =) (list '< <) (list '- -) (list '+ +) (list '* *) 
+	       (list 'null? null?) (list 'print display) (list 'rem remainder)
+	       )
+	 (quote 
+<<regmac-controller-gcd-machine>>
+    )))
+      (cancel-all-breakpoints gcd-machine)
+      (set-breakpoint gcd-machine 'test-b 4)
+      ((get-register gcd-machine 'b) 'trace-on)
+      (gcd-machine 'trace-on)
+      (gcd-machine 'labels-on)
+      (set-register-contents! gcd-machine 'a 120)
+      (set-register-contents! gcd-machine 'b 90)
+      (show #t "\nb=" (pretty (get-register-contents gcd-machine 'b)))
+;      (display "metadata=\n") 
+;      (map (lambda (x)  (show #t "  "(pretty  x))) (gcd-machine 'get-metadata))
+
+      (start gcd-machine)
+      ;; returning from a breakpoint
+;      (gcd-machine 'trace-off)
+;      (gcd-machine 'labels-off)
+;      (show #t "\nInstructions executed: " (gcd-machine 'get-instruction-count))
+;      (show #t "\nRemoving breakpoints")
+      (cancel-breakpoint gcd-machine 'test-b 4)
+      (proceed-machine gcd-machine)
+      (show #t "\nInstructions executed: " (gcd-machine 'get-instruction-count))
+      (show #t "\nAnswer=" (get-register-contents gcd-machine 'a))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+trace: (assign (reg b) (old-value *unassigned*) (new-value 90))
+b=90
+
+labels: (test-b)
+instruction text: (test (op =) (reg b) (const 0))
+instruction text: (branch (label gcd-done))
+instruction text: (assign t (op rem) (reg a) (reg b))
+instruction text: (assign a (reg b))
+instruction text: (assign b (reg t))
+Breakpoint: ((test-b 4))
+Inst=((assign b (reg t)) #<procedure #f> () ())
+
+Resuming.
+trace: (assign (reg b) (old-value 90) (new-value 30))
+instruction text: (goto (label test-b))
+labels: (test-b)
+instruction text: (test (op =) (reg b) (const 0))
+instruction text: (branch (label gcd-done))
+instruction text: (assign t (op rem) (reg a) (reg b))
+instruction text: (assign a (reg b))
+instruction text: (assign b (reg t))
+trace: (assign (reg b) (old-value 30) (new-value 0))
+instruction text: (goto (label test-b))
+labels: (test-b)
+instruction text: (test (op =) (reg b) (const 0))
+instruction text: (branch (label gcd-done))
+Instructions executed: 15
+Answer=30
+#+end_example
+
+Heh. Without ~call/cc~ all this would have been a lot of pain. But
+with ~call/cc~ and ~(scheme list)~ works like charm.
+
+*** 5.3 Storage Allocation and Garbage Collection [3/3]
+**** DONE Exercise 5.20 Drawing a list ~(#1=(1 . 2) #1)~
+     CLOSED: [2020-02-29 Sat 22:15]
+
+
+#+name: exercise-5-3-list-register-memory
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 250
+#+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,matrix,quotes}")
+#+header: :buffer on
+#+begin_src latex :results raw file :exports both :file exercise-5-3-list-register-memory.png
+\begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=black!50,
+       every node/.style={font=\sffamily,align=left},
+             node distance=20mm,
+      pics/cons cell/.style n args={4}{code={
+      \coordinate (origin);
+      \node[anchor=east,minimum size=10mm,inner sep=0, label=below left:#4] (#1-car) at(0,0) {};
+      \node[anchor=west,minimum size=10mm,inner sep=0] (#1-cdr) at(0,0) {};
+      \node[name=#1-box,fit=(#1-car) (#1-cdr),draw,shape=rectangle,rounded
+ corners=0.5mm]  {};
+      \draw[shorten <=1pt, shorten >=1pt] (#1-box.south -| origin) -- (#1-box.north -| origin);
+      \if#2t
+      % \path node[shape=circle,fill,draw,radius=2mm] at (#1-car.center) {};
+      \filldraw (#1-car.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten <=1pt] (#1-car.south west) to (#1-car.north east);
+      \fi
+      \if#3t
+      \filldraw (#1-cdr.center) circle[radius=0.66mm] ;
+      \else
+      \draw[shorten >=1pt] (#1-cdr.south west) to (#1-cdr.north east);
+      \fi
+      }},
+      pics/cons element/.style n args={2}{code={
+      \node [minimum size=10mm,inner sep=0,rounded corners=1mm, draw, shape=rectangle] (#1) {#2};
+      }}
+      ]
+
+\node (x) {x};
+%\node[right=1cm of x] {};
+\pic[right=of x] {cons cell={cell-a}{t}{t}{0}};
+\draw[->] (x) to (cell-a-box);
+\pic[below=of cell-a-car] {cons element={one}{1}};
+%\pic[right=of cell-a-cdr] {cons cell={cell-b}{t}{f}};
+\pic[below=of cell-a-cdr] {cons element={two}{2}};
+%\pic[below=of cell-b-car] {cons element={b}{b}};
+%\draw[->] (cell-a-cdr.center) to (cell-b-box);
+\draw[->] (cell-a-car.center) to (one);
+\draw[->] (cell-a-cdr.center) to (two);
+\pic[above=of cell-a-box.center] {cons cell={list-1}{t}{t}{2}};
+\draw[->] (list-1-car.center) -- (cell-a-box);
+\node[left=of list-1-box.center] (y) {y} edge [->] (list-1-box);
+\pic[right=of list-1-box] {cons cell={list-2}{t}{f}{1}};
+\draw[->] (list-1-cdr.center) -- (list-2-box);
+\draw[->] (list-2-car.center) -- (cell-a-box);
+\end{tikzpicture}
+#+end_src
+
+#+RESULTS: exercise-5-3-list-register-memory
+[[file:exercise-5-3-list-register-memory.png]]
+
+Now let us make a table with the memory summary.
+
+ | #        | 0 | 1  | 2  | 3  | 4 | 5 | 6 | ... |
+ |----------+---+----+----+----+---+---+---+-----|
+ | the-cars |   | n1 | p1 | p1 |   |   |   | ... |
+ | the-cdrs |   | n2 | e0 | p2 |   |   |   | ... |
+
+Now the value of ~free~ should be 4, as it is the first free cell.
+(For some reason we don't count from 0.)
+
+The values corresponding to ~x~ and ~y~ should be ~p1~ and ~p3~.
+
+**** DONE Exercise 5.21 Register machines for list operations
+     CLOSED: [2020-03-01 Sun 13:03]
+***** a. Recursive count-leaves 
+
+#+begin_src scheme :exports code
+  (define (count-leaves tree)
+    (cond ((null? tree) 0)
+	  ((not (pair? tree)) 1)
+	  (else (+ (count-leaves (car tree))
+		   (count-leaves (cdr tree))))))
+#+end_src
+
+#+name: regmac-controller-count-leaves-1
+#+begin_src scheme :exports code
+(controller
+   (assign continue (label finale))
+   count-leaves-loop
+   (test (op null?) (reg tree))
+   (branch (label case-null))
+   (test (op notpair?) (reg tree))
+   (branch (label case-leaf))
+   (save continue)
+   (save tree)
+   (assign continue (label after-first-rec-call))
+   (assign tree (op car) (reg tree))
+   (goto (label count-leaves-loop))
+after-first-rec-call   
+   (assign subresult1 (reg result))
+   (restore tree)
+   (assign tree (op cdr) (reg tree))
+   (save subresult1)
+   (assign continue (label after-second-rec-call))
+   (goto (label count-leaves-loop))
+after-second-rec-call
+   (assign subresult2 (reg result))
+   (restore subresult1)
+   (restore continue)
+   (assign result (op +) (reg subresult1) (reg subresult2))
+   (goto (reg continue))
+case-null
+   (assign result (const 0)) 
+   (goto (reg continue))
+case-leaf
+   (assign result (const 1))
+   (goto (reg continue))
+finale
+   (perform (op print) (const "\nResult=") (reg result))
+end)
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+      <<regmac-glue1>>
+      <<regmac-make-machine>>
+      <<regmac-make-register-tracing>>
+      <<regmac-make-stack-with-performance>>
+      <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+      <<regmac-extract-labels-improved-labels-brk>>
+      <<regmac-assembler-with-metadata-register-labels-brk>>
+      <<regmac-generating-execution-procedures>>
+      <<regmac-make-operation-exp-improved>>
+      <<regmac-make-operation-exp-syntax>>
+      <<regmac-make-assign>>
+      <<regmac-make-test>>
+      <<regmac-make-save-restore>>
+      <<regmac-other-instructions>>
+
+      (define machine
+	(make-machine
+	 '()
+	 (list (list '= =) 
+               (list '< <) 
+               (list '- -) 
+               (list '+ +)
+               (list '* *) 
+	       (list 'null? null?) 
+               (list 'print (lambda (x . o)
+                                       (display x) (map display o)) 'done) 
+               (list 'rem remainder)
+               (list 'notpair? (lambda (x) (not (pair? x))))
+               (list 'car car)
+               (list 'cdr cdr)
+	       )
+	 (quote 
+<<regmac-controller-count-leaves-1>>
+    )))
+;      (cancel-all-breakpoints machine)
+;      (set-breakpoint machine 'test-b 4)
+;      ((get-register machine 'continue) 'trace-on)
+;      (machine 'trace-on)
+;      (machine 'labels-on)
+      (set-register-contents! machine 'tree (cons (cons 4 4) (cons 1 2)))
+      (start machine)
+      ;; returning from a breakpoint
+;      (proceed-machine gcd-machine)
+
+#+end_src
+
+#+RESULTS:
+: 
+: Result=4
+
+Seems to work.
+
+***** b. Recursive count-leaves with explicit counter:
+
+#+begin_src scheme :exports code
+  (define (count-leaves tree)
+    (define (count-iter tree n)
+      (cond ((null? tree) n)
+	    ((not (pair? tree)) (+ n 1))
+	    (else
+	     (count-iter (cdr tree)
+			 (count-iter (car tree)
+				     n)))))
+    (count-iter tree 0))
+#+end_src
+
+#+name: regmac-controller-count-leaves-iterative
+#+begin_src scheme :exports code
+(controller
+   (assign continue (label finale))
+   (assign n (const 0))
+count-iter
+   (test (op null?) (reg tree))
+   (branch (label case-null))
+   (test (op notpair?) (reg tree))
+   (branch (label case-notpair))
+   ;;else
+   (assign operand (op cdr) (reg tree))
+   (save operand)
+   (assign tree (op car) (reg tree))
+   (save continue)
+   (assign continue (label after-call))   
+   (goto (label count-iter))
+after-call
+   (restore continue)
+   (restore operand)
+   (assign tree (reg operand))
+   (goto (label count-iter))
+case-notpair
+   (assign n (op +) (reg n) (const 1))
+   (goto (reg continue))
+case-null
+   (goto (reg continue))
+finale
+   (perform (op print) (const "\nResult=") (reg n))
+end
+)
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+      <<regmac-glue1>>
+      <<regmac-make-machine>>
+      <<regmac-make-register-tracing>>
+      <<regmac-make-stack-with-performance>>
+      <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+      <<regmac-extract-labels-improved-labels-brk>>
+      <<regmac-assembler-with-metadata-register-labels-brk>>
+      <<regmac-generating-execution-procedures>>
+      <<regmac-make-operation-exp-improved>>
+      <<regmac-make-operation-exp-syntax>>
+      <<regmac-make-assign>>
+      <<regmac-make-test>>
+      <<regmac-make-save-restore>>
+      <<regmac-other-instructions>>
+
+      (define machine
+	(make-machine
+	 '()
+	 (list (list '= =) 
+               (list '< <) 
+               (list '- -) 
+               (list '+ +)
+               (list '* *) 
+	       (list 'null? null?) 
+               (list 'print (lambda (x . o)
+                                       (display x) (map display o)) 'done) 
+               (list 'rem remainder)
+               (list 'notpair? (lambda (x) (not (pair? x))))
+               (list 'car car)
+               (list 'cdr cdr)
+	       )
+	 (quote 
+<<regmac-controller-count-leaves-iterative>>
+    )))
+;      (cancel-all-breakpoints machine)
+;      (set-breakpoint machine 'test-b 4)
+;      ((get-register machine 'continue) 'trace-on)
+      (machine 'trace-on)
+      (machine 'labels-on)
+      (set-register-contents! machine 'tree (cons (cons 4 4) (cons 1 2)))
+      (start machine)
+      ;; returning from a breakpoint
+;      (proceed-machine machine)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+labels: (controller)
+instruction text: (assign continue (label finale))
+instruction text: (assign n (const 0))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+instruction text: (assign operand (op cdr) (reg tree))
+instruction text: (save operand)
+instruction text: (assign tree (op car) (reg tree))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label count-iter))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+instruction text: (assign operand (op cdr) (reg tree))
+instruction text: (save operand)
+instruction text: (assign tree (op car) (reg tree))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label count-iter))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+labels: (case-notpair)
+instruction text: (assign n (op +) (reg n) (const 1))
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign tree (reg operand))
+instruction text: (goto (label count-iter))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+labels: (case-notpair)
+instruction text: (assign n (op +) (reg n) (const 1))
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign tree (reg operand))
+instruction text: (goto (label count-iter))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+instruction text: (assign operand (op cdr) (reg tree))
+instruction text: (save operand)
+instruction text: (assign tree (op car) (reg tree))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label count-iter))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+labels: (case-notpair)
+instruction text: (assign n (op +) (reg n) (const 1))
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign tree (reg operand))
+instruction text: (goto (label count-iter))
+labels: (count-iter)
+instruction text: (test (op null?) (reg tree))
+instruction text: (branch (label case-null))
+instruction text: (test (op notpair?) (reg tree))
+instruction text: (branch (label case-notpair))
+labels: (case-notpair)
+instruction text: (assign n (op +) (reg n) (const 1))
+instruction text: (goto (reg continue))
+labels: (finale)
+instruction text: (perform (op print) (const "\nResult=") (reg n))
+Result=4
+#+end_example
+
+Turned out to be even easier.
+
+**** DONE Exercise 5.22 ~append~ and ~append!~ as register machines
+     CLOSED: [2020-03-01 Sun 14:11]
+
+***** a ~append~
+
+#+begin_src scheme :exports code
+  (define (append x y)
+    (if (null? x)
+	y
+	(cons (car x) (append (cdr x) y))))
+#+end_src
+
+#+name: regmac-controller-append
+#+begin_src scheme :exports code
+(controller
+    (assign continue (label finale))
+append
+    (test (op null?) (reg x))
+    (branch (label null-case))
+    (assign operand (op car) (reg x))
+    (save operand)
+    (assign x (op cdr) (reg x))
+    (save continue)
+    (assign continue (label after-call))
+    (goto (label append))
+after-call
+    (restore continue)
+    (restore operand)
+    (assign y (op cons) (reg operand) (reg y))
+    (goto (reg continue))
+null-case
+    (goto (reg continue))
+finale
+    (perform (op print) (const "\nResult=") (reg y))
+end)
+
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+      <<regmac-glue1>>
+      <<regmac-make-machine>>
+      <<regmac-make-register-tracing>>
+      <<regmac-make-stack-with-performance>>
+      <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+      <<regmac-extract-labels-improved-labels-brk>>
+      <<regmac-assembler-with-metadata-register-labels-brk>>
+      <<regmac-generating-execution-procedures>>
+      <<regmac-make-operation-exp-improved>>
+      <<regmac-make-operation-exp-syntax>>
+      <<regmac-make-assign>>
+      <<regmac-make-test>>
+      <<regmac-make-save-restore>>
+      <<regmac-other-instructions>>
+
+      (define machine
+	(make-machine
+	 '()
+	 (list (list '= =) 
+               (list '< <) 
+               (list '- -) 
+               (list '+ +)
+               (list '* *) 
+	       (list 'null? null?) 
+               (list 'print (lambda (x . o)
+                                       (display x) (map display o)) 'done) 
+               (list 'rem remainder)
+               (list 'notpair? (lambda (x) (not (pair? x))))
+               (list 'car car)
+               (list 'cdr cdr)
+               (list 'cons cons)
+	       )
+	 (quote 
+<<regmac-controller-append>>
+    )))
+;      (cancel-all-breakpoints machine)
+;      (set-breakpoint machine 'test-b 4)
+;      ((get-register machine 'continue) 'trace-on)
+      (machine 'trace-on)
+      (machine 'labels-on)
+      (set-register-contents! machine 'x '(1 2 3 4))
+      (set-register-contents! machine 'y '(a b c d))
+
+      (start machine)
+      ;; returning from a breakpoint
+;      (proceed-machine machine)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+labels: (controller)
+instruction text: (assign continue (label finale))
+labels: (append)
+instruction text: (test (op null?) (reg x))
+instruction text: (branch (label null-case))
+instruction text: (assign operand (op car) (reg x))
+instruction text: (save operand)
+instruction text: (assign x (op cdr) (reg x))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label append))
+labels: (append)
+instruction text: (test (op null?) (reg x))
+instruction text: (branch (label null-case))
+instruction text: (assign operand (op car) (reg x))
+instruction text: (save operand)
+instruction text: (assign x (op cdr) (reg x))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label append))
+labels: (append)
+instruction text: (test (op null?) (reg x))
+instruction text: (branch (label null-case))
+instruction text: (assign operand (op car) (reg x))
+instruction text: (save operand)
+instruction text: (assign x (op cdr) (reg x))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label append))
+labels: (append)
+instruction text: (test (op null?) (reg x))
+instruction text: (branch (label null-case))
+instruction text: (assign operand (op car) (reg x))
+instruction text: (save operand)
+instruction text: (assign x (op cdr) (reg x))
+instruction text: (save continue)
+instruction text: (assign continue (label after-call))
+instruction text: (goto (label append))
+labels: (append)
+instruction text: (test (op null?) (reg x))
+instruction text: (branch (label null-case))
+labels: (null-case)
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign y (op cons) (reg operand) (reg y))
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign y (op cons) (reg operand) (reg y))
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign y (op cons) (reg operand) (reg y))
+instruction text: (goto (reg continue))
+labels: (after-call)
+instruction text: (restore continue)
+instruction text: (restore operand)
+instruction text: (assign y (op cons) (reg operand) (reg y))
+instruction text: (goto (reg continue))
+labels: (finale)
+instruction text: (perform (op print) (const "\nResult=") (reg y))
+Result=(1 2 3 4 a b c d)
+#+end_example
+
+Seems to work.
+
+***** b ~append!~
+
+#+begin_src scheme :exports code
+  (define (append! x y)
+    (set-cdr! (last-pair x) y)
+    x)
+#+end_src
+
+I will borrow the ~last-pair~ operation from the ~(scheme list)~.
+
+#+name: regmac-controller-append!
+#+begin_src scheme :exports code
+(controller
+  (assign retval (reg x))
+  (assign x (op last-pair) (reg x))
+  (perform (op set-cdr!) (reg x) (reg y))
+  (perform (op print) (const "\nResult=") (reg retval))  
+end)
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+      <<regmac-glue1>>
+      <<regmac-make-machine>>
+      <<regmac-make-register-tracing>>
+      <<regmac-make-stack-with-performance>>
+      <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+      <<regmac-extract-labels-improved-labels-brk>>
+      <<regmac-assembler-with-metadata-register-labels-brk>>
+      <<regmac-generating-execution-procedures>>
+      <<regmac-make-operation-exp-improved>>
+      <<regmac-make-operation-exp-syntax>>
+      <<regmac-make-assign>>
+      <<regmac-make-test>>
+      <<regmac-make-save-restore>>
+      <<regmac-other-instructions>>
+
+      (define machine
+	(make-machine
+	 '()
+	 (list (list '= =) 
+               (list '< <) 
+               (list '- -) 
+               (list '+ +)
+               (list '* *) 
+	       (list 'null? null?) 
+               (list 'print (lambda (x . o)
+                                       (display x) (map display o)) 'done) 
+               (list 'rem remainder)
+               (list 'notpair? (lambda (x) (not (pair? x))))
+               (list 'car car)
+               (list 'cdr cdr)
+               (list 'cons cons)
+               (list 'set-cdr! set-cdr!)
+               (list 'last-pair last-pair)
+	       )
+	 (quote 
+<<regmac-controller-append!>>
+    )))
+;      (cancel-all-breakpoints machine)
+;      (set-breakpoint machine 'test-b 4)
+;      ((get-register machine 'continue) 'trace-on)
+      (machine 'trace-on)
+      (machine 'labels-on)
+      (set-register-contents! machine 'x (list 1 2 3 4))
+      (set-register-contents! machine 'y '(a b c d))
+
+      (start machine)
+      ;; returning from a breakpoint
+;      (proceed-machine machine)
+
+#+end_src
+
+#+RESULTS:
+: 
+: labels: (controller)
+: instruction text: (assign retval (reg x))
+: instruction text: (assign x (op last-pair) (reg x))
+: instruction text: (perform (op set-cdr!) (reg x) (reg y))
+: instruction text: (perform (op print) (const "\nResult=") (reg retval))
+: Result=(1 2 3 4 a b c d)
+
+Seems to work.
 
 *** 5.4 The Explicit-Control Evaluator [0/8]
-**** TODO Exercise 5.23
+**** Common code
+
+#+name: ec-solutionbook-error
+#+begin_src scheme :exports code
+(perform (op error) (const "The code should not reach here"))
+#+end_src
+
+#+name: ec-eval-dispatch
+#+begin_src scheme :exports code
+  eval-dispatch
+  (test (op self-evaluating?) (reg exp))
+  (branch (label ev-self-eval))
+  (test (op variable?) (reg exp))
+  (branch (label ev-variable))
+  (test (op quoted?) (reg exp))
+  (branch (label ev-quoted))
+  (test (op assignment?) (reg exp))
+  (branch (label ev-assignment))
+  (test (op definition?) (reg exp))
+  (branch (label ev-definition))
+  (test (op if?) (reg exp))
+  (branch (label ev-if))
+  (test (op lambda?) (reg exp))
+  (branch (label ev-lambda))
+  (test (op begin?) (reg exp))
+  (branch (label ev-begin))
+  (test (op application?) (reg exp))
+  (branch (label ev-application))
+  (goto (label unknown-expression-type))
+#+end_src
+
+#+name: ec-simple-expressions
+#+begin_src scheme :exports code
+  ev-self-eval
+  (assign val (reg exp))
+  (goto (reg continue))
+  ev-variable
+  (assign val (op lookup-variable-value) (reg exp) (reg env))
+  (goto (reg continue))
+  ev-quoted
+  (assign val (op text-of-quotation) (reg exp))
+  (goto (reg continue))
+  ev-lambda
+  (assign unev (op lambda-parameters) (reg exp))
+  (assign exp (op lambda-body) (reg exp))
+  (assign val (op make-procedure) (reg unev) (reg exp) (reg env))
+  (goto (reg continue))
+#+end_src
+
+#+name: ec-ev-application
+#+begin_src scheme :exports code
+ev-application
+(save continue)
+(save env)
+(assign unev (op operands) (reg exp))
+(save unev)
+(assign exp (op operator) (reg exp))
+(assign continue (label ev-appl-did-operator))
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-s-additional-syntax
+#+begin_src scheme :exports code
+(define (empty-arglist) '())
+(define (adjoin-arg arg arglist) (append arglist (list arg)))
+(define (last-operand? ops) (null? (cdr ops)))
+#+end_src
+
+#+name: ec-ev-appl-did-operator
+#+begin_src scheme :exports code
+ev-appl-did-operator
+(restore unev) ; the operands
+(restore env)
+(assign argl (op empty-arglist)) ; the operator
+(assign proc (reg val))
+(test (op no-operands?) (reg unev))
+(branch (label apply-dispatch))
+(save proc)
+#+end_src
+
+#+name: ec-ev-appl-operand-loop
+#+begin_src scheme :exports code
+ev-appl-operand-loop
+(save argl)
+(assign exp (op first-operand) (reg unev))
+(test (op last-operand?) (reg unev))
+(branch (label ev-appl-last-arg))
+(save env)
+(save unev)
+(assign continue (label ev-appl-accumulate-arg))
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-ev-appl-accumulate-arg
+#+begin_src scheme :exports code
+ev-appl-accumulate-arg
+(restore unev)
+(restore env)
+(restore argl)
+(assign argl (op adjoin-arg) (reg val) (reg argl))
+(assign unev (op rest-operands) (reg unev))
+(goto (label ev-appl-operand-loop))
+#+end_src
+
+#+name: ec-ev-appl-last-arg
+#+begin_src scheme :exports code
+ev-appl-last-arg
+(assign continue (label ev-appl-accum-last-arg))
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-ev-appl-accum-last-arg
+#+begin_src scheme :exports code
+ev-appl-accum-last-arg
+(restore argl)
+(assign argl (op adjoin-arg) (reg val) (reg argl))
+(restore proc)
+(goto (label apply-dispatch))
+#+end_src
+
+#+name: ec-apply-dispatch
+#+begin_src scheme :exports code
+apply-dispatch
+(test (op primitive-procedure?) (reg proc))
+(branch (label primitive-apply))
+(test (op compound-procedure?) (reg proc))
+(branch (label compound-apply))
+(goto (label unknown-procedure-type))
+#+end_src
+
+#+name: ec-primitive-apply
+#+begin_src scheme :exports code
+primitive-apply
+(assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+(restore continue)
+(goto (reg continue))
+#+end_src
+
+#+name: ec-compound-apply
+#+begin_src scheme :exports code
+compound-apply
+(assign unev (op procedure-parameters) (reg proc))
+(assign env (op procedure-environment) (reg proc))
+(assign env (op extend-environment)
+(reg unev) (reg argl) (reg env))
+(assign unev (op procedure-body) (reg proc))
+(goto (label ev-sequence))
+#+end_src
+
+#+name: ec-ev-begin
+#+begin_src scheme :exports code
+ev-begin
+(assign unev (op begin-actions) (reg exp))
+(save continue)
+(goto (label ev-sequence))
+#+end_src
+
+#+name: ec-ev-sequence
+#+begin_src scheme :exports code
+ev-sequence
+(assign exp (op first-exp) (reg unev))
+(test (op last-exp?) (reg unev))
+(branch (label ev-sequence-last-exp))
+(save unev)
+(save env)
+(assign continue (label ev-sequence-continue))
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-ev-sequence-continue
+#+begin_src scheme :exports code
+ev-sequence-continue
+(restore env)
+(restore unev)
+(assign unev (op rest-exps) (reg unev))
+(goto (label ev-sequence))
+ev-sequence-last-exp
+(restore continue)
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-ev-if
+#+begin_src scheme :exports code
+ev-if
+(save exp) ; save expression for later
+(save env)
+(save continue)
+(assign continue (label ev-if-decide))
+(assign exp (op if-predicate) (reg exp))
+(goto (label eval-dispatch)) ; evaluate the predicate
+#+end_src
+
+#+name: ec-ev-if-decide
+#+begin_src scheme :exports code
+ev-if-decide
+(restore continue)
+(restore env)
+(restore exp)
+(test (op true?) (reg val))
+(branch (label ev-if-consequent))
+ev-if-alternative
+(assign exp (op if-alternative) (reg exp))
+(goto (label eval-dispatch))
+ev-if-consequent
+(assign exp (op if-consequent) (reg exp))
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-ev-assignment
+#+begin_src scheme :exports code
+ev-assignment
+(assign unev (op assignment-variable) (reg exp))
+(save unev) ; save variable for later
+(assign exp (op assignment-value) (reg exp))
+(save env)
+(save continue)
+(assign continue (label ev-assignment-1))
+(goto (label eval-dispatch)) ; evaluate the assignment value
+ev-assignment-1
+(restore continue)
+(restore env)
+(restore unev)
+(perform (op set-variable-value!) (reg unev) (reg val) (reg env))
+(assign val (const ok))
+(goto (reg continue))
+#+end_src
+
+#+name: ec-ev-definition
+#+begin_src scheme :exports code
+ev-definition
+(assign unev (op definition-variable) (reg exp))
+(save unev) ; save variable for later
+(assign exp (op definition-value) (reg exp))
+(save env)
+(save continue)
+(assign continue (label ev-definition-1))
+(goto (label eval-dispatch)) ; evaluate the definition value
+ev-definition-1
+(restore continue)
+(restore env)
+(restore unev)
+(perform (op define-variable!) (reg unev) (reg val) (reg env))
+(assign val (const ok))
+(goto (reg continue))
+#+end_src
+
+#+name: ec-repl
+#+begin_src scheme :exports code
+read-eval-print-loop
+(perform (op initialize-stack))
+(perform (op prompt-for-input) (const ";;EC-Eval input:"))
+(assign exp (op read))
+(perform (op user-print) (reg exp))
+(assign env (op get-global-environment))
+(assign continue (label print-result))
+(goto (label eval-dispatch))
+print-result
+(perform (op announce-output) (const ";;EC-Eval value:"))
+(perform (op user-print) (reg val))
+(goto (label read-eval-print-loop))
+#+end_src
+
+#+name: ec-errors
+#+begin_src scheme :exports code
+unknown-expression-type
+(assign val (const unknown-expression-type-error))
+(goto (label signal-error))
+unknown-procedure-type
+(restore continue) ; clean up stack (from apply-dispatch )
+(assign val (const unknown-procedure-type-error))
+(goto (label signal-error))
+signal-error
+(perform (op user-print) (reg val))
+(goto (label read-eval-print-loop))
+#+end_src
+
+#+name: ec-eceval
+#+begin_src scheme :exports code
+
+(import (scheme small))
+(import (scheme list))
+(import (srfi 159))
+(import (chibi show pretty))
+(import (srfi 27))
+(define false #t)
+(define true #t)
+(define (tagged-list? exp tag)
+            (if (pair? exp)
+                (eq? (car exp) tag)
+                false))
+(define apply-in-underlying-scheme apply)
+<<s-truefalse>>
+<<ec-s-additional-syntax>>
+<<s-syntax>>
+<<s-application>>
+<<s-environments>>
+<<s-compound-procedures>>
+<<s-primitive-procedures>>
+<<s-user-prompt-print>>
+      <<regmac-glue1>>
+      <<regmac-make-machine>>
+      <<regmac-make-register-tracing>>
+      <<regmac-make-stack-with-performance>>
+      <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+      <<regmac-extract-labels-improved-labels-brk>>
+      <<regmac-assembler-with-metadata-register-labels-brk>>
+      <<regmac-generating-execution-procedures>>
+      <<regmac-make-operation-exp-improved>>
+      <<regmac-make-operation-exp-syntax>>
+      <<regmac-make-assign>>
+      <<regmac-make-test>>
+      <<regmac-make-save-restore>>
+      <<regmac-other-instructions>>
+
+  (define the-global-environment (setup-environment))
+  (define (get-global-environment) the-global-environment)
+  (define eceval-operations
+    (list (list 'self-evaluating? self-evaluating?)
+	  (list 'car car)
+	  (list 'cdr cdr)
+	  (list 'cons cons)
+          (list 'prompt-for-input prompt-for-input)
+          (list 'announce-output announce-output)
+	  (list 'exit exit)
+          (list 'get-global-environment get-global-environment)
+          (list 'self-evaluating? self-evaluating?)
+          (list 'quoted? quoted?)
+          (list 'variable? variable?)
+          (list 'assignment? assignment?)
+          (list 'definition? definition?)
+          (list 'if? if?)
+          (list 'lambda? lambda?)
+          (list 'begin? begin?)
+          (list 'application? application?)
+          (list 'lookup-variable-value lookup-variable-value)
+          (list 'text-of-quotation text-of-quotation)
+          (list 'lambda-parameters lambda-parameters)
+          (list 'lambda-body lambda-body)
+          (list 'make-procedure make-procedure)
+          (list 'operands operands)
+          (list 'operator operator)
+          (list 'empty-arglist empty-arglist)
+          (list 'no-operands? no-operands?)
+          (list 'last-operand? last-operand?)
+          (list 'first-operand first-operand)
+          (list 'adjoin-arg adjoin-arg)
+          (list 'rest-operands rest-operands)
+          (list 'primitive-procedure? primitive-procedure?)
+          (list 'compound-procedure? compound-procedure?)
+          (list 'apply-primitive-procedure apply-primitive-procedure)
+          (list 'procedure-parameters procedure-parameters)
+          (list 'procedure-environment procedure-environment)
+          (list 'extend-environment extend-environment)
+          (list 'procedure-body procedure-body)
+          (list 'begin-actions begin-actions)
+          (list 'first-exp first-exp)
+          (list 'last-exp? last-exp?)
+          (list 'rest-exps rest-exps)
+          (list 'if-predicate if-predicate)
+          (list 'true? true?)
+          (list 'if-alternative if-alternative)
+          (list 'if-consequent if-consequent)
+          (list 'assignment-variable assignment-variable)
+          (list 'assignment-value assignment-value)
+          (list 'set-variable-value! set-variable-value!)
+          (list 'definition-variable definition-variable)
+          (list 'definition-value definition-value)
+          (list 'define-variable! define-variable!)
+          (list 'read read)
+          (list 'user-print user-print)
+          (list 'error error)
+))
+
+  (define eceval
+    (make-machine
+     '() ;'(exp env val proc argl continue unev)
+     eceval-operations
+     (quote (
+<<ec-repl>>
+<<ec-errors>>
+
+<<ec-ev-definition>>
+<<ec-ev-assignment>>
+<<ec-ev-if>>
+<<ec-ev-if-decide>>
+<<ec-ev-sequence>>
+<<ec-ev-sequence-continue>>
+<<ec-ev-begin>>
+<<ec-compound-apply>>
+<<ec-primitive-apply>>
+<<ec-ev-application>>
+<<ec-ev-appl-did-operator>>
+<<ec-ev-appl-operand-loop>>
+<<ec-ev-appl-accumulate-arg>>
+<<ec-ev-appl-last-arg>>
+<<ec-ev-appl-accum-last-arg>>
+<<ec-solutionbook-error>>
+<<ec-apply-dispatch>>
+<<ec-solutionbook-error>>
+<<ec-simple-expressions>>
+<<ec-solutionbook-error>>
+<<ec-eval-dispatch>>
+<<ec-solutionbook-error>>
+))))
+
+#+end_src
+
+#+name: eceval-test-append
+#+begin_src shell :exports code :results output
+cat <<EOF
+  (define (append x y)
+    (if (null? x) y (cons (car x) (append (cdr x) y))))
+  (append '(a b c) '(d e f))
+  (exit)
+EOF
+#+end_src
+
+#+header: :stdin eceval-test-append
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+<<ec-eceval>>
+(start eceval)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval input:
+(define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
+
+;;EC-Eval value:
+ok
+;;EC-Eval input:
+(append '(a b c) '(d e f))
+
+;;EC-Eval value:
+(a b c d e f)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+
+#+RESULTS: ec-test-append
+
+**** TODO Exercise 5.23 Extending EC-evaluator with ~let~ and ~cond~
+
+#+name: ec-eval-dispatch-let-cond
+#+begin_src scheme :exports code
+  eval-dispatch
+  (test (op self-evaluating?) (reg exp))
+  (branch (label ev-self-eval))
+  (test (op variable?) (reg exp))
+  (branch (label ev-variable))
+  (test (op quoted?) (reg exp))
+  (branch (label ev-quoted))
+  (test (op assignment?) (reg exp))
+  (branch (label ev-assignment))
+  (test (op definition?) (reg exp))
+  (branch (label ev-definition))
+  (test (op if?) (reg exp))
+  (branch (label ev-if))
+  (test (op lambda?) (reg exp))
+  (branch (label ev-lambda))
+  (test (op begin?) (reg exp))
+  (branch (label ev-begin))
+  (test (op application?) (reg exp))
+  (branch (label ev-application))
+  (test (op let?) (reg exp))   ; added
+  (branch (label ev-let))      ; added
+  (test (op cond?) (reg exp))   ; added
+  (branch (label ev-cond))      ; added
+  (goto (label unknown-expression-type))
+#+end_src
+
 
 **** TODO Exercise 5.24
 
