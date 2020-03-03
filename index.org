@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-02 12:36:42 lockywolf>
+# Time-stamp: <2020-03-03 21:31:45 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [353/404]
+* SICP [359/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -45723,7 +45723,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [25/54]
+** TODO Chapter 5: Computing with Register Machines [31/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -49200,11 +49200,12 @@ Seems to be working, and the labels don't interfere with instruction counting.
 	      ((eq? message 'set)
 	       (lambda (value) 
                  (when tracing-flag
-                  (show #t "\ntrace: (assign (reg " 
-                           (written name) ") (old-value " 
+                  (show #t "\ntrace:" 
+                           (written name) 
+                           ":" 
                            (written contents)
-                           ") (new-value "
-                           (written value) "))"))
+                           "->"
+                           (written value)))
                  (set! contents value)))
               ((eq? message 'trace-on) (set! tracing-flag #t))
               ((eq? message 'trace-off) (set! tracing-flag #f))
@@ -50404,8 +50405,11 @@ end)
 
 Seems to work.
 
-*** 5.4 The Explicit-Control Evaluator [1/8]
+*** 5.4 The Explicit-Control Evaluator [7/8]
 **** Common code
+     :PROPERTIES:
+     :ORDERED:  t
+     :END:
 
 #+name: ec-solutionbook-error
 #+begin_src scheme :exports code
@@ -50478,8 +50482,8 @@ ev-application
 ev-appl-did-operator
 (restore unev) ; the operands
 (restore env)
-(assign argl (op empty-arglist)) ; the operator
-(assign proc (reg val))
+(assign argl (op empty-arglist))
+(assign proc (reg val)) ; the operator
 (test (op no-operands?) (reg unev))
 (branch (label apply-dispatch))
 (save proc)
@@ -50852,9 +50856,6 @@ ok
 (exit)
 #+end_example
 
-
-#+RESULTS: ec-test-append
-
 **** DONE Exercise 5.23 Extending EC-evaluator with ~let~ and ~cond~
      CLOSED: [2020-03-02 Mon 10:52]
 
@@ -51016,7 +51017,8 @@ ok
 
 Turned out to be not too hard. 
 
-**** TODO Exercise 5.24 Making ~cond~ a primitive
+**** DONE Exercise 5.24 Making ~cond~ a primitive
+     CLOSED: [2020-03-02 Mon 14:42]
 
 #+name: ec-eval-dispatch-let-cond-primitive
 #+begin_src scheme :exports code
@@ -51054,9 +51056,30 @@ ev-cond
   ;(assign exp (op cond->if) (reg exp))
   ;(goto (label eval-dispatch))
   (assign exp (op cond-clauses) (reg exp))  
+ev-cond-process
   (assign unev (op cdr) (reg exp)) ; rest
   (assign exp (op car) (reg exp)) ; first
-  
+  (save unev) ; 3
+ev-cond-process-one-clause
+  (assign unev (op cond-actions) (reg exp)) 
+  (assign exp (op cond-predicate) (reg exp))
+  (test (op eq?) (reg exp) (const else))
+  (branch (label ev-cond-process-cond-actions))
+  (save continue) ; 2
+  (assign continue (label ev-cond-after-pred))
+  (save unev) ; 1
+  (goto (label eval-dispatch))
+ev-cond-after-pred
+  (restore unev) ; 1 cond-actions
+  (restore continue) ; 2
+  (test (op true?) (reg val))
+  (branch (label ev-cond-process-cond-actions))
+  (restore exp) ; rest
+  (goto (label ev-cond-process))
+ev-cond-process-cond-actions
+  (restore exp) ; 3 useless now, clear stack
+  (save continue) ;?
+  (goto (label ev-sequence))
   ;; end
 #+end_src
 
@@ -51064,9 +51087,14 @@ ev-cond
 #+begin_src scheme :exports code
 (list 'let? let?)
 (list 'let->combination let->combination)
+(list 'cond? cond?)
+(list 'cond-clauses cond-clauses)
+(list 'cond-actions cond-actions)
+(list 'cond-predicate cond-predicate)
+(list 'eq? eq?)
 #+end_src
 
-#+header: :stdin eceval-test-let-cond
+#+header: :stdin eceval-test-let-cond-primitive
 #+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
   <<ec-glue1>>
   <<s-truefalse>>
@@ -51132,17 +51160,1155 @@ ev-cond
   <<ec-eval-dispatch-let-cond-primitive>>
   <<ec-solutionbook-error>>
     ))))
+;((get-register eceval 'val) 'trace-on)
+;(eceval 'trace-on)
+;(eceval 'labels-on)
+
 (start eceval)
 
 #+end_src
 
+#+RESULTS:
+#+begin_example
+;;EC-Eval input:
+(cond ((= 1 0) #f) ((= 1 1) #t) (else "Arithmetic is broken"))
+;;EC-Eval value:
+#t
+;;EC-Eval input:
+(cond ((= 1 0) #f) (else "Else clause"))
+;;EC-Eval value:
+"Else clause"
+;;EC-Eval input:
+(exit)
+#+end_example
 
-**** TODO Exercise 5.25
-**** TODO Exercise 5.26
-**** TODO Exercise 5.27
-**** TODO Exercise 5.28
-**** TODO Exercise 5.29
-**** TODO Exercise 5.30
+
+#+name: eceval-test-let-cond-primitive
+#+begin_src shell :exports code :results verbatim output
+cat <<EOF
+  (cond ((= 1 0) #f) 
+        ((= 1 1) #t)
+        (else "Arithmetic is broken"))
+  (cond ((= 1 0) #f) 
+        (else "Else clause"))
+  (exit)
+EOF
+#+end_src
+
+I used all the de-structuring functions as primitives from the original
+metacircular evaluator, but the assembly seems to do the job.
+
+**** DONE Exercise 5.25 Normal-order (lazy) evaluation
+     CLOSED: [2020-03-03 Tue 14:57]
+
+#+name: ec-lazy-actual-value-delay-force
+#+begin_src scheme :exports code
+actual-value
+(save continue) ; 1
+(assign continue (label actual-value-did-eval)) 
+(goto (label eval-dispatch))
+actual-value-did-eval
+(restore continue) ; 1
+(assign exp (reg val)) ; eval produced a thunk into val
+(goto (label force-it))
+
+force-it
+(test (op thunk?) (reg exp))
+(branch (label force-it-thunk))
+(assign val (reg exp)) ; not thunk
+(goto (reg continue))
+force-it-thunk
+(save env) ; 1
+(save continue); 2
+(assign env (op thunk-env) (reg exp))
+(assign exp (op thunk-exp) (reg exp))
+(assign continue (label force-it-return))
+(goto (label actual-value))
+force-it-return
+(restore continue) ;2
+(restore env) ; 1
+(goto (reg continue))
+
+delay-it
+(assign val (op delay-it) (reg exp) (reg env))
+(goto (reg continue))
+
+#+end_src
+
+A great exercise! Made me rethink everything! One difference between
+the metacircular evaluator and the explicit control evaluator is that
+in the explicit one, the arguments for an application are produced by
+~eval~ rather than by ~apply~ itself. Therefore we may keep
+~apply-dispatch~ as-is, since it will automatically apply primitive
+procedures to eager arguments and compound procedures to lazy
+arguments... given that we populate ~argl~ correctly in advance.
+
+#+name: ec-lazy-ev-application
+#+begin_src scheme :exports code
+  ev-application
+  (save continue)
+  (save env)
+  (assign unev (op operands) (reg exp))
+  (save unev)
+  (assign exp (op operator) (reg exp))
+  (assign continue (label ev-appl-did-operator))
+  (goto (label actual-value)) ;
+; need to find out if it is a primitive procedure or a 
+; compound procedure. If primitive, do the ~actual-value~ loop. If compound,
+; do a ~delay-it~ loop. 
+  ev-appl-did-operator
+  (restore unev) ; the operands
+  (restore env)
+  (assign argl (op empty-arglist)) 
+  (assign proc (reg val)) ; the operator, actual value
+  (test (op no-operands?) (reg unev))
+  (branch (label apply-dispatch))
+  (save proc)
+  (test (op compound-procedure?) (reg proc))
+  (branch (label ev-appl-operand-loop-lazy)) ; 
+;; eager part
+  ev-appl-operand-loop-eager ; primitive-procedure
+  (save argl)
+  (assign exp (op first-operand) (reg unev))
+  (test (op last-operand?) (reg unev))
+  (branch (label ev-appl-last-arg-eager))
+  (save env)
+  (save unev)
+  (assign continue (label ev-appl-accumulate-arg-eager))
+  (goto (label actual-value)) ; this place has changed
+  ev-appl-accumulate-arg-eager
+  (restore unev)
+  (restore env)
+  (restore argl)
+  (assign argl (op adjoin-arg) (reg val) (reg argl))
+  (assign unev (op rest-operands) (reg unev))
+  (goto (label ev-appl-operand-loop-eager))
+  ev-appl-last-arg-eager
+  (assign continue (label ev-appl-accum-last-arg))
+  (goto (label actual-value)) ; this place has changed
+;; lazy part
+ev-appl-operand-loop-lazy
+  (save argl)
+  (assign exp (op first-operand) (reg unev))
+  (test (op last-operand?) (reg unev))
+  (branch (label ev-appl-last-arg-lazy))
+  (save env)
+  (save unev)
+  (assign continue (label ev-appl-accumulate-arg-lazy))
+  (goto (label delay-it)) ; this place has changed
+  ev-appl-accumulate-arg-lazy
+  (restore unev)
+  (restore env)
+  (restore argl)
+  (assign argl (op adjoin-arg) (reg val) (reg argl))
+  (assign unev (op rest-operands) (reg unev))
+  (goto (label ev-appl-operand-loop-lazy))
+  ev-appl-last-arg-lazy
+  (assign continue (label ev-appl-accum-last-arg))
+  (goto (label delay-it)) ; this place has changed
+;; same for both lazy and eager
+  ev-appl-accum-last-arg 
+  (restore argl)
+  (assign argl (op adjoin-arg) (reg val) (reg argl))
+  (restore proc)
+  (goto (label apply-dispatch))
+#+end_src
+
+#+name: ec-repl-lazy
+#+begin_src scheme :exports code
+read-eval-print-loop
+(perform (op initialize-stack))
+(perform (op prompt-for-input) (const ";;LEC-Eval input:"))
+(assign exp (op read))
+(perform (op user-print) (reg exp))
+(assign env (op get-global-environment))
+(assign continue (label print-result))
+(goto (label actual-value))
+print-result
+(perform (op announce-output) (const ";;LEC-Eval value:"))
+(perform (op user-print) (reg val))
+(goto (label read-eval-print-loop))
+#+end_src
+
+#+name: ec-ev-if-lazy
+#+begin_src scheme :exports code
+  ev-if
+  (save exp) ; save expression for later
+  (save env)
+  (save continue)
+  (assign continue (label ev-if-decide))
+  (assign exp (op if-predicate) (reg exp))
+  (goto (label actual-value)) ; evaluate the predicate
+  ev-if-decide
+  (restore continue)
+  (restore env)
+  (restore exp)
+  (test (op true?) (reg val))
+  (branch (label ev-if-consequent))
+  ev-if-alternative
+  (assign exp (op if-alternative) (reg exp))
+  (goto (label eval-dispatch))
+  ev-if-consequent
+  (assign exp (op if-consequent) (reg exp))
+  (goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-eceval-operations-lazy
+#+begin_src scheme :exports code
+(list 'thunk? thunk?) ; just tagged-list?
+(list 'thunk-env thunk-env) ; just cNr
+(list 'thunk-exp thunk-exp) ;just cNr
+(list 'delay-it delay-it) ;just cons
+#+end_src
+
+#+name: eceval-test-lazy
+#+begin_src shell :exports code :results verbatim output
+cat <<EOF
+  (define (append x y)
+    (if (null? x) y (cons (car x) (append (cdr x) y))))
+  (append '(a b c) '(d e f))
+  (let ((a 1))
+    a)
+  (cond ((= 1 0) #f) 
+        ((= 1 1) #t)
+        (else "Arithmetic is broken"))
+  (define (test x y)
+      x)
+  (test 1 (/ 1 0))
+  (exit)
+EOF
+#+end_src
+
+#+header: :stdin eceval-test-lazy
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+  (define (delay-it exp env)
+    (list 'thunk exp env))
+  (define (thunk? obj)
+    (tagged-list? obj 'thunk))
+  (define (thunk-exp thunk) (cadr thunk))
+  (define (thunk-env thunk) (caddr thunk))
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+(define the-global-environment (setup-environment))
+(define (get-global-environment) the-global-environment)
+(define eceval-operations
+  (list 
+<<ec-eceval-operations-basic>>
+<<ec-eceval-operations-let-cond>>
+<<ec-eceval-operations-lazy>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-lazy>>
+  <<ec-errors>>
+;; The equivalent of ~eval~
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-simple-expressions>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if-lazy>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+;; ~list-of-args~ embedded into the ~eval~
+  <<ec-lazy-ev-application>>
+  <<ec-lazy-actual-value-delay-force>>
+;; The equivalent of apply
+  <<ec-apply-dispatch>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+
+    ))))
+
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;LEC-Eval input:
+(define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
+;;LEC-Eval value:
+ok
+;;LEC-Eval input:
+(append '(a b c) '(d e f))
+;;LEC-Eval value:
+(a b c d e f)
+;;LEC-Eval input:
+(let ((a 1)) a)
+;;LEC-Eval value:
+1
+;;LEC-Eval input:
+(cond ((= 1 0) #f) ((= 1 1) #t) (else "Arithmetic is broken"))
+;;LEC-Eval value:
+#t
+;;LEC-Eval input:
+(define (test x y) x)
+;;LEC-Eval value:
+ok
+;;LEC-Eval input:
+(test 1 (/ 1 0))
+;;LEC-Eval value:
+1
+;;LEC-Eval input:
+(exit)
+#+end_example
+
+Turned out to be actually much-much easier than I had expected.
+
+**** DONE Exercise 5.26 Explore tail recursion with ~factorial~
+     CLOSED: [2020-03-03 Tue 19:38]
+
+#+name: ec-repl-stack-monitor
+#+begin_src scheme :exports code
+read-eval-print-loop
+(perform (op initialize-stack))
+(perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
+(assign exp (op read))
+(perform (op user-print) (reg exp))
+(assign env (op get-global-environment))
+(assign continue (label print-result))
+(goto (label eval-dispatch))
+print-result
+(perform (op announce-output) (const ";;EC-Eval value:"))
+(perform (op user-print) (reg val))
+(perform (op print-stack-statistics))
+(goto (label read-eval-print-loop))
+#+end_src
+
+
+#+name: eceval-test-factorial-iter
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (define (factorial n)
+    (define (iter product counter)
+      (if (> counter n)
+        product
+        (iter (* counter product) (+ counter 1))))
+    (iter 1 1))
+  (factorial 6)
+  (factorial 7)
+  (factorial 8)
+  (factorial 9)
+  (exit)
+  EOF
+#+end_src
+
+#+header: :stdin eceval-test-factorial-iter
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+  <<regmac-glue1>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(define (factorial n)
+  (define (iter product counter)
+    (if (> counter n) product (iter (* counter product) (+ counter 1))))
+  (iter 1 1))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(factorial 6)
+;;EC-Eval value:
+720
+
+(total-pushes = 239 maximum-depth = 10)
+;;EC-Eval input:
+(factorial 7)
+;;EC-Eval value:
+5040
+
+(total-pushes = 274 maximum-depth = 10)
+;;EC-Eval input:
+(factorial 8)
+;;EC-Eval value:
+40320
+
+(total-pushes = 309 maximum-depth = 10)
+;;EC-Eval input:
+(factorial 9)
+;;EC-Eval value:
+362880
+
+(total-pushes = 344 maximum-depth = 10)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+I just added the monitor operation into the REPL. Indeed, the depth is
+independent of ~n~, and is 10. That's essentially the deepest nested
+call we are needing. There are a lot more pushes, evidently. 
+
+\[p = 35n+29\]
+
+**** DONE Exercise 5.27 Stack depth for a recursive factorial
+     CLOSED: [2020-03-03 Tue 19:49]
+
+#+name: eceval-test-factorial-recursive
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+(define (factorial n)
+  (if (= n 1) 1 (* (factorial (- n 1)) n)))
+  (factorial 6)
+  (factorial 7)
+  (factorial 8)
+  (factorial 9)
+  (exit)
+  EOF
+#+end_src
+
+#+header: :stdin eceval-test-factorial-recursive
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+  <<regmac-glue1>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(factorial 6)
+;;EC-Eval value:
+720
+
+(total-pushes = 176 maximum-depth = 33)
+;;EC-Eval input:
+(factorial 7)
+;;EC-Eval value:
+5040
+
+(total-pushes = 208 maximum-depth = 38)
+;;EC-Eval input:
+(factorial 8)
+;;EC-Eval value:
+40320
+
+(total-pushes = 240 maximum-depth = 43)
+;;EC-Eval input:
+(factorial 9)
+;;EC-Eval value:
+362880
+
+(total-pushes = 272 maximum-depth = 48)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+The maximal depth: \(d=5n+3\)
+Total-pushes: \(p=32n-16\)
+
+The summary table:
+
+|                     | Maximum depth | Number of pushes |
+|---------------------+---------------+------------------|
+| Recursive factorial | 5n+3          | 32n-16           |
+| Iterative factorial | 10            | 35n+29           |
+
+**** DONE Exercise 5.28 Interpreters without tail recursion
+     CLOSED: [2020-03-03 Tue 20:29]
+
+#+name: ec-ev-sequence-no-tail
+#+begin_src scheme :exports code
+ev-sequence
+(test (op no-more-exps?) (reg unev))
+(branch (label ev-sequence-end))
+(assign exp (op first-exp) (reg unev))
+(save unev)
+(save env)
+(assign continue (label ev-sequence-continue))
+(goto (label eval-dispatch))
+ev-sequence-continue
+(restore env)
+(restore unev)
+(assign unev (op rest-exps) (reg unev))
+(goto (label ev-sequence))
+ev-sequence-end
+(restore continue)
+(goto (reg continue))
+#+end_src
+
+#+name: eceval-test-factorial-combined
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (define (factorial n)
+  (if (= n 1) 1 (* (factorial (- n 1)) n)))
+  (factorial 6)
+  (factorial 7)
+  (factorial 8)
+  (factorial 9)
+
+  (define (factorial n)
+    (define (iter product counter)
+      (if (> counter n)
+        product
+        (iter (* counter product) (+ counter 1))))
+    (iter 1 1))
+  (factorial 6)
+  (factorial 7)
+  (factorial 8)
+  (factorial 9)
+  
+  (exit)
+  EOF
+#+end_src
+
+#+header: :stdin eceval-test-factorial-combined
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+  <<regmac-glue1>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+(define (no-more-exps? seq) (null? seq))
+(define the-global-environment (setup-environment))
+(define (get-global-environment) the-global-environment)
+(define eceval-operations
+    (list 
+<<ec-eceval-operations-basic>>
+<<ec-eceval-operations-let-cond>>
+(list 'no-more-exps? no-more-exps?)
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence-no-tail>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(factorial 6)
+;;EC-Eval value:
+720
+
+(total-pushes = 188 maximum-depth = 51)
+;;EC-Eval input:
+(factorial 7)
+;;EC-Eval value:
+5040
+
+(total-pushes = 222 maximum-depth = 59)
+;;EC-Eval input:
+(factorial 8)
+;;EC-Eval value:
+40320
+
+(total-pushes = 256 maximum-depth = 67)
+;;EC-Eval input:
+(factorial 9)
+;;EC-Eval value:
+362880
+
+(total-pushes = 290 maximum-depth = 75)
+;;EC-Eval input:
+(define (factorial n)
+  (define (iter product counter)
+    (if (> counter n) product (iter (* counter product) (+ counter 1))))
+  (iter 1 1))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(factorial 6)
+;;EC-Eval value:
+720
+
+(total-pushes = 255 maximum-depth = 32)
+;;EC-Eval input:
+(factorial 7)
+;;EC-Eval value:
+5040
+
+(total-pushes = 292 maximum-depth = 35)
+;;EC-Eval input:
+(factorial 8)
+;;EC-Eval value:
+40320
+
+(total-pushes = 329 maximum-depth = 38)
+;;EC-Eval input:
+(factorial 9)
+;;EC-Eval value:
+362880
+
+(total-pushes = 366 maximum-depth = 41)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+Indeed, both the depth and the number of pushes increase with n:
+
+|                     | Maximum depth | Number of pushes |
+|---------------------+---------------+------------------|
+| Recursive factorial | 8n+3          | 34n+26           |
+| Iterative factorial | 3n+14         | 37n+33           |
+
+**** DONE Exercise 5.29 Stack in tree-recursive Fibonacci
+     CLOSED: [2020-03-03 Tue 20:50]
+
+#+name: eceval-test-fibonacci
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (define (fib n)
+    (if (< n 2)
+      n
+      (+ (fib (- n 1)) (fib (- n 2)))))
+  (fib 5)
+  (fib 6)
+  (fib 7)
+  (fib 8)
+  (exit)
+  EOF
+#+end_src
+
+#+header: :stdin eceval-test-fibonacci
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+  <<regmac-glue1>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(define (fib n) (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(fib 5)
+;;EC-Eval value:
+5
+
+(total-pushes = 408 maximum-depth = 28)
+;;EC-Eval input:
+(fib 6)
+;;EC-Eval value:
+8
+
+(total-pushes = 688 maximum-depth = 33)
+;;EC-Eval input:
+(fib 7)
+;;EC-Eval value:
+13
+
+(total-pushes = 1136 maximum-depth = 38)
+;;EC-Eval input:
+(fib 8)
+;;EC-Eval value:
+21
+
+(total-pushes = 1864 maximum-depth = 43)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+***** Stack depth
+
+Indeed, \(d = 5n + 3\)
+
+***** Number of pushes
+
+Indeed \(S(n) = S(n-1) + S(n-2) + k\)
+\( 1864 = 1136 + 688 + k\)
+\(k=40\)
+\( 1136 = 21a + b\)
+\( 688  = 13a + b\)
+\(448 = 8a\)
+\(a = 56\)
+\(b = -40 \)
+An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ratio.
+
+**** TODO Exercise 5.30 Errors
+
+***** undefined variables
+
+#+name: eceval-test-error-undefined-variable
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (fib 8)
+  (set! test 1)
+  (show #t "hello")
+  (exit)
+  EOF
+#+end_src
+
+#+name: eceval-s-environments
+#+begin_src scheme :exports both :results value
+     (define (enclosing-environment env) (cdr env))
+     (define (first-frame env) (car env))
+     (define the-empty-environment '())
+     (define (make-frame variables values)
+       (cons variables values))
+     (define (frame-variables frame) (car frame))
+     (define (frame-values frame) (cdr frame))
+     (define (add-binding-to-frame! var val frame)
+       (set-car! frame (cons var (car frame)))
+       (set-cdr! frame (cons val (cdr frame))))
+     (define (extend-environment vars vals base-env)
+       (if (= (length vars) (length vals))
+           (cons (make-frame vars vals) base-env)
+           (if (< (length vars) (length vals))
+               (error "Too many arguments supplied" vars vals)
+               (error "Too few arguments supplied" vars vals))))
+     (define (lookup-variable-value var env)
+       (define (env-loop env)
+         (define (scan vars vals)
+           (cond ((null? vars)
+                  (env-loop (enclosing-environment env)))
+                 ((eq? var (car vars))
+                  (cons 'bound (car vals)))
+                 (else (scan (cdr vars) (cdr vals)))))
+         (if (eq? env the-empty-environment)
+             #;(error "Unbound variable" var)
+             (cons 'unbound 'error)
+             (let ((frame (first-frame env)))
+               (scan (frame-variables frame)
+                     (frame-values frame)))))
+       (env-loop env))
+     (define (set-variable-value! var val env)
+       (define (env-loop env)
+         (define (scan vars vals)
+           (cond ((null? vars)
+                  (env-loop (enclosing-environment env)))
+                 ((eq? var (car vars))
+                  (set-car! vals val))
+                 (else (scan (cdr vars) (cdr vals)))))
+         (if (eq? env the-empty-environment)
+             #;(error "Unbound variable -- SET!" var)
+             (cons 'unbound 'error)
+             (let ((frame (first-frame env)))
+               (scan (frame-variables frame)
+                     (frame-values frame)))))
+       (env-loop env))
+     (define (define-variable! var val env)
+       (let ((frame (first-frame env)))
+         (define (scan vars vals)
+           (cond ((null? vars)
+                  (add-binding-to-frame! var val frame))
+                 ((eq? var (car vars))
+                  (set-car! vals val))
+                 (else (scan (cdr vars) (cdr vals)))))
+         (scan (frame-variables frame)
+               (frame-values frame))))
+
+#+end_src
+
+#+name: ec-error-simple-expressions-assignment
+#+begin_src scheme :exports code
+  ev-self-eval
+  (assign val (reg exp))
+  (goto (reg continue))
+  ev-quoted
+  (assign val (op text-of-quotation) (reg exp))
+  (goto (reg continue))
+  ev-lambda
+  (assign unev (op lambda-parameters) (reg exp))
+  (assign exp (op lambda-body) (reg exp))
+  (assign val (op make-procedure) (reg unev) (reg exp) (reg env))
+  (goto (reg continue))
+  ev-variable
+  (assign val (op lookup-variable-value) (reg exp) (reg env))
+  (save exp)
+  (assign exp (op car) (reg val))
+  (test (op eq?) (reg exp) (const unbound))
+  (branch (label error-unbound-variable))
+  (restore exp)
+  (assign val (op cdr) (reg val))
+  (goto (reg continue))
+  error-unbound-variable
+  (restore exp)
+  (assign val (op cons) (const unbound-variable-error) (reg exp))
+  (goto (label signal-error))
+  ev-assignment
+  (assign unev (op assignment-variable) (reg exp))
+  (save unev) ; save variable for later
+  (assign exp (op assignment-value) (reg exp))
+  (save env)
+  (save continue)
+  (assign continue (label ev-assignment-1))
+  (goto (label eval-dispatch)) ; evaluate the assignment value
+  ev-assignment-1
+  (restore continue)
+  (restore env)
+  (restore unev)
+  (assign val (op set-variable-value!) (reg unev) (reg val) (reg env))
+  (assign val (op car) (reg val))
+  (test (op eq?) (reg val) (const unbound))
+  (branch (label assignment-failed))
+  (assign val (const ok))
+  (goto (reg continue))
+  assignment-failed
+  (assign exp (reg unev))
+  (save exp)
+  (goto (label error-unbound-variable))
+
+#+end_src
+
+
+#+header: :stdin eceval-test-error-undefined-variable
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<eceval-s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+  <<regmac-glue1>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+     (list 'eq? eq?)
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-error-simple-expressions-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+
+  <<ec-eval-dispatch-let-cond>>
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(fib 8)
+(unbound-variable-error . fib)
+
+;;EC-Eval input:
+(set! test 1)
+(unbound-variable-error . test)
+
+;;EC-Eval input:
+(show #t "hello")
+(unbound-variable-error . show)
+
+;;EC-Eval input:
+(exit)
+#+end_example
+
+***** wrong function arguments
+
 *** 5.5 Compilation [0/22]
 **** TODO Exercise 5.31
 
