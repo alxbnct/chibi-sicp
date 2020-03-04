@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-03 21:31:45 lockywolf>
+# Time-stamp: <2020-03-04 11:56:35 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [359/404]
+* SICP [360/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -45723,7 +45723,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [31/54]
+** TODO Chapter 5: Computing with Register Machines [32/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -50405,7 +50405,7 @@ end)
 
 Seems to work.
 
-*** 5.4 The Explicit-Control Evaluator [7/8]
+*** 5.4 The Explicit-Control Evaluator [8/8]
 **** Common code
      :PROPERTIES:
      :ORDERED:  t
@@ -52094,7 +52094,8 @@ Indeed \(S(n) = S(n-1) + S(n-2) + k\)
 \(b = -40 \)
 An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ratio.
 
-**** TODO Exercise 5.30 Errors
+**** DONE Exercise 5.30 Errors
+     CLOSED: [2020-03-04 Wed 11:35]
 
 ***** undefined variables
 
@@ -52220,6 +52221,16 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 
 #+end_src
 
+#+name: eceval-test-error-undefined-variable
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (fib 8)
+  (set! test 1)
+  (show #t "hello")
+  (exit)
+  EOF
+#+end_src
+
 
 #+header: :stdin eceval-test-error-undefined-variable
 #+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
@@ -52309,7 +52320,220 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 
 ***** wrong function arguments
 
+One of the methods of implementing the error-reporting would be to use
+the built-in scheme exceptioning mechanism ~guard~ (a lightweight
+exceptioning). This is appropriate if the underlying interpreter
+supports exceptions. I guess, SICP authors expected a different thing.
+
+#+name: ec-primitive-apply-with-errors
+#+begin_src scheme :exports code
+primitive-apply
+(assign val (op apply-primitive-procedure-with-errors) (reg proc) (reg argl))
+(save val)
+(assign val (op car) (reg val)) ; error or not
+(test (op eq?) (const error) (reg val))
+(branch (label primitive-error))
+(restore val)
+(assign val (op cdr) (reg val))
+(restore continue)
+(goto (reg continue))
+primitive-error
+(restore val)
+(assign val (op cdr) (reg val)) ; error-code
+(assign val (op cons) (const primitive-application-error) (reg val))
+(goto (label signal-error))
+#+end_src
+
+#+name: ec-primitive-with-errors
+#+begin_src scheme :exports code
+
+(define primitive-implementation-checkers 
+  (list 
+       (list / (lambda (l)  (cond ((< (length l) 2) 'not-enough-arguments)
+                        ((= (cadr l) 0) 'division-by-zero)
+                        (else #f))))
+       (list car (lambda (l)  (cond ((not (= (length l) 1)) 'wrong-number-of-arguments)
+                               ((not (pair? (car l))) 'car-not-a-pair)
+                               (else #f))))
+       (list cdr (lambda (l)  (cond ((not (= (length l) 1)) 'wrong-number-of-arguments)
+                               ((not (pair? (car l))) 'cdr-not-a-pair)
+                               (else #f)))))
+)
+
+(define (apply-primitive-procedure-with-errors proc arglist)
+  #;(show #t "\ncheckers=" (pretty primitive-implementation-checkers)
+           "\nproc=" (written proc) 
+           "\n(primitive-implementation proc)=" (written (primitive-implementation proc))
+           "\narglist=" (pretty arglist))
+  (let ((checker (assoc (primitive-implementation proc)
+                         primitive-implementation-checkers)))
+    (if checker
+      (let ((error ((cadr checker) arglist)))
+        (if error
+            (cons 'error error)
+            (cons 'no-error (apply-in-underlying-scheme
+                 (primitive-implementation proc) arglist))))
+      (cons 'no-checker (apply-in-underlying-scheme
+                 (primitive-implementation proc) arglist)))))
+#+end_src
+
+#+name: eceval-test-error-undefined-variable-function
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (fib 8)
+  (set! test 1)
+  (show #t "hello")
+  (cons 'a 'b)
+  (/ 1 0)
+  (car 1)
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin eceval-test-error-undefined-variable-function
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-primitive-with-errors>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<eceval-s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+     (list 'eq? eq?)
+     (list 'apply-primitive-procedure-with-errors apply-primitive-procedure-with-errors)
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-error-simple-expressions-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply-with-errors>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+
+  <<ec-eval-dispatch-let-cond>>
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(fib 8)
+(unbound-variable-error . fib)
+
+;;EC-Eval input:
+(set! test 1)
+(unbound-variable-error . test)
+
+;;EC-Eval input:
+(show #t "hello")
+(unbound-variable-error . show)
+
+;;EC-Eval input:
+(cons 'a 'b)
+;;EC-Eval value:
+(a . b)
+
+(total-pushes = 10 maximum-depth = 5)
+;;EC-Eval input:
+(/ 1 0)
+(primitive-application-error . division-by-zero)
+
+;;EC-Eval input:
+(car 1)
+(primitive-application-error . car-not-a-pair)
+
+;;EC-Eval input:
+(exit)
+#+end_example
+
+Okay, the system is working, but I am too lazy to implement it for all
+primitive procedures.
+
 *** 5.5 Compilation [0/22]
+**** Common code
+
+#+name: c-compile
+#+begin_src scheme :exports code
+  (define (compile exp target linkage)
+    (cond ((self-evaluating? exp)
+	   (compile-self-evaluating exp target linkage))
+	  ((quoted? exp) (compile-quoted exp target linkage))
+	  ((variable? exp)
+	   (compile-variable exp target linkage))
+	  ((assignment? exp)
+	   (compile-assignment exp target linkage))
+	  ((definition? exp)
+	   (compile-definition exp target linkage))
+	  ((if? exp) (compile-if exp target linkage))
+	  ((lambda? exp) (compile-lambda exp target linkage))
+	  ((begin? exp)
+	   (compile-sequence
+	    (begin-actions exp) target linkage))
+	  ((cond? exp)
+	   (compile (cond->if exp) target linkage))
+	  ((application? exp)
+	   (compile-application exp target linkage))
+	  (else
+	   (error "Unknown expression type: COMPILE" exp))))
+#+end_src
+
+#+name: c-make-instruction-sequence
+#+begin_src scheme :exports code
+  (define (make-instruction-sequence
+      needs modifies statements)
+    (list needs modifies statements))
+#+end_src
+
+
+
+
 **** TODO Exercise 5.31
 
 **** TODO Exercise 5.32
