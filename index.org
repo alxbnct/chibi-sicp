@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-04 11:56:35 lockywolf>
+# Time-stamp: <2020-03-06 12:39:30 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [360/404]
+* SICP [365/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -45723,7 +45723,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [32/54]
+** TODO Chapter 5: Computing with Register Machines [37/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -47131,7 +47131,8 @@ Works as expected.
 	  (aprocs
 	   (map (lambda (e)
 		  (if (label-exp? e)
-                      (error "make-operation-exp: operations cannot be applied to labels" e)
+                      (error "make-operation-exp: operations cannot be applied to labels" 
+                              e exp)
                       (make-primitive-exp e machine labels)))
 		(operation-exp-operands exp))))
       (lambda ()
@@ -49482,7 +49483,14 @@ into the instruction sequence.
 
 
   (define (assemble controller-text machine)
-    (let ((allregs (extract-registers controller-text)))
+    #;(show #t "assemble:\n  registers-to-allocate: " (extract-registers controller-text)
+                      "\n  machine registers    : " (machine 'all-register-names)
+                      "\n  difference           : "  (lset-difference eq? (extract-registers controller-text)
+                                                       (machine 'all-register-names)
+                                                    ))
+    (let ((allregs (lset-difference eq? (extract-registers controller-text)
+                                    (machine 'all-register-names)
+                                    )))
      (for-each 
        (lambda (reg) ((machine 'allocate-register) reg))
        allregs))
@@ -49607,6 +49615,8 @@ into the instruction sequence.
 	    (if val
 		(cadr val)
 		(error "Unknown register:" name))))
+        (define (all-register-names)
+            (map car register-table))
 	(define (set-breakpoint label offset) ;; brk has label and offset
 	  (let ((break (make-breakpoint label offset))
 		(target (lookup-label the-labels label)))
@@ -49632,7 +49642,7 @@ into the instruction sequence.
 	(define (execute continuation)
 	  (let ((insts (get-contents pc)))
 	    (set! the-instruction-counter (+ the-instruction-counter 1))
-	    (if (or (null? insts) (eq? (car (car insts)) 'exit))
+	    (if (null? insts)
 		'done
 		(begin
 		  (if (and labels-flag (not (null? (instruction-labels (car insts)))))
@@ -49678,6 +49688,7 @@ into the instruction sequence.
 		((eq? message 'trace-off) (set! tracing-flag #f))
 		((eq? message 'labels-on) (set! labels-flag #t))
 		((eq? message 'labels-off) (set! labels-flag #f))
+                ((eq? message 'all-register-names) (all-register-names))
 		((eq? message 'set-breakpoint) set-breakpoint)
 		((eq? message 'cancel-breakpoint) cancel-breakpoint)
 		((eq? message 'cancel-all-breakpoints) 
@@ -52221,18 +52232,20 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 
 #+end_src
 
-#+name: eceval-test-error-undefined-variable
+#+name: eceval-test-error-undefined-variable-2
 #+begin_src shell :exports code :results verbatim output
   cat <<EOF
   (fib 8)
   (set! test 1)
   (show #t "hello")
+  (define test 5)
+  test
   (exit)
   EOF
 #+end_src
 
 
-#+header: :stdin eceval-test-error-undefined-variable
+#+header: :stdin eceval-test-error-undefined-variable-2
 #+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
   <<ec-glue1>>
   <<s-truefalse>>
@@ -52314,6 +52327,18 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 (show #t "hello")
 (unbound-variable-error . show)
 
+;;EC-Eval input:
+(define test 5)
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+test
+;;EC-Eval value:
+5
+
+(total-pushes = 1 maximum-depth = 1)
 ;;EC-Eval input:
 (exit)
 #+end_example
@@ -52496,7 +52521,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [0/22]
+*** 5.5 Compilation [5/22]
 **** Common code
 
 #+name: c-compile
@@ -52524,58 +52549,1322 @@ primitive procedures.
 	   (error "Unknown expression type: COMPILE" exp))))
 #+end_src
 
-#+name: c-make-instruction-sequence
+#+name: c-make-instruction-sequence-empty-instruction-sequence
 #+begin_src scheme :exports code
   (define (make-instruction-sequence
       needs modifies statements)
     (list needs modifies statements))
+(define (empty-instruction-sequence)
+    (make-instruction-sequence '() '() '()))
+#+end_src
+
+#+name: c-compile-linkage
+#+begin_src scheme :exports code
+  (define (compile-linkage linkage)
+    (cond ((eq? linkage 'return)
+	   (make-instruction-sequence '(continue) '()
+				      '((goto (reg continue)))))
+	  ((eq? linkage 'next)
+	   (empty-instruction-sequence))
+	  (else
+	   (make-instruction-sequence '() '()
+				      `((goto (label ,linkage)))))))
+#+end_src
+
+#+name: c-end-with-linkage
+#+begin_src scheme :exports code
+  (define (end-with-linkage linkage instruction-sequence)
+    (preserving '(continue)
+		instruction-sequence
+		(compile-linkage linkage)))
+#+end_src
+
+#+name: c-compile-simple-expressions
+#+begin_src scheme :exports code
+  (define (compile-self-evaluating exp target linkage)
+    (end-with-linkage linkage
+		      (make-instruction-sequence '() (list target)
+						 `((assign ,target (const ,exp))))))
+  (define (compile-quoted exp target linkage)
+    (end-with-linkage linkage
+		      (make-instruction-sequence '() (list target)
+						 `((assign ,target (const ,(text-of-quotation exp)))))))
+  (define (compile-variable exp target linkage)
+    (end-with-linkage linkage
+		      (make-instruction-sequence '(env) (list target)
+						 `((assign ,target
+							   (op lookup-variable-value)
+							   (const ,exp)
+							   (reg env))))))
+#+end_src
+
+#+name: c-compile-assignment
+#+begin_src scheme :exports code
+  (define (compile-assignment exp target linkage)
+    (let ((var (assignment-variable exp))
+	  (get-value-code
+	   (compile (assignment-value exp) 'val 'next)))
+      (end-with-linkage linkage
+			(preserving '(env)
+				    get-value-code
+				    (make-instruction-sequence '(env val) (list target)
+							       `((perform (op set-variable-value!)
+									  (const ,var)
+									  (reg val)
+									  (reg env))
+								 (assign ,target (const ok))))))))
+  (define (compile-definition exp target linkage)
+    (let ((var (definition-variable exp))
+	  (get-value-code
+	   (compile (definition-value exp) 'val 'next)))
+      (end-with-linkage linkage
+			(preserving '(env)
+				    get-value-code
+				    (make-instruction-sequence '(env val) (list target)
+							       `((perform (op define-variable!)
+									  (const ,var)
+									  (reg val)
+									  (reg env))
+								 (assign ,target (const ok))))))))
+#+end_src
+
+#+name: c-make-label
+#+begin_src scheme :exports code
+  (define label-counter 0)
+  (define (new-label-number)
+    (set! label-counter (+ 1 label-counter))
+    label-counter)
+  (define (make-label name)
+    (string->symbol
+     (string-append (symbol->string name)
+		    (number->string (new-label-number)))))
+#+end_src
+
+#+name: c-compile-if
+#+begin_src scheme :exports code
+  (define (compile-if exp target linkage)
+    (let ((t-branch (make-label 'true-branch))
+	  (f-branch (make-label 'false-branch))
+	  (after-if (make-label 'after-if)))
+      (let ((consequent-linkage
+	     (if (eq? linkage 'next) after-if linkage)))
+	(let ((p-code (compile (if-predicate exp) 'val 'next))
+	      (c-code
+	       (compile
+		(if-consequent exp) target
+		consequent-linkage))
+	      (a-code
+	       (compile (if-alternative exp) target linkage)))
+	  (preserving '(env continue)
+		      p-code
+		      (append-instruction-sequences
+		       (make-instruction-sequence '(val) '()
+						  `((test (op false?) (reg val))
+						    (branch (label ,f-branch))))
+		       (parallel-instruction-sequences
+			(append-instruction-sequences t-branch c-code)
+			(append-instruction-sequences f-branch a-code))
+		       after-if))))))
+#+end_src
+
+#+name: c-compile-sequence
+#+begin_src scheme :exports code
+  (define (compile-sequence seq target linkage)
+    (if (last-exp? seq)
+	(compile (first-exp seq) target linkage)
+	(preserving
+	 '(env continue)
+	 (compile (first-exp seq) target 'next)
+	 (compile-sequence (rest-exps seq) target linkage))))
+#+end_src
+
+#+name: c-compiled-procedures
+#+begin_src scheme :exports code
+  (define (make-compiled-procedure entry env)
+    (list 'compiled-procedure entry env))
+  (define (compiled-procedure? proc)
+    (tagged-list? proc 'compiled-procedure))
+  (define (compiled-procedure-entry c-proc) (cadr c-proc))
+  (define (compiled-procedure-env c-proc) (caddr c-proc))
+#+end_src
+
+#+name: c-compile-lambda
+#+begin_src scheme :exports code
+  (define (compile-lambda exp target linkage)
+    (let ((proc-entry (make-label 'entry))
+	  (after-lambda (make-label 'after-lambda)))
+      (let ((lambda-linkage
+	     (if (eq? linkage 'next) after-lambda linkage)))
+	(append-instruction-sequences
+	 (tack-on-instruction-sequence
+	  (end-with-linkage lambda-linkage
+			    (make-instruction-sequence '(env) (list target)
+						       `((assign ,target
+								 (op make-compiled-procedure)
+								 (label ,proc-entry)
+								 (reg env)))))
+	  (compile-lambda-body exp proc-entry))
+	 after-lambda))))
+#+end_src
+
+#+name: c-compile-lambda-body
+#+begin_src scheme :exports code
+  (define (compile-lambda-body exp proc-entry)
+    (let ((formals (lambda-parameters exp)))
+      (append-instruction-sequences
+       (make-instruction-sequence '(env proc argl) '(env)
+				  `(,proc-entry
+				    (assign env
+					    (op compiled-procedure-env)
+					    (reg proc))
+				    (assign env
+					    (op extend-environment)
+					    (const ,formals)
+					    (reg argl)
+					    (reg env))))
+       (compile-sequence (lambda-body exp) 'val 'return))))
+#+end_src
+
+#+name: c-compile-application
+#+begin_src scheme :exports code
+  (define (compile-application exp target linkage)
+    (let ((proc-code (compile (operator exp) 'proc 'next))
+	  (operand-codes
+	   (map (lambda
+		    (operand) (compile operand 'val 'next))
+		(operands exp))))
+      (preserving '(env continue)
+		  proc-code
+		  (preserving '(proc continue)
+			      (construct-arglist operand-codes)
+			      (compile-procedure-call target linkage)))))
+#+end_src
+
+#+name: c-construct-arglist
+#+begin_src scheme :exports code
+  (define (construct-arglist operand-codes)
+    (let ((operand-codes (reverse operand-codes)))
+      (if (null? operand-codes)
+	  (make-instruction-sequence '() '(argl)
+				     '((assign argl (const ()))))
+	  (let ((code-to-get-last-arg
+		 (append-instruction-sequences
+		  (car operand-codes)
+		  (make-instruction-sequence '(val) '(argl)
+					     '((assign argl (op list) (reg val)))))))
+	    (if (null? (cdr operand-codes))
+		code-to-get-last-arg
+		(preserving '(env)
+			    code-to-get-last-arg
+			    (code-to-get-rest-args
+			     (cdr operand-codes))))))))
+  (define (code-to-get-rest-args operand-codes)
+    (let ((code-for-next-arg
+	   (preserving '(argl)
+		       (car operand-codes)
+		       (make-instruction-sequence '(val argl) '(argl)
+						  '((assign argl
+							    (op cons) (reg val) (reg argl)))))))
+      (if (null? (cdr operand-codes))
+	  code-for-next-arg
+	  (preserving '(env)
+		      code-for-next-arg
+		      (code-to-get-rest-args (cdr operand-codes))))))
+#+end_src
+
+#+name: c-compile-procedure-call
+#+begin_src scheme :exports code
+  (define (compile-procedure-call target linkage)
+    (let ((primitive-branch (make-label 'primitive-branch))
+	  (compiled-branch (make-label 'compiled-branch))
+	  (after-call (make-label 'after-call)))
+      (let ((compiled-linkage
+	     (if (eq? linkage 'next) after-call linkage)))
+	(append-instruction-sequences
+	 (make-instruction-sequence '(proc) '()
+				    `((test (op primitive-procedure?) (reg proc))
+				      (branch (label ,primitive-branch))))
+	 (parallel-instruction-sequences
+	  (append-instruction-sequences
+	   compiled-branch
+	   (compile-proc-appl target compiled-linkage))
+	  (append-instruction-sequences
+	   primitive-branch
+	   (end-with-linkage linkage
+			     (make-instruction-sequence '(proc argl)
+							(list target)
+							`((assign ,target
+								  (op apply-primitive-procedure)
+								  (reg proc)
+								  (reg argl)))))))
+	 after-call))))
+#+end_src
+
+#+name: c-compile-proc-appl
+#+begin_src scheme :exports code
+  (define all-regs '(env proc val argl continue))
+  (define (compile-proc-appl target linkage)
+    (cond ((and (eq? target 'val) (not (eq? linkage 'return)))
+	   (make-instruction-sequence '(proc) all-regs
+				      `((assign continue (label ,linkage))
+					(assign val (op compiled-procedure-entry)
+						(reg proc))
+					(goto (reg val)))))
+	  ((and (not (eq? target 'val))
+		(not (eq? linkage 'return)))
+	   (let ((proc-return (make-label 'proc-return)))
+	     (make-instruction-sequence '(proc) all-regs
+					`((assign continue (label ,proc-return))
+					  (assign val (op compiled-procedure-entry)
+						  (reg proc))
+					  (goto (reg val))
+					  ,proc-return
+					  (assign ,target (reg val))
+					  (goto (label ,linkage))))))
+	  ((and (eq? target 'val) (eq? linkage 'return))
+	   (make-instruction-sequence
+	    '(proc continue)
+	    all-regs
+	    '((assign val (op compiled-procedure-entry)
+		      (reg proc))
+	      (goto (reg val)))))
+	  ((and (not (eq? target 'val))
+		(eq? linkage 'return))
+	   (error "return linkage, target not val: COMPILE"
+		  target))))
+#+end_src
+
+#+name: c-combining-registers
+#+begin_src scheme :exports code
+  (define (registers-needed s)
+    (if (symbol? s) '() (car s)))
+  (define (registers-modified s)
+    (if (symbol? s) '() (cadr s)))
+  (define (statements s)
+    (if (symbol? s) (list s) (caddr s)))
+  (define (needs-register? seq reg)
+    (memq reg (registers-needed seq)))
+  (define (modifies-register? seq reg)
+    (memq reg (registers-modified seq)))
+#+end_src
+
+#+name: c-append-instruction-sequences
+#+begin_src scheme :exports code
+  (define (append-instruction-sequences . seqs)
+    (define (append-2-sequences seq1 seq2)
+      (make-instruction-sequence
+       (list-union
+	(registers-needed seq1)
+	(list-difference (registers-needed seq2)
+			 (registers-modified seq1)))
+       (list-union (registers-modified seq1)
+		   (registers-modified seq2))
+       (append (statements seq1) (statements seq2))))
+    (define (append-seq-list seqs)
+      (if (null? seqs)
+	  (empty-instruction-sequence)
+	  (append-2-sequences
+	   (car seqs)
+	   (append-seq-list (cdr seqs)))))
+    (append-seq-list seqs))
+#+end_src
+
+#+name: c-list-union
+#+begin_src scheme :exports code
+  (define (list-union s1 s2)
+    (cond ((null? s1) s2)
+	  ((memq (car s1) s2) (list-union (cdr s1) s2))
+	  (else (cons (car s1) (list-union (cdr s1) s2)))))
+  (define (list-difference s1 s2)
+    (cond ((null? s1) '())
+	  ((memq (car s1) s2) (list-difference (cdr s1) s2))
+	  (else (cons (car s1)
+		      (list-difference (cdr s1) s2)))))
+#+end_src
+
+#+name: c-preserving
+#+begin_src scheme :exports code
+  (define (preserving regs seq1 seq2)
+    (if (null? regs)
+	(append-instruction-sequences seq1 seq2)
+	(let ((first-reg (car regs)))
+	  (if (and (needs-register? seq2 first-reg)
+		   (modifies-register? seq1 first-reg))
+	      (preserving (cdr regs)
+			  (make-instruction-sequence
+			   (list-union (list first-reg)
+				       (registers-needed seq1))
+			   (list-difference (registers-modified seq1)
+					    (list first-reg))
+			   (append `((save ,first-reg))
+				   (statements seq1)
+				   `((restore ,first-reg))))
+			  seq2)
+	      (preserving (cdr regs) seq1 seq2)))))
+#+end_src
+
+#+name: c-tack-on-instruction-sequence
+#+begin_src scheme :exports code
+  (define (tack-on-instruction-sequence seq body-seq)
+    (make-instruction-sequence
+     (registers-needed seq)
+     (registers-modified seq)
+     (append (statements seq)
+	     (statements body-seq))))
+#+end_src
+
+#+name: c-parallel-instruction-sequences
+#+begin_src scheme :exports code
+  (define (parallel-instruction-sequences seq1 seq2)
+    (make-instruction-sequence
+     (list-union (registers-needed seq1)
+		 (registers-needed seq2))
+     (list-union (registers-modified seq1)
+		 (registers-modified seq2))
+     (append (statements seq1)
+	     (statements seq2))))
+#+end_src
+
+#+name: c-test-compile-1
+#+begin_src scheme :exports code
+  (compile
+   '(define (factorial n)
+      (if (= n 1)
+	  1
+	  (* (factorial (- n 1)) n)))
+   'val
+   'next)
+#+end_src
+
+#+name: c-test-factorial-1
+#+header: :stdin empty
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output
+<<ec-glue1>>
+<<c-compile>>
+<<c-make-instruction-sequence-empty-instruction-sequence>>
+<<c-compile-linkage>>
+<<c-end-with-linkage>>
+<<c-compile-simple-expressions>>
+<<c-compile-assignment>>
+<<c-make-label>>
+<<c-compile-if>>
+<<c-compile-sequence>>
+<<c-compiled-procedures>>
+<<c-compile-lambda>>
+<<c-compile-lambda-body>>
+<<c-compile-application>>
+<<c-construct-arglist>>
+<<c-compile-procedure-call>>
+<<c-compile-proc-appl>>
+<<c-combining-registers>>
+<<c-append-instruction-sequences>>
+<<c-list-union>>
+<<c-preserving>>
+<<c-tack-on-instruction-sequence>>
+<<c-parallel-instruction-sequences>>
+<<s-syntax>>
+<<s-cond-with-arrow>>
+<<s-application>>
+
+(define compiled-factorial (compile
+   '(define (factorial n)
+      (if (= n 1)
+	  1
+	  (* (factorial (- n 1)) n)))
+   'val
+   'next))
+
+(show #t (pretty compiled-factorial))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+((env) (val)
+       ((assign val (op make-compiled-procedure) (label entry2) (reg env))
+        (goto (label after-lambda1))
+        entry2
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env (op extend-environment) (const (n)) (reg argl) (reg env))
+        (save continue)
+        (save env)
+        (assign proc (op lookup-variable-value) (const =) (reg env))
+        (assign val (const 1))
+        (assign argl (op list) (reg val))
+        (assign val (op lookup-variable-value) (const n) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch17))
+        compiled-branch16
+        (assign continue (label after-call15))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch17
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call15
+        (restore env)
+        (restore continue)
+        (test (op false?) (reg val))
+        (branch (label false-branch4))
+        true-branch5
+        (assign val (const 1))
+        (goto (reg continue))
+        false-branch4
+        (assign proc (op lookup-variable-value) (const *) (reg env))
+        (save continue)
+        (save proc)
+        (assign val (op lookup-variable-value) (const n) (reg env))
+        (assign argl (op list) (reg val))
+        (save argl)
+        (assign proc (op lookup-variable-value) (const factorial) (reg env))
+        (save proc)
+        (assign proc (op lookup-variable-value) (const -) (reg env))
+        (assign val (const 1))
+        (assign argl (op list) (reg val))
+        (assign val (op lookup-variable-value) (const n) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch8))
+        compiled-branch7
+        (assign continue (label after-call6))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch8
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call6
+        (assign argl (op list) (reg val))
+        (restore proc)
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch11))
+        compiled-branch10
+        (assign continue (label after-call9))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch11
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call9
+        (restore argl)
+        (assign argl (op cons) (reg val) (reg argl))
+        (restore proc)
+        (restore continue)
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch14))
+        compiled-branch13
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch14
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call12
+        after-if3
+        after-lambda1
+        (perform (op define-variable!) (const factorial) (reg val) (reg env))
+        (assign val (const ok))))
+#+end_example
+
+#+name: c-compile-and-go
+#+begin_src scheme :exports code
+  (define (compile-and-go expression)
+    (let ((instructions
+	   (assemble
+	    (statements
+	     (compile expression 'val 'return))
+	    eceval)))
+      (set! the-global-environment (setup-environment))
+      (set-register-contents! eceval 'val instructions)
+      (set-register-contents! eceval 'flag true)
+      (start eceval)))
+#+end_src
+
+#+name: ec-apply-dispatch-with-compiled
+#+begin_src scheme :exports code
+  apply-dispatch
+  (test (op primitive-procedure?) (reg proc))
+  (branch (label primitive-apply))
+  (test (op compound-procedure?) (reg proc))
+  (branch (label compound-apply))
+  (test (op compiled-procedure?) (reg proc))
+  (branch (label compiled-apply))
+  (goto (label unknown-procedure-type))
+  compiled-apply
+  (restore continue)
+  (assign val (op compiled-procedure-entry) (reg proc))
+  (goto (reg val))
+#+end_src
+
+#+name: ec-before-repl-branch-to-compile
+#+begin_src scheme :exports code
+(branch (label external-entry))
+#+end_src
+
+#+name: ec-external-entry
+#+begin_src scheme :exports code
+  external-entry
+  (perform (op initialize-stack))
+  (assign env (op get-global-environment))
+  (assign continue (label print-result))
+  (goto (reg val))
+#+end_src
+
+#+name: s-user-prompt-print-with-compiled
+#+begin_src scheme :exports both :results value
+  (define (prompt-for-input string)
+    #;(newline) #;(newline) (display string) (newline))
+  (define (announce-output string)
+    #;(newline) (display string) (newline))
+  (define (user-print object)
+    (cond ((compound-procedure? object)
+                (show #t (pretty (list 'compound-procedure
+	 	         (procedure-parameters object)
+                         (procedure-body object)
+		        '<procedure-env>))))
+          ((compiled-procedure? object) 
+                (show #t (pretty '<compiled-procedure>)))
+          (else (show #t (pretty object)))))
+
 #+end_src
 
 
 
+#+name: ec-eceval-operations-compiled
+#+begin_src scheme :exports code
+     (list 'eq? eq?)
+     (list 'apply-primitive-procedure apply)
+     (list 'compiled-procedure? compiled-procedure?)
+     (list 'compiled-procedure-entry compiled-procedure-entry)
+     (list 'make-compiled-procedure make-compiled-procedure)
+     (list 'compiled-procedure-env compiled-procedure-env)
+     (list 'list list)
+     (list 'false? false?)
+#+end_src
 
-**** TODO Exercise 5.31
+#+name: c-test-compile-and-go
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (factorial 5)
+  (exit)
+  EOF
+#+end_src
 
-**** TODO Exercise 5.32
 
-**** TODO Exercise 5.33
+#+header: :stdin c-test-compile-and-go
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
 
-**** TODO Exercise 5.34
+  <<c-compile-and-go>>
+    <<c-compile>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-simple-expressions>>
+  <<c-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-if>>
+  <<c-compile-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lambda>>
+  <<c-compile-lambda-body>>
+  <<c-compile-application>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
 
-**** TODO Exercise 5.35
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+    ))
 
-**** TODO Exercise 5.36
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+(compile-and-go
+   '(define (factorial n)
+      (if (= n 1)
+      1
+      (* (factorial (- n 1)) n))))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(factorial 5)
+;;EC-Eval value:
+120
+
+(total-pushes = 31 maximum-depth = 14)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+
+**** DONE Exercise 5.31 a ~preserving~ mechanism
+     CLOSED: [2020-03-04 Wed 21:36]
+***** ~(f 'x 'y)~
+
+ - env around the operator: no need, it's just a lookup
+ - env around 'x: no need it's self-evaluating
+ - argl around 'x: no need, 'x is self-evaluating
+ - argl around 'y: no need, 'y is self-evaluating
+ - proc around 'x: no need, 'x is self-evaluating
+ - proc around 'y: no need, 'y is self-evaluating
+
+***** ~((f) 'x 'y)~
+
+
+ - env around the operator: yes, as we don't know what ~(f)~ does
+ - env around 'x: no need
+ - argl around 'x: no need
+ - argl around 'y: no need
+ - proc around 'x: no need
+ - proc around 'y: no need
+
+***** ~(f (g 'x) y)~
+
+ - env around ~f~ -- no need, it's just a variable
+ - env around ~(g 'x)~, yes
+ - argl around ~(g 'x)~: yes, as it is an application
+ - argl around y: no need
+ - proc around ~(g 'x)~, yes, as the proc changes
+ - proc around y: no need
+
+***** ~(f (g 'x) 'y)~
+
+ No need to restore ~env~ after ~(g 'x)~, since ~'y~ is just a symbol
+
+**** DONE Exercise 5.32 symbol-lookup optimization
+     CLOSED: [2020-03-04 Wed 22:51]
+
+***** a
+#+name: ec-test-symbol-optimization
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (/ 4 2)
+  (exit)
+  EOF
+#+end_src
+
+#+name: ec-ev-application-optimized
+#+begin_src scheme :exports code
+ev-application
+(save continue)
+(assign unev (op operands) (reg exp))
+(assign exp (op operator) (reg exp))
+(test (op symbol?) (reg exp))
+(branch (label symbol-optimization))
+(save env)
+(save unev)
+(assign continue (label ev-appl-did-operator))
+(goto (label eval-dispatch))
+symbol-optimization
+(assign continue (label symbol-optimization-shortcut))
+;(assign val (op lookup-variable-value) (reg exp) (reg env))
+(goto (label eval-dispatch))
+#+end_src
+
+#+name: ec-ev-appl-did-operator-optimized
+#+begin_src scheme :exports code
+ev-appl-did-operator
+(restore unev) ; the operands
+(restore env)
+symbol-optimization-shortcut
+(assign argl (op empty-arglist))
+(assign proc (reg val)) ; the operator
+(test (op no-operands?) (reg unev))
+(branch (label apply-dispatch))
+(save proc)
+#+end_src
+
+
+#+header: :stdin ec-test-symbol-optimization
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-primitive-with-errors>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<eceval-s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print>>
+
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp-improved>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+     (list 'eq? eq?)
+     (list 'symbol? symbol?)
+     (list 'apply-primitive-procedure-with-errors apply-primitive-procedure-with-errors)
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-error-simple-expressions-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply-with-errors>>
+  <<ec-ev-application-optimized>>
+  <<ec-ev-appl-did-operator-optimized>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch>>
+
+  <<ec-eval-dispatch-let-cond>>
+    ))))
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+: 
+: ;;EC-Eval input:
+: (/ 4 2)
+: ;;EC-Eval value:
+: 2
+: 
+: (total-pushes = 8 maximum-depth = 5)
+: ;;EC-Eval input:
+: (exit)
+
+Works, and apparently stack is even less used than in the typical case. 
+
+
+***** b
+
+Well, if the operator is a constant, this optimization works. (It is
+also similar to the optimization that was built in the prolog
+interpreter, the indexed expressions.) But firstly, we would still
+have to go through all this process during every function application,
+whereas the compiler would do it _in compile time_. 
+
+Secondly, the more sophisticated such optimizations are, the more time
+they take in the evaluation step. Again, it's better to do everything
+in compile-time.
+
+**** DONE Exercise 5.33 compiling ~factorial-alt~
+     CLOSED: [2020-03-05 Thu 16:55]
+
+#+name: c-test-factorial-2
+#+header: :stdin empty
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output verbatim
+  <<ec-glue1>>
+  <<c-compile>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-simple-expressions>>
+  <<c-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-if>>
+  <<c-compile-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lambda>>
+  <<c-compile-lambda-body>>
+  <<c-compile-application>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+  <<s-syntax>>
+  <<s-cond-with-arrow>>
+  <<s-application>>
+
+  (define compiled-factorial (compile
+     '(define (factorial n)
+        (if (= n 1)
+          1
+          (* n (factorial (- n 1)))))
+     'val
+     'next))
+
+  (show #t (pretty compiled-factorial))
+
+#+end_src
+
+
+#+header: :stdin empty
+#+begin_src shell :results output code :wrap src patch
+  output1=$(
+  cat <<'EOF'
+  <<c-test-factorial-1()>>
+  EOF
+  )
+
+  output2=$(
+  cat <<'EOF'
+  <<c-test-factorial-2()>>
+  EOF
+  )
+  #echo "$output1"
+  #echo "============"
+  #echo "$output2"
+
+  diff -s -u <(echo "$output1") <(echo "$output2")
+#+end_src
+
+#+RESULTS:
+#+begin_src patch
+--- /dev/fd/63	2020-03-05 20:18:02.407373896 +0800
++++ /dev/fd/62	2020-03-05 20:18:02.406373917 +0800
+@@ -31,9 +31,7 @@
+         (assign proc (op lookup-variable-value) (const *) (reg env))
+         (save continue)
+         (save proc)
+-        (assign val (op lookup-variable-value) (const n) (reg env))
+-        (assign argl (op list) (reg val))
+-        (save argl)
++        (save env)
+         (assign proc (op lookup-variable-value) (const factorial) (reg env))
+         (save proc)
+         (assign proc (op lookup-variable-value) (const -) (reg env))
+@@ -61,7 +59,9 @@
+         primitive-branch11
+         (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+         after-call9
+-        (restore argl)
++        (assign argl (op list) (reg val))
++        (restore env)
++        (assign val (op lookup-variable-value) (const n) (reg env))
+         (assign argl (op cons) (reg val) (reg argl))
+         (restore proc)
+         (restore continue)
+#+end_src
+
+We can see that saving and restoring (reg argl) and (reg env) have
+been swapped, but the total amount of operations is the same, so the
+functions have equal efficiency.
+
+**** DONE Exercise 5.34 compiling iterative factorial
+     CLOSED: [2020-03-05 Thu 20:58]
+
+#+name: c-test-factorial-iter
+#+header: :stdin empty
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output verbatim
+  
+<<ec-glue1>>
+  <<c-compile>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-simple-expressions>>
+  <<c-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-if>>
+  <<c-compile-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lambda>>
+  <<c-compile-lambda-body>>
+  <<c-compile-application>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+  <<s-syntax>>
+  <<s-cond-with-arrow>>
+  <<s-application>>
+
+  (define compiled-factorial (compile
+			      '(define (factorial n)
+                                 (define (iter product counter)
+                                   (if (> counter n)
+                                      product
+                                     (iter (* counter product)
+                                         (+ counter 1))))
+                                 (iter 1 1))
+                              'val
+                              'next))
+
+    (show #t (pretty compiled-factorial))
+
+#+end_src
+
+The result of the next block is easier to study on a screen greater
+than 128 characters wide.
+
+#+header: :stdin empty
+#+begin_src shell :results output code :wrap src patch
+  output1=$(
+  cat <<'EOF'
+  <<c-test-factorial-1()>>
+  EOF
+  )
+
+  output2=$(
+  cat <<'EOF'
+  <<c-test-factorial-iter()>>
+  EOF
+  )
+  #echo "$output1"
+  #echo "============"
+  #echo "$output2"
+
+  diff -w -s -y <(echo "$output1") <(echo "$output2") | nl -w2 -
+#+end_src
+
+#+RESULTS:
+#+begin_src patch
+ 1	((env) (val)							((env) (val)
+ 2	       ((assign val (op make-compiled-procedure) (label entry	       ((assign val (op make-compiled-procedure) (label entry
+ 3	        (goto (label after-lambda1))				        (goto (label after-lambda1))
+ 4	        entry2							        entry2
+ 5	        (assign env (op compiled-procedure-env) (reg proc))	        (assign env (op compiled-procedure-env) (reg proc))
+ 6	        (assign env (op extend-environment) (const (n)) (reg 	        (assign env (op extend-environment) (const (n)) (reg 
+ 7								      >	        (assign val (op make-compiled-procedure) (label entry
+ 8								      >	        (goto (label after-lambda6))
+ 9								      >	        entry7
+10								      >	        (assign env (op compiled-procedure-env) (reg proc))
+11								      >	        (assign env
+12								      >	                (op extend-environment)
+13								      >	                (const (product counter))
+14								      >	                (reg argl)
+15								      >	                (reg env))
+16	        (save continue)						        (save continue)
+17	        (save env)						        (save env)
+18	        (assign proc (op lookup-variable-value) (const =) (re |	        (assign proc (op lookup-variable-value) (const >) (re
+19	        (assign val (const 1))				      <
+20	        (assign argl (op list) (reg val))		      <
+21	        (assign val (op lookup-variable-value) (const n) (reg	        (assign val (op lookup-variable-value) (const n) (reg
+22								      >	        (assign argl (op list) (reg val))
+23								      >	        (assign val (op lookup-variable-value) (const counter
+24	        (assign argl (op cons) (reg val) (reg argl))		        (assign argl (op cons) (reg val) (reg argl))
+25	        (test (op primitive-procedure?) (reg proc))		        (test (op primitive-procedure?) (reg proc))
+26	        (branch (label primitive-branch17))		      |	        (branch (label primitive-branch22))
+27	        compiled-branch16				      |	        compiled-branch21
+28	        (assign continue (label after-call15))		      |	        (assign continue (label after-call20))
+29	        (assign val (op compiled-procedure-entry) (reg proc))	        (assign val (op compiled-procedure-entry) (reg proc))
+30	        (goto (reg val))					        (goto (reg val))
+31	        primitive-branch17				      |	        primitive-branch22
+32	        (assign val (op apply-primitive-procedure) (reg proc)	        (assign val (op apply-primitive-procedure) (reg proc)
+33	        after-call15					      |	        after-call20
+34	        (restore env)						        (restore env)
+35	        (restore continue)					        (restore continue)
+36	        (test (op false?) (reg val))				        (test (op false?) (reg val))
+37	        (branch (label false-branch4))			      |	        (branch (label false-branch9))
+38	        true-branch5					      |	        true-branch10
+39	        (assign val (const 1))				      |	        (assign val (op lookup-variable-value) (const product
+40	        (goto (reg continue))					        (goto (reg continue))
+41	        false-branch4					      |	        false-branch9
+42	        (assign proc (op lookup-variable-value) (const *) (re |	        (assign proc (op lookup-variable-value) (const iter) 
+43	        (save continue)						        (save continue)
+44	        (save proc)						        (save proc)
+45	        (assign val (op lookup-variable-value) (const n) (reg |	        (save env)
+46	        (assign argl (op list) (reg val))		      |	        (assign proc (op lookup-variable-value) (const +) (re
+47	        (save argl)					      <
+48	        (assign proc (op lookup-variable-value) (const factor <
+49	        (save proc)					      <
+50	        (assign proc (op lookup-variable-value) (const -) (re <
+51	        (assign val (const 1))					        (assign val (const 1))
+52	        (assign argl (op list) (reg val))			        (assign argl (op list) (reg val))
+53	        (assign val (op lookup-variable-value) (const n) (reg |	        (assign val (op lookup-variable-value) (const counter
+54	        (assign argl (op cons) (reg val) (reg argl))		        (assign argl (op cons) (reg val) (reg argl))
+55	        (test (op primitive-procedure?) (reg proc))		        (test (op primitive-procedure?) (reg proc))
+56	        (branch (label primitive-branch8))		      |	        (branch (label primitive-branch16))
+57	        compiled-branch7				      |	        compiled-branch15
+58	        (assign continue (label after-call6))		      |	        (assign continue (label after-call14))
+59	        (assign val (op compiled-procedure-entry) (reg proc))	        (assign val (op compiled-procedure-entry) (reg proc))
+60	        (goto (reg val))					        (goto (reg val))
+61	        primitive-branch8				      |	        primitive-branch16
+62	        (assign val (op apply-primitive-procedure) (reg proc)	        (assign val (op apply-primitive-procedure) (reg proc)
+63	        after-call6					      |	        after-call14
+64	        (assign argl (op list) (reg val))			        (assign argl (op list) (reg val))
+65	        (restore proc)					      |	        (restore env)
+66								      >	        (save argl)
+67								      >	        (assign proc (op lookup-variable-value) (const *) (re
+68								      >	        (assign val (op lookup-variable-value) (const product
+69								      >	        (assign argl (op list) (reg val))
+70								      >	        (assign val (op lookup-variable-value) (const counter
+71								      >	        (assign argl (op cons) (reg val) (reg argl))
+72	        (test (op primitive-procedure?) (reg proc))		        (test (op primitive-procedure?) (reg proc))
+73	        (branch (label primitive-branch11))		      |	        (branch (label primitive-branch13))
+74	        compiled-branch10				      |	        compiled-branch12
+75	        (assign continue (label after-call9))		      |	        (assign continue (label after-call11))
+76	        (assign val (op compiled-procedure-entry) (reg proc))	        (assign val (op compiled-procedure-entry) (reg proc))
+77	        (goto (reg val))					        (goto (reg val))
+78	        primitive-branch11				      |	        primitive-branch13
+79	        (assign val (op apply-primitive-procedure) (reg proc)	        (assign val (op apply-primitive-procedure) (reg proc)
+80	        after-call9					      |	        after-call11
+81	        (restore argl)						        (restore argl)
+82	        (assign argl (op cons) (reg val) (reg argl))		        (assign argl (op cons) (reg val) (reg argl))
+83	        (restore proc)						        (restore proc)
+84	        (restore continue)					        (restore continue)
+85	        (test (op primitive-procedure?) (reg proc))		        (test (op primitive-procedure?) (reg proc))
+86	        (branch (label primitive-branch14))		      |	        (branch (label primitive-branch19))
+87	        compiled-branch13				      |	        compiled-branch18
+88								      >	        (assign val (op compiled-procedure-entry) (reg proc))
+89								      >	        (goto (reg val))
+90								      >	        primitive-branch19
+91								      >	        (assign val (op apply-primitive-procedure) (reg proc)
+92								      >	        (goto (reg continue))
+93								      >	        after-call17
+94								      >	        after-if8
+95								      >	        after-lambda6
+96								      >	        (perform (op define-variable!) (const iter) (reg val)
+97								      >	        (assign val (const ok))
+98								      >	        (assign proc (op lookup-variable-value) (const iter) 
+99								      >	        (assign val (const 1))
+100								      >	        (assign argl (op list) (reg val))
+101								      >	        (assign val (const 1))
+102								      >	        (assign argl (op cons) (reg val) (reg argl))
+103								      >	        (test (op primitive-procedure?) (reg proc))
+104								      >	        (branch (label primitive-branch5))
+105								      >	        compiled-branch4
+106	        (assign val (op compiled-procedure-entry) (reg proc))	        (assign val (op compiled-procedure-entry) (reg proc))
+107	        (goto (reg val))					        (goto (reg val))
+108	        primitive-branch14				      |	        primitive-branch5
+109	        (assign val (op apply-primitive-procedure) (reg proc)	        (assign val (op apply-primitive-procedure) (reg proc)
+110	        (goto (reg continue))					        (goto (reg continue))
+111	        after-call12					      |	        after-call3
+112	        after-if3					      <
+113	        after-lambda1						        after-lambda1
+114	        (perform (op define-variable!) (const factorial) (reg	        (perform (op define-variable!) (const factorial) (reg
+115	        (assign val (const ok))))				        (assign val (const ok))))
+#+end_src
+
+On line 47, in the false branch of the ~if~, we are saving ~argl~ and
+~proc~, in order to do a recursive call. These ~save~ operations are
+not present on the right hand side, and moreover, are executed on
+every iteration. Therefore, stack for them grows linearly with ~n~.
+Diff highlights this for us.
+
+**** DONE Exercise 5.35 Decompilation
+     CLOSED: [2020-03-05 Thu 21:30]
+
+#+begin_src scheme :exports code
+  (assign val
+	  (op make-compiled-procedure)
+	  (label entry16)
+	  (reg env)) ; define 
+  (goto (label after-lambda15))
+  entry16
+  (assign env (op compiled-procedure-env) (reg proc))
+  (assign env
+	  (op extend-environment)
+	  (const (x))
+	  (reg argl)
+	  (reg env))
+  (assign proc
+	  (op lookup-variable-value)
+	  (const +) ; first opening parenthesis with a "+"
+	  (reg env))
+  (save continue)
+  (save proc)
+  (save env)
+  (assign proc
+	  (op lookup-variable-value)
+	  (const g) ;  (+ ... (g ... ))
+	  (reg env))
+  (save proc)
+  (assign proc
+	  (op lookup-variable-value)
+	  (const +)  ;  (+ ... (g ... (+ )))
+	  (reg env))
+  (assign val (const 2)) (+ ... (g ... (+ ... 2)))
+  (assign argl (op list) (reg val))
+  (assign val
+	  (op lookup-variable-value)
+	  (const x) ; (+ ... (g ... (+ ... x 2)))
+	  (reg env))
+  (assign argl (op cons) (reg val) (reg argl)) ; (+ ... (g ... (+ x 2)))
+  (test (op primitive-procedure?) (reg proc))
+  (branch (label primitive-branch19))
+  compiled-branch18
+  (assign continue (label after-call17))
+  (assign val (op compiled-procedure-entry) (reg proc))
+  (goto (reg val))
+  primitive-branch19
+  (assign val
+	  (op apply-primitive-procedure)
+	  (reg proc)
+	  (reg argl)) ; (+ ... (g (+ x 2)))
+  after-call17
+  (assign argl (op list) (reg val))
+  (restore proc)
+  (test (op primitive-procedure?) (reg proc))
+  (branch (label primitive-branch22))
+  compiled-branch21
+  (assign continue (label after-call20))
+  (assign val (op compiled-procedure-entry) (reg proc))
+  (goto (reg val))
+  primitive-branch22
+  (assign val
+	  (op apply-primitive-procedure)
+	  (reg proc)
+	  (reg argl))
+  after-call20
+  (assign argl (op list) (reg val))
+  (restore env)
+  (assign val
+	  (op lookup-variable-value)
+	  (const x) ; (+ x (g (+ x 2)))
+	  (reg env))
+  (assign argl (op cons) (reg val) (reg argl))
+  (restore proc)
+  (restore continue)
+  (test (op primitive-procedure?) (reg proc))
+  (branch (label primitive-branch25))
+  compiled-branch24
+  (assign val
+	  (op compiled-procedure-entry)
+	  (reg proc))
+  (goto (reg val))
+  primitive-branch25
+  (assign val
+	  (op apply-primitive-procedure)
+	  (reg proc)
+	  (reg argl))
+  (goto (reg continue))
+  after-call23
+  after-lambda15
+  (perform (op define-variable!)
+	   (const f) ;the name of the function
+	   (reg val)
+	   (reg env))
+  (assign val (const ok))
+#+end_src
+
+The key to solving this exercise is to understand that the compiler
+compiles code the following way: first, the operator, then the
+operands, right-to-left. Everything we have here is a tree of nested
+sexps, therefore every time we see a ~proc~ register assigned, this
+means an opening parenthesis, and then we fill the argument list right
+to left. 
+
+#+begin_src scheme :exports code
+(define (f x)
+ (+ x (g (+ x 2))))
+#+end_src
+
+**** TODO Exercise 5.36 Order of evaluation
+
+The previous exercise shows that this compiler provides the
+right-to-left order of evaluation. Let's change it to be
+left-to-right.
+
+
 
 **** TODO Exercise 5.37
-
 **** TODO Exercise 5.38
 
 **** TODO Exercise 5.39
-
 **** TODO Exercise 5.40
-
 **** TODO Exercise 5.41
-
 **** TODO Exercise 5.42
-
 **** TODO Exercise 5.43
-
 **** TODO Exercise 5.44
 
 **** TODO Exercise 5.45
-
 **** TODO Exercise 5.46
-
 **** TODO Exercise 5.47
-
 **** TODO Exercise 5.48
-
 **** TODO Exercise 5.49
-
 **** TODO Exercise 5.50
-
 **** TODO Exercise 5.51
-
 **** TODO Exercise 5.52
 
 * Footnotes
