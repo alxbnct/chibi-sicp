@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-06 20:58:09 lockywolf>
+# Time-stamp: <2020-03-07 20:59:02 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [366/404]
+* SICP [370/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -3014,13 +3014,9 @@ we know that *n* is enough, and I am lazy.
     <<square>>
     <<iterative-improve>>
     (define (fixpoint f)
-      (let (
-	    (fixpoint-improver
-	     (iterative-improve
-	      (lambda (y) (< (abs (- (f y) y )) 0.01))
-	      (lambda (y) (/ (+ y (f y)) 2)))
-	     )
-	    )
+      (let ((fixpoint-improver (iterative-improve
+	                          (lambda (y) (< (abs (- (f y) y )) 0.01))
+	                          (lambda (y) (/ (+ y (f y)) 2)))))
 	(fixpoint-improver 1.0)))
     (fixpoint (lambda (x) (+ 1 (/ 1 x))))
 #+end_src
@@ -45723,7 +45719,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [38/54]
+** TODO Chapter 5: Computing with Register Machines [42/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -52521,7 +52517,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [6/22]
+*** 5.5 Compilation [10/22]
 **** Common code
 
 #+name: c-compile
@@ -52551,8 +52547,7 @@ primitive procedures.
 
 #+name: c-make-instruction-sequence-empty-instruction-sequence
 #+begin_src scheme :exports code
-  (define (make-instruction-sequence
-      needs modifies statements)
+  (define (make-instruction-sequence needs modifies statements)
     (list needs modifies statements))
 (define (empty-instruction-sequence)
     (make-instruction-sequence '() '() '()))
@@ -54354,7 +54349,8 @@ order, well, because it amounts to just once reversing the list. Hence
 the efficiency of compiling left-to-right is worse by the additive
 length of the argument list.
 
-**** TODO Exercise 5.37 ~preserving~ 
+**** DONE Exercise 5.37 ~preserving~ 
+     CLOSED: [2020-03-06 Fri 21:01]
 
 The following modification always saves the registers given to it.
 (But not _all_ registers ever.)
@@ -54600,16 +54596,513 @@ The following modification always saves the registers given to it.
 104								      >	(restore continue)
 #+end_src
 
+The diff above is quite illustrative, especially in the places where a
+primitive operation is called (definitely not touching ~continue~).
+
+**** DONE Exercise 5.38 open code primitives
+     CLOSED: [2020-03-07 Sat 18:57]
+
+***** a ~spread-arguments~
+
+#+name: c-opencode-spread-arguments
+#+begin_src scheme :exports code
+  (define (spread-arguments operands-src) 
+    (when (not (= 2 (length operands-src)))
+	(error "spread-arguments: wrong number of arguments: " (length operands-src)))
+    (preserving '(env)
+        (compile (car operands-src) 'arg1 'next)
+        (preserving '(arg1)
+          (compile (cadr operands-src) 'arg2 'next)
+          (make-instruction-sequence '(arg1) '() '()))) ; dirty trick
+)
+#+end_src
+
+***** b code generators
+
+#+name: c-compile-open-code
+#+begin_src scheme :exports code
+  (define (compile-open-code-application exp target linkage)
+    (let ((primitive (operator exp))
+	  (operand-list (operands exp)))
+      (end-with-linkage linkage
+	(append-instruction-sequences
+	  (spread-arguments operand-list)
+	  (make-instruction-sequence '(arg1 arg2) (list target)
+	    `((assign ,target (op ,primitive) (reg arg1) (reg arg2))))))))
+
+  (define (open-code? exp)
+    (and (pair? exp) (symbol? (car exp)) (member (car exp) (list '+ '- '* '/))))
+
+#+end_src
+
+#+name: c-compile-with-opencode
+#+begin_src scheme :exports code
+  (define (compile exp target linkage)
+    (cond ((self-evaluating? exp)
+	   (compile-self-evaluating exp target linkage))
+	  ((quoted? exp) (compile-quoted exp target linkage))
+	  ((variable? exp)
+	   (compile-variable exp target linkage))
+	  ((assignment? exp)
+	   (compile-assignment exp target linkage))
+	  ((definition? exp)
+	   (compile-definition exp target linkage))
+	  ((if? exp) (compile-if exp target linkage))
+	  ((lambda? exp) (compile-lambda exp target linkage))
+	  ((begin? exp)
+	   (compile-sequence
+	    (begin-actions exp) target linkage))
+	  ((cond? exp)
+	   (compile (cond->if exp) target linkage))
+          ((open-code? exp)
+           (compile-open-code-application exp target linkage))
+	  ((application? exp)
+	   (compile-application exp target linkage))
+	  (else
+	   (error "Unknown expression type: COMPILE" exp))))
+#+end_src
+
+#+name: ec-eceval-operations-opencode
+#+begin_src scheme :exports code
+(list '- -)
+(list '+ +)
+(list '* *)
+(list '/ /)
+#+end_src
 
 
-**** TODO Exercise 5.38
+***** c the ~factorial~ example
 
-**** TODO Exercise 5.39
-**** TODO Exercise 5.40
-**** TODO Exercise 5.41
+#+header: :stdin c-test-compile-and-go
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go>>
+  <<c-compile-with-opencode>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-simple-expressions>>
+  <<c-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-if>>
+  <<c-compile-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lambda>>
+  <<c-compile-lambda-body>>
+  <<c-compile-application>>
+  <<c-opencode-spread-arguments>>
+  <<c-compile-open-code>>
+  <<c-construct-arglist-reversed>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<ec-eceval-operations-opencode>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+(compile-and-go
+   '(define (factorial n)
+      (if (= n 1)
+      1
+      (* (factorial (- n 1)) n))))
+#;(show #t (pretty (compile
+    '(define (factorial n)
+      (if (= n 1)
+      1
+      (* (factorial (- n 1)) n)))
+     'val
+     'next)))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(factorial 5)
+;;EC-Eval value:
+120
+
+(total-pushes = 23 maximum-depth = 10)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+Compared to the previous case, when we had ~(total-pushes = 31
+maximum-depth = 14)~, it seems that our "open code" approach is working.
+
+
+
+***** d arbitrary number of aruments for ~+~ and ~*~
+
+This is a bit of a trick, but I think it's quite schemy in nature, so
+I am fine with it.
+
+#+name: c-opencode-nested
+#+begin_src scheme :exports code
+  (define (opencode->nested exp) 
+    (if (= 3 (length exp))
+       exp
+      (list (car exp) (cadr exp) (opencode->nested (cons (car exp) (cddr exp))))))
+#+end_src
+
+#+name: c-compile-with-opencode-multiarg
+#+begin_src scheme :exports code
+  (define (compile exp target linkage)
+    (cond ((self-evaluating? exp)
+	   (compile-self-evaluating exp target linkage))
+	  ((quoted? exp) (compile-quoted exp target linkage))
+	  ((variable? exp)
+	   (compile-variable exp target linkage))
+	  ((assignment? exp)
+	   (compile-assignment exp target linkage))
+	  ((definition? exp)
+	   (compile-definition exp target linkage))
+	  ((if? exp) (compile-if exp target linkage))
+	  ((lambda? exp) (compile-lambda exp target linkage))
+	  ((begin? exp)
+	   (compile-sequence
+	    (begin-actions exp) target linkage))
+	  ((cond? exp)
+	   (compile (cond->if exp) target linkage))
+          ((open-code? exp)
+           (compile-open-code-application (opencode->nested exp) target linkage))
+	  ((application? exp)
+	   (compile-application exp target linkage))
+	  (else
+	   (error "Unknown expression type: COMPILE" exp))))
+#+end_src
+
+#+header: :stdin c-test-compile-and-go
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go>>
+  <<c-compile-with-opencode-multiarg>>
+  <<c-compile-open-code>>
+  <<c-opencode-nested>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-simple-expressions>>
+  <<c-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-if>>
+  <<c-compile-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lambda>>
+  <<c-compile-lambda-body>>
+  <<c-compile-application>>
+  <<c-opencode-spread-arguments>>
+
+  <<c-construct-arglist-reversed>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<ec-eceval-operations-opencode>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+(show #t (pretty (compile
+    '(define (factorial n)
+      (+ 1 2 3))
+     'val
+     'next)))
+
+(compile-and-go
+   '(define (factorial n)
+      (+ 1 2 3)))
+
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+((env) (val)
+       ((assign val (op make-compiled-procedure) (label entry2) (reg env))
+        (goto (label after-lambda1))
+        entry2
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env (op extend-environment) (const (n)) (reg argl) (reg env))
+        (assign arg1 (const 1))
+        (save arg1)
+        (assign arg1 (const 2))
+        (assign arg2 (const 3))
+        (assign arg2 (op +) (reg arg1) (reg arg2))
+        (restore arg1)
+        (assign val (op +) (reg arg1) (reg arg2))
+        (goto (reg continue))
+        after-lambda1
+        (perform (op define-variable!) (const factorial) (reg val) (reg env))
+        (assign val (const ok))))
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(factorial 5)
+;;EC-Eval value:
+6
+
+(total-pushes = 6 maximum-depth = 3)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+**** DONE Exercise 5.39 ~lexical-address-lookup~
+     CLOSED: [2020-03-07 Sat 20:41]
+
+#+name: c-lexical-address-lookup
+#+begin_src scheme :exports code
+(define (apply-n-times n op stuff)
+  (if (= 0 n)
+     stuff
+     (apply-n-times (- n 1) op (op stuff))))
+
+(define (lexical-address-lookup addr env)
+  (let ((candidate (car (apply-n-times (cadr addr) 
+                                       cdr 
+                                       (frame-values 
+                                          (first-frame 
+                                             (apply-n-times (car addr) enclosing-environment env)))))))
+     (if (eq? '*unassigned* candidate)
+        #;(error "there is an error") 
+        (error "Variable unassigned" 
+                 (car 
+                    (apply-n-times 
+                           (car addr) 
+                           cdr 
+                          (frame-variables 
+                            (first-frame 
+                              (apply-n-times (car addr) 
+                                             enclosing-environment env))))) addr)
+        candidate)))
+
+#+end_src
+
+#+begin_src scheme :exports code :results output
+<<c-lexical-address-lookup>>
+<<s-environments>>
+(show #t (pretty (lexical-address-lookup '(1 1) (extend-environment '(c d) 
+                                                   '(c d) 
+                                                   (extend-environment '(a b) 
+                                                                       '(a b) 
+                                                                       the-empty-environment)))) nl)
+(show #t (pretty (lexical-address-lookup '(1 1) (extend-environment '(c d) 
+                                                   '(c d) 
+                                                   (extend-environment '(a b) 
+                                                                       '(a *unassigned*) 
+                                                                       the-empty-environment)))) nl)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+b
+
+
+Output (exception): {Exception #19 user "Variable unassigned" (b (1 1)) #f #f} 
+Stack trace:
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1206 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from error on line 100 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 26
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
+#+end_example
+
+Seems to be working.
+
+**** TODO Exercise 5.40 maintaining a compile-time environment
+
+So basically, I have to add one more argument to ~compile~, and to
+every ~compile-*~, and ~compile-lambda~ should use
+~extend-environment~. 
+
+**** DONE Exercise 5.41 ~find-variable~
+     CLOSED: [2020-03-07 Sat 19:37]
+
+#+name: c-lexical-find-variable
+#+begin_src scheme :exports code :results output
+(define (find-variable var env)
+  (define (iter-vars frame candidate)
+    (if (null? frame)
+      #f
+      (if (eq? (car frame) var)
+         candidate
+         (iter-vars (cdr frame) (+ 1 candidate)))))
+  (define (iter-frames env candidate)
+     (if (null? env)
+       'not-found
+       (let ((candidate-var (iter-vars (first-frame env) 0)))
+        (if candidate-var
+             (list candidate candidate-var)
+             (iter-frames (enclosing-environment env) (+ 1 candidate))))))
+ (iter-frames env 0))
+#+end_src
+
+#+begin_src scheme :exports both :results output
+<<s-environments>>
+<<c-lexical-find-variable>>
+(show #t (displayed (find-variable 'c '((y z) (a b c d e) (x y)))) nl)
+(show #t (displayed (find-variable 'x '((y z) (a b c d e) (x y)))) nl)
+(show #t (displayed (find-variable 'w '((y z) (a b c d e) (x y)))) nl)
+#+end_src
+
+#+RESULTS:
+: (1 2)
+: (2 0)
+: not-found
+
+Seems to be working.
+
 **** TODO Exercise 5.42
 **** TODO Exercise 5.43
 **** TODO Exercise 5.44
+
 
 **** TODO Exercise 5.45
 **** TODO Exercise 5.46
