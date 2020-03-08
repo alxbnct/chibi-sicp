@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-07 20:59:02 lockywolf>
+# Time-stamp: <2020-03-08 21:29:43 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [370/404]
+* SICP [374/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -4313,7 +4313,8 @@ every subset of the enlarged set *S+a*.
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
-	    (accumulate op (op initial (car sequence)) (cdr sequence))))
+	(op (car sequence)
+	    (accumulate op initial (cdr sequence)))))
 #+end_src
 
 #+name: enumerate-interval
@@ -4336,19 +4337,27 @@ every subset of the enlarged set *S+a*.
 #+name: map-append-length
 #+begin_src scheme :exports both :results value 
   (define (map p sequence)
-    (accumulate (lambda (x y) (x y)) '() sequence))
+    (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
   (define (append seq1 seq2)
     (accumulate cons seq2 seq1))
   (define (length sequence)
-    (accumulate (lambda (x y) (+ 1 y))))
+    (accumulate (lambda (x y) (+ 1 x)) 0 sequence))
 #+end_src
 
-#+begin_src scheme :exports both :results value
- (length (make-list 100 99))
+#+begin_src scheme :exports both :results value :results output
+<<accumulate>>
+<<map-append-length>>
+
+(show #t  (pretty (length (make-list 100 99)))
+ (pretty (append '(1 2 3 4) '(5 6 7 8))))
+(display (map (lambda (x) x) '(1 2 3 4)))
 #+end_src
 
 #+RESULTS:
 : 100
+: (1 2 3 4 5 6 7 8)
+: (1 2 3 4)
+
 
 *** DONE Exercise 2.34 horners-rule
     CLOSED: [2019-09-12 Thu 00:01]
@@ -25226,6 +25235,7 @@ This took me about 8 working hours to figure out.
 
           (define (rest-operands ops) (cdr ops))
 #+end_src
+
 #+name: s-cond     
 #+begin_src scheme :exports both :results value
 
@@ -26300,7 +26310,7 @@ let test3
 
 I assume that plain ~let~ is already implemented in Exercise 4.6.
 
-#+name: s-let-star
+#+name: s-let-star-implementation
 #+begin_src scheme :exports both :results output
 
   (define (let-bindings-first b)
@@ -26319,10 +26329,20 @@ I assume that plain ~let~ is already implemented in Exercise 4.6.
 		    (let*-unfold (let-bindings-rest blist) body)))))
     (car (let*-unfold (let-bindings exp) (let-contents exp)))
   )
-
-  (put 'eval 'let* (lambda (exp env) (eval (let*->nested-lets exp) env)))
-
 #+end_src
+
+#+name: s-let-star-installation
+#+begin_src scheme :exports both :results output
+  (put 'eval 'let* (lambda (exp env) (eval (let*->nested-lets exp) env)))
+#+end_src
+
+#+name: s-let-star
+#+begin_src scheme :exports both :results output
+<<s-let-star-implementation>>
+<<s-let-star-installation>>
+#+end_src
+
+
 
 #+name: s-input-test-let-star
 #+begin_quote
@@ -45719,7 +45739,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [42/54]
+** TODO Chapter 5: Computing with Register Machines [46/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -52517,7 +52537,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [10/22]
+*** 5.5 Compilation [14/22]
 **** Common code
 
 #+name: c-compile
@@ -54990,29 +55010,40 @@ ok
 
 #+name: c-lexical-address-lookup
 #+begin_src scheme :exports code
-(define (apply-n-times n op stuff)
-  (if (= 0 n)
-     stuff
-     (apply-n-times (- n 1) op (op stuff))))
+  (define (apply-n-times n op stuff)
+    (if (= 0 n)
+       stuff
+       (apply-n-times (- n 1) op (op stuff))))
 
-(define (lexical-address-lookup addr env)
-  (let ((candidate (car (apply-n-times (cadr addr) 
-                                       cdr 
-                                       (frame-values 
-                                          (first-frame 
-                                             (apply-n-times (car addr) enclosing-environment env)))))))
-     (if (eq? '*unassigned* candidate)
-        #;(error "there is an error") 
-        (error "Variable unassigned" 
-                 (car 
-                    (apply-n-times 
-                           (car addr) 
-                           cdr 
-                          (frame-variables 
-                            (first-frame 
-                              (apply-n-times (car addr) 
-                                             enclosing-environment env))))) addr)
-        candidate)))
+  (define (lexical-f-c addr env)
+    #;(show #t "debug:lexical-f-c:env=" (pretty env))
+       (apply-n-times (cadr addr) 
+		  cdr 
+		  (frame-values 
+		  (first-frame 
+		    (apply-n-times 
+			  (car addr)
+			   enclosing-environment
+			    env)))))
+
+  (define (lexical-address-lookup addr env)
+    (let ((candidate (car (lexical-f-c addr env))))
+       (if (eq? '*unassigned* candidate)
+	  #;(error "there is an error") 
+	  (error "Variable unassigned" 
+		   (car 
+		      (apply-n-times 
+			     (car addr) 
+			     cdr 
+			    (frame-variables 
+			      (first-frame 
+				(apply-n-times (car addr) 
+					       enclosing-environment env))))) addr)
+	  candidate)))
+  (define (lexical-address-set! addr val env) 
+    #;(show #t "lexical-address-set!" (pretty addr) (pretty env) (pretty val))
+    (let ((candidate (lexical-f-c addr env)))
+      (set-car! candidate val)))
 
 #+end_src
 
@@ -55023,44 +55054,458 @@ ok
                                                    '(c d) 
                                                    (extend-environment '(a b) 
                                                                        '(a b) 
-                                                                       the-empty-environment)))) nl)
-(show #t (pretty (lexical-address-lookup '(1 1) (extend-environment '(c d) 
-                                                   '(c d) 
-                                                   (extend-environment '(a b) 
-                                                                       '(a *unassigned*) 
-                                                                       the-empty-environment)))) nl)
+                                                                       the-empty-environment)))))
+(define test-env (extend-environment '(c d) 
+                                  '(c d) 
+                                  (extend-environment '(a b)
+                                                      (list 'a '*unassigned*) 
+                                                      the-empty-environment)))
+(lexical-address-set! '(1 1)  'test-value test-env)
+(show #t (pretty test-env))
+(call/cc 
+(lambda (c) (with-exception-handler 
+(lambda (e) (show #t "Expected error:" (pretty e)) (c))
+(lambda () (lexical-address-lookup '(1 1) 
+                        (extend-environment '(c d) 
+                                            '(c d) 
+                                             (extend-environment
+                                                 '(a b)
+                                                 '(a *unassigned*) 
+                                                 the-empty-environment)))))))
+
+#+end_src
+
+#+RESULTS:
+: b
+: lexical-address-set!(1 1)
+: (((c d) c d) ((a b) a *unassigned*))
+: test-value
+: (((c d) c d) ((a b) a test-value))
+: Expected error:{Exception #19 user "Variable unassigned" (b (1 1)) #f #f}
+
+Seems to be working.
+
+**** DONE Exercise 5.40 maintaining a compile-time environment
+     CLOSED: [2020-03-08 Sun 15:02]
+
+#+name: c-compile-lexical
+#+begin_src scheme :exports code
+  (define (compile exp target linkage compile-env)
+    (cond ((self-evaluating? exp)
+	   (compile-self-evaluating exp target linkage))
+	  ((quoted? exp) (compile-quoted exp target linkage))
+	  ((variable? exp)
+	   (compile-variable exp target linkage compile-env))
+	  ((assignment? exp)
+	   (compile-assignment exp target linkage compile-env))
+	  ((definition? exp)
+	   (compile-definition exp target linkage compile-env))
+	  ((if? exp) 
+           (compile-if exp target linkage compile-env))
+	  ((lambda? exp) 
+           (compile-lambda exp target linkage compile-env))
+	  ((begin? exp)
+	   (compile-sequence (begin-actions exp) target linkage compile-env))
+	  ((cond? exp)
+	   (compile (cond->if exp) target linkage compile-env))
+	  ((application? exp)
+	   (compile-application exp target linkage compile-env))
+	  (else
+	   (error "Unknown expression type: COMPILE" exp))))
+#+end_src
+
+#+name: c-compile-lexical-simple-expressions
+#+begin_src scheme :exports code
+  (define (compile-self-evaluating exp target linkage)
+    (end-with-linkage linkage
+		      (make-instruction-sequence '() (list target)
+						 `((assign ,target (const ,exp))))))
+  (define (compile-quoted exp target linkage)
+    (end-with-linkage linkage
+		      (make-instruction-sequence '() (list target)
+						 `((assign ,target (const ,(text-of-quotation exp)))))))
+#+end_src
+
+#+name: c-compile-lexical-definition
+#+begin_src scheme
+(define (compile-definition exp target linkage compile-env)
+    (let ((var (definition-variable exp))
+	  (get-value-code
+	   (compile (definition-value exp) 'val 'next compile-env)))
+      (end-with-linkage linkage
+			(preserving '(env)
+				    get-value-code
+				    (make-instruction-sequence '(env val) (list target)
+							       `((perform (op define-variable!)
+									  (const ,var)
+									  (reg val)
+									  (reg env))
+								 (assign ,target (const ok))))))))
+#+end_src
+
+#+name: c-compile-lexical-if
+#+begin_src scheme :exports code
+  (define (compile-if exp target linkage compile-env)
+    (let ((t-branch (make-label 'true-branch))
+	  (f-branch (make-label 'false-branch))
+	  (after-if (make-label 'after-if)))
+      (let ((consequent-linkage
+	     (if (eq? linkage 'next) after-if linkage)))
+	(let ((p-code (compile (if-predicate exp) 'val 'next compile-env))
+	      (c-code (compile (if-consequent exp) target consequent-linkage compile-env))
+	      (a-code
+	       (compile (if-alternative exp) target linkage compile-env)))
+	  (preserving '(env continue)
+		      p-code
+		      (append-instruction-sequences
+		       (make-instruction-sequence '(val) '()
+						  `((test (op false?) (reg val))
+						    (branch (label ,f-branch))))
+		       (parallel-instruction-sequences
+			(append-instruction-sequences t-branch c-code)
+			(append-instruction-sequences f-branch a-code))
+		       after-if))))))
+#+end_src
+
+#+name: c-compile-lexical-sequence
+#+begin_src scheme :exports code
+  (define (compile-sequence seq target linkage compile-env1)
+    #;(show #t "debug:compile-sequence:" "seq=" (pretty seq) "last-exp?=" (pretty (last-exp? seq)))
+    (if (last-exp? seq)
+	(compile (first-exp seq) target linkage compile-env1)
+	(preserving
+	 '(env continue)
+	 (compile (first-exp seq) target 'next compile-env1)
+	 (compile-sequence (rest-exps seq) target linkage compile-env1))))
+#+end_src
+
+#+name: c-compile-lexical-lambda
+#+begin_src scheme :exports code
+  (define (compile-lambda exp target linkage compile-env)
+    (let ((proc-entry (make-label 'entry))
+	  (after-lambda (make-label 'after-lambda)))
+      (let ((lambda-linkage
+	     (if (eq? linkage 'next) after-lambda linkage)))
+	(append-instruction-sequences
+	 (tack-on-instruction-sequence
+	  (end-with-linkage lambda-linkage
+			    (make-instruction-sequence '(env) (list target)
+						       `((assign ,target
+								 (op make-compiled-procedure)
+								 (label ,proc-entry)
+								 (reg env)))))
+	  (compile-lambda-body exp proc-entry compile-env))
+	 after-lambda))))
+#+end_src
+
+#+name: c-compile-lexical-lambda-body
+#+begin_src scheme :exports code
+  (define (compile-lambda-body exp proc-entry compile-env)
+    (let ((formals (lambda-parameters exp)))
+      (append-instruction-sequences
+       (make-instruction-sequence '(env proc argl) '(env)
+				  `(,proc-entry
+				    (assign env
+					    (op compiled-procedure-env)
+					    (reg proc))
+				    (assign env
+					    (op extend-environment)
+					    (const ,formals)
+					    (reg argl)
+					    (reg env))))
+       (compile-sequence (lambda-body exp) 'val 'return (cons formals compile-env))))) ; The only place where we extend a compile-time environment
+#+end_src
+
+#+name: c-compile-lexical-application
+#+begin_src scheme :exports code
+  (define (compile-application exp target linkage compile-env)
+    (let ((proc-code (compile (operator exp) 'proc 'next compile-env))
+	  (operand-codes
+	   (map (lambda
+		    (operand) (compile operand 'val 'next compile-env))
+		(operands exp))))
+      (preserving '(env continue)
+		  proc-code
+		  (preserving '(proc continue)
+			      (construct-arglist operand-codes)
+			      (compile-procedure-call target linkage)))))
+#+end_src
+
+#+name: c-compile-and-go-lexical
+#+begin_src scheme :exports code
+  (define (compile-and-go expression)
+    (let ((instructions
+	   (assemble
+	    (statements
+	     (compile expression 'val 'return the-global-environment))
+	    eceval)))
+      (set! the-global-environment (setup-environment))
+      (set-register-contents! eceval 'val instructions)
+      (set-register-contents! eceval 'flag true)
+      (start eceval)))
+#+end_src
+
+
+Now we need to test these many changes. The result should generate the
+code using ~lexical-address-lookup~.
+
+#+name: c-lexical-controller-ops
+#+begin_src scheme :exports code
+(list 'lexical-address-lookup lexical-address-lookup)
+(list 'lexical-address-set! lexical-address-set!)
+(list 'find-variable find-variable)
+#+end_src
+
+#+name: c-test-lexical
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (my-fun 1 2 3 4 5)
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-lexical
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-let-implementation>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+(show #t (pretty (compile 
+      '((lambda (x y)
+           (lambda (a b c d e)
+               ((lambda (y z) 
+                   (* x y z)) (* a b x) (+ c d x)))) 3 4) 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(define my-fun ((lambda (x y)
+                         (lambda (a b c d e)
+                         ((lambda (y z) 
+                            (* x y z)) (* a b x) (+ c d x)))) 3 4)))
 #+end_src
 
 #+RESULTS:
 #+begin_example
-b
+((env) (env proc argl continue val)
+       ((assign proc (op make-compiled-procedure) (label entry2) (reg env))
+        (goto (label after-lambda1))
+        entry2
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (x y))
+                (reg argl)
+                (reg env))
+        (assign val (op make-compiled-procedure) (label entry4) (reg env))
+        (goto (reg continue))
+        entry4
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (a b c d e))
+                (reg argl)
+                (reg env))
+        (assign proc (op make-compiled-procedure) (label entry12) (reg env))
+        (goto (label after-lambda11))
+        entry12
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (y z))
+                (reg argl)
+                (reg env))
+        (assign proc (op lookup-variable-value) (const *) (reg env))
+        (assign val (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign argl (op list) (reg val))
+        (assign val (op lexical-address-lookup) (const (0 0)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (2 0)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch15))
+        compiled-branch14
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch15
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call13
+        after-lambda11
+        (save continue)
+        (save proc)
+        (save env)
+        (assign proc (op lookup-variable-value) (const +) (reg env))
+        (assign val (op lexical-address-lookup) (const (1 0)) (reg env))
+        (assign argl (op list) (reg val))
+        (assign val (op lexical-address-lookup) (const (0 3)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (0 2)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch10))
+        compiled-branch9
+        (assign continue (label after-call8))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch10
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call8
+        (assign argl (op list) (reg val))
+        (restore env)
+        (save argl)
+        (assign proc (op lookup-variable-value) (const *) (reg env))
+        (assign val (op lexical-address-lookup) (const (1 0)) (reg env))
+        (assign argl (op list) (reg val))
+        (assign val (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (0 0)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch7))
+        compiled-branch6
+        (assign continue (label after-call5))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch7
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call5
+        (restore argl)
+        (assign argl (op cons) (reg val) (reg argl))
+        (restore proc)
+        (restore continue)
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch18))
+        compiled-branch17
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch18
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call16
+        after-lambda3
+        after-lambda1
+        (assign val (const 4))
+        (assign argl (op list) (reg val))
+        (assign val (const 3))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch21))
+        compiled-branch20
+        (assign continue (label after-call19))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch21
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call19))
 
+;;EC-Eval value:
+ok
 
-Output (exception): {Exception #19 user "Variable unassigned" (b (1 1)) #f #f} 
-Stack trace:
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 1206 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-  called from error on line 100 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 26
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
-  called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
+(total-pushes = 2 maximum-depth = 2)
+;;EC-Eval input:
+(my-fun 1 2 3 4 5)
+;;EC-Eval value:
+180
+
+(total-pushes = 21 maximum-depth = 5)
+;;EC-Eval input:
+(exit)
 #+end_example
 
-Seems to be working.
-
-**** TODO Exercise 5.40 maintaining a compile-time environment
-
-So basically, I have to add one more argument to ~compile~, and to
-every ~compile-*~, and ~compile-lambda~ should use
-~extend-environment~. 
+I am at total loss of words, but it seems to be working. Lexical
+addresses are remembered, and variables are looked up successfully.
 
 **** DONE Exercise 5.41 ~find-variable~
      CLOSED: [2020-03-07 Sat 19:37]
@@ -55074,13 +55519,13 @@ every ~compile-*~, and ~compile-lambda~ should use
       (if (eq? (car frame) var)
          candidate
          (iter-vars (cdr frame) (+ 1 candidate)))))
-  (define (iter-frames env candidate)
-     (if (null? env)
+  (define (iter-frames test-env candidate)
+     (if (null? test-env)
        'not-found
-       (let ((candidate-var (iter-vars (first-frame env) 0)))
+       (let ((candidate-var (iter-vars (first-frame test-env) 0)))
         (if candidate-var
              (list candidate candidate-var)
-             (iter-frames (enclosing-environment env) (+ 1 candidate))))))
+             (iter-frames (enclosing-environment test-env) (+ 1 candidate))))))
  (iter-frames env 0))
 #+end_src
 
@@ -55099,10 +55544,495 @@ every ~compile-*~, and ~compile-lambda~ should use
 
 Seems to be working.
 
-**** TODO Exercise 5.42
-**** TODO Exercise 5.43
-**** TODO Exercise 5.44
+**** DONE Exercise 5.42 Rewrite ~compile-variable~ and ~compile-assignment~
+     CLOSED: [2020-03-08 Sun 12:59]
 
+#+name: c-lexical-compile-variable-compile-assignment
+#+begin_src scheme
+  (define (compile-variable exp target linkage compile-env)
+    (end-with-linkage linkage
+		      (make-instruction-sequence '(env) (list target)
+						 (let ((addr (find-variable exp compile-env)))
+                                                    (if (not (eq? addr 'not-found))
+                                                      `((assign ,target 
+                                                           (op lexical-address-lookup)
+                                                           (const ,addr) 
+                                                           (reg env)))
+                                                      `((assign ,target
+							   (op lookup-variable-value)
+							   (const ,exp)
+							   (reg env))))))))
+  (define (compile-assignment exp target linkage compile-env)
+    (let ((var (assignment-variable exp))
+	  (get-value-code
+	   (compile (assignment-value exp) 'val 'next compile-env)))
+      (end-with-linkage linkage
+			(preserving '(env)
+				    get-value-code
+				    (make-instruction-sequence '(env val) (list target)
+							       (if (not (eq? compile-env the-global-environment))
+                                                                 (let ((addr (find-variable var compile-env)))
+                                                                  `((perform (op lexical-address-set!)
+                                                                             (const ,addr)
+                                                                             (reg val)
+                                                                             (reg env))
+                                                                    (assign ,target (const ok))))
+                                                                 `((perform (op set-variable-value!)
+									  (const ,var)
+									  (reg val)
+									  (reg env))
+								   (assign ,target (const ok)))))))))
+#+end_src
+
+I didn't manage to make simple illustrative tests for this method, but
+these functions are indirectly tested by Exercise 5.40.
+
+**** DONE Exercise 5.43 Scanning out defines
+     CLOSED: [2020-03-08 Sun 21:00]
+
+Lambda makes procedures, right? Can we just scan-out defines from an
+~exp~ inside the ~compile-lambda-body~?
+
+This exercise took me way more than it deserves.
+
+#+name: c-compile-lexical-lambda-body-nodefines
+#+begin_src scheme :exports code
+  (define (is-define? l)
+    (and (list? l) (not (null? l)) (eq? (car l) 'define)))
+  (define (no-out-of-order-defines? body non-define-found)
+    (cond ((null? body) #t)
+	  ((not (list? body)) #t)
+	  ((and non-define-found (is-define? (car body))) #f)
+	  (else (no-out-of-order-defines? (cdr body) 
+					  (or non-define-found (not (is-define? (car body))))))))
+
+  (define (body-defines body)
+    (filter (lambda (x) (not (null? x))) (map (lambda (sexp) 
+               (if (is-define? sexp)
+                  sexp
+                  '())) body)))
+
+  (define (body-operations body)
+    (filter (lambda (x) (not (null? x))) (map (lambda (sexp) 
+               (if (not (is-define? sexp))
+                  sexp
+                  '())) body)))
+  (define (scan-out-defines body) 
+    #;(show #t "debug:scan-out-defines:" (pretty body))
+    (if (not (no-out-of-order-defines? body #f)) 
+	(error "define is only allowed at the beginning of a block" body))
+    (let ((defines (body-defines body))
+          (operations (body-operations body)))
+      (if (null? defines)
+	  body
+	  (let ((defines-names (map definition-variable defines))
+		(defines-bodies (map definition-value defines)))
+	    (let ((let-header (map (lambda (x) (list x ''*unassigned*)) defines-names))
+		  (let-body (append 
+			     (map (lambda (x y) (list 'set! x y)) defines-names defines-bodies)
+			     operations)))
+	      (list (let->combination (make-let let-header let-body))))))))
+
+  (define (compile-lambda-body exp proc-entry compile-env)
+    (let ((formals (lambda-parameters exp)))
+      (append-instruction-sequences
+       (make-instruction-sequence '(env proc argl) '(env)
+				  `(,proc-entry
+				    (assign env
+					    (op compiled-procedure-env)
+					    (reg proc))
+				    (assign env
+					    (op extend-environment)
+					    (const ,formals)
+					    (reg argl)
+					    (reg env))))
+        ; The only place where we extend a compile-time environment
+       (compile-sequence (scan-out-defines (lambda-body exp)) 'val 'return (cons formals compile-env)))))
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results code output
+  (import (scheme small))
+  (import (scheme list))
+  (import (scheme show))
+  (define make-lambda #f)
+  <<s-syntax>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  
+  (define test '(
+                   (define (a c) c)
+	           (define (b) 5)
+	           (+ (a (b)) (b))))
+  #;(show #t (pretty (body-defines test)))
+  #;(show #t (pretty (body-operations test)))
+  (show #t (pretty (scan-out-defines 
+    test)))
+  #;(display (scan-out-defines test))
+#+end_src
+
+#+RESULTS:
+#+begin_src shell
+WARNING: reference to undefined variable: compile-sequence
+WARNING: reference to undefined variable: make-instruction-sequence
+WARNING: reference to undefined variable: append-instruction-sequences
+debug:scan-out-defines:((define (a c) c) (define (b) 5) (+ (a (b)) (b)))
+(((lambda (a b)
+    (set! a (lambda (c) c))
+    (set! b (lambda () 5))
+    (+ (a (b)) (b))) '*unassigned*
+                     '*unassigned*))
+#+end_src
+
+#+name: c-test-lexical-scanning-out-defines
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (my-fun)
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-lexical-scanning-out-defines
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      '(define (my-fun) 
+           (define (a c) c)
+	   (define (b) 5)
+	   (+ (a (b)) (b))) 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(define (my-fun) (define (a c) c)
+	             (define (b) 5)
+	              (+ (a (b)) (b))))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(my-fun)
+;;EC-Eval value:
+10
+
+(total-pushes = 8 maximum-depth = 4)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+**** DONE Exercise 5.44 open code with compile-time environment
+     CLOSED: [2020-03-08 Sun 21:29]
+
+#+name: c-compile-lexical-open-code
+#+begin_src scheme :exports code
+  (define (spread-arguments operands-src compile-env) 
+    (when (not (= 2 (length operands-src)))
+	(error "spread-arguments: wrong number of arguments: " (length operands-src)))
+    (preserving '(env)
+        (compile (car operands-src) 'arg1 'next compile-env)
+        (preserving '(arg1)
+          (compile (cadr operands-src) 'arg2 'next compile-env)
+          (make-instruction-sequence '(arg1) '() '()))))
+
+  (define (compile-open-code-application exp target linkage compile-env)
+    (let ((primitive (operator exp))
+	  (operand-list (operands exp)))
+      (end-with-linkage linkage
+	(append-instruction-sequences
+	  (spread-arguments operand-list compile-env)
+	  (make-instruction-sequence '(arg1 arg2) (list target)
+	    `((assign ,target (op ,primitive) (reg arg1) (reg arg2))))))))
+
+  (define (open-code? exp)
+    (and (pair? exp) (symbol? (car exp)) (member (car exp) (list '+ '- '* '/))))
+
+#+end_src
+
+#+name: c-compile-lexical-with-open-code
+#+begin_src scheme :exports code
+  (define (compile exp target linkage compile-env)
+    (cond ((self-evaluating? exp)
+	   (compile-self-evaluating exp target linkage))
+	  ((quoted? exp) (compile-quoted exp target linkage))
+	  ((variable? exp)
+	   (compile-variable exp target linkage compile-env))
+	  ((assignment? exp)
+	   (compile-assignment exp target linkage compile-env))
+	  ((definition? exp)
+	   (compile-definition exp target linkage compile-env))
+	  ((if? exp) 
+           (compile-if exp target linkage compile-env))
+	  ((lambda? exp) 
+           (compile-lambda exp target linkage compile-env))
+	  ((begin? exp)
+	   (compile-sequence (begin-actions exp) target linkage compile-env))
+	  ((cond? exp)
+	   (compile (cond->if exp) target linkage compile-env))
+          ((and (open-code? exp) (eq? 'not-found (find-variable (operator exp) compile-env)))
+           (compile-open-code-application exp target linkage compile-env))
+	  ((application? exp)
+	   (compile-application exp target linkage compile-env))
+	  (else
+	   (error "Unknown expression type: COMPILE" exp))))
+#+end_src
+
+
+#+name: c-test-lexical-opencode
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (+ 1 2) ; built-ins 
+  (test 2 3 4 5) ; non-builtins
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-lexical-opencode
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical-with-open-code>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      '(define (test s p q r)
+         (define (plus a b)
+             (+ a b))
+         (define (mul a b)
+             (* a b))
+         ((lambda (+ * a b x y)
+            (+ (* a x) (* b y))) add mul s p q r)) 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(define (test s p q r)
+         (define (plus a b)
+             (+ a b))
+         (define (mul a b)
+             (* a b))
+         ((lambda (+ * a b x y)
+            (+ (* a x) (* b y))) plus mul s p q r)))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(+ 1 2)
+;;EC-Eval value:
+3
+
+(total-pushes = 8 maximum-depth = 5)
+;;EC-Eval input:
+(test 2 3 4 5)
+;;EC-Eval value:
+23
+
+(total-pushes = 18 maximum-depth = 5)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+Seems to be working.
 
 **** TODO Exercise 5.45
 **** TODO Exercise 5.46
