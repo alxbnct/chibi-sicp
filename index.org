@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-08 21:29:43 lockywolf>
+# Time-stamp: <2020-03-09 10:34:33 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [374/404]
+* SICP [376/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -45739,7 +45739,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [46/54]
+** TODO Chapter 5: Computing with Register Machines [48/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -48329,7 +48329,8 @@ reg val has 479001600
 
 Works. Now let's rewrite the machine. 
 
-The linear function formula seems to be \(2n - 2\)
+The linear function formula seems to be \(2n - 2\) for both the number
+of pushes and stack depth.
 
 **** DONE Exercise 5.15 Instruction counting
      CLOSED: [2020-02-28 Fri 21:36]
@@ -52121,6 +52122,8 @@ Indeed \(S(n) = S(n-1) + S(n-2) + k\)
 \(b = -40 \)
 An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ratio.
 
+\( S(n) = 56\varphi^{(n + 1)} - 40 \)
+
 **** DONE Exercise 5.30 Errors
      CLOSED: [2020-03-04 Wed 11:35]
 
@@ -52537,7 +52540,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [14/22]
+*** 5.5 Compilation [16/22]
 **** Common code
 
 #+name: c-compile
@@ -55987,14 +55990,14 @@ ok
   )
 (set-register-contents! eceval 'flag false)
 
-#;(show #t (pretty (compile 
+(show #t (pretty (compile 
       '(define (test s p q r)
          (define (plus a b)
              (+ a b))
          (define (mul a b)
              (* a b))
          ((lambda (+ * a b x y)
-            (+ (* a x) (* b y))) add mul s p q r)) 
+            (+ (* a x) (* b y))) plus mul s p q r)) 
       'val
       'next
       the-global-environment)) nl)
@@ -56012,6 +56015,154 @@ ok
 
 #+RESULTS:
 #+begin_example
+((env) (val)
+       ((assign val (op make-compiled-procedure) (label entry2) (reg env))
+        (goto (label after-lambda1))
+        entry2
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (s p q r))
+                (reg argl)
+                (reg env))
+        (assign proc (op make-compiled-procedure) (label entry4) (reg env))
+        (goto (label after-lambda3))
+        entry4
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (plus mul))
+                (reg argl)
+                (reg env))
+        (assign val (op make-compiled-procedure) (label entry22) (reg env))
+        (goto (label after-lambda21))
+        entry22
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (a b))
+                (reg argl)
+                (reg env))
+        (assign arg1 (op lexical-address-lookup) (const (0 0)) (reg env))
+        (assign arg2 (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign val (op +) (reg arg1) (reg arg2))
+        (goto (reg continue))
+        after-lambda21
+        (perform (op lexical-address-set!) (const (0 0)) (reg val) (reg env))
+        (assign val (const ok))
+        (assign val (op make-compiled-procedure) (label entry20) (reg env))
+        (goto (label after-lambda19))
+        entry20
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (a b))
+                (reg argl)
+                (reg env))
+        (assign arg1 (op lexical-address-lookup) (const (0 0)) (reg env))
+        (assign arg2 (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign val (op *) (reg arg1) (reg arg2))
+        (goto (reg continue))
+        after-lambda19
+        (perform (op lexical-address-set!) (const (0 1)) (reg val) (reg env))
+        (assign val (const ok))
+        (assign proc (op make-compiled-procedure) (label entry6) (reg env))
+        (goto (label after-lambda5))
+        entry6
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env
+                (op extend-environment)
+                (const (+ * a b x y))
+                (reg argl)
+                (reg env))
+        (assign proc (op lexical-address-lookup) (const (0 0)) (reg env))
+        (save continue)
+        (save proc)
+        (save env)
+        (assign proc (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign val (op lexical-address-lookup) (const (0 5)) (reg env))
+        (assign argl (op list) (reg val))
+        (assign val (op lexical-address-lookup) (const (0 3)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch12))
+        compiled-branch11
+        (assign continue (label after-call10))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch12
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call10
+        (assign argl (op list) (reg val))
+        (restore env)
+        (save argl)
+        (assign proc (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign val (op lexical-address-lookup) (const (0 4)) (reg env))
+        (assign argl (op list) (reg val))
+        (assign val (op lexical-address-lookup) (const (0 2)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch9))
+        compiled-branch8
+        (assign continue (label after-call7))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch9
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call7
+        (restore argl)
+        (assign argl (op cons) (reg val) (reg argl))
+        (restore proc)
+        (restore continue)
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch15))
+        compiled-branch14
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch15
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call13
+        after-lambda5
+        (assign val (op lexical-address-lookup) (const (1 3)) (reg env))
+        (assign argl (op list) (reg val))
+        (assign val (op lexical-address-lookup) (const (1 2)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (1 1)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (1 0)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (0 1)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (assign val (op lexical-address-lookup) (const (0 0)) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch18))
+        compiled-branch17
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch18
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call16
+        after-lambda3
+        (assign val (const *unassigned*))
+        (assign argl (op list) (reg val))
+        (assign val (const *unassigned*))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch25))
+        compiled-branch24
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch25
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call23
+        after-lambda1
+        (perform (op define-variable!) (const test) (reg val) (reg env))
+        (assign val (const ok))))
+
 ;;EC-Eval value:
 ok
 
@@ -56034,9 +56185,447 @@ ok
 
 Seems to be working.
 
-**** TODO Exercise 5.45
-**** TODO Exercise 5.46
-**** TODO Exercise 5.47
+**** DONE Exercise 5.45 stack usage analysis for a ~factorial~
+     CLOSED: [2020-03-09 Mon 10:09]
+
+#+name: c-test-factorial-compiler
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (compiled-factorial 6)
+  (compiled-factorial 7)
+  (compiled-factorial 8)
+  (compiled-factorial 9)
+  (define (interpreted-factorial n)
+       (if (= n 1) 1 (* (interpreted-factorial (- n 1)) n)))
+  (interpreted-factorial 6)
+  (interpreted-factorial 7)
+  (interpreted-factorial 8)
+  (interpreted-factorial 9)
+  
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-factorial-compiler
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical-with-open-code>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      'placeholder 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(define (compiled-factorial n)
+       (if (= n 1) 1 (* (compiled-factorial (- n 1)) n))))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(compiled-factorial 6)
+;;EC-Eval value:
+720
+
+(total-pushes = 27 maximum-depth = 12)
+;;EC-Eval input:
+(compiled-factorial 7)
+;;EC-Eval value:
+5040
+
+(total-pushes = 31 maximum-depth = 14)
+;;EC-Eval input:
+(compiled-factorial 8)
+;;EC-Eval value:
+40320
+
+(total-pushes = 35 maximum-depth = 16)
+;;EC-Eval input:
+(compiled-factorial 9)
+;;EC-Eval value:
+362880
+
+(total-pushes = 39 maximum-depth = 18)
+;;EC-Eval input:
+(define (interpreted-factorial n)
+  (if (= n 1) 1 (* (interpreted-factorial (- n 1)) n)))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(interpreted-factorial 6)
+;;EC-Eval value:
+720
+
+(total-pushes = 176 maximum-depth = 33)
+;;EC-Eval input:
+(interpreted-factorial 7)
+;;EC-Eval value:
+5040
+
+(total-pushes = 208 maximum-depth = 38)
+;;EC-Eval input:
+(interpreted-factorial 8)
+;;EC-Eval value:
+40320
+
+(total-pushes = 240 maximum-depth = 43)
+;;EC-Eval input:
+(interpreted-factorial 9)
+;;EC-Eval value:
+362880
+
+(total-pushes = 272 maximum-depth = 48)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+|                       | Maximum depth | Number of pushes |
+|-----------------------+---------------+------------------|
+| Compiled factorial    | 2n+0          | 4n+3             |
+| Interpreted factorial | 5n+3          | 32n-16           |
+| Special machine       | 2n-2          | 2n-2             |
+
+The first good thing is that the results for the interpreted factorial
+are reproducible. 
+
+The ratio of ~d~ compiled/interpreted is 2/5, and the ratio of ~p~ is 1/8.
+For the special-purpose machine, the ratio is the same for the depth,
+2/5, and the number of pushes is even smaller, 1/16. Hm... it is about
+twice better in terms of the number of pushes, and almost the same
+with respect to maximum depth when comparing hand-written assembly and
+compiled code.
+
+Scheme community wiki suggests that ~compile-procedure-appl~ loses
+operations on saving and restoring all registers, so if it is
+optimized, maybe more can be saved. Alternatively, maybe my open-code
+implementation saves and restores too much. 
+
+**** DONE Exercise 5.46 
+     CLOSED: [2020-03-09 Mon 10:34]
+
+#+name: c-test-fibonacci-compiler
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (compiled-fibonacci 6)
+  (compiled-fibonacci 7)
+  (compiled-fibonacci 8)
+  (compiled-fibonacci 9)
+  (define (interpreted-fibonacci n)
+      (if (< n 2)
+        n
+        (+ (interpreted-fibonacci (- n 1))
+           (interpreted-fibonacci (- n 2)))))
+  (interpreted-fibonacci 6)
+  (interpreted-fibonacci 7)
+  (interpreted-fibonacci 8)
+  (interpreted-fibonacci 9)
+
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-fibonacci-compiler
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical-with-open-code>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      'placeholder 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(define (compiled-fibonacci n)
+      (if (< n 2)
+        n
+        (+ (compiled-fibonacci (- n 1))
+           (compiled-fibonacci (- n 2))))))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(compiled-fibonacci 6)
+;;EC-Eval value:
+8
+
+(total-pushes = 91 maximum-depth = 12)
+;;EC-Eval input:
+(compiled-fibonacci 7)
+;;EC-Eval value:
+13
+
+(total-pushes = 147 maximum-depth = 14)
+;;EC-Eval input:
+(compiled-fibonacci 8)
+;;EC-Eval value:
+21
+
+(total-pushes = 238 maximum-depth = 16)
+;;EC-Eval input:
+(compiled-fibonacci 9)
+;;EC-Eval value:
+34
+
+(total-pushes = 385 maximum-depth = 18)
+;;EC-Eval input:
+(define (interpreted-fibonacci n)
+  (if (< n 2)
+      n
+      (+ (interpreted-fibonacci (- n 1)) (interpreted-fibonacci (- n 2)))))
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(interpreted-fibonacci 6)
+;;EC-Eval value:
+8
+
+(total-pushes = 688 maximum-depth = 33)
+;;EC-Eval input:
+(interpreted-fibonacci 7)
+;;EC-Eval value:
+13
+
+(total-pushes = 1136 maximum-depth = 38)
+;;EC-Eval input:
+(interpreted-fibonacci 8)
+;;EC-Eval value:
+21
+
+(total-pushes = 1864 maximum-depth = 43)
+;;EC-Eval input:
+(interpreted-fibonacci 9)
+;;EC-Eval value:
+34
+
+(total-pushes = 3040 maximum-depth = 48)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+With respect to stack depth, it is (again) nice to see the
+reproducibility in the interpreted case. Moreover, maximum depth is
+still linear in the compiled case and is \(2n+0\).
+
+The number of pushes used to be \(90\varphi^n - 40\), in the compiled case
+it is. 
+
+\(a\varphi^9 + b = 385\)
+\(a\varphi^8 + b = 238\)
+\(a(\varphi^9 - \varphi^8) = 147\)
+
+\(a(72 - 45) = 147 \)
+\(a \approx 147/27 \approx 5\)
+\(b\approx 13\)
+
+Therefore the compiled version is almost 18 times faster.
+
+**** TODO Exercise 5.47 
 **** TODO Exercise 5.48
 **** TODO Exercise 5.49
 **** TODO Exercise 5.50
