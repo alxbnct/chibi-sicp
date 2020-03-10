@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-09 10:34:33 lockywolf>
+# Time-stamp: <2020-03-10 12:42:51 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -83,7 +83,7 @@
 #+end_quote
 
 
-* SICP [376/404]
+* SICP [379/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -22894,7 +22894,7 @@ race condition can appear here.
 *** DONE Exercise 3.43 Multiple serializations
     CLOSED: [2020-01-02 Thu 11:33]
 
-#+name: unsafe-exchange
+#+name: unsafe-change
 #+begin_src scheme :exports both :results output
   (define (exchange account1 account2)
     (let ((difference (- (account1 'balance)
@@ -45739,7 +45739,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [48/54]
+** TODO Chapter 5: Computing with Register Machines [51/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -52540,7 +52540,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [16/22]
+*** 5.5 Compilation [19/22]
 **** Common code
 
 #+name: c-compile
@@ -56403,7 +56403,7 @@ operations on saving and restoring all registers, so if it is
 optimized, maybe more can be saved. Alternatively, maybe my open-code
 implementation saves and restores too much. 
 
-**** DONE Exercise 5.46 
+**** DONE Exercise 5.46 stack usage analysis for ~fibonacci~
      CLOSED: [2020-03-09 Mon 10:34]
 
 #+name: c-test-fibonacci-compiler
@@ -56625,9 +56625,620 @@ it is.
 
 Therefore the compiled version is almost 18 times faster.
 
-**** TODO Exercise 5.47 
-**** TODO Exercise 5.48
-**** TODO Exercise 5.49
+**** DONE Exercise 5.47 calling interpreted procedures
+     CLOSED: [2020-03-09 Mon 11:45]
+
+#+name: c-compile-procedure-call-with-interpreted
+#+begin_src scheme :exports code
+  (define (compile-procedure-call target linkage)
+    (let ((primitive-branch (make-label 'primitive-branch))
+	  (compiled-branch (make-label 'compiled-branch))
+          (interpreted-branch (make-label 'interpreted-branch))
+	  (after-call (make-label 'after-call)))
+      (let ((compiled-linkage
+	     (if (eq? linkage 'next) after-call linkage)))
+	(append-instruction-sequences
+	 (make-instruction-sequence '(proc) '()
+				    `((test (op primitive-procedure?) (reg proc))
+				      (branch (label ,primitive-branch))))
+         (make-instruction-sequence '(proc) '()
+				    `((test (op compound-procedure?) (reg proc))
+				      (branch (label ,interpreted-branch))))
+	 (parallel-instruction-sequences
+            (parallel-instruction-sequences
+	       (append-instruction-sequences
+	          compiled-branch
+	          (compile-proc-appl target compiled-linkage))
+               (append-instruction-sequences 
+                  interpreted-branch
+                  (compile-interpreted-proc-appl target compiled-linkage)))
+	       (append-instruction-sequences
+	          primitive-branch
+	          (end-with-linkage linkage
+			     (make-instruction-sequence '(proc argl)
+							(list target)
+							`((assign ,target
+								  (op apply-primitive-procedure)
+								  (reg proc)
+								  (reg argl)))))))
+	 after-call))))
+(define (compile-interpreted-proc-appl target linkage)
+    (cond ((and (eq? target 'val) (not (eq? linkage 'return)))
+	   (make-instruction-sequence '(proc) all-regs
+				      `((assign continue (label ,linkage))
+                                        (save continue) ; will be restored by a procedure
+					(goto (reg compapp)))))
+          ;; TODO
+	  ((and (not (eq? target 'val))
+		(not (eq? linkage 'return)))
+	   (let ((proc-return (make-label 'proc-return)))
+	     (make-instruction-sequence '(proc) all-regs
+					`((assign continue (label ,proc-return))
+                                          (save continue)
+					  (goto (reg compapp))
+					  ,proc-return
+					  (assign ,target (reg val))
+					  (goto (label ,linkage))))))
+	  ((and (eq? target 'val) (eq? linkage 'return))
+	   (make-instruction-sequence
+	    '(proc continue)
+	    all-regs
+	    '((save continue)
+	      (goto (reg compapp)))))
+	  ((and (not (eq? target 'val))
+		(eq? linkage 'return))
+	   (error "return linkage, target not val: COMPILE-interpreted-procedure"
+		  target))))
+#+end_src
+
+
+#+name: ec-before-repl-compound-apply-reg
+#+begin_src scheme :exports code
+(assign compapp (label compound-apply))
+#+end_src
+
+#+name: c-test-call-interpreted
+#+begin_src shell :exports code :results verbatim output
+  cat <<EOF
+  (define (g my-arg2) my-arg2)
+  (f "test")
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-call-interpreted
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical-with-open-code>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call-with-interpreted>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+      (define the-global-environment (setup-environment))
+      (define (get-global-environment) the-global-environment)
+      (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-compound-apply-reg>>
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      'placeholder 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(define (f my-arg)
+       (g my-arg)))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(define (g my-arg2) my-arg2)
+;;EC-Eval value:
+ok
+
+(total-pushes = 3 maximum-depth = 3)
+;;EC-Eval input:
+(f "test")
+;;EC-Eval value:
+"test"
+
+(total-pushes = 6 maximum-depth = 3)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+Works. It is a little bit suboptimal, because it saves all registers
+before a call, but I am too lazy to cherrypick the correct ones.
+
+**** DONE Exercise 5.48 ~compile-and-run~
+     CLOSED: [2020-03-10 Tue 12:14]
+
+This exercise is not the same as ``making compiled procedures in
+runtime'', because we need to compile and run the code in the same
+environment as the procedure that is being called. 
+
+The problem with the solution below is that it doesn't use the lexical
+addressing optimization in the compilation step. So variable lookup is slow.
+
+#+name: c-ec-compile-and-run
+#+begin_src scheme :exports code
+(define (compile-and-run? exp) (and (pair? exp) (eq? (car exp) 'compile-and-run)))
+#+end_src
+
+#+name: ec-eval-dispatch-let-cond-compile-and-run
+#+begin_src scheme :exports code
+  eval-dispatch
+  (test (op self-evaluating?) (reg exp))
+  (branch (label ev-self-eval))
+  (test (op variable?) (reg exp))
+  (branch (label ev-variable))
+  (test (op quoted?) (reg exp))
+  (branch (label ev-quoted))
+  (test (op assignment?) (reg exp))
+  (branch (label ev-assignment))
+  (test (op definition?) (reg exp))
+  (branch (label ev-definition))
+  (test (op if?) (reg exp))
+  (branch (label ev-if))
+  (test (op lambda?) (reg exp))
+  (branch (label ev-lambda))
+  (test (op begin?) (reg exp))
+  (branch (label ev-begin))
+  (test (op let?) (reg exp))
+  (branch (label ev-let))   
+  (test (op cond?) (reg exp))
+  (branch (label ev-cond))   
+  (test (op compile-and-run?) (reg exp))
+  (branch (label ev-compile-and-run))
+  (test (op application?) (reg exp))
+  (branch (label ev-application))
+  (goto (label unknown-expression-type))
+ev-let
+  (assign exp (op let->combination) (reg exp))
+  (goto (label eval-dispatch))
+ev-cond
+  (assign exp (op cond->if) (reg exp))
+  (goto (label eval-dispatch))
+ev-compile-and-run
+  (assign val (op compile-assemble) (reg exp))
+  (goto (reg val))
+#+end_src
+
+
+#+name: c-test-compile-and-run
+#+begin_src shell :exports code :results code output
+  cat <<'EOF'
+  (compile-and-run '(display "hello\n"))
+  (compile-and-run
+    '(define (factorial n)
+        (if (= n 1) 1 (* (factorial (- n 1)) n))))
+  (factorial 5)
+  (exit)
+  EOF
+#+end_src
+
+#+name: ec-eceval-operations-compile-and-run
+#+begin_src scheme :exports code
+  (list 'compile-and-run? compile-and-run?)
+  (list 'compile-assemble (lambda (exp) 
+                          (assemble 
+                            (statements 
+                               (compile
+                                   (text-of-quotation (cadr exp)) 'val 'return the-empty-environment)) eceval)))
+  (list 'compile-assemble-recl (lambda (exp) 
+                          (assemble 
+                            (statements 
+                               (compile exp 'val 'return the-empty-environment)) eceval)))
+
+#+end_src
+
+#+header: :stdin c-test-compile-and-run
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical-with-open-code>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call-with-interpreted>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+  <<c-ec-compile-and-run>>
+
+  (define the-global-environment (setup-environment))
+  (define (get-global-environment) the-global-environment)
+
+  (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+  <<ec-eceval-operations-compile-and-run>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-compound-apply-reg>>
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond-compile-and-run>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      'placeholder 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(compile-and-run '(display "hello\n"))
+hello
+;;EC-Eval value:
+#<undef>
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(compile-and-run
+ '(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n))))
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(factorial 5)
+;;EC-Eval value:
+120
+
+(total-pushes = 23 maximum-depth = 10)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+**** DONE Exercise 5.49 ~read-compile-execute-print~ loop
+     CLOSED: [2020-03-10 Tue 12:36]
+
+#+name: ec-repl-stack-monitor-with-compiler
+#+begin_src scheme :exports code
+read-eval-print-loop
+(perform (op initialize-stack))
+(perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
+(assign exp (op read))
+(perform (op user-print) (reg exp))
+(assign env (op get-global-environment))
+(assign continue (label print-result))
+;;(goto (label eval-dispatch))
+(assign val (op compile-assemble-recl) (reg exp))
+(goto (reg val))
+print-result
+(perform (op announce-output) (const ";;EC-Eval value:"))
+(perform (op user-print) (reg val))
+(perform (op print-stack-statistics))
+(goto (label read-eval-print-loop))
+#+end_src
+
+#+name: c-test-read-compile-execute-print
+#+begin_src shell :exports code :results code output
+  cat <<'EOF'
+  (display "hello\n")
+  (define (factorial n)
+        (if (= n 1) 1 (* (factorial (- n 1)) n)))
+  (factorial 5)
+  (exit)
+  EOF
+#+end_src
+
+
+#+header: :stdin c-test-read-compile-execute-print
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical>>
+  <<c-compile-lexical-with-open-code>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call-with-interpreted>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+  <<c-ec-compile-and-run>>
+
+  (define the-global-environment (setup-environment))
+  (define (get-global-environment) the-global-environment)
+
+  (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+  <<ec-eceval-operations-compile-and-run>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+  <<ec-before-repl-compound-apply-reg>>
+  <<ec-before-repl-branch-to-compile>>
+  <<ec-repl-stack-monitor-with-compiler>>
+  <<ec-errors>>
+  <<ec-ev-definition>>
+  <<ec-ev-assignment>>
+  <<ec-ev-if>>
+  <<ec-ev-if-decide>>
+  <<ec-ev-sequence>>
+  <<ec-ev-sequence-continue>>
+  <<ec-ev-begin>>
+  <<ec-compound-apply>>
+  <<ec-primitive-apply>>
+  <<ec-ev-application>>
+  <<ec-ev-appl-did-operator>>
+  <<ec-ev-appl-operand-loop>>
+  <<ec-ev-appl-accumulate-arg>>
+  <<ec-ev-appl-last-arg>>
+  <<ec-ev-appl-accum-last-arg>>
+  <<ec-apply-dispatch-with-compiled>>
+  <<ec-simple-expressions>>
+  <<ec-eval-dispatch-let-cond-compile-and-run>>
+  <<ec-external-entry>>  
+    )))
+  )
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      'placeholder 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(start eceval)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;EC-Eval input:
+(display "hello\n")
+hello
+;;EC-Eval value:
+#<undef>
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
+;;EC-Eval value:
+ok
+
+(total-pushes = 0 maximum-depth = 0)
+;;EC-Eval input:
+(factorial 5)
+;;EC-Eval value:
+120
+
+(total-pushes = 18 maximum-depth = 10)
+;;EC-Eval input:
+(exit)
+#+end_example
+
+
 **** TODO Exercise 5.50
 **** TODO Exercise 5.51
 **** TODO Exercise 5.52
