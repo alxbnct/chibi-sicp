@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-11 10:31:04 lockywolf>
+# Time-stamp: <2020-03-11 21:39:22 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -4342,14 +4342,14 @@ every subset of the enlarged set *S+a*.
   (define (append seq1 seq2)
     (accumulate cons seq2 seq1))
   (define (length sequence)
-    (accumulate (lambda (x y) (+ 1 x)) 0 sequence))
+    (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
 #+end_src
 
 #+begin_src scheme :exports both :results value :results output
 <<accumulate>>
 <<map-append-length>>
 
-(show #t  (pretty (length (make-list 100 99)))
+(show #t  (pretty (length (make-list 100 34)))
  (pretty (append '(1 2 3 4) '(5 6 7 8))))
 (display (map (lambda (x) x) '(1 2 3 4)))
 #+end_src
@@ -24957,98 +24957,8 @@ This took me about 8 working hours to figure out.
 *** 4.1 The Metacircular Evaluator [24/24]
 [2020-01-09 Thu 15:46]
 **** 4.1.1 The Core of the Evaluator
-***** Common code of the evaluator
-#+name: s-eval
-#+begin_src scheme :exports both :results value
-   (define (eval exp env)
-       (cond ((self-evaluating? exp) exp)
-             ((variable? exp) (lookup-variable-value exp env))
-             ((quoted? exp) (text-of-quotation exp))
-             ((assignment? exp) (eval-assignment exp env))
-             ((definition? exp) (eval-definition exp env))
-             ((if? exp) (eval-if exp env))
-             ((lambda? exp)
-              (make-procedure (lambda-parameters exp)
-                              (lambda-body exp)
-                              env))
-             ((begin? exp)
-              (eval-sequence (begin-actions exp) env))
-             ((cond? exp) (eval (cond->if exp) env))
-             ((application? exp)
-              (apply (eval (operator exp) env)
-                     (list-of-values (operands exp) env)))
-             (else
-              (error "Unknown expression type -- EVAL" exp))))
-#+end_src
-
-#+RESULTS: s-eval
-: #<undef>
-
-#+name: s-apply
-#+begin_src scheme :exports both :results value
-     (define (apply procedure arguments)
-       (cond ((primitive-procedure? procedure)
-              (apply-primitive-procedure procedure arguments))
-             ((compound-procedure? procedure)
-              (eval-sequence
-                (procedure-body procedure)
-                (extend-environment
-                  (procedure-parameters procedure)
-                  arguments
-                  (procedure-environment procedure))))
-             (else
-              (error
-               "Unknown procedure type -- APPLY" procedure))))
-#+end_src
-
-#+RESULTS: s-apply
-: #<undef>
-
-#+name: s-list-of-values
-#+begin_src scheme :exports both :results value
-     (define (list-of-values exps env)
-       (if (no-operands? exps)
-           '()
-           (cons (eval (first-operand exps) env)
-                 (list-of-values (rest-operands exps) env))))
-#+end_src
-
-#+name: s-standard-if
-#+begin_src scheme :exports both :results value
-  (define (eval-if exp env)
-    (if (true? (eval (if-predicate exp) env))
-	(eval (if-consequent exp) env)
-	(eval (if-alternative exp) env)))
-#+end_src
-
-#+name: s-sequences
-#+begin_src scheme :exports both :results value
-     (define (eval-sequence exps env)
-       (cond ((last-exp? exps) (eval (first-exp exps) env))
-             (else (eval (first-exp exps) env)
-                   (eval-sequence (rest-exps exps) env))))
-#+end_src
-
-#+name: s-assignment
-#+begin_src scheme :exports both :results value
-     (define (eval-assignment exp env)
-       (set-variable-value! (assignment-variable exp)
-                            (eval (assignment-value exp) env)
-                            env)
-       'ok)
-#+end_src
-
-#+name: s-define
-#+begin_src scheme :exports both :results value
-     (define (eval-definition exp env)
-       (define-variable! (definition-variable exp)
-                         (eval (definition-value exp) env)
-                         env)
-       'ok)
-#+end_src
-
-***** DONE Exercise 4.1 list-of-values ordered
-      CLOSED: [2020-01-09 Thu 20:11]
+**** DONE Exercise 4.1 list-of-values ordered
+     CLOSED: [2020-01-09 Thu 20:11]
 
 #+name: s-list-of-values-left-to-right
 #+begin_src scheme :exports both :results output
@@ -25147,6 +25057,95 @@ This took me about 8 working hours to figure out.
 : ;;; M-Eval input:
 : (exit)
 
+**** Common code of the evaluator
+#+name: s-eval
+#+begin_src scheme :exports both :results value
+   (define (eval exp env)
+       (cond ((self-evaluating? exp) exp)
+             ((variable? exp) (lookup-variable-value exp env))
+             ((quoted? exp) (text-of-quotation exp))
+             ((assignment? exp) (eval-assignment exp env))
+             ((definition? exp) (eval-definition exp env))
+             ((if? exp) (eval-if exp env))
+             ((lambda? exp)
+              (make-procedure (lambda-parameters exp)
+                              (lambda-body exp)
+                              env))
+             ((begin? exp)
+              (eval-sequence (begin-actions exp) env))
+             ((cond? exp) (eval (cond->if exp) env))
+             ((application? exp)
+              (apply (eval (operator exp) env)
+                     (list-of-values (operands exp) env)))
+             (else
+              (error "Unknown expression type -- EVAL" exp))))
+#+end_src
+
+#+RESULTS: s-eval
+: #<undef>
+
+#+name: s-apply
+#+begin_src scheme :exports both :results value
+     (define (apply procedure arguments)
+       (cond ((primitive-procedure? procedure)
+              (apply-primitive-procedure procedure arguments))
+             ((compound-procedure? procedure)
+              (eval-sequence
+                (procedure-body procedure)
+                (extend-environment
+                  (procedure-parameters procedure)
+                  arguments
+                  (procedure-environment procedure))))
+             (else
+              (error
+               "Unknown procedure type -- APPLY" procedure))))
+#+end_src
+
+#+RESULTS: s-apply
+: #<undef>
+
+#+name: s-list-of-values
+#+begin_src scheme :exports both :results value
+     (define (list-of-values exps env)
+       (if (no-operands? exps)
+           '()
+           (cons (eval (first-operand exps) env)
+                 (list-of-values (rest-operands exps) env))))
+#+end_src
+
+#+name: s-standard-if
+#+begin_src scheme :exports both :results value
+  (define (eval-if exp env)
+    (if (true? (eval (if-predicate exp) env))
+	(eval (if-consequent exp) env)
+	(eval (if-alternative exp) env)))
+#+end_src
+
+#+name: s-sequences
+#+begin_src scheme :exports both :results value
+     (define (eval-sequence exps env)
+       (cond ((last-exp? exps) (eval (first-exp exps) env))
+             (else (eval (first-exp exps) env)
+                   (eval-sequence (rest-exps exps) env))))
+#+end_src
+
+#+name: s-assignment
+#+begin_src scheme :exports both :results value
+     (define (eval-assignment exp env)
+       (set-variable-value! (assignment-variable exp)
+                            (eval (assignment-value exp) env)
+                            env)
+       'ok)
+#+end_src
+
+#+name: s-define
+#+begin_src scheme :exports both :results value
+     (define (eval-definition exp env)
+       (define-variable! (definition-variable exp)
+                         (eval (definition-value exp) env)
+                         env)
+       'ok)
+#+end_src
 **** 4.1.2 Representing Expressions
 ***** Common code for expressions
 #+name: s-syntax
@@ -28630,7 +28629,16 @@ y
 Seems to be working fine.
 
 **** 4.1.4 Running the Evaluator as a Program
-***** Common code for the Evaluator and primitive-procedure
+***** DONE Exercise 4.14 meta map versus built-in map
+      CLOSED: [2020-02-12 Wed 08:58]
+Things go wrong because the definitions of ~lambda~ differ in the
+metacircular scheme and in the underlying scheme. The underlying
+scheme's ~map~ expects an underlying procedure as an argument, whereas
+the metacircular scheme expects a metacircular procedure. Because the
+underlying scheme doesn't know how to evaluate meta-procedures, it
+fails. That is, it uses the underlying ~eval~ for evaluation, not our
+own ~eval~.
+**** Common code for the Evaluator and primitive-procedure
 
 Warning! There are two modifications which I had to make in order to
 make the code runnable.
@@ -28684,6 +28692,9 @@ to do it manually.
              (list 'caar caar)
              (list 'caadr caadr)
              (list 'cddr cddr)
+             (list 'caddr caddr)
+             (list 'set-car! set-car!)
+             (list 'set-cdr! set-cdr!)
              (list 'memq memq)
              (list 'read read)
              (list 'show show)
@@ -28856,16 +28867,6 @@ ok
 ;;; M-Eval input:
 (exit)
 #+end_example
-
-***** DONE Exercise 4.14 meta map versus built-in map
-      CLOSED: [2020-02-12 Wed 08:58]
-Things go wrong because the definitions of ~lambda~ differ in the
-metacircular scheme and in the underlying scheme. The underlying
-scheme's ~map~ expects an underlying procedure as an argument, whereas
-the metacircular scheme expects a metacircular procedure. Because the
-underlying scheme doesn't know how to evaluate meta-procedures, it
-fails. That is, it uses the underlying ~eval~ for evaluation, not our
-own ~eval~.
 **** 4.1.5 Data as Programs
 ***** DONE Exercise 4.15 The ~halts?~ predicate
       CLOSED: [2020-02-12 Wed 09:24]
@@ -57239,8 +57240,7 @@ Firstly we slightly modify ~compile-and-go~
 	     (compile expression 'val 'return '()))
 	    eceval)))
       (set! the-global-environment (setup-environment))
-      (define-variable! 'apply-in-real-scheme (list 'primitive apply) #;(lambda o (show #t "applydebug: \n" (pretty o)) (apply (cadr o))) the-global-environment)
-      ;;(show #t "debug: environment" (pretty the-global-environment))
+      (define-variable! 'apply-in-real-scheme (list 'primitive apply) the-global-environment)
       (set-register-contents! eceval 'val instructions)
       (set-register-contents! eceval 'flag true)
       (start eceval)))
@@ -57300,13 +57300,15 @@ end
 #+name: compiled-metacircular-test
 #+begin_src shell :exports code :results code output
 cat <<'EOF'
+(display "the real underlying scheme\n")
+(memq 'a '(a b c d))
 (exit)
 'EOF'
 #+end_src
 
 
 #+header: :stdin compiled-metacircular-test
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results code output
   <<ec-glue1>>
   <<s-truefalse>>
   <<s-let-implementation>>
@@ -57400,6 +57402,10 @@ cat <<'EOF'
 <<accumulate>>
 <<map-append-length>>
 <<memq>>
+(define (apply-in-underlying-scheme proc argl)
+  (if (primitive-procedure? proc)
+     (apply-in-real-scheme (procedure-body proc) argl)
+     (error "how do we call compiled procedures?")))
 <<s-apply>>
 <<s-eval>>
 <<s-list-of-values>>
@@ -57415,16 +57421,26 @@ cat <<'EOF'
 <<s-primitive-procedures>>
 <<s-environments>>
 <<s-driver-loop>>
-;(define the-global-environment (setup-environment))
-(display memq)
-;(driver-loop)
+<<s-glue2>>
+(driver-loop)
 (exit)
 ))
 #+end_src
 
 #+RESULTS:
+#+begin_src shell
+ERROR in caddr on line 7 of file /usr/lib64/chibi/scheme/cxr.scm: car: not a pair: ()
+  called from <anonymous> on line 715 of file /tmp/babel-zsLBmX/sh-script-UU34uf
+  called from <anonymous> on line 450 of file /tmp/babel-zsLBmX/sh-script-UU34uf
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+;;; M-Eval input:
+(display "the real underlying scheme\n")
+#+end_src
 
-<<s-glue2>>
+
 
 
 
