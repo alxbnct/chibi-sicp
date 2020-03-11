@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-11 21:39:22 lockywolf>
+# Time-stamp: <2020-03-11 21:57:20 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -57301,7 +57301,7 @@ end
 #+begin_src shell :exports code :results code output
 cat <<'EOF'
 (display "the real underlying scheme\n")
-(memq 'a '(a b c d))
+(memq 'a (list 'a 'b 'c 'd))
 (exit)
 'EOF'
 #+end_src
@@ -57404,7 +57404,7 @@ cat <<'EOF'
 <<memq>>
 (define (apply-in-underlying-scheme proc argl)
   (if (primitive-procedure? proc)
-     (apply-in-real-scheme (procedure-body proc) argl)
+     (apply-in-real-scheme (primitive-implementation proc) argl)
      (error "how do we call compiled procedures?")))
 <<s-apply>>
 <<s-eval>>
@@ -57422,6 +57422,7 @@ cat <<'EOF'
 <<s-environments>>
 <<s-driver-loop>>
 <<s-glue2>>
+(memq 'a (list 'a 'b 'c 'd))
 (driver-loop)
 (exit)
 ))
@@ -57429,15 +57430,20 @@ cat <<'EOF'
 
 #+RESULTS:
 #+begin_src shell
-ERROR in caddr on line 7 of file /usr/lib64/chibi/scheme/cxr.scm: car: not a pair: ()
-  called from <anonymous> on line 715 of file /tmp/babel-zsLBmX/sh-script-UU34uf
-  called from <anonymous> on line 450 of file /tmp/babel-zsLBmX/sh-script-UU34uf
+ERROR: how do we call compiled procedures?
+  called from <anonymous> on line 715 of file /tmp/babel-zsLBmX/sh-script-zQ4IlD
+  called from <anonymous> on line 450 of file /tmp/babel-zsLBmX/sh-script-zQ4IlD
   called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
 ;;; M-Eval input:
 (display "the real underlying scheme\n")
+the real underlying scheme
+;;; M-Eval value:
+#<undef>
+;;; M-Eval input:
+(memq 'a (list 'a 'b 'c 'd))
 #+end_src
 
 
