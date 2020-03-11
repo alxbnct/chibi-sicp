@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-10 12:42:51 lockywolf>
+# Time-stamp: <2020-03-11 10:31:04 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -17,6 +17,7 @@
  - Racket: https://www.inchmeal.io/sicp/
  - Common Lisp + Racket: https://eli.thegreenplace.net/tag/sicp
  - https://github.com/MarkCurtiss/sicp
+ - https://github.com/skanev/playground/tree/master/scheme/sicp
 
 ** Unfinished solutions
  - Racket: https://github.com/wentaocn/SICP-Solution
@@ -28684,6 +28685,12 @@ to do it manually.
              (list 'caadr caadr)
              (list 'cddr cddr)
              (list 'memq memq)
+             (list 'read read)
+             (list 'show show)
+             (list 'pretty pretty)
+             (list 'number? number?)
+             (list 'string? string?)
+             (list 'symbol? symbol?)
              ))
 
      (define (primitive-procedure-names)
@@ -28817,7 +28824,6 @@ it myself.
 <<s-glue1>>
 <<s-apply>>
 <<s-eval>>
-
 <<s-list-of-values>>
 <<s-standard-if>>
 <<s-sequences>>
@@ -57175,29 +57181,8 @@ print-result
 	 '() ;'(exp env val proc argl continue unev)
 	 eceval-operations
 	 (quote (
-  <<ec-before-repl-compound-apply-reg>>
-  <<ec-before-repl-branch-to-compile>>
   <<ec-repl-stack-monitor-with-compiler>>
   <<ec-errors>>
-  <<ec-ev-definition>>
-  <<ec-ev-assignment>>
-  <<ec-ev-if>>
-  <<ec-ev-if-decide>>
-  <<ec-ev-sequence>>
-  <<ec-ev-sequence-continue>>
-  <<ec-ev-begin>>
-  <<ec-compound-apply>>
-  <<ec-primitive-apply>>
-  <<ec-ev-application>>
-  <<ec-ev-appl-did-operator>>
-  <<ec-ev-appl-operand-loop>>
-  <<ec-ev-appl-accumulate-arg>>
-  <<ec-ev-appl-last-arg>>
-  <<ec-ev-appl-accum-last-arg>>
-  <<ec-apply-dispatch-with-compiled>>
-  <<ec-simple-expressions>>
-  <<ec-eval-dispatch-let-cond-compile-and-run>>
-  <<ec-external-entry>>  
     )))
   )
 (set-register-contents! eceval 'flag false)
@@ -57238,8 +57223,212 @@ ok
 (exit)
 #+end_example
 
+I removed the features related to the explicit control evaluator, and
+left just the repl. Everything is offloaded to the compiler now.
 
-**** TODO Exercise 5.50
+**** TODO Exercise 5.50 Compiling the metacircular evaluator 
+
+Firstly we slightly modify ~compile-and-go~
+
+#+name: c-compile-and-go-lexical-for-compiling
+#+begin_src scheme :exports code
+  (define (compile-and-go expression)
+    (let ((instructions
+	   (assemble
+	    (statements
+	     (compile expression 'val 'return '()))
+	    eceval)))
+      (set! the-global-environment (setup-environment))
+      (define-variable! 'apply-in-real-scheme (list 'primitive apply) #;(lambda o (show #t "applydebug: \n" (pretty o)) (apply (cadr o))) the-global-environment)
+      ;;(show #t "debug: environment" (pretty the-global-environment))
+      (set-register-contents! eceval 'val instructions)
+      (set-register-contents! eceval 'flag true)
+      (start eceval)))
+#+end_src
+
+And add lets to the compiler:
+
+#+name: c-compile-lexical-with-open-code-let
+#+begin_src scheme :exports code
+  (define (compile exp target linkage compile-env)
+    (cond ((self-evaluating? exp)
+	   (compile-self-evaluating exp target linkage))
+	  ((quoted? exp) (compile-quoted exp target linkage))
+	  ((variable? exp)
+	   (compile-variable exp target linkage compile-env))
+	  ((assignment? exp)
+	   (compile-assignment exp target linkage compile-env))
+	  ((definition? exp)
+	   (compile-definition exp target linkage compile-env))
+	  ((if? exp) 
+           (compile-if exp target linkage compile-env))
+	  ((lambda? exp) 
+           (compile-lambda exp target linkage compile-env))
+	  ((begin? exp)
+	   (compile-sequence (begin-actions exp) target linkage compile-env))
+	  ((cond? exp)
+	   (compile (cond->if exp) target linkage compile-env))
+          ((let? exp)
+           (compile (let->combination exp) target linkage compile-env))
+          ((and (open-code? exp) (eq? 'not-found (find-variable (operator exp) compile-env)))
+           (compile-open-code-application exp target linkage compile-env))
+	  ((application? exp)
+	   (compile-application exp target linkage compile-env))
+	  (else
+	   (error "Unknown expression type: COMPILE" exp))))
+#+end_src
+
+#+name: memq
+#+begin_src scheme :exports code
+  (define (memq item x)
+    (cond ((null? x) false)
+	  ((eq? item (car x)) x)
+	  (else (memq item (cdr x)))))
+#+end_src
+
+
+#+name: ec-end-of-the-world
+#+begin_src scheme :exports code
+  external-entry
+  (perform (op initialize-stack))
+  (assign env (op get-global-environment))
+  (assign continue (label end))
+  (goto (reg val))
+end
+#+end_src
+
+#+name: compiled-metacircular-test
+#+begin_src shell :exports code :results code output
+cat <<'EOF'
+(exit)
+'EOF'
+#+end_src
+
+
+#+header: :stdin compiled-metacircular-test
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+  <<ec-glue1>>
+  <<s-truefalse>>
+  <<s-let-implementation>>
+  <<s-let-star-implementation>>
+  <<ec-s-additional-syntax>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-environments>>
+  <<s-compound-procedures>>
+  <<s-primitive-procedures>>
+  <<s-cond>>
+  <<s-user-prompt-print-with-compiled>>
+  <<regmac-make-machine>>
+  <<regmac-make-register-tracing>>
+  <<regmac-make-stack-with-performance>>
+  <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+  <<regmac-extract-labels-improved-labels-brk>>
+  <<regmac-assembler-with-metadata-register-labels-brk>>
+  <<regmac-generating-execution-procedures>>
+  <<regmac-make-operation-exp>>
+  <<regmac-make-operation-exp-syntax>>
+  <<regmac-make-assign>>
+  <<regmac-make-test>>
+  <<regmac-make-save-restore>>
+  <<regmac-other-instructions>>
+
+  <<c-compile-and-go-lexical-for-compiling>>
+  <<c-compile-lexical-with-open-code-let>>
+  <<c-compile-lexical-open-code>>
+  <<c-make-instruction-sequence-empty-instruction-sequence>>
+  <<c-compile-linkage>>
+  <<c-end-with-linkage>>
+  <<c-compile-lexical-simple-expressions>>
+  <<c-compile-lexical-definition>>
+  <<c-lexical-compile-variable-compile-assignment>>
+  <<c-make-label>>
+  <<c-compile-lexical-if>>
+  <<c-compile-lexical-sequence>>
+  <<c-compiled-procedures>>
+  <<c-compile-lexical-lambda>>
+  <<c-compile-lexical-lambda-body-nodefines>>
+  <<c-compile-lexical-application>>
+  <<c-lexical-address-lookup>>
+  <<c-lexical-find-variable>>
+  <<c-construct-arglist>>
+  <<c-compile-procedure-call-with-interpreted>>
+  <<c-compile-proc-appl>>
+  <<c-combining-registers>>
+  <<c-append-instruction-sequences>>
+  <<c-list-union>>
+  <<c-preserving>>
+  <<c-tack-on-instruction-sequence>>
+  <<c-parallel-instruction-sequences>>
+
+  <<c-ec-compile-and-run>>
+
+  (define the-global-environment (setup-environment))
+  ;(define-variable! 'apply-in-underlying-scheme (list 'primitive apply-in-underlying-scheme) the-global-environment)
+  (define (get-global-environment) the-global-environment)
+
+  (define eceval-operations
+	(list 
+  <<ec-eceval-operations-basic>>
+  <<ec-eceval-operations-let-cond>>
+  <<ec-eceval-operations-compiled>>
+  <<c-lexical-controller-ops>>
+  <<ec-eceval-operations-opencode>>
+  <<ec-eceval-operations-compile-and-run>>
+    ))
+
+  (define eceval
+	(make-machine
+	 '() ;'(exp env val proc argl continue unev)
+	 eceval-operations
+	 (quote (
+         <<ec-before-repl-branch-to-compile>>
+	 <<ec-end-of-the-world>>
+    ))))
+(set-register-contents! eceval 'flag false)
+
+#;(show #t (pretty (compile 
+      'placeholder 
+      'val
+      'next
+      the-global-environment)) nl)
+
+(compile-and-go
+   '(begin       
+(define true #t)
+(define false #f)
+<<accumulate>>
+<<map-append-length>>
+<<memq>>
+<<s-apply>>
+<<s-eval>>
+<<s-list-of-values>>
+<<s-standard-if>>
+<<s-sequences>>
+<<s-assignment>>
+<<s-define>>
+<<s-syntax>>
+<<s-application>>
+<<s-cond>>
+<<s-truefalse>>
+<<s-compound-procedures>>
+<<s-primitive-procedures>>
+<<s-environments>>
+<<s-driver-loop>>
+;(define the-global-environment (setup-environment))
+(display memq)
+;(driver-loop)
+(exit)
+))
+#+end_src
+
+#+RESULTS:
+
+<<s-glue2>>
+
+
+
+
 **** TODO Exercise 5.51
 **** TODO Exercise 5.52
 
