@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-12 22:45:50 lockywolf>
+# Time-stamp: <2020-03-12 23:22:48 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -28693,6 +28693,7 @@ to do it manually.
              (list 'caadr caadr)
              (list 'cddr cddr)
              (list 'caddr caddr)
+             (list 'cadddr cadddr)
              (list 'set-car! set-car!)
              (list 'set-cdr! set-cdr!)
              (list 'memq memq)
@@ -57248,10 +57249,14 @@ Firstly we slightly modify ~compile-and-go~
                       (goto (label ,after-lambda))
 		      ,proc-entry
                        ;my argl is (proc, argl)
-                       
+;                      (perform (op user-print) (const "debug:"))
                        (assign proc (op car) (reg argl))
+;                      (perform (op user-print) (reg argl))
                        (assign argl (op cadr) (reg argl))
+                       (perform (op user-print) (reg argl))
+;                      (perform (op error ) (const "debug"))
                        (assign val (op compiled-procedure-entry) (reg proc))
+;                      (perform (op error) (const "debug1"))
                        ;(restore continue)
                        (goto (reg val))
                       ,after-lambda
@@ -57324,6 +57329,8 @@ end
 cat <<'EOF'
 (display "the real underlying scheme\n")
 (memq 'a (list 'a 'b 'c 'd))
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
+(factorial 5)
 (exit)
 'EOF'
 #+end_src
@@ -57445,7 +57452,7 @@ cat <<'EOF'
 <<s-environments>>
 <<s-driver-loop>>
 <<s-glue2>>
-(memq 'a (list 'a 'b 'c 'd))
+
 (driver-loop)
 (exit)
 ))
@@ -57453,8 +57460,9 @@ cat <<'EOF'
 
 #+RESULTS:
 #+begin_src shell
-ERROR in cadr on line 6 of file /usr/lib64/chibi/init-7.scm: cdr: not a pair: compiled-procedure
-  called from <anonymous> on line 450 of file /tmp/babel-g30Jjm/sh-script-hBDJi9
+ERROR: Unbound variable: cadddr
+  called from <anonymous> on line 715 of file /tmp/babel-g30Jjm/sh-script-pcO6aa
+  called from <anonymous> on line 450 of file /tmp/babel-g30Jjm/sh-script-pcO6aa
   called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
@@ -57466,6 +57474,15 @@ the real underlying scheme
 #<undef>
 ;;; M-Eval input:
 (memq 'a (list 'a 'b 'c 'd))
+(a (a b c d))
+;;; M-Eval value:
+(a b c d)
+;;; M-Eval input:
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
+;;; M-Eval value:
+ok
+;;; M-Eval input:
+(factorial 5)
 #+end_src
 
 
