@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-12 23:26:12 lockywolf>
+# Time-stamp: <2020-03-12 23:44:49 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -42601,6 +42601,7 @@ Assertion added to data base.
 exit
 #+end_example
 
+
 ***** DONE Exercise 4.69 great grandchildren
       CLOSED: [2020-02-21 Fri 17:43]
 
@@ -45575,10 +45576,8 @@ The ordinary ~and~ does not behave this way, it pre-filters ~(job (?
 anyone) (? j))~ with the results of the previous query, and _then_
 there will be unique values.
 
-
 ***** TODO Exercise 4.77 lazy queries
 
-So, I generally decided to ignore this exercise. 
 
 #+name: prolog-input-lazy-negate
 #+begin_src shell :exports code :results verbatim output
@@ -45594,44 +45593,9 @@ So, I generally decided to ignore this exercise.
   exit'
 #+end_src
 
-#+name: prolog-qeval-delayed
-#+begin_src scheme :exports code
-  (define (qeval query frame-stream)
-    (if debug
-	(begin
-	  (set! current-qeval-depth (+ 1 current-qeval-depth)) 
-	  (display "\n\nqeval:depth=") (display current-qeval-depth)
-	  (display "\n\ query=") (display query)
-	  #;(display "\n instantiations=")
-	  #;(map (lambda (frame) (display (instantiate
-	  query
-	  frame
-	  (lambda (v f)
-	  (contract-question-mark v))))) frame-stream)
-	  (display "\n frame-stream=")
-	  (stream-map print-frame frame-stream)))
-    (let ((qproc (get (type query) 'qeval)))
-      (if debug 
-	  (if (> current-qeval-depth 20)
-	      (begin
-		(display "\nMaximum depth reached.")
-		(set! current-qeval-depth (- current-qeval-depth 1))
-		the-empty-stream)
-	      (let ((retval (if qproc
-				(qproc (contents query) frame-stream)
-				(simple-query query frame-stream))))
-		(display "\n retval=")
-		(stream-map print-frame retval)
-		retval))
-	  (if qproc
-	      (qproc (contents query) frame-stream)
-	      (simple-query query frame-stream)))))
-#+end_src
-
 
 #+header: :stdin prolog-input-lazy-negate
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports code :results output
-
   <<prolog-glue>>
   <<put-and-get>>
   <<streams-common>>
@@ -45639,8 +45603,7 @@ So, I generally decided to ignore this exercise.
   <<stream-append>>
   <<prolog-driver-loop>>
   <<prolog-instantiate>>
-  <<prolog-qeval-delayed>>
-
+  <<prolog-qeval>>
   <<prolog-simple-queries>>
   <<prolog-conjoin>>
   <<prolog-conjoin-installation>>
@@ -45662,17 +45625,181 @@ So, I generally decided to ignore this exercise.
   <<streams-singleton>>
   <<prolog-query>>
   <<prolog-frames-and-bindings>>
-
   (query-driver-loop)  
 #+end_src
 
 #+RESULTS:
-: ERROR in promise-done? on line 1302 of file /usr/lib64/chibi/init-7.scm: car: not a pair: a
-:   called from force on line 1309 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 508 of file /tmp/babel-NsjUjw/sh-script-7dvtHh
-:   called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+#+begin_example
+
+;;; Query input:
+(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Bitdiddle Ben) (computer wizard)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Bitdiddle Ben) 60000))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Hacker Alyssa P) (computer programmer)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Hacker Alyssa P) 40000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Fect Cy D) (computer programmer)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Fect Cy D) 35000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Tweakit Lem E) (computer technician)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Tweakit Lem E) 25000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Reasoner Louis) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Reasoner Louis) 30000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Warbucks Oliver) (administration big wheel)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Warbucks Oliver) 150000))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Scrooge Eben) (accounting chief accountant)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Scrooge Eben) 75000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Cratchet Robert) (accounting scrivener)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Cratchet Robert) 18000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Cratchet Robert) (Scrooge Eben)))
+Assertion added to data base.
+;;; Query input:
+(assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))
+Assertion added to data base.
+;;; Query input:
+(assert! (job (Aull DeWitt) (administration secretary)))
+Assertion added to data base.
+;;; Query input:
+(assert! (salary (Aull DeWitt) 25000))
+Assertion added to data base.
+;;; Query input:
+(assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (computer wizard) (computer programmer)))
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (computer wizard) (computer technician)))
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (computer programmer) (computer programmer trainee)))
+Assertion added to data base.
+;;; Query input:
+(assert! (can-do-job (administration secretary) (administration big wheel)))
+Assertion added to data base.
+;;; Query input:
+(assert!
+ (rule (lives-near (? person-1) (? person-2))
+       (and (address (? person-1) ((? town) ? rest-1))
+            (address (? person-2) ((? town) ? rest-2))
+            (not (same (? person-1) (? person-2))))))
+Assertion added to data base.
+;;; Query input:
+(assert! (rule (same (? x) (? x))))
+Assertion added to data base.
+;;; Query input:
+(assert!
+ (rule (wheel (? person))
+       (and (supervisor (? middle-manager) (? person))
+            (supervisor (? x) (? middle-manager)))))
+Assertion added to data base.
+;;; Query input:
+(assert!
+ (rule (outranked-by (? staff-person) (? boss))
+       (or (supervisor (? staff-person) (? boss))
+           (and (supervisor (? staff-person) (? middle-manager))
+                (outranked-by (? middle-manager) (? boss))))))
+Assertion added to data base.
+;;; Query input:
+(assert! (rule (append-to-form () (? y) (? y))))
+Assertion added to data base.
+;;; Query input:
+(assert!
+ (rule (append-to-form ((? u) ? v) (? y) ((? u) ? z))
+       (append-to-form (? v) (? y) (? z))))
+Assertion added to data base.
+;;; Query input:
+(and (supervisor (? x) (? y)) (not (job (? x) (computer programmer))))
+;;; Query results:(and (supervisor (Aull DeWitt) (Warbucks Oliver))
+     (not (job (Aull DeWitt) (computer programmer))))
+(and (supervisor (Cratchet Robert) (Scrooge Eben))
+     (not (job (Cratchet Robert) (computer programmer))))
+(and (supervisor (Scrooge Eben) (Warbucks Oliver))
+     (not (job (Scrooge Eben) (computer programmer))))
+(and (supervisor (Bitdiddle Ben) (Warbucks Oliver))
+     (not (job (Bitdiddle Ben) (computer programmer))))
+(and (supervisor (Reasoner Louis) (Hacker Alyssa P))
+     (not (job (Reasoner Louis) (computer programmer))))
+(and (supervisor (Tweakit Lem E) (Bitdiddle Ben))
+     (not (job (Tweakit Lem E) (computer programmer))))
+
+;;; Query input:
+(and (not (job (? x) (computer programmer))) (supervisor (? x) (? y)))
+;;; Query results:
+;;; Query input:
+exit
+#+end_example
 
 
 ***** TODO Exercise 4.78
