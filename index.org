@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-11 21:57:20 lockywolf>
+# Time-stamp: <2020-03-12 22:45:50 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -56919,6 +56919,7 @@ ev-compile-and-run
 
 #+name: ec-eceval-operations-compile-and-run
 #+begin_src scheme :exports code
+  (list 'cadr cadr)
   (list 'compile-and-run? compile-and-run?)
   (list 'compile-assemble (lambda (exp) 
                           (assemble 
@@ -57236,8 +57237,26 @@ Firstly we slightly modify ~compile-and-go~
   (define (compile-and-go expression)
     (let ((instructions
 	   (assemble
-	    (statements
-	     (compile expression 'val 'return '()))
+            (statements
+	    (tack-on-instruction-sequence 
+               (let ((var 'apply1)
+                     (proc-entry (make-label 'entry))
+                     (after-lambda (make-label 'after-lambda)))
+                  (make-instruction-sequence '() '()
+                    `((assign val (op make-compiled-procedure) (label ,proc-entry) (reg env))
+                      (perform (op define-variable!) (const ,var) (reg val) (reg env))
+                      (goto (label ,after-lambda))
+		      ,proc-entry
+                       ;my argl is (proc, argl)
+                       
+                       (assign proc (op car) (reg argl))
+                       (assign argl (op cadr) (reg argl))
+                       (assign val (op compiled-procedure-entry) (reg proc))
+                       ;(restore continue)
+                       (goto (reg val))
+                      ,after-lambda
+                       )))
+        	     (compile expression 'val 'return '())))
 	    eceval)))
       (set! the-global-environment (setup-environment))
       (define-variable! 'apply-in-real-scheme (list 'primitive apply) the-global-environment)
@@ -57278,6 +57297,8 @@ And add lets to the compiler:
 	   (error "Unknown expression type: COMPILE" exp))))
 #+end_src
 
+Our code uses ~memq~.
+
 #+name: memq
 #+begin_src scheme :exports code
   (define (memq item x)
@@ -57285,6 +57306,7 @@ And add lets to the compiler:
 	  ((eq? item (car x)) x)
 	  (else (memq item (cdr x)))))
 #+end_src
+
 
 
 #+name: ec-end-of-the-world
@@ -57405,7 +57427,8 @@ cat <<'EOF'
 (define (apply-in-underlying-scheme proc argl)
   (if (primitive-procedure? proc)
      (apply-in-real-scheme (primitive-implementation proc) argl)
-     (error "how do we call compiled procedures?")))
+     #;(error "how do we call compiled procedures?")
+     (apply1 proc argl)))
 <<s-apply>>
 <<s-eval>>
 <<s-list-of-values>>
@@ -57430,9 +57453,8 @@ cat <<'EOF'
 
 #+RESULTS:
 #+begin_src shell
-ERROR: how do we call compiled procedures?
-  called from <anonymous> on line 715 of file /tmp/babel-zsLBmX/sh-script-zQ4IlD
-  called from <anonymous> on line 450 of file /tmp/babel-zsLBmX/sh-script-zQ4IlD
+ERROR in cadr on line 6 of file /usr/lib64/chibi/init-7.scm: cdr: not a pair: compiled-procedure
+  called from <anonymous> on line 450 of file /tmp/babel-g30Jjm/sh-script-hBDJi9
   called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
