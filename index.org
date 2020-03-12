@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-12 23:22:48 lockywolf>
+# Time-stamp: <2020-03-12 23:26:12 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -28692,6 +28692,7 @@ to do it manually.
              (list 'caar caar)
              (list 'caadr caadr)
              (list 'cddr cddr)
+             (list 'cdddr cdddr)
              (list 'caddr caddr)
              (list 'cadddr cadddr)
              (list 'set-car! set-car!)
@@ -57460,13 +57461,6 @@ cat <<'EOF'
 
 #+RESULTS:
 #+begin_src shell
-ERROR: Unbound variable: cadddr
-  called from <anonymous> on line 715 of file /tmp/babel-g30Jjm/sh-script-pcO6aa
-  called from <anonymous> on line 450 of file /tmp/babel-g30Jjm/sh-script-pcO6aa
-  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
 ;;; M-Eval input:
 (display "the real underlying scheme\n")
 the real underlying scheme
@@ -57483,6 +57477,10 @@ the real underlying scheme
 ok
 ;;; M-Eval input:
 (factorial 5)
+;;; M-Eval value:
+120
+;;; M-Eval input:
+(exit)
 #+end_src
 
 
