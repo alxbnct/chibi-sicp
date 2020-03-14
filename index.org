@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-14 15:52:14 lockywolf>
+# Time-stamp: <2020-03-14 19:53:01 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -29,6 +29,7 @@
  - Clojure + Common Lisp: https://github.com/lagenorhynque/sicp
  - https://github.com/ananthakumaran/SICP
  - Clojure: http://grinnbearit.github.io/sicp/
+ - https://github.com/cxphoe/SICP-solutions
 ** Setting chibi arguments. DANGEROUS                       :dangerous:elisp:
 
 #+begin_src elisp :export both :results value
@@ -28756,7 +28757,7 @@ it myself.
   (define (prompt-for-input string)
     #;(newline) #;(newline) (display string) (newline))
   (define (announce-output string)
-    #;(newline) (display string) (newline))
+    (newline) (display string) (newline))
   (define (user-print object)
     (if (compound-procedure? object)
 	#;(display (list 'compound-procedure
@@ -43387,7 +43388,6 @@ exit
 
 #+name: prolog-input-sample-database
 #+begin_src scheme :exports code
-
   (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
   (assert! (job (Bitdiddle Ben) (computer wizard)))
   (assert! (salary (Bitdiddle Ben) 60000))
@@ -43396,10 +43396,12 @@ exit
   (assert! (job (Hacker Alyssa P) (computer programmer)))
   (assert! (salary (Hacker Alyssa P) 40000))
   (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+
   (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))
   (assert! (job (Fect Cy D) (computer programmer)))
   (assert! (salary (Fect Cy D) 35000))
   (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))
+
   (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))
   (assert! (job (Tweakit Lem E) (computer technician)))
   (assert! (salary (Tweakit Lem E) 25000))
@@ -43429,8 +43431,7 @@ exit
   (assert! (can-do-job (computer wizard) (computer programmer)))
   (assert! (can-do-job (computer wizard) (computer technician)))
   (assert! (can-do-job (computer programmer) (computer programmer trainee)))
-  (assert! (can-do-job (administration secretary)
-	      (administration big wheel)))
+  (assert! (can-do-job (administration secretary) (administration big wheel)))
 #+end_src
 
 #+name: prolog-input-database-test
@@ -45909,27 +45910,113 @@ Assertion added to data base.
 exit
 #+end_example
 
-
 ***** TODO Exercise 4.78
 
 non-deterministic queries
 
+
+
+#+name: prolog-in-amb
+#+begin_src scheme :exports code :results verbatim code
+  (define THE-ASSERTIONS '())
+  (define THE-RULES '())  
+  (define (assert! assertion)
+    (if (rule? assertion)
+        (add-rule! assertion)
+        (add-assertion! assertion)))
+  (define (add-assertion! assertion)
+    (set! THE-ASSERTIONS  (cons assertion THE-ASSERTIONS))
+    'ok)
+  (define (add-rule! rule)
+    (set! THE-RULES (cons rule THE-RULES))
+    'ok)
+ (define (rule? statement)
+   (tagged-list? statement 'rule))
+ (define (conclusion rule) (cadr rule))
+ (define (rule-body rule)
+   (if (null? (cddr rule)) '(always-true) (caddr rule)))
+
+(define (lq i)
+  (let* ((q (query-syntax-process i)))
+    (cond  ((assertion-to-be-added? q)
+        	    (add-rule-or-assertion! (add-assertion-body q))
+	            'added)
+	  (else
+	   (instantiate
+		   q
+		   (qeval q (make-frame-prolog '() '()))
+		 (lambda (v f)
+		   (contract-question-mark v)))))))  
+#+end_src
+
+#+name: prolog-in-amb-database
+#+begin_src scheme :exports code
+  (lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
+  (lq '(assert! (job (Bitdiddle Ben) (computer wizard))))
+  (lq '(assert! (salary (Bitdiddle Ben) 60000)))
+  (lq '(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
+  (lq '(assert! (job (Hacker Alyssa P) (computer programmer))))
+  (lq '(assert! (salary (Hacker Alyssa P) 40000)))
+  (lq '(assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben))))
+  (lq '(assert! (address (Fect Cy D) (Cambridge (Ames Street) 3))))
+  (lq '(assert! (job (Fect Cy D) (computer programmer))))
+  (lq '(assert! (salary (Fect Cy D) 35000)))
+  (lq '(assert! (supervisor (Fect Cy D) (Bitdiddle Ben))))
+  (lq '(assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22))))
+  (lq '(assert! (job (Tweakit Lem E) (computer technician))))
+  (lq '(assert! (salary (Tweakit Lem E) 25000)))
+  (lq '(assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben))))
+  (lq '(assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80))))
+  (lq '(assert! (job (Reasoner Louis) (computer programmer trainee))))
+  (lq '(assert! (salary (Reasoner Louis) 30000)))
+  (lq '(assert! (supervisor (Reasoner Louis) (Hacker Alyssa P))))
+  (lq '(assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver))))
+  (lq '(assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road)))))
+  (lq '(assert! (job (Warbucks Oliver) (administration big wheel))))
+  (lq '(assert! (salary (Warbucks Oliver) 150000)))
+  (lq '(assert! (address (Scrooge Eben) (Weston (Shady Lane) 10))))
+  (lq '(assert! (job (Scrooge Eben) (accounting chief accountant))))
+  (lq '(assert! (salary (Scrooge Eben) 75000)))
+  (lq '(assert! (supervisor (Scrooge Eben) (Warbucks Oliver))))
+  (lq '(assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16))))
+  (lq '(assert! (job (Cratchet Robert) (accounting scrivener))))
+  (lq '(assert! (salary (Cratchet Robert) 18000)))
+  (lq '(assert! (supervisor (Cratchet Robert) (Scrooge Eben))))
+  (lq '(assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5))))
+  (lq '(assert! (job (Aull DeWitt) (administration secretary))))
+  (lq '(assert! (salary (Aull DeWitt) 25000)))
+  (lq '(assert! (supervisor (Aull DeWitt) (Warbucks Oliver))))
+  (lq '(assert! (can-do-job (computer wizard) (computer programmer))))
+  (lq '(assert! (can-do-job (computer wizard) (computer technician))))
+  (lq '(assert! (can-do-job (computer programmer) (computer programmer trainee))))
+  (lq '(assert! (can-do-job (administration secretary) (administration big wheel))))
+  (lq '(assert! (rule (lives-near ?person-1 ?person-2)
+		 (and (address ?person-1 (?town . ?rest-1))
+		      (address ?person-2 (?town . ?rest-2))
+		      (not (same ?person-1 ?person-2))))))
+  (lq '(assert! (rule (same ?x ?x))))
+  (lq '(assert! (rule (wheel ?person)
+	    (and (supervisor ?middle-manager ?person)
+	         (supervisor ?x ?middle-manager)))))
+  (lq '(assert! (rule (outranked-by ?staff-person ?boss)
+	            (or (supervisor ?staff-person ?boss)
+	                (and (supervisor ?staff-person ?middle-manager)
+		             (outranked-by ?middle-manager ?boss))))))
+  (lq '(assert! (rule (append-to-form () ?y ?y))))
+  (lq '(assert! (rule (append-to-form (?u . ?v) ?y (?u . ?z))
+                 (append-to-form ?v ?y ?z))))
+
+#+end_src
+
 #+name: s-amb-prolog-implementing-prolog-in-amb
 #+begin_src shell :exports code :results verbatim output
   cat << EOF
-  <<expmod>>
-  <<fermat-primetest>>
-  <<fast-prime>>
-
   <<s-amb-input-require>>
   <<s-amb-input-an-element-of>>
-  <<s-amb-input-prime-sum-pair>>
-  <<s-amb-input-an-integer-between>>
-  <<s-amb-input-a-pythagorean-triple>>
-  <<s-amb-input-infinite-triples-test>>
   <<s-amb-distinct>>
-
-  
+  <<prolog-in-amb>>
+  <<prolog-in-amb-database>> 
+   
   try-again
   (exit)
   EOF
@@ -45964,20 +46051,105 @@ non-deterministic queries
 <<s-amb-driver-loop>>
 <<s-user-prompt-print>>
 <<s-glue2>>
-
-(/ 1 0)
 (driver-loop)
 
 #+end_src
 
 #+RESULTS:
-: ERROR on line 537 of file /tmp/babel-JBk0cb/sh-script-BD4E93: divide by zero
-:   called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+#+begin_example
+ERROR: Unbound variable -- lookup-variable-value: address
+  called from <anonymous> on line 66 of file /tmp/babel-JBk0cb/sh-script-Gn2XMC
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+;;; Amb-Eval input:
+(define (require p) (if (not p) (amb)))
 
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (an-element-of items)
+  (require (not (null? items)))
+  (amb (car items) (an-element-of (cdr items))))
 
-So, I generally decided to ignore this exercise.
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (an-integer-starting-from n)
+  (amb n (an-integer-starting-from (+ n 1))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (distinct? items)
+  (cond ((null? items) true)
+        ((null? (cdr items)) true)
+        ((member (car items) (cdr items)) false)
+        (else (distinct? (cdr items)))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define THE-ASSERTIONS '())
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define THE-RULES '())
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (assert! assertion)
+  (if (rule? assertion) (add-rule! assertion) (add-assertion! assertion)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-assertion! assertion)
+  (set! THE-ASSERTIONS (cons assertion THE-ASSERTIONS))
+  'ok)
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-rule! rule) (set! THE-RULES (cons rule THE-RULES)) 'ok)
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule? statement) (tagged-list? statement 'rule))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (conclusion rule) (cadr rule))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-body rule) (if (null? (cddr rule)) '(always-true) (caddr rule)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+
+;;; Starting a new problem 
+#+end_example
+
 
 ***** TODO Exercise 4.79
 
