@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-14 15:43:06 lockywolf>
+# Time-stamp: <2020-03-14 15:52:14 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -84,7 +84,7 @@
 #+end_quote
 
 
-* SICP [380/404]
+* SICP [381/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -45983,7 +45983,7 @@ So, I generally decided to ignore this exercise.
 
 So, I generally decided to ignore this exercise.
 
-** TODO Chapter 5: Computing with Register Machines [51/54]
+** TODO Chapter 5: Computing with Register Machines [52/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -52784,7 +52784,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [19/22]
+*** 5.5 Compilation [20/22]
 **** Common code
 
 #+name: c-compile
@@ -57465,7 +57465,15 @@ ok
 I removed the features related to the explicit control evaluator, and
 left just the repl. Everything is offloaded to the compiler now.
 
-**** TODO Exercise 5.50 Compiling the metacircular evaluator 
+**** DONE Exercise 5.50 Compiling the metacircular evaluator 
+     CLOSED: [2020-03-14 Sat 15:52]
+
+Unlike other solutions, I'm not implementing
+~apply-in-underlying-scheme~ as a special form, but rather just make
+it a standard lisp function which does dispatch on whether a function
+is a real underlying builtin or a compiled builtin. Memory management
+is still forwarded to the actual underlying scheme, but the
+metacircular evaluator code itself is completely compiled.
 
 Firstly we slightly modify ~compile-and-go~
 
@@ -57484,16 +57492,10 @@ Firstly we slightly modify ~compile-and-go~
                       (perform (op define-variable!) (const ,var) (reg val) (reg env))
                       (goto (label ,after-lambda))
 		      ,proc-entry
-                       ;my argl is (proc, argl)
-;                      (perform (op user-print) (const "debug:"))
                        (assign proc (op car) (reg argl))
-;                      (perform (op user-print) (reg argl))
                        (assign argl (op cadr) (reg argl))
                        (perform (op user-print) (reg argl))
-;                      (perform (op error ) (const "debug"))
                        (assign val (op compiled-procedure-entry) (reg proc))
-;                      (perform (op error) (const "debug1"))
-                       ;(restore continue)
                        (goto (reg val))
                       ,after-lambda
                        )))
@@ -57670,7 +57672,6 @@ cat <<'EOF'
 (define (apply-in-underlying-scheme proc argl)
   (if (primitive-procedure? proc)
      (apply-in-real-scheme (primitive-implementation proc) argl)
-     #;(error "how do we call compiled procedures?")
      (apply1 proc argl)))
 <<s-apply>>
 <<s-eval>>
@@ -57717,7 +57718,6 @@ ok
 ;;; M-Eval input:
 (exit)
 #+end_src
-
 
 
 
