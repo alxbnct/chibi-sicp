@@ -1,6 +1,5 @@
-# -*- mode: org; geiser-scheme-implementation: chibi;
-# geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-14 19:53:01 lockywolf>
+# -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
+# Time-stamp: <2020-03-14 21:44:04 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -43007,15 +43006,6 @@ chapter 3, it was not used, since ~interleave~ was used.
 #+begin_src scheme :exports code
 
   (define (find-assertions pattern frame)
-    (if #f
-       (begin
-          (display "\nfind-assertions:")
-          (display "\npattern=") (display (instantiate
-		     pattern
-		     '()
-		     (lambda (v f)
-		        (contract-question-mark v))))
-          (display "\nframe=") (print-frame frame)))
     (stream-flatmap
      (lambda (datum) (check-an-assertion datum pattern frame))
      (fetch-assertions pattern frame)))
@@ -43026,11 +43016,6 @@ chapter 3, it was not used, since ~interleave~ was used.
 	  the-empty-stream
 	  (singleton-stream match-result))))
   (define (pattern-match pat dat frame)
-    (if #f
-          (begin (display "debug:pattern-match:") (newline) 
-                        (display "pat=") (display pat) (newline) 
-                         (display "dat=") (display dat) (newline)
-                       (display "frame=") (display frame) (newline)))
     (cond ((eq? frame 'failed) 'failed)
 	  ((equal? pat dat) frame)
 	  ((var? pat) (extend-if-consistent pat dat frame))
@@ -43268,15 +43253,8 @@ chapter 3, it was not used, since ~interleave~ was used.
   (define (rule-body rule)
     (if (null? (cddr rule)) '(always-true) (caddr rule)))
   (define (query-syntax-process exp)
-    (if #f
-        (begin (newline) (display "query-syntax-process") 
-               (newline) (display "exp=") (display exp)))
     (map-over-symbols expand-question-mark exp))
   (define (map-over-symbols proc exp)
-    (if #f 
-    (begin (newline) (display "map-over-symbols")
-    (newline) (display "exp=") (display exp) 
-    (newline) (display "(type-of exp)=") (display (type-of exp))))
     (cond ((pair? exp)
 	   (cons (map-over-symbols proc (car exp))
 		 (map-over-symbols proc (cdr exp))))
@@ -45914,41 +45892,6 @@ exit
 
 non-deterministic queries
 
-
-
-#+name: prolog-in-amb
-#+begin_src scheme :exports code :results verbatim code
-  (define THE-ASSERTIONS '())
-  (define THE-RULES '())  
-  (define (assert! assertion)
-    (if (rule? assertion)
-        (add-rule! assertion)
-        (add-assertion! assertion)))
-  (define (add-assertion! assertion)
-    (set! THE-ASSERTIONS  (cons assertion THE-ASSERTIONS))
-    'ok)
-  (define (add-rule! rule)
-    (set! THE-RULES (cons rule THE-RULES))
-    'ok)
- (define (rule? statement)
-   (tagged-list? statement 'rule))
- (define (conclusion rule) (cadr rule))
- (define (rule-body rule)
-   (if (null? (cddr rule)) '(always-true) (caddr rule)))
-
-(define (lq i)
-  (let* ((q (query-syntax-process i)))
-    (cond  ((assertion-to-be-added? q)
-        	    (add-rule-or-assertion! (add-assertion-body q))
-	            'added)
-	  (else
-	   (instantiate
-		   q
-		   (qeval q (make-frame-prolog '() '()))
-		 (lambda (v f)
-		   (contract-question-mark v)))))))  
-#+end_src
-
 #+name: prolog-in-amb-database
 #+begin_src scheme :exports code
   (lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
@@ -46008,6 +45951,112 @@ non-deterministic queries
 
 #+end_src
 
+#+name: primitive-procedures-prolog-in-amb
+#+begin_src scheme :exports code
+(set! primitive-procedures 
+        (append (list 
+(list 'symbol->string symbol->string)
+(list 'string? string?)
+(list 'string=? string=?)
+(list 'substring substring)
+(list 'tagged-list? tagged-list?)
+(list 'string->symbol string->symbol)
+(list 'string-length string-length)
+(list 'append append)
+) primitive-procedures))
+#+end_src
+
+#+name: prolog-in-amb
+#+begin_src scheme :exports code :results verbatim code
+  (define THE-ASSERTIONS '())
+  (define THE-RULES '())  
+ 
+ (define (add-rule-or-assertion! assertion)
+  (if (rule? assertion)
+      (add-rule! assertion)
+      (add-assertion! assertion)))
+
+  (define (add-assertion! assertion)
+    (set! THE-ASSERTIONS  (cons assertion THE-ASSERTIONS))
+    'ok)
+  (define (add-rule! rule)
+    (set! THE-RULES (cons rule THE-RULES))
+    'ok)
+ (define (rule? statement)
+   (tagged-list? statement 'rule))
+ (define (conclusion rule) (cadr rule))
+ (define (rule-body rule)
+   (if (null? (cddr rule)) '(always-true) (caddr rule)))
+
+(define (lq i)
+  (let ((q (query-syntax-process i)))
+    (cond  ((assertion-to-be-added? q)
+        	    (add-rule-or-assertion! (add-assertion-body q))
+	            'added)
+	  (else
+	   (instantiate
+		   q
+		   (qeval q (make-frame-prolog '() '()))
+		 (lambda (v f)
+		   (contract-question-mark v)))))))  
+(define (query-syntax-process exp)
+  (map-over-symbols expand-question-mark exp))
+(define (map-over-symbols proc exp)
+  (cond ((pair? exp)
+	 (cons (map-over-symbols proc (car exp))
+	       (map-over-symbols proc (cdr exp))))
+	((symbol? exp) (proc exp))
+	(else exp)))
+
+<<prolog-query>>
+<<prolog-frames-and-bindings-with-promises>>
+<<prolog-instantiate>>
+<<put-and-get>>
+(define (qeval query frame-stream)
+    (processor 
+      (let ((qproc (get (type query) 'qeval)))
+        (if qproc
+           (qproc (contents query) frame)
+           (simple-query query frame)))))
+(define (processor frame)
+    (let loop ((bindings (frame-bindings frame))
+               (promises (frame-promises frame))
+               (retval (make-frame-prolog (frame-bindings frame) '())))
+         (cond ((null? promises) retval)
+               ((eq? ((car promises) retval) 'kill-it) (amb))
+               ((eq? ((car promises) retval) 'let-it-stay) (loop bindings (cdr promises) retval)) ;; this promise can't kill this frame
+               ((eq? ((car promises) retval) 'has-not-bound) (loop bindings (cdr promises) (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
+               (else (error "process-promises -- unknown promise protocol")))))
+  (define (simple-query query-pattern frame)
+       (amb
+	(find-assertions query-pattern frame)
+	(apply-rules query-pattern frame)))
+(define (find-assertions query-pattern frame)
+ (check-an-assertion (an-element-of (get-all-assertions)) pattern frame)
+(define (check-an-assertion assertion query-pat query-frame)
+  (let ((match-result
+	 (pattern-match query-pat assertion query-frame)))
+    (if (eq? match-result 'failed)
+	(amb)
+	match-result)))
+(define (pattern-match pat dat frame)
+    (cond ((eq? frame 'failed) 'failed)
+	  ((equal? pat dat) frame)
+	  ((var? pat) (extend-if-consistent pat dat frame))
+	  ((and (pair? pat) (pair? dat))
+	   (pattern-match
+	    (cdr pat)
+	    (cdr dat)
+	    (pattern-match (car pat) (car dat) frame)))
+	  (else 'failed)))
+  (define (extend-if-consistent var dat frame)
+    (let ((binding (binding-in-frame var frame)))
+      (if binding
+	  (pattern-match (binding-value binding) dat frame)
+	  (extend var dat frame))))
+#+end_src
+
+
 #+name: s-amb-prolog-implementing-prolog-in-amb
 #+begin_src shell :exports code :results verbatim output
   cat << EOF
@@ -46016,7 +46065,7 @@ non-deterministic queries
   <<s-amb-distinct>>
   <<prolog-in-amb>>
   <<prolog-in-amb-database>> 
-   
+  (lq '(job (Hacker Alyssa P) ?x))     
   try-again
   (exit)
   EOF
@@ -46048,6 +46097,7 @@ non-deterministic queries
 <<s-compound-procedures>>
 <<s-environments-list-of-bindings-better-abstractions>>
 <<s-primitive-procedures>>
+<<primitive-procedures-prolog-in-amb>>
 <<s-amb-driver-loop>>
 <<s-user-prompt-print>>
 <<s-glue2>>
@@ -46057,11 +46107,6 @@ non-deterministic queries
 
 #+RESULTS:
 #+begin_example
-ERROR: Unbound variable -- lookup-variable-value: address
-  called from <anonymous> on line 66 of file /tmp/babel-JBk0cb/sh-script-Gn2XMC
-  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
 
@@ -46106,7 +46151,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (assert! assertion)
+(define (add-rule-or-assertion! assertion)
   (if (rule? assertion) (add-rule! assertion) (add-assertion! assertion)))
 
 ;;; Starting a new problem 
@@ -46145,7 +46190,580 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))
+(define (lq i)
+  (let ((q (query-syntax-process i)))
+    (cond
+     ((assertion-to-be-added? q)
+      (add-rule-or-assertion! (add-assertion-body q))
+      'added)
+     (else
+      (instantiate q
+                   (qeval q (make-frame-prolog '() '()))
+                   (lambda (v f) (contract-question-mark v)))))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (query-syntax-process exp)
+  (map-over-symbols expand-question-mark exp))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (map-over-symbols proc exp)
+  (cond
+   ((pair? exp)
+    (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp))))
+   ((symbol? exp) (proc exp))
+   (else exp)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (type exp)
+  (if (pair? exp) (car exp) (error "Unknown expression TYPE" exp)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (contents exp)
+  (if (pair? exp) (cdr exp) (error "Unknown expression CONTENTS" exp)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (assertion-to-be-added? exp) (eq? (type exp) 'assert!))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-assertion-body exp) (car (contents exp)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (empty-conjunction? exps) (null? exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (first-conjunct exps) (car exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rest-conjuncts exps) (cdr exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (empty-disjunction? exps) (null? exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (first-disjunct exps) (car exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rest-disjuncts exps) (cdr exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (negated-query exps) (car exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (predicate exps) (car exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (args exps) (cdr exps))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule? statement) (tagged-list? statement 'rule))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (conclusion rule) (cadr rule))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-body rule) (if (null? (cddr rule)) '(always-true) (caddr rule)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (query-syntax-process exp)
+  (map-over-symbols expand-question-mark exp))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (map-over-symbols proc exp)
+  (cond
+   ((pair? exp)
+    (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp))))
+   ((symbol? exp) (proc exp))
+   (else exp)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (expand-question-mark symbol)
+  (let ((chars (symbol->string symbol)))
+    (if (string=? (substring chars 0 1) "?")
+        (list '? (string->symbol (substring chars 1 (string-length chars))))
+        symbol)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (var? exp) (tagged-list? exp '?))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (constant-symbol? exp) (symbol? exp))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define rule-counter 0)
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (new-rule-application-id)
+  (set! rule-counter (+ 1 rule-counter))
+  rule-counter)
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-new-variable var rule-application-id)
+  (cons '? (cons rule-application-id (cdr var))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (contract-question-mark variable)
+  (string->symbol
+   (string-append "?"
+                  (if (number? (cadr variable))
+                      (string-append (symbol->string (caddr variable))
+                                     "-"
+                                     (number->string (cadr variable)))
+                      (symbol->string (cadr variable))))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (frame-promises frame) (if (null? frame) '() (cadr frame)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (frame-bindings frame) (if (null? frame) '() (car frame)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-binding variable value) (cons variable value))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (binding-variable binding) (car binding))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (binding-value binding) (cdr binding))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (binding-in-frame variable frame)
+  (assoc variable (frame-bindings frame)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (extend variable value frame)
+  (list (cons (make-binding variable value) (frame-bindings frame))
+        (frame-promises frame)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (frame-add-promise frame promise)
+  (make-frame-prolog (frame-bindings frame)
+                     (cons promise (frame-promises frame))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-frame-prolog bindings promises) (list bindings promises))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (instantiate exp frame unbound-var-handler)
+  (define (copy exp)
+    (cond
+     ((var? exp)
+      (let ((binding (binding-in-frame exp frame)))
+        (if binding
+            (copy (binding-value binding))
+            (unbound-var-handler exp frame))))
+     ((pair? exp) (cons (copy (car exp)) (copy (cdr exp))))
+     (else exp)))
+  (copy exp))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Bitdiddle Ben) (computer wizard))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Bitdiddle Ben) 60000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Hacker Alyssa P) (computer programmer))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Hacker Alyssa P) 40000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Fect Cy D) (Cambridge (Ames Street) 3))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Fect Cy D) (computer programmer))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Fect Cy D) 35000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Fect Cy D) (Bitdiddle Ben))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Tweakit Lem E) (computer technician))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Tweakit Lem E) 25000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Reasoner Louis) (computer programmer trainee))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Reasoner Louis) 30000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Reasoner Louis) (Hacker Alyssa P))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road)))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Warbucks Oliver) (administration big wheel))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Warbucks Oliver) 150000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Scrooge Eben) (Weston (Shady Lane) 10))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Scrooge Eben) (accounting chief accountant))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Scrooge Eben) 75000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Scrooge Eben) (Warbucks Oliver))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Cratchet Robert) (accounting scrivener))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Cratchet Robert) 18000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+ERROR: Unbound variable -- lookup-variable-value: qeval
+  called from <anonymous> on line 66 of file /tmp/babel-5zLQwj/sh-script-trEJ2A
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Cratchet Robert) (Scrooge Eben))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (job (Aull DeWitt) (administration secretary))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (salary (Aull DeWitt) 25000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (supervisor (Aull DeWitt) (Warbucks Oliver))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (can-do-job (computer wizard) (computer programmer))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (can-do-job (computer wizard) (computer technician))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq
+ '(assert! (can-do-job (computer programmer) (computer programmer trainee))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq
+ '(assert! (can-do-job (administration secretary) (administration big wheel))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq
+ '(assert!
+   (rule (lives-near ?person-1 ?person-2)
+         (and (address ?person-1 (?town . ?rest-1))
+              (address ?person-2 (?town . ?rest-2))
+              (not (same ?person-1 ?person-2))))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (rule (same ?x ?x))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq
+ '(assert!
+   (rule (wheel ?person)
+         (and (supervisor ?middle-manager ?person)
+              (supervisor ?x ?middle-manager)))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq
+ '(assert!
+   (rule (outranked-by ?staff-person ?boss)
+         (or (supervisor ?staff-person ?boss)
+             (and (supervisor ?staff-person ?middle-manager)
+                  (outranked-by ?middle-manager ?boss))))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(assert! (rule (append-to-form () ?y ?y))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq
+ '(assert!
+   (rule (append-to-form (?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq '(job (Hacker Alyssa P) ?x))
 
 ;;; Starting a new problem 
 #+end_example
