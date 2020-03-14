@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-14 15:24:59 lockywolf>
+# Time-stamp: <2020-03-14 15:43:06 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -84,7 +84,7 @@
 #+end_quote
 
 
-* SICP [379/404]
+* SICP [380/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -24944,7 +24944,7 @@ Well, works. Random numbers are not obtained from a stream, and are a
 little bit not modular in this respect, but hey, they task is done as
 a stream.
 
-** TODO Chapter 4: Metalinguistic Abstraction [76/80]
+** TODO Chapter 4: Metalinguistic Abstraction [78/80]
 This chapter started as a bit of a mess. Because it uses quite a bit
 of input-output, and the standard ob-scheme interface is not very open
 to this, I had to be inventive, that is, I repurposed SRFI-22 and
@@ -38746,7 +38746,7 @@ Hmm... seems an easy task.
 
 This is a nice section. I think that the new edition of the book could
 add some exercises about the ~call/cc~ operation in the newer RNRS. 
-*** 4.4 Logic Programming [23/26]
+*** 4.4 Logic Programming [24/26]
 **** Some examples 
 
 #+name: prolog-examples
@@ -42767,7 +42767,7 @@ Assertion added to data base.
 exit
 #+end_example
 
-**** 4.4.4 Implementing the Query System [7/10]
+**** 4.4.4 Implementing the Query System [8/10]
 ***** Common code
 
 The following snippet has ~(display q)~ added to display the input
@@ -45577,7 +45577,18 @@ The ordinary ~and~ does not behave this way, it pre-filters ~(job (?
 anyone) (? j))~ with the results of the previous query, and _then_
 there will be unique values.
 
-***** TODO Exercise 4.77 lazy queries
+***** DONE Exercise 4.77 lazy queries
+      CLOSED: [2020-03-14 Sat 15:42]
+
+Turned out to be surprisingly easy. I consulted inchmeal's solution
+before looking into my own one, the one at scheme community wiki, and
+the one of skanev. The scheme wiki one has one ingenious solution
+based on purely syntactic rewriting. However, I think that mine is
+better, as it allows the propagation of promises above the second
+level. I only implemented it for negation, but the implementation for
+the lisp-value should be trivial now. This solution also has a
+potential for extension in that it could be easily enhanced to return
+extended frames if needed.
 
 #+name: prolog-frames-and-bindings-with-promises
 #+begin_src scheme :exports code
@@ -45599,7 +45610,7 @@ there will be unique values.
     (list (cons (make-binding variable value) (frame-bindings frame)) 
           (frame-promises frame)))
   (define (frame-add-promise frame promise) 
-    (list (frame-bindings frame) (cons promise (frame-promises frame))))
+    (make-frame-prolog (frame-bindings frame) (cons promise (frame-promises frame))))
   (define (make-frame-prolog bindings promises)
      (list bindings promises))
 #+end_src
@@ -45617,7 +45628,7 @@ there will be unique values.
     (stream-flatmap
      (lambda (frame)
       (if (has-not-bound? (negated-query operands) frame)
-        (begin (display "found-not-bound\n") (singleton-stream (frame-add-promise frame promise)))
+        (singleton-stream (frame-add-promise frame promise))
         (if (stream-null? (qeval (negated-query operands)
                               (singleton-stream frame)))
 	   (singleton-stream frame) ; let it stay
@@ -45625,7 +45636,6 @@ there will be unique values.
      frame-stream)))
 
 (define (has-not-bound? query frame)
-  #;(show #t "has-not-bound?" nl "query=" (pretty query) "frame=" (pretty frame))
   (cond ((null? query) #f)
         ((var? query) (if (binding-in-frame query frame)
                           (has-not-bound? 
@@ -45661,19 +45671,20 @@ there will be unique values.
   (define (processor frame)
     (let loop ((bindings (frame-bindings frame))
                (promises (frame-promises frame))
-               (retval (make-frame bindings '())))
+               (retval (make-frame-prolog (frame-bindings frame) '())))
          (cond ((null? promises) (singleton-stream retval)) ;; a normal frame
                ((eq? ((car promises) retval) 'kill-it) the-empty-stream) ;; frame to be killed
                ((eq? ((car promises) retval) 'let-it-stay) (loop bindings (cdr promises) retval)) ;; this promise can't kill this frame
                ((eq? ((car promises) retval) 'has-not-bound) (loop bindings (cdr promises) (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
-               (else (error "process-promises -- unknown promise protocol"))))
+               (else (error "process-promises -- unknown promise protocol")))))
   (stream-flatmap processor frame-stream))
 
   (define (qeval query frame-stream)
     (process-promises 
-      (if qproc
-         (qproc (contents query) frame-stream)
-         (simple-query query frame-stream)))))
+      (let ((qproc (get (type query) 'qeval)))
+        (if qproc
+           (qproc (contents query) frame-stream)
+           (simple-query query frame-stream)))))
 #+end_src
 
 
@@ -45881,7 +45892,6 @@ Assertion added to data base.
 ;;; Query input:
 (and (not (job (? x) (computer programmer))) (supervisor (? x) (? y)))
 ;;; Query results:
-found-not-bound
 (and (not (job (Aull DeWitt) (computer programmer)))
      (supervisor (Aull DeWitt) (Warbucks Oliver)))
 (and (not (job (Cratchet Robert) (computer programmer)))
@@ -45894,15 +45904,10 @@ found-not-bound
      (supervisor (Reasoner Louis) (Hacker Alyssa P)))
 (and (not (job (Tweakit Lem E) (computer programmer)))
      (supervisor (Tweakit Lem E) (Bitdiddle Ben)))
-(and (not (job (Fect Cy D) (computer programmer)))
-     (supervisor (Fect Cy D) (Bitdiddle Ben)))
-(and (not (job (Hacker Alyssa P) (computer programmer)))
-     (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
 
 ;;; Query input:
 exit
 #+end_example
-
 
 
 ***** TODO Exercise 4.78
@@ -45966,10 +45971,10 @@ non-deterministic queries
 #+end_src
 
 #+RESULTS:
-: ERROR on line 520 of file /tmp/babel-GK3Ycx/sh-script-0zVRMa: divide by zero
-:   called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
+: ERROR on line 537 of file /tmp/babel-JBk0cb/sh-script-BD4E93: divide by zero
+:   called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
 :   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+:   called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
 
 
 So, I generally decided to ignore this exercise.
