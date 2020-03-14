@@ -1,6 +1,6 @@
 # -*- mode: org; geiser-scheme-implementation: chibi;
 # geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-12 23:44:49 lockywolf>
+# Time-stamp: <2020-03-14 15:24:59 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -42835,8 +42835,9 @@ style. ~prompt-for-input~ and ~tagged-list~ were also implemented by me.
 	     (display "Assertion added to data base.")
 	     (query-driver-loop))
 	    (else
-	     #;(newline)
+	     ;;(newline)
 	     (display output-prompt)
+             (newline)
 	     (display-stream
 	      (stream-map
 	       (lambda (frame)
@@ -45578,19 +45579,101 @@ there will be unique values.
 
 ***** TODO Exercise 4.77 lazy queries
 
+#+name: prolog-frames-and-bindings-with-promises
+#+begin_src scheme :exports code
+  (define (frame-promises frame)
+      (if (null? frame)
+          '()
+          (cadr frame)))
+  (define (frame-bindings frame)
+    (if (null? frame)
+      '()
+      (car frame)))
+  (define (make-binding variable value)
+    (cons variable value))
+  (define (binding-variable binding) (car binding))
+  (define (binding-value binding) (cdr binding))
+  (define (binding-in-frame variable frame)
+    (assoc variable (frame-bindings frame)))
+  (define (extend variable value frame)
+    (list (cons (make-binding variable value) (frame-bindings frame)) 
+          (frame-promises frame)))
+  (define (frame-add-promise frame promise) 
+    (list (frame-bindings frame) (cons promise (frame-promises frame))))
+  (define (make-frame-prolog bindings promises)
+     (list bindings promises))
+#+end_src
+
+#+name: prolog-negate-with-promise
+#+begin_src scheme :exports code
+  (define (negate operands frame-stream)
+    (let ((promise (lambda (frame)
+                      (if (has-not-bound?  (negated-query operands) frame)
+                        'has-not-bound
+                        (if (stream-null? (qeval (negated-query operands)
+                              (singleton-stream frame)))
+                  	   'let-it-stay ; let it stay
+                           'kill-it)))))
+    (stream-flatmap
+     (lambda (frame)
+      (if (has-not-bound? (negated-query operands) frame)
+        (begin (display "found-not-bound\n") (singleton-stream (frame-add-promise frame promise)))
+        (if (stream-null? (qeval (negated-query operands)
+                              (singleton-stream frame)))
+	   (singleton-stream frame) ; let it stay
+           the-empty-stream)))      ; remove
+     frame-stream)))
+
+(define (has-not-bound? query frame)
+  #;(show #t "has-not-bound?" nl "query=" (pretty query) "frame=" (pretty frame))
+  (cond ((null? query) #f)
+        ((var? query) (if (binding-in-frame query frame)
+                          (has-not-bound? 
+                               (binding-value (binding-in-frame query frame))
+                               frame)
+                          #t))
+        ((pair? query) (or (has-not-bound? (car query) frame)
+                            (has-not-bound? (cdr query) frame)))
+        (else #f)))
+
+#+end_src
+
 
 #+name: prolog-input-lazy-negate
 #+begin_src shell :exports code :results verbatim output
   printf "%s" '
   <<prolog-input-sample-database>>
   <<prolog-input-canned-rules>>
-
+  
   (and (supervisor ?x ?y)
        (not (job ?x (computer programmer))))
+
   (and (not (job ?x (computer programmer)))
        (supervisor ?x ?y))
 
   exit'
+#+end_src
+
+#+name: prolog-qeval-promises
+#+begin_src scheme :exports code
+
+(define (process-promises frame-stream)
+  (define (processor frame)
+    (let loop ((bindings (frame-bindings frame))
+               (promises (frame-promises frame))
+               (retval (make-frame bindings '())))
+         (cond ((null? promises) (singleton-stream retval)) ;; a normal frame
+               ((eq? ((car promises) retval) 'kill-it) the-empty-stream) ;; frame to be killed
+               ((eq? ((car promises) retval) 'let-it-stay) (loop bindings (cdr promises) retval)) ;; this promise can't kill this frame
+               ((eq? ((car promises) retval) 'has-not-bound) (loop bindings (cdr promises) (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
+               (else (error "process-promises -- unknown promise protocol"))))
+  (stream-flatmap processor frame-stream))
+
+  (define (qeval query frame-stream)
+    (process-promises 
+      (if qproc
+         (qproc (contents query) frame-stream)
+         (simple-query query frame-stream)))))
 #+end_src
 
 
@@ -45603,13 +45686,13 @@ there will be unique values.
   <<stream-append>>
   <<prolog-driver-loop>>
   <<prolog-instantiate>>
-  <<prolog-qeval>>
+  <<prolog-qeval-promises>>
   <<prolog-simple-queries>>
   <<prolog-conjoin>>
   <<prolog-conjoin-installation>>
   <<prolog-disjoin>>
   <<prolog-disjoin-installation>>
-  <<prolog-negate>>
+  <<prolog-negate-with-promise>>
   <<prolog-negate-installation>>
   <<prolog-lisp-filter>>
   <<prolog-lisp-filter-installation>>
@@ -45624,7 +45707,7 @@ there will be unique values.
   <<prolog-flatten-stream>>
   <<streams-singleton>>
   <<prolog-query>>
-  <<prolog-frames-and-bindings>>
+  <<prolog-frames-and-bindings-with-promises>>
   (query-driver-loop)  
 #+end_src
 
@@ -45781,7 +45864,8 @@ Assertion added to data base.
 Assertion added to data base.
 ;;; Query input:
 (and (supervisor (? x) (? y)) (not (job (? x) (computer programmer))))
-;;; Query results:(and (supervisor (Aull DeWitt) (Warbucks Oliver))
+;;; Query results:
+(and (supervisor (Aull DeWitt) (Warbucks Oliver))
      (not (job (Aull DeWitt) (computer programmer))))
 (and (supervisor (Cratchet Robert) (Scrooge Eben))
      (not (job (Cratchet Robert) (computer programmer))))
@@ -45797,9 +45881,28 @@ Assertion added to data base.
 ;;; Query input:
 (and (not (job (? x) (computer programmer))) (supervisor (? x) (? y)))
 ;;; Query results:
+found-not-bound
+(and (not (job (Aull DeWitt) (computer programmer)))
+     (supervisor (Aull DeWitt) (Warbucks Oliver)))
+(and (not (job (Cratchet Robert) (computer programmer)))
+     (supervisor (Cratchet Robert) (Scrooge Eben)))
+(and (not (job (Scrooge Eben) (computer programmer)))
+     (supervisor (Scrooge Eben) (Warbucks Oliver)))
+(and (not (job (Bitdiddle Ben) (computer programmer)))
+     (supervisor (Bitdiddle Ben) (Warbucks Oliver)))
+(and (not (job (Reasoner Louis) (computer programmer)))
+     (supervisor (Reasoner Louis) (Hacker Alyssa P)))
+(and (not (job (Tweakit Lem E) (computer programmer)))
+     (supervisor (Tweakit Lem E) (Bitdiddle Ben)))
+(and (not (job (Fect Cy D) (computer programmer)))
+     (supervisor (Fect Cy D) (Bitdiddle Ben)))
+(and (not (job (Hacker Alyssa P) (computer programmer)))
+     (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))
+
 ;;; Query input:
 exit
 #+end_example
+
 
 
 ***** TODO Exercise 4.78
