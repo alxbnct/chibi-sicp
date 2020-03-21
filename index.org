@@ -1,5 +1,5 @@
-# -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-15 21:33:53 lockywolf>
+k# -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
+# Time-stamp: <2020-03-21 18:58:35 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -28755,7 +28755,7 @@ it myself.
 #+name: s-user-prompt-print  
 #+begin_src scheme :exports both :results value
   (define (prompt-for-input string)
-    #;(newline) #;(newline) (display string) (newline))
+    (newline) #;(newline) (display string) (newline))
   (define (announce-output string)
     (newline) (display string) (newline))
   (define (user-print object)
@@ -28769,7 +28769,7 @@ it myself.
 		       (procedure-parameters object)
 		       (procedure-body object)
 		       '<procedure-env>)))
-        (show #t (pretty object))))
+        (show #t (written object))))
 
 #+end_src
 
@@ -37498,7 +37498,7 @@ evaluator's ~driver-loop~.
 	       ;; ambeval failure
 	       (lambda ()
 		 (announce-output
-		  ";;; There are no more values of")
+		  ";;; There are no more values of\n")
 		 (user-print input)
 		 (driver-loop)))))))
     (internal-loop
@@ -45991,10 +45991,8 @@ qproc branch qproc=#<procedure always-true>
 exit
 #+end_example
 
-***** DONE Exercise 4.78
+***** DONE Exercise 4.78 non-deterministic queries
       CLOSED: [2020-03-15 Sun 12:40]
-
-non-deterministic queries
 
 #+name: prolog-in-amb-database
 #+begin_src scheme :exports code
@@ -46067,6 +46065,12 @@ non-deterministic queries
 (list 'string->symbol string->symbol)
 (list 'string-length string-length)
 (list 'append append)
+(list 'written written)
+(list 'displayed displayed)
+(list 'nl nl)
+(list 'apply-in-underlying-scheme apply-in-underlying-scheme)
+(list 'eval eval)
+(list 'interaction-environment interaction-environment)
 ) primitive-procedures))
 #+end_src
 
@@ -46074,11 +46078,11 @@ non-deterministic queries
 #+begin_src scheme :exports code :results verbatim code
   (define THE-ASSERTIONS '())
   (define THE-RULES '())  
- 
- (define (add-rule-or-assertion! assertion)
-  (if (rule? assertion)
-      (add-rule! assertion)
-      (add-assertion! assertion)))
+
+  (define (add-rule-or-assertion! assertion)
+    (if (rule? assertion)
+	(add-rule! assertion)
+	(add-assertion! assertion)))
 
   (define (add-assertion! assertion)
     (set! THE-ASSERTIONS  (cons assertion THE-ASSERTIONS))
@@ -46086,80 +46090,80 @@ non-deterministic queries
   (define (add-rule! rule)
     (set! THE-RULES (cons rule THE-RULES))
     'ok)
- (define (rule? statement)
-   (tagged-list? statement 'rule))
- (define (conclusion rule) (cadr rule))
- (define (rule-body rule)
-   (if (null? (cddr rule)) '(always-true) (caddr rule)))
+  (define (rule? statement)
+    (tagged-list? statement 'rule))
+  (define (conclusion rule) (cadr rule))
+  (define (rule-body rule)
+    (if (null? (cddr rule)) '(always-true) (caddr rule)))
 
-(define (lq i)
-  (let ((q (query-syntax-process i)))
-    (cond  ((assertion-to-be-added? q)
-        	    (add-rule-or-assertion! (add-assertion-body q))
-	            'added)
-	  (else
-	   (instantiate
-		   q
-		   (try-qeval (qeval q (make-frame-prolog '() '())))
-		 (lambda (v f)
-		   (contract-question-mark v)))))))  
-(define (query-syntax-process exp)
-  (map-over-symbols expand-question-mark exp))
-(define (map-over-symbols proc exp)
-  (cond ((pair? exp)
-	 (cons (map-over-symbols proc (car exp))
-	       (map-over-symbols proc (cdr exp))))
-	((symbol? exp) (proc exp))
-	(else exp)))
+  (define (lq i)
+    (let ((q (query-syntax-process i)))
+      (cond  ((assertion-to-be-added? q)
+	      (add-rule-or-assertion! (add-assertion-body q))
+	      'added)
+	     (else
+	      (instantiate
+		  q
+		  (try-qeval (qeval q (make-frame-prolog '() '())))
+		(lambda (v f)
+		  (contract-question-mark v)))))))  
+  (define (query-syntax-process exp)
+    (map-over-symbols expand-question-mark exp))
+  (define (map-over-symbols proc exp)
+    (cond ((pair? exp)
+	   (cons (map-over-symbols proc (car exp))
+		 (map-over-symbols proc (cdr exp))))
+	  ((symbol? exp) (proc exp))
+	  (else exp)))
 
-<<prolog-query>>
-<<prolog-frames-and-bindings-with-promises>>
-<<prolog-instantiate>>
-<<put-and-get>>
-(define (try-qeval result)
-   (if (eq? result 'no-more-answers)
-     (amb)
-     result))
-(define (qeval query frame)
-    (amb (processor 
-           (let ((qproc (get (type query) 'qeval)))
-             (if qproc
-               (qproc (contents query) frame)
-             (simple-query query frame))))
-         'no-more-answers))
-(define (processor frame)
-    (define (loop bindings promises retval)
-         (cond ((null? promises) retval)
-               ((eq? ((car promises) retval) 'kill-it) 
-                 (amb))
-               ((eq? ((car promises) retval) 'let-it-stay) 
-                 (loop bindings 
-                       (cdr promises)
-                       retval)) ;; this promise can't kill this frame
-               ((eq? ((car promises) retval) 'has-not-bound) 
-                 (loop bindings 
-                       (cdr promises) 
-                       (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
-               (else (error "process-promises -- unknown promise protocol"))))
-  (loop (frame-bindings frame) 
-        (frame-promises frame) 
-        (make-frame-prolog (frame-bindings frame) '())))
-  (define (simple-query query-pattern frame)
-       (amb
-	(find-assertions query-pattern frame)
-	(apply-rules query-pattern frame)))
-(define (find-assertions query-pattern frame)
- (let ((a (an-element-of THE-ASSERTIONS)))
- (check-an-assertion a query-pattern frame)))
-(define (check-an-assertion assertion query-pat query-frame)
-  (let ((match-result
-	 (pattern-match query-pat assertion query-frame)))
-    (if (eq? match-result 'failed)
+  <<prolog-query>>
+  <<prolog-frames-and-bindings-with-promises>>
+  <<prolog-instantiate>>
+  <<put-and-get>>
+  (define (try-qeval result)
+    (if (eq? result 'no-more-answers)
 	(amb)
-	match-result)))
-(define (apply-rules pattern frame)
-  (let ((r (an-element-of THE-RULES)))
-    (apply-a-rule r pattern frame)))
+	result))
+  (define (qeval query frame)
+    (amb (processor 
+	  (let ((qproc (get (type query) 'qeval)))
+	    (if qproc
+		(qproc (contents query) frame)
+		(simple-query query frame))))
+	 'no-more-answers))
+  (define (processor frame)
+    (define (loop bindings promises retval)
+      (cond ((null? promises) retval)
+	    ((eq? ((car promises) retval) 'kill-it) 
+	     (amb))
+	    ((eq? ((car promises) retval) 'let-it-stay) 
+	     (loop bindings 
+		   (cdr promises)
+		   retval)) ;; this promise can't kill this frame
+	    ((eq? ((car promises) retval) 'has-not-bound) 
+	     (loop bindings 
+		   (cdr promises) 
+		   (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
+	    (else (error "process-promises -- unknown promise protocol"))))
+    (loop (frame-bindings frame) 
+	  (frame-promises frame) 
+	  (make-frame-prolog (frame-bindings frame) '())))
+  (define (simple-query query-pattern frame)
+    (amb
+     (find-assertions query-pattern frame)
+     (apply-rules query-pattern frame)))
+  (define (find-assertions query-pattern frame)
+    (let ((a (an-element-of THE-ASSERTIONS)))
+      (check-an-assertion a query-pattern frame)))
+  (define (check-an-assertion assertion query-pat query-frame)
+    (let ((match-result
+	   (pattern-match query-pat assertion query-frame)))
+      (if (eq? match-result 'failed)
+	  (amb)
+	  match-result)))
+  (define (apply-rules pattern frame)
+    (let ((r (an-element-of THE-RULES)))
+      (apply-a-rule r pattern frame)))
 
   (define (apply-a-rule rule query-pattern query-frame)
     (let ((clean-rule (rename-variables-in rule)))
@@ -46227,20 +46231,20 @@ non-deterministic queries
     (tree-walk exp))
 
 
-(define (and a b)
-  (if a
-     (if b true false)
-     false))
+  (define (and a b)
+    (if a
+	(if b true false)
+	false))
 
-(define (or a b)
-  (if a
-      true
-      (if b true false)))
+  (define (or a b)
+    (if a
+	true
+	(if b true false)))
 
-(define (not e)
-  (if e false true))
+  (define (not e)
+    (if e false true))
 
-(define (pattern-match pat dat frame)
+  (define (pattern-match pat dat frame)
     (cond ((eq? frame 'failed) 'failed)
 	  ((equal? pat dat) frame)
 	  ((var? pat) (extend-if-consistent pat dat frame))
@@ -46255,43 +46259,63 @@ non-deterministic queries
       (if binding
 	  (pattern-match (binding-value binding) dat frame)
 	  (extend var dat frame))))
-<<prolog-always-true>>
+  <<prolog-always-true>>
   (define (conjoin conjuncts frame)
     (if (empty-conjunction? conjuncts)
 	frame
 	(conjoin (rest-conjuncts conjuncts)
 		 (try-qeval (qeval (first-conjunct conjuncts) frame)))))
-<<prolog-conjoin-installation>>
-;; This place has a subtle bug in case the stream happens to be infinite.
-(define (disjoin disjuncts frame)
+  <<prolog-conjoin-installation>>
+  ;; This place has a subtle bug in case the stream happens to be infinite.
+  (define (disjoin disjuncts frame)
     (if (empty-disjunction? disjuncts)
 	(amb)
 	(amb
 	 (try-qeval (qeval (first-disjunct disjuncts) frame))
 	 (disjoin (rest-disjuncts disjuncts) frame))))
-<<prolog-disjoin-installation>>
+  <<prolog-disjoin-installation>>
 
   (define (negate operands frame1)
     (let ((promise (lambda (frame)
-                      (if (has-not-bound?  (negated-query operands) frame)
-                        'has-not-bound
-                        (if (eq? 'no-more-values (qeval (negated-query operands) frame))
-                  	   'let-it-stay ; let it stay
-                           'kill-it)))))
-        (frame-add-promise frame1 promise)))
+		     (if (has-not-bound?  (negated-query operands) frame)
+			 'has-not-bound
+			 (if (eq? 'no-more-values (qeval (negated-query operands) frame))
+			     'let-it-stay ; let it stay
+			     'kill-it)))))
+      (frame-add-promise frame1 promise)))
 
 
-(define (has-not-bound? query frame)
-  (cond ((null? query) #f)
-        ((var? query) (if (binding-in-frame query frame)
-                          (has-not-bound? 
-                               (binding-value (binding-in-frame query frame))
-                               frame)
-                          #t))
-        ((pair? query) (or (has-not-bound? (car query) frame)
-                            (has-not-bound? (cdr query) frame)))
-        (else #f)))
-<<prolog-negate-installation>>
+  (define (has-not-bound? query frame)
+    (cond ((null? query) #f)
+	  ((var? query) (if (binding-in-frame query frame)
+			    (has-not-bound? 
+			     (binding-value (binding-in-frame query frame))
+			     frame)
+			    #t))
+	  ((pair? query) (or (has-not-bound? (car query) frame)
+			     (has-not-bound? (cdr query) frame)))
+	  (else #f)))
+  <<prolog-negate-installation>>
+  (define (lisp-value call frame1)
+    (let ((promise (lambda (frame) (if (has-not-bound? call frame)
+				  'has-not-bound
+				  (if (execute
+				       (instantiate
+					   call
+					   frame
+					 (lambda (v f)
+					   (error "Unknown pat var: LISP-VALUE" v))))
+				      'let-it-stay
+				      'kill-it)))))
+      (frame-add-promise frame1 promise)
+      ))
+  (define (execute exp)
+    (let ((pred (eval 
+                  (predicate exp)
+                  (interaction-environment))))
+   (apply-in-underlying-scheme pred  (args exp))))
+
+  <<prolog-lisp-filter-installation>>
 
 #+end_src
 
@@ -46310,6 +46334,10 @@ non-deterministic queries
   (lq '(and (job ?x (computer programmer)) (salary ?x 40000)))
   (lq '(or (job ?x (computer programmer)) (salary ?x 18000)))
   (lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
+  (lq '(and (job ?x (computer programmer))
+            (salary ?x ?y) 
+            ))
+  (lq '(and (salary ?x ?y) (lisp-value < ?y 50000)))
   try-again
   try-again
   try-again
@@ -47039,6 +47067,38 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
+(define (lisp-value call frame1)
+  (let ((promise
+         (lambda (frame)
+           (if (has-not-bound? call frame)
+               'has-not-bound
+               (if (execute
+                    (instantiate call
+                                 frame
+                                 (lambda (v f)
+                                   (error "Unknown pat var: LISP-VALUE" v))))
+                   'let-it-stay
+                   'kill-it)))))
+    (frame-add-promise frame1 promise)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (execute exp)
+  (let ((pred (eval (predicate exp) (interaction-environment))))
+    (apply-in-underlying-scheme pred (args exp))))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(put 'lisp-value 'qeval lisp-value)
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
 (lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
 
 ;;; Starting a new problem 
@@ -47361,27 +47421,912 @@ try-again
 
 ;;; Starting a new problem 
 ;;; There are no more values of
+
 (lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
+;;; Amb-Eval input:
+(lq '(and (job ?x (computer programmer)) (salary ?x ?y)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+(and (job (Fect Cy D) (computer programmer)) (salary (Fect Cy D) 35000))
+;;; Amb-Eval input:
+(lq '(and (salary ?x ?y) (lisp-value < ?y 50000)))
+
+;;; Starting a new problem 
+;;; Amb-Eval value:
+(and (salary (Aull DeWitt) 25000) (lisp-value < 25000 50000))
 ;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem;;; Amb-Eval input:
+;;; Amb-Eval value:
+(and (salary (Cratchet Robert) 18000) (lisp-value < 18000 50000))
+;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem;;; Amb-Eval input:
+;;; Amb-Eval value:
+(and (salary (Reasoner Louis) 30000) (lisp-value < 30000 50000))
+;;; Amb-Eval input:
 try-again
 
-;;; There is no current problem;;; Amb-Eval input:
+;;; Amb-Eval value:
+(and (salary (Tweakit Lem E) 25000) (lisp-value < 25000 50000))
+;;; Amb-Eval input:
 (exit)
 
 ;;; Starting a new problem 
 #+end_example
 
-I skip implementing ~lisp-value~, it's very similar to ~negate~. 
+~lisp-value~ is implemented in the "underlying scheme", but in
+principle you can forward the ~ambeval~ primitive.
 
-Regarding the differences in behaviour, I didn't add any 
+***** TODO Exercise 4.79 prolog environments
 
-***** TODO Exercise 4.79
+_THIS PROBLEM IS NOT FINISHED_
+
+I expect this work to require some heavy modifications, so I will
+copy the source.
+
+I spend two days looking into this, and thought that it would make
+sense to understand how Schelog does this. Schelog uses scheme's
+primitives, but at least studying Schelog should give an understanding
+how internal rules are applied. 
+
+Okay, I still don't entirely understand what is going on, but there is
+a hint. I probably should just get rid of ~unify-match~ entirely, and
+deal with ~pattern-match~ to create one-sided bindings in rule application.
+
+<2020-03-21 Sat>
+Frames should only have values for "external" variables. 
+Logical variables should originally contain references to themselves. 
+After applying, a rule is getting values in the value cells. 
+This way we are _applying a rule with a frame, but getting a return
+value inside the query.
+
+ 1. Bind logical variables to themselves in the query.
+ 2. Instantiate a copy of a rule head with variables bound to
+    themselves. That means that all instances of ?x in the query
+    should match to the same cell.
+ 3. Make a "frame" by unifying the query pattern and rule head. The
+    unification should not just assign variables same values, but
+    actually assign make them point to the same cell, and the cell
+    should contain the shared structure. 
+ 4. Instantiate the body. This way the variables will propagate to the
+    body, including the logical subvariables.
+ 5. Get the nested assertions and append them to the environment.
+ 6. Evaluate the body of the rule.
+ 7. Failures happen by non-matching queries or encountering
+    contradictory matches for variables.
+
+#+name: prolog-environments
+#+begin_src shell :exports code :results verbatim output
+  cat << EOF
+    (define (require p) (if (not p) (amb)))
+    (define (an-element-of items)
+      (require (not (null? items)))
+      (amb (car items) (an-element-of (cdr items))))
+    (define (an-integer-starting-from n)
+      (amb n (an-integer-starting-from (+ n 1))))
+    (define (distinct? items)
+      (cond ((null? items) true)
+	  ((null? (cdr items)) true)
+	  ((member (car items) (cdr items)) false)
+	  (else (distinct? (cdr items)))))
+
+
+    (define THE-ASSERTIONS '())
+    (define THE-RULES '())  
+
+    (define (add-rule-or-assertion! assertion)
+      (if (rule? assertion)
+	  (add-rule! assertion)
+	  (add-assertion! assertion)))
+
+    (define (add-assertion! assertion)
+      (set! THE-ASSERTIONS  (cons assertion THE-ASSERTIONS))
+      'ok)
+    (define (add-rule! rule)
+      (set! THE-RULES (cons rule THE-RULES))
+      'ok)
+    (define (rule? statement)
+      (tagged-list? statement 'rule))
+    (define (conclusion rule) (cadr rule))
+    (define (rule-body rule)
+      (if (null? (cddr rule)) '(always-true) (caddr rule)))
+
+    (define (lq i)
+      (let ((q (query-syntax-process i)))
+	(cond  ((assertion-to-be-added? q)
+	      (add-rule-or-assertion! (add-assertion-body q))
+	      'added)
+	     (else
+	      (instantiate
+		  q
+		  (try-qeval (qeval q (make-frame-prolog '() '())))
+		(lambda (v f)
+		  (contract-question-mark v)))))))  
+    (define (query-syntax-process exp)
+      (map-over-symbols expand-question-mark exp))
+    (define (map-over-symbols proc exp)
+      (cond ((pair? exp)
+	   (cons (map-over-symbols proc (car exp))
+		 (map-over-symbols proc (cdr exp))))
+	  ((symbol? exp) (proc exp))
+	  (else exp)))
+
+    (define (type exp)
+      (if (pair? exp)
+	  (car exp)
+	  (error "Unknown expression TYPE" exp)))
+    (define (contents exp)
+      (if (pair? exp)
+	  (cdr exp)
+	  (error "Unknown expression CONTENTS" exp)))
+    (define (assertion-to-be-added? exp)
+      (eq? (type exp) 'assert!))
+    (define (add-assertion-body exp) (car (contents exp)))
+    (define (empty-conjunction? exps) (null? exps))
+    (define (first-conjunct exps) (car exps))
+    (define (rest-conjuncts exps) (cdr exps))
+    (define (empty-disjunction? exps) (null? exps))
+    (define (first-disjunct exps) (car exps))
+    (define (rest-disjuncts exps) (cdr exps))
+    (define (negated-query exps) (car exps))
+    (define (predicate exps) (car exps))
+    (define (args exps) (cdr exps))
+    (define (rule? statement)
+      (tagged-list? statement 'rule))
+    (define (conclusion rule) (cadr rule))
+    (define (rule-body rule)
+      (if (null? (cddr rule)) '(always-true) (caddr rule)))
+    (define (query-syntax-process exp)
+      (map-over-symbols expand-question-mark exp))
+    (define (map-over-symbols proc exp)
+      (cond ((pair? exp)
+	   (cons (map-over-symbols proc (car exp))
+		 (map-over-symbols proc (cdr exp))))
+	  ((symbol? exp) (proc exp))
+	  (else exp)))
+    (define (expand-question-mark symbol)
+      (let ((chars (symbol->string symbol)))
+	(if (string=? (substring chars 0 1) "?")
+	  (list '?
+		(string->symbol
+		 (substring chars 1 (string-length chars))))
+	  symbol)))
+    (define (var? exp) (tagged-list? exp '?))
+    (define (constant-symbol? exp) (symbol? exp))
+    (define rule-counter 0)
+    (define (new-rule-application-id)
+      (set! rule-counter (+ 1 rule-counter))
+      rule-counter)
+    (define (make-new-variable var rule-application-id)
+      (cons '? (cons rule-application-id (cdr var))))
+    (define (contract-question-mark variable)
+      (string->symbol
+       (string-append "?"
+		    (if (number? (cadr variable))
+			(string-append (symbol->string (caddr variable))
+				       "-"
+				       (number->string (cadr variable)))
+			(symbol->string (cadr variable))))))
+    (define (frame-promises frame)
+	(if (null? frame)
+	    '()
+	    (cadr frame)))
+    (define (frame-bindings frame)
+      (if (null? frame)
+	'()
+	(car frame)))
+    (define (make-binding variable value)
+      (cons variable value))
+    (define (binding-variable binding) (car binding))
+    (define (binding-value binding) (cdr binding))
+    (define (binding-in-frame variable frame)
+      (assoc variable (frame-bindings frame)))
+    (define (extend variable value frame)
+      (make-frame-prolog (cons (make-binding variable value) (frame-bindings frame)) 
+	    (frame-promises frame)))
+    (define (frame-add-promise frame promise) 
+      (make-frame-prolog (frame-bindings frame) (cons promise (frame-promises frame))))
+    (define (make-frame-prolog bindings promises)
+       (list bindings promises))
+    
+    (define (logical-var? exp)
+        (and (pair? exp) (var? (car exp))))
+    (define (logical-var-value exp)
+       (cdr exp))
+    (define (logical-var-variable exp)
+        (car exp))
+
+    (define (instantiate exp)
+      (define (copy exp)
+	(cond ((logical-var? exp) (logical-var-value exp))
+              ((pair? exp)
+	        (cons (copy (car exp)) (copy (cdr exp))))
+	      (else exp)))
+      (copy exp))
+    (define (make-cell contents)
+       (cons 'cell contents))
+    (define (var->logical-var exp)
+       (let ((cell (make-cell '*uninitialized*)))
+        (let ((retval (cons exp cell)))
+          (set-cdr! cell retval)
+          retval)))
+    (show #t "\ntest:var->logical-var:" (pretty (var->logical-var (expand-question-mark '?x))))
+    (display "var converted\n")
+    (define (make-variables-in-form form)
+      (define (copy exp)
+	(cond ((var? exp) (var->logical-var exp))
+              ((pair? exp)
+	        (cons (copy (car exp)) (copy (cdr exp))))
+	      (else exp)))
+      (copy exp))
+    
+    (define (make-table)
+      (let ((local-table (list '*table*)))
+	(define (lookup key-1 key-2)
+	  (let ((subtable (assoc key-1 (cdr local-table))))
+	    (if subtable
+		(let ((record (assoc key-2 (cdr subtable))))
+		  (if record
+		      (cdr record)
+		      false))
+		false)))
+	(define (insert! key-1 key-2 value)
+	  (let ((subtable (assoc key-1 (cdr local-table))))
+	    (if subtable
+		(let ((record (assoc key-2 (cdr subtable))))
+		  (if record
+		      (set-cdr! record value)
+		      (set-cdr! subtable
+				(cons (cons key-2 value)
+				      (cdr subtable)))))
+		(set-cdr! local-table
+			  (cons (list key-1
+				      (cons key-2 value))
+				(cdr local-table)))))
+	  'ok)
+	(define (dispatch m)
+	  (cond ((eq? m 'lookup-proc) lookup)
+		((eq? m 'insert-proc!) insert!)
+		(else (error "Unknown operation -- TABLE" m))))
+	dispatch))
+
+    (define operation-table (make-table))
+    (define get (operation-table 'lookup-proc))
+    (define put (operation-table 'insert-proc!))
+    (define coercion-table (make-table))
+    (define get-coercion (coercion-table 'lookup-proc))
+    (define put-coercion (coercion-table 'insert-proc!))
+
+    (define (try-qeval result)
+      (if (eq? result 'no-more-answers)
+	  (amb)
+	  result))
+    (define (qeval query frame)
+      (amb (processor 
+	  (let ((qproc (get (type query) 'qeval)))
+	    (if qproc
+		(qproc (contents query) frame)
+		(simple-query query frame))))
+	   'no-more-answers))
+    (define (processor frame)
+      (define (loop bindings promises retval)
+	(cond ((null? promises) retval)
+	    ((eq? ((car promises) retval) 'kill-it) 
+	     (amb))
+	    ((eq? ((car promises) retval) 'let-it-stay) 
+	     (loop bindings 
+		   (cdr promises)
+		   retval)) ;; this promise can't kill this frame
+	    ((eq? ((car promises) retval) 'has-not-bound) 
+	     (loop bindings 
+		   (cdr promises) 
+		   (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
+	    (else (error "process-promises -- unknown promise protocol"))))
+      (loop (frame-bindings frame) 
+	  (frame-promises frame) 
+	  (make-frame-prolog (frame-bindings frame) '())))
+    (define (simple-query query-pattern frame)
+      (amb
+       (find-assertions query-pattern frame)
+       (apply-rules query-pattern frame)))
+    (define (find-assertions query-pattern frame)
+      (let ((a (an-element-of THE-ASSERTIONS)))
+	(check-an-assertion a query-pattern frame)))
+    (define (check-an-assertion assertion query-pat query-frame)
+      (let ((match-result
+	   (pattern-match query-pat assertion query-frame)))
+	(if (eq? match-result 'failed)
+	  (amb)
+	  match-result)))
+    (define (apply-rules pattern frame)
+      (let ((r (an-element-of THE-RULES)))
+	(apply-a-rule r pattern frame)))
+
+    (define (apply-a-rule rule query-pattern query-frame)
+      (let ((clean-rule (rename-variables-in rule)))
+	(let ((unify-result (unify-match query-pattern
+				       (conclusion clean-rule)
+				       query-frame)))
+	  (if (eq? unify-result 'failed)
+	    (amb)
+	    (try-qeval (qeval (rule-body clean-rule) unify-result))))))
+
+    (define (rename-variables-in rule)
+      (let ((rule-application-id (new-rule-application-id)))
+	(define (tree-walk exp)
+	  (cond ((var? exp)
+	       (make-new-variable exp rule-application-id))
+	      ((pair? exp)
+	       (cons (tree-walk (car exp))
+		     (tree-walk (cdr exp))))
+	      (else exp)))
+	(tree-walk rule)))
+
+    (define (unify-match p1 p2 frame)
+      (cond ((eq? frame 'failed) 'failed)
+	  ((equal? p1 p2) frame)
+	  ((var? p1) (extend-if-possible p1 p2 frame))
+	  ((var? p2) (extend-if-possible p2 p1 frame))
+					  ; ***
+	  ((and (pair? p1) (pair? p2))
+	   (unify-match (cdr p1)
+			(cdr p2)
+			(unify-match (car p1)
+				     (car p2)
+				     frame)))
+	  (else 'failed)))
+
+    (define (extend-if-possible var val frame)
+      (let ((binding (binding-in-frame var frame)))
+	(cond (binding
+	     (unify-match (binding-value binding) val frame))
+					  ; ***
+	    ((var? val)
+	     (let ((binding (binding-in-frame val frame)))
+	       (if binding
+		   (unify-match
+		    var (binding-value binding) frame)
+		   (extend var val frame))))
+	    ((depends-on? val var frame)
+					  ; ***
+	     'failed)
+	    (else (extend var val frame)))))
+
+    (define (depends-on? exp var frame)
+      (define (tree-walk e)
+	(cond ((var? e)
+	     (if (equal? var e)
+		 true
+		 (let ((b (binding-in-frame e frame)))
+		   (if b
+		       (tree-walk (binding-value b))
+		       false))))
+	    ((pair? e)
+	     (or (tree-walk (car e))
+		 (tree-walk (cdr e))))
+	    (else false)))
+      (tree-walk exp))
+
+
+    (define (and a b)
+      (if a
+	  (if b true false)
+	  false))
+
+    (define (or a b)
+      (if a
+	  true
+	  (if b true false)))
+
+    (define (not e)
+      (if e false true))
+
+    (define (pattern-match pat dat frame)
+      (cond ((eq? frame 'failed) 'failed)
+	  ((equal? pat dat) frame)
+	  ((var? pat) (extend-if-consistent pat dat frame))
+	  ((and (pair? pat) (pair? dat))
+	   (pattern-match
+	    (cdr pat)
+	    (cdr dat)
+	    (pattern-match (car pat) (car dat) frame)))
+	  (else 'failed)))
+    (define (extend-if-consistent var dat frame)
+      (let ((binding (binding-in-frame var frame)))
+	(if binding
+	  (pattern-match (binding-value binding) dat frame)
+	  (extend var dat frame))))
+    (define (always-true ignore frame-stream) frame-stream)
+    (put 'always-true 'qeval always-true)
+    (define (conjoin conjuncts frame)
+      (if (empty-conjunction? conjuncts)
+	  frame
+	  (conjoin (rest-conjuncts conjuncts)
+		 (try-qeval (qeval (first-conjunct conjuncts) frame)))))
+    (put 'and 'qeval conjoin)
+    ;; This place has a subtle bug in case the stream happens to be infinite.
+    (define (disjoin disjuncts frame)
+      (if (empty-disjunction? disjuncts)
+	  (amb)
+	  (amb
+	   (try-qeval (qeval (first-disjunct disjuncts) frame))
+	   (disjoin (rest-disjuncts disjuncts) frame))))
+    (put 'or 'qeval disjoin)
+
+    (define (negate operands frame1)
+      (let ((promise (lambda (frame)
+		     (if (has-not-bound?  (negated-query operands) frame)
+			 'has-not-bound
+			 (if (eq? 'no-more-values (qeval (negated-query operands) frame))
+			     'let-it-stay ; let it stay
+			     'kill-it)))))
+	(frame-add-promise frame1 promise)))
+
+
+    (define (has-not-bound? query frame)
+      (cond ((null? query) #f)
+	  ((var? query) (if (binding-in-frame query frame)
+			    (has-not-bound? 
+			     (binding-value (binding-in-frame query frame))
+			     frame)
+			    #t))
+	  ((pair? query) (or (has-not-bound? (car query) frame)
+			     (has-not-bound? (cdr query) frame)))
+	  (else #f)))
+    (put 'not 'qeval negate)
+    (define (lisp-value call frame1)
+      (let ((promise (lambda (frame) (if (has-not-bound? call frame)
+				  'has-not-bound
+				  (if (execute
+				       (instantiate
+					   call
+					   frame
+					 (lambda (v f)
+					   (error "Unknown pat var: LISP-VALUE" v))))
+				      'let-it-stay
+				      'kill-it)))))
+	(frame-add-promise frame1 promise)
+      ))
+    (define (execute exp)
+      (let ((pred (eval 
+		    (predicate exp)
+		    (interaction-environment))))
+     (apply-in-underlying-scheme pred  (args exp))))
+
+    (put 'lisp-value 'qeval lisp-value)
+
+    (lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
+    (lq '(assert! (job (Bitdiddle Ben) (computer wizard))))
+    (lq '(assert! (salary (Bitdiddle Ben) 60000)))
+    (lq '(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
+    (lq '(assert! (job (Hacker Alyssa P) (computer programmer))))
+    (lq '(assert! (salary (Hacker Alyssa P) 40000)))
+    (lq '(assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben))))
+    (lq '(assert! (address (Fect Cy D) (Cambridge (Ames Street) 3))))
+    (lq '(assert! (job (Fect Cy D) (computer programmer))))
+    (lq '(assert! (salary (Fect Cy D) 35000)))
+    (lq '(assert! (supervisor (Fect Cy D) (Bitdiddle Ben))))
+    (lq '(assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22))))
+    (lq '(assert! (job (Tweakit Lem E) (computer technician))))
+    (lq '(assert! (salary (Tweakit Lem E) 25000)))
+    (lq '(assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben))))
+    (lq '(assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80))))
+    (lq '(assert! (job (Reasoner Louis) (computer programmer trainee))))
+    (lq '(assert! (salary (Reasoner Louis) 30000)))
+    (lq '(assert! (supervisor (Reasoner Louis) (Hacker Alyssa P))))
+    (lq '(assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver))))
+    (lq '(assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road)))))
+    (lq '(assert! (job (Warbucks Oliver) (administration big wheel))))
+    (lq '(assert! (salary (Warbucks Oliver) 150000)))
+    (lq '(assert! (address (Scrooge Eben) (Weston (Shady Lane) 10))))
+    (lq '(assert! (job (Scrooge Eben) (accounting chief accountant))))
+    (lq '(assert! (salary (Scrooge Eben) 75000)))
+    (lq '(assert! (supervisor (Scrooge Eben) (Warbucks Oliver))))
+    (lq '(assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16))))
+    (lq '(assert! (job (Cratchet Robert) (accounting scrivener))))
+    (lq '(assert! (salary (Cratchet Robert) 18000)))
+    (lq '(assert! (supervisor (Cratchet Robert) (Scrooge Eben))))
+    (lq '(assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5))))
+    (lq '(assert! (job (Aull DeWitt) (administration secretary))))
+    (lq '(assert! (salary (Aull DeWitt) 25000)))
+    (lq '(assert! (supervisor (Aull DeWitt) (Warbucks Oliver))))
+    (lq '(assert! (can-do-job (computer wizard) (computer programmer))))
+    (lq '(assert! (can-do-job (computer wizard) (computer technician))))
+    (lq '(assert! (can-do-job (computer programmer) (computer programmer trainee))))
+    (lq '(assert! (can-do-job (administration secretary) (administration big wheel))))
+    (lq '(assert! (rule (lives-near ?person-1 ?person-2)
+		 (and (address ?person-1 (?town . ?rest-1))
+		      (address ?person-2 (?town . ?rest-2))
+		      (not (same ?person-1 ?person-2))))))
+    (lq '(assert! (rule (same ?x ?x))))
+    (lq '(assert! (rule (wheel ?person)
+	    (and (supervisor ?middle-manager ?person)
+		 (supervisor ?x ?middle-manager)))))
+    (lq '(assert! (rule (outranked-by ?staff-person ?boss)
+		    (or (supervisor ?staff-person ?boss)
+			(and (supervisor ?staff-person ?middle-manager)
+			     (outranked-by ?middle-manager ?boss))))))
+    (lq '(assert! (rule (append-to-form () ?y ?y))))
+    (lq '(assert! (rule (append-to-form (?u . ?v) ?y (?u . ?z))
+		   (append-to-form ?v ?y ?z))))
+
+
+    (lq '(job ?x (computer programmer)))
+    try-again
+    ;(lq '(same a ?x))
+    ;(lq '(and (job ?x (computer programmer)) (salary ?x 40000)))
+    ;(lq '(or (job ?x (computer programmer)) (salary ?x 18000)))
+    ;(lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
+    ;(lq '(and (job ?x (computer programmer))
+  ;	    (salary ?x ?y) 
+  ;	    ))
+  ;  (lq '(and (salary ?x ?y) (lisp-value < ?y 50000)))
+   ; try-again
+   ; try-again
+   ; try-again
+
+    (lq '(assert! (Odysseus knows TeX)))
+    (lq '(assert! (Odysseus knows Scheme)))
+  ;  (lq '(assert! (rule (computer-literate ?person)
+  ;		   (and (?person knows Scheme)
+  ;			(?person knows TeX)))))
+  (lq '(assert! (rule (computer-literate ?person)
+		     (?person knows Scheme))))
+  (lq '(assert! (rule (prolog-literate ?person)
+		     (?person knows Prolog))))
+  (lq '(computer-literate ?person))
+  (lq '(same x ?x))
+  ;(lq '(prolog-literate Odysseus))
+  ;  (lq '(computer-literate ?person))
+  ;(lq '(computer-literate Odysseus))
+    (exit)
+#+end_src
+
+
+#+header: :stdin prolog-environments
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+<<s-glue1>>
+<<s-amb-amb-implementation>>
+<<s-amb-analyze-eval-with-let-amb-ramb-pset-iffail>>
+<<s-amb-analyze-permanent-assignment>>
+<<s-let-implementation>>
+<<s-amb-simple-expressions>>
+<<s-amb-analyze-if>>
+<<s-amb-analyze-sequence>>
+<<s-amb-analyze-definition>>
+<<s-amb-analyze-assignment>>
+<<s-amb-analyze-application>>
+<<s-amb-get-args>>
+<<s-amb-execute-application>>
+<<s-amb-analyze-amb>>
+<<s-amb-ramb>>
+<<s-amb-analyze-if-fail>>
+<<s-syntax>>
+<<s-application>>
+<<s-cond-with-arrow>>
+<<s-truefalse>>
+<<s-compound-procedures>>
+<<s-environments-list-of-bindings-better-abstractions>>
+<<s-primitive-procedures>>
+<<primitive-procedures-prolog-in-amb>>
+<<s-amb-driver-loop>>
+<<s-user-prompt-print>>
+<<s-glue2>>
+(driver-loop)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+;;; Amb-Eval input:
+(define (require p) (if (not p) (amb)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (print-frame frame) (display "bindings={") (for-each (lambda (b) (display "[") (display (car b)) (display ",") (display (cdr b)) (display "] ")) (frame-bindings frame)) (display "}  ") (display "promises={") (write (frame-promises frame)) (display "}"))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (print-prolog-environment env) (define (loop env) (if (null? env) (quote ok) (loop (cdr env))) (newline) (print-frame (car env))) (loop env))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define THE-ASSERTIONS (quote ()))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define THE-RULES (quote ()))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-rule-or-assertion! assertion) (if (rule? assertion) (add-rule! assertion) (add-assertion! assertion)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-assertion! assertion) (set! THE-ASSERTIONS (cons assertion THE-ASSERTIONS)) (quote ok))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-rule! rule) (set! THE-RULES (cons rule THE-RULES)) (quote ok))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule? statement) (tagged-list? statement (quote rule)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (conclusion rule) (cadr rule))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-body rule) (if (null? (cddr rule)) (quote (always-true)) (caddr rule)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (lq i) (let ((q (query-syntax-process i))) (cond ((assertion-to-be-added? q) (add-rule-or-assertion! (add-assertion-body q)) (quote added)) (else (instantiate q (try-qeval (qeval q (make-frame-prolog (quote ()) (quote ())))) (lambda (v f) (contract-question-mark v)))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (query-syntax-process exp) (map-over-symbols expand-question-mark exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (map-over-symbols proc exp) (cond ((pair? exp) (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp)))) ((symbol? exp) (proc exp)) (else exp)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (type exp) (if (pair? exp) (car exp) (error "Unknown expression TYPE" exp)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (contents exp) (if (pair? exp) (cdr exp) (error "Unknown expression CONTENTS" exp)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (assertion-to-be-added? exp) (eq? (type exp) (quote assert!)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (add-assertion-body exp) (car (contents exp)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (empty-conjunction? exps) (null? exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (first-conjunct exps) (car exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rest-conjuncts exps) (cdr exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (empty-disjunction? exps) (null? exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (first-disjunct exps) (car exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rest-disjuncts exps) (cdr exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (negated-query exps) (car exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (predicate exps) (car exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (args exps) (cdr exps))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule? statement) (tagged-list? statement (quote rule)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (conclusion rule) (cadr rule))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-body rule) (if (null? (cddr rule)) (quote (always-true)) (caddr rule)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (query-syntax-process exp) (map-over-symbols expand-question-mark exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (map-over-symbols proc exp) (cond ((pair? exp) (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp)))) ((symbol? exp) (proc exp)) (else exp)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (expand-question-mark symbol) (let ((chars (symbol->string symbol))) (if (string=? (substring chars 0 1) "?") (list (quote ?) (string->symbol (substring chars 1 (string-length chars)))) symbol)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (var? exp) (tagged-list? exp (quote ?)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (constant-symbol? exp) (symbol? exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define rule-counter 0)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (new-rule-application-id) (set! rule-counter (+ 1 rule-counter)) rule-counter)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-new-variable var rule-application-id) (cons (quote ?) (cons rule-application-id (cdr var))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (contract-question-mark variable) (string->symbol (string-append "?" (if (number? (cadr variable)) (string-append (symbol->string (caddr variable)) "-" (number->string (cadr variable))) (symbol->string (cadr variable))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (frame-promises frame) (if (null? frame) (quote ()) (cadr frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (frame-bindings frame) (if (null? frame) (quote ()) (car frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-binding variable value) (cons variable value))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (binding-variable binding) (car binding))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (binding-value binding) (cdr binding))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (binding-in-frame variable frame) (assoc variable (frame-bindings frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (extend variable value frame) (make-frame-prolog (cons (make-binding variable value) (frame-bindings frame)) (frame-promises frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (frame-add-promise frame promise) (make-frame-prolog (frame-bindings frame) (cons promise (frame-promises frame))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-frame-prolog bindings promises) (list bindings promises))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (logical-var? exp) (and (pair? exp) (var? (car exp))))
+;;; Starting a new ERROR: todo
+  called from execute-application on line 160 of file /tmp/babel-af9eEI/sh-script-HT2TdN
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (logical-var-value exp) (cdr exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (logical-var-variable exp) (car exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (instantiate exp) (define (copy exp) (cond ((logical-var? exp) (logical-var-value exp)) ((pair? exp) (cons (copy (car exp)) (copy (cdr exp)))) (else exp))) (copy exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-cell contents) (cons (quote cell) contents))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (var->logical-var exp) (let ((cell (make-cell (quote *uninitialized*)))) (let ((retval (cons exp cell))) (set-cdr! cell retval) retval)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(show #t "test:var->logical-var:" (pretty (var->logical-var (expand-question-mark (quote ?x)))))
+;;; Starting a new problem test:var->logical-var:#0=((? x) cell . #0#)
+
+;;; Amb-Eval value:
+{Show-Env #56 #<Output-Port 140239853907936> 1 0 78 10 #f #\  #f #f #<procedure substring-length> #f #f #<procedure output-default> ()}
+;;; Amb-Eval input:
+(display "var converted\n")
+;;; Starting a new problem var converted
+
+;;; Amb-Eval value:
+#<undef>
+;;; Amb-Eval input:
+(error "todo")
+;;; Starting a new problem 
+#+end_example
 
 
 
@@ -59157,10 +60102,10 @@ working with many :noweb blocks is unmanageable.
 		  (eq? (car exp) tag)
 		  false))
     (define apply-in-underlying-scheme apply)
-  
+
     (define (true? v)  (not (false? v)))
     (define (false? v)      (eq? v #f))
-  
+
     (define primitive-implementation-checkers 
       (list 
 	   (list / (lambda (l)  (cond ((< (length l) 2) 'not-enough-arguments)
@@ -59173,7 +60118,7 @@ working with many :noweb blocks is unmanageable.
 				   ((not (pair? (car l))) 'cdr-not-a-pair)
 				   (else #f)))))
     )
-  
+
     (define (apply-primitive-procedure-with-errors proc arglist)
       (let ((checker (assoc (primitive-implementation proc)
 			     primitive-implementation-checkers)))
@@ -59197,7 +60142,7 @@ working with many :noweb blocks is unmanageable.
 	      (define (variable? exp) (symbol? exp))
 	      (define (quoted? exp)
 		(tagged-list? exp 'quote))
-  
+
 	      (define (text-of-quotation exp) (cadr exp))
 	      (define (tagged-list? exp tag)
 		(if (pair? exp)
@@ -59205,36 +60150,36 @@ working with many :noweb blocks is unmanageable.
 		    false))
 	      (define (assignment? exp)
 		(tagged-list? exp 'set!))
-  
+
 	      (define (assignment-variable exp) (cadr exp))
-  
+
 	      (define (assignment-value exp) (caddr exp))
 	      (define (definition? exp)
 		(tagged-list? exp 'define))
-  
+
 	      (define (definition-variable exp)
 		(if (symbol? (cadr exp))
 		    (cadr exp)
 		    (caadr exp)))
-  
+
 	      (define (definition-value exp)
 		(if (symbol? (cadr exp))
 		    (caddr exp)
 		    (make-lambda (cdadr exp)
 				 (cddr exp))))
 	      (define (lambda? exp) (tagged-list? exp 'lambda))
-  
+
 	      (define (lambda-parameters exp) (cadr exp))
-  
+
 	      (define (lambda-body exp) (cddr exp))
 	      (define (make-lambda parameters body)
 		(cons 'lambda (cons parameters body)))
 	      (define (if? exp) (tagged-list? exp 'if))
-  
+
 	      (define (if-predicate exp) (cadr exp))
-  
+
 	      (define (if-consequent exp) (caddr exp))
-  
+
 	      (define (if-alternative exp)
 		(if (not (null? (cdddr exp)))
 		    (cadddr exp)
@@ -59242,30 +60187,30 @@ working with many :noweb blocks is unmanageable.
 	      (define (make-if predicate consequent alternative)
 		(list 'if predicate consequent alternative))
 	      (define (begin? exp) (tagged-list? exp 'begin))
-  
+
 	      (define (begin-actions exp) (cdr exp))
-  
+
 	      (define (last-exp? seq) (null? (cdr seq)))
-  
+
 	      (define (first-exp seq) (car seq))
-  
+
 	      (define (rest-exps seq) (cdr seq))
 	      (define (sequence->exp seq)
 		(cond ((null? seq) seq)
 		      ((last-exp? seq) (first-exp seq))
 		      (else (make-begin seq))))
-  
+
 	      (define (make-begin seq) (cons 'begin seq))
     (define (application? exp) (pair? exp))
-  
+
     (define (operator exp) (car exp))
-  
+
     (define (operands exp) (cdr exp))
-  
+
     (define (no-operands? ops) (null? ops))
-  
+
     (define (first-operand ops) (car ops))
-  
+
     (define (rest-operands ops) (cdr ops))
     (define (enclosing-environment env) (cdr env))
     (define (first-frame env) (car env))
@@ -59321,7 +60266,7 @@ working with many :noweb blocks is unmanageable.
 		(else (scan (cdr vars) (cdr vals)))))
 	(scan (frame-variables frame)
 	      (frame-values frame))))
-  
+
     (define (make-procedure parameters body env)
       (list 'procedure parameters body env))
     (define (compound-procedure? p)
@@ -59380,7 +60325,7 @@ working with many :noweb blocks is unmanageable.
 	    (list 'string? string?)
 	    (list 'symbol? symbol?)
 	    ))
-  
+
     (define (primitive-procedure-names)
       (map car
 	   primitive-procedures))
@@ -59397,14 +60342,14 @@ working with many :noweb blocks is unmanageable.
 	initial-env))
     (define (primitive-procedure? proc)
       (tagged-list? proc 'primitive))
-  
+
     (define (primitive-implementation proc) (cadr proc))
-  
+
     (define (apply-primitive-procedure proc args)
       (apply-in-underlying-scheme
        (primitive-implementation proc) args))
     (define (let? exp) (tagged-list? exp 'let))
-  
+
     (define (let-bindings exp)
       (cadr exp))
     (define (let-bindings-variables l)
@@ -59419,21 +60364,21 @@ working with many :noweb blocks is unmanageable.
 	      (let-bindings-variables (let-bindings exp))
 	      (let-contents exp)) 
 	 (let-bindings-expressions (let-bindings exp))))
-  
+
     (define (cond? exp) (tagged-list? exp 'cond))
-  
+
     (define (cond-clauses exp) (cdr exp))
-  
+
     (define (cond-else-clause? clause)
       (eq? (cond-predicate clause) 'else))
-  
+
     (define (cond-predicate clause) (car clause))
-  
+
     (define (cond-actions clause) (cdr clause))
-  
+
     (define (cond->if exp)
       (expand-clauses (cond-clauses exp)))
-  
+
     (define (expand-clauses clauses)
       (if (null? clauses)
 	  'false 
@@ -59447,7 +60392,7 @@ working with many :noweb blocks is unmanageable.
 		(make-if (cond-predicate first)
 			 (sequence->exp (cond-actions first))
 			 (expand-clauses rest))))))
-  
+
     (define (prompt-for-input string)
       #;(newline) #;(newline) (display string) (newline))
     (define (announce-output string)
@@ -59459,7 +60404,7 @@ working with many :noweb blocks is unmanageable.
 		       (procedure-body object)
 		       '<procedure-env>)))
 	  (show #t (pretty object))))
-  
+
 
     (define (make-machine register-names ops controller-text)
       (let ((machine (make-new-machine)))
@@ -59532,14 +60477,14 @@ working with many :noweb blocks is unmanageable.
 	dispatch))
     (define (pop stack) (stack 'pop))
     (define (push stack value) ((stack 'push) value))
-  
+
     (define (make-breakpoint label offset)
       (list label offset))
     (define (breakpoint-label brk)
       (car brk))
     (define (breakpoint-offset brk)
       (cadr brk))
-  
+
     (define (make-new-machine)
       (let ((pc (make-register 'pc))
 	  (flag (make-register 'flag))
@@ -59558,7 +60503,7 @@ working with many :noweb blocks is unmanageable.
 			 (lambda () (stack 'initialize)))
 		   (list 'print-stack-statistics
 			 (lambda () (stack 'print-statistics)))))
-  
+
 	    (register-table
 	     (list (list 'pc pc) (list 'flag flag))))
 	  (define (allocate-register name)
@@ -59664,7 +60609,7 @@ working with many :noweb blocks is unmanageable.
       (set-contents! (get-register machine register-name)
 		   value)
       'done)
-  
+
     (define (get-register machine reg-name)
       ((machine 'get-register) reg-name))
     (define (advance-pc pc)
@@ -59680,7 +60625,7 @@ working with many :noweb blocks is unmanageable.
       (let* ((label-cell (cddr instr)))
 	(set-car! label-cell (cons label (car label-cell)))))
     (define (instruction-labels inst) (caddr inst))
-  
+
     (define (extract-labels text receive)
       (if (null? text)
 	  (receive '() '())
@@ -59703,10 +60648,10 @@ working with many :noweb blocks is unmanageable.
     (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
     (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
     (define (assign-inst? inst) (tagged-list? (instruction-text inst) 'assign))
-  
-  
+
+
     (define (instruction-text-type inst) (car (instruction-text inst)))
-  
+
     (define (extract-reg source)
       (append-map (lambda (sexp) (if (tagged-list? sexp 'reg)
 			      (list (cadr sexp))
@@ -59722,8 +60667,8 @@ working with many :noweb blocks is unmanageable.
 		((tagged-list? sexp 'restore) (cdr sexp))  	      
 		(else (extract-reg (cdr sexp))))) 
 	text)))
-  
-  
+
+
     (define (assemble controller-text machine)
       (let ((allregs (lset-difference eq? (extract-registers controller-text)
 				      (machine 'all-register-names)
@@ -59769,7 +60714,7 @@ working with many :noweb blocks is unmanageable.
 	   (update-insts! insts labels machine))
 	 insts)))
     (define make-metadata list)
-  
+
     (define (update-insts! insts labels machine)
       (let ((pc (get-register machine 'pc))
 	  (flag (get-register machine 'flag))
@@ -59783,7 +60728,7 @@ working with many :noweb blocks is unmanageable.
 	   (instruction-text inst)
 	   labels machine pc flag stack ops)))
 	 insts)))
-  
+
     (define (make-instruction text) (list text '() '() '())) ;; text, procedure, labels
     (define (instruction-text inst) (car inst)) 
     (define (instruction-execution-proc inst) (cadr inst))
@@ -59794,10 +60739,10 @@ working with many :noweb blocks is unmanageable.
     (define (clear-instruction-breakpoint! inst break)
 	(set-car! (list-tail inst 3) 
 		  (lset-difference equal? (list-tail inst 3) (list break))))
-  
+
     (define (set-instruction-execution-proc! inst proc)
       (set-car! (cdr inst) proc))
-  
+
     (define (make-label-entry label-name insts)
       (cons label-name insts))
     (define (lookup-label labels label-name)
@@ -59849,7 +60794,7 @@ working with many :noweb blocks is unmanageable.
 	  (cadr val)
 	  (error "Unknown operation: ASSEMBLE"
 		 symbol))))
-  
+
     (define (make-assign inst machine labels operations pc)
       (let ((target
 	   (get-register machine (assign-reg-name inst)))
@@ -59867,7 +60812,7 @@ working with many :noweb blocks is unmanageable.
       (cadr assign-instruction))
     (define (assign-value-exp assign-instruction)
       (cddr assign-instruction))
-  
+
     (define (make-test inst machine labels operations flag pc)
       (let ((condition (test-condition inst)))
 	(if (operation-exp? condition)
@@ -60011,7 +60956,7 @@ working with many :noweb blocks is unmanageable.
     (list 'read read)
     (list 'user-print user-print)
     (list 'error error)
-  
+
     (list 'let? let?)
     (list 'let->combination let->combination)
     (list 'cond? cond?)
@@ -60254,6 +61199,132 @@ working with many :noweb blocks is unmanageable.
       ))))
   (start eceval)
 #+end_src
+
+#+name: list-of-scheme-interpreter-operations
+#+begin_src scheme :exports code
+(define primitive-procedures
+    (list (list 'car car)
+	  (list 'cdr cdr)
+	  (list 'cons cons)
+	  (list 'cadr cadr)
+	  (list 'null? null?)
+	  (list 'exit exit)
+	  (list 'display display)
+	  (list 'newline newline)
+	  (list 'assoc assoc)
+	  (list '= =)
+	  (list '< <)
+	  (list '> >)
+	  (list '+ +)
+	  (list '- -)
+	  (list 'not not)
+	  (list '* *)
+	  (list 'current-second current-second)
+	  (list 'list list)
+	  (list 'underlying-cons cons)
+	  (list 'underlying-car car)
+	  (list 'underlying-cdr cdr)
+	  (list 'eq? eq?)
+	  (list 'equal? equal?)
+	  (list 'pair? pair?)
+	  (list 'error error)
+	  (list 'random-integer random-integer)
+	  (list 'even? even?)
+	  (list 'remainder remainder)
+	  (list 'square square)
+	  (list '/ /)
+	  (list 'member member)
+	  (list 'abs abs)
+	  (list 'cdar cdar)
+	  (list 'cdadr cdadr)
+	  (list 'caar caar)
+	  (list 'caadr caadr)
+	  (list 'cddr cddr)
+	  (list 'cdddr cdddr)
+	  (list 'caddr caddr)
+	  (list 'cadddr cadddr)
+	  (list 'set-car! set-car!)
+	  (list 'set-cdr! set-cdr!)
+	  (list 'memq memq)
+	  (list 'read read)
+	  (list 'show show)
+	  (list 'pretty pretty)
+	  (list 'number? number?)
+	  (list 'string? string?)
+	  (list 'symbol? symbol?)
+	  ))
+#+end_src
+
+#+name: list-of-eceval-operations
+#+begin_src scheme :exports code
+  (define eceval-operations
+    (list 
+      (list 'self-evaluating? self-evaluating?)
+      (list 'car car)
+      (list 'cdr cdr)
+      (list 'cons cons)
+      (list 'prompt-for-input prompt-for-input)
+      (list 'announce-output announce-output)
+      (list 'exit exit)
+      (list 'get-global-environment get-global-environment)
+      (list 'self-evaluating? self-evaluating?)
+      (list 'quoted? quoted?)
+      (list 'variable? variable?)
+      (list 'assignment? assignment?)
+      (list 'definition? definition?)
+      (list 'if? if?)
+      (list 'lambda? lambda?)
+      (list 'begin? begin?)
+      (list 'application? application?)
+      (list 'lookup-variable-value lookup-variable-value)
+      (list 'text-of-quotation text-of-quotation)
+      (list 'lambda-parameters lambda-parameters)
+      (list 'lambda-body lambda-body)
+      (list 'make-procedure make-procedure)
+      (list 'operands operands)
+      (list 'operator operator)
+      (list 'empty-arglist empty-arglist)
+      (list 'no-operands? no-operands?)
+      (list 'last-operand? last-operand?)
+      (list 'first-operand first-operand)
+      (list 'adjoin-arg adjoin-arg)
+      (list 'rest-operands rest-operands)
+      (list 'primitive-procedure? primitive-procedure?)
+      (list 'compound-procedure? compound-procedure?)
+      (list 'apply-primitive-procedure apply-primitive-procedure)
+      (list 'procedure-parameters procedure-parameters)
+      (list 'procedure-environment procedure-environment)
+      (list 'extend-environment extend-environment)
+      (list 'procedure-body procedure-body)
+      (list 'begin-actions begin-actions)
+      (list 'first-exp first-exp)
+      (list 'last-exp? last-exp?)
+      (list 'rest-exps rest-exps)
+      (list 'if-predicate if-predicate)
+      (list 'true? true?)
+      (list 'if-alternative if-alternative)
+      (list 'if-consequent if-consequent)
+      (list 'assignment-variable assignment-variable)
+      (list 'assignment-value assignment-value)
+      (list 'set-variable-value! set-variable-value!)
+      (list 'definition-variable definition-variable)
+      (list 'definition-value definition-value)
+      (list 'define-variable! define-variable!)
+      (list 'read read)
+      (list 'user-print user-print)
+      (list 'error error)
+
+      (list 'let? let?)
+      (list 'let->combination let->combination)
+      (list 'cond? cond?)
+      (list 'cond->if cond->if)
+	 (list 'eq? eq?)
+	 (list 'apply-primitive-procedure-with-errors apply-primitive-procedure-with-errors)
+	))
+#+end_src
+
+The operations above we probably have to implement ourselves.
+
 
 
 **** TODO Exercise 5.52
