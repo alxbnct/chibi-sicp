@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-26 14:35:04 lockywolf>
+! Time-stamp: <2020-03-26 23:27:49 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -67,11 +67,14 @@ module scheme
    contains
      procedure :: generic_scheme_print => print_scheme_string
      !      generic :: write (formatted) => print_scheme_string
+     final :: scheme_string_deallocate
   end type scheme_string
   type, extends( scheme_object ) :: scheme_number
   end type scheme_number
 
   type, extends( scheme_object ) :: scheme_pair
+     contains
+     final :: scheme_pair_deallocate
   end type scheme_pair
 
   type, extends( scheme_object ) :: scheme_symbol
@@ -82,6 +85,8 @@ module scheme
   type, extends( scheme_object ) :: scheme_empty_list
   end type scheme_empty_list
 
+  type(scheme_empty_list), target :: the_null
+  
   type, extends( scheme_object ) :: scheme_false
   end type scheme_false
 
@@ -111,10 +116,18 @@ module scheme
   !      class(scheme_object), dimension(:), pointer :: arguments
   !    end function func
   ! end interface
-  
+
 
 contains
-
+  subroutine scheme_string_deallocate( this )
+    type(scheme_string) :: this
+    deallocate( this%value )
+  end subroutine scheme_string_deallocate
+  
+  subroutine scheme_pair_deallocate( this )
+    type(scheme_pair) :: this
+    deallocate( this%value )
+  end subroutine scheme_pair_deallocate
     
   subroutine print_scheme_object(this, unit, iotype, v_list, iostat, iomsg)
     class(scheme_object), intent(in) :: this
@@ -183,10 +196,9 @@ contains
     !print *, new_line('a'), "remove_junk:result=", intermediate
   end function remove_junk
 
-  subroutine parse_string( arg, token, rest )
-    character(:), pointer, intent(in) :: arg
-    character(:), pointer, intent(out) :: rest
-    class(scheme_object), pointer, intent(out) :: token
+  function parse_string( arg ) result( token )
+    character(:), pointer, intent(inout) :: arg
+    class(scheme_object), pointer :: token
     integer :: caret = 1
     character(:), allocatable :: interim_string
     interim_string = ""
@@ -202,13 +214,12 @@ contains
        caret = caret + 1
     end do
     token%value = interim_string
-    rest => arg(caret+1:) ! skipping the second quotation mark '"'
-  end subroutine parse_string
+    arg => arg(caret:)
+  end function parse_string
 
-  subroutine parse_symbol( arg, token, rest )
-    character(:), pointer, intent(in) :: arg
-    character(:), pointer, intent(out) :: rest
-    class(scheme_object), pointer, intent(out) :: token
+  function parse_symbol( arg ) result( token )
+    character(:), pointer, intent(inout) :: arg
+    class(scheme_object), pointer :: token
     integer :: caret = 1
     character(:), allocatable :: interim_string
     interim_string = ""
@@ -224,33 +235,57 @@ contains
        interim_string = interim_string // arg(caret:caret) ! does it reallocate every assignment?
     end do
     token%value = interim_string
-    rest => arg(caret+1:) ! at the end will be beyond the 
-  end subroutine parse_symbol
+    arg => arg(caret:)
+  end function parse_symbol
 
-
-  function parse_sexp( arg ) result( retval )
-    character(:), allocatable, target :: arg
-    character(:), pointer :: arg_pointer 
+  function cons( a, b) result( retval )
+    class(scheme_object), target :: a
+    class(scheme_object), target :: b
+    type(scheme_pair), pointer :: retval
+    the_cars(free)%contents => a
+    the_cdrs(free)%contents => b
+    allocate( retval )
+    allocate( integer :: retval%value )
+    retval%value = free
+    free = free + 1
+  end function cons
+  
+  
+  recursive function parse_list( arg ) result( retval )
+    character(:), pointer :: arg
     class(scheme_object), pointer :: retval
-    class(scheme_object), pointer :: token
+    do while (arg(1:1) == ' ')
+       arg => arg(2:)
+    end do
+    if (arg(1:1) == ")") then
+       retval => the_null
+       return
+    end if
+    retval => cons( parse_sexp(arg), parse_list( arg ) )
+  end function parse_list
+  
+  function parse_sexp( arg ) result( retval )
+    character(:), pointer :: arg
+    class(scheme_object), pointer :: retval
 
     select case (arg(1:1))
     case ('(')
        print *, "debug: parsing list"
+       arg => arg(2:)
+       retval => parse_list( arg )
     case ('"')
-!       print *, new_line('a'), "debug: parse string"
-       arg_pointer => arg
-       call parse_string( arg_pointer, token, arg_pointer )
-       retval => token
+       retval => parse_string( arg ) ! returns sexp and moves arg
     case ("'")
        print *, "debug: parse quote"
     case ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-       print *, "debug: parse number"   
+       print *, "debug: parse number"
+    case ( ')' )
+       error stop "Closing parenthesis should be processed in parse_list"
+       retval => the_null
     case default
-       arg_pointer => arg
 !       print *, new_line('a'), "debug: parse symbol"
-       call parse_symbol( arg_pointer, token, arg_pointer )
-       retval => token
+      
+       retval => parse_symbol( arg )
     end select
 
   end function parse_sexp
@@ -284,6 +319,33 @@ contains
     retval%value = free
     free = free + 1
   end subroutine test1
+
+  subroutine test2() ! does (cons 1 "hello")
+    type(scheme_number), pointer :: a
+    type(scheme_string), pointer :: b
+    
+    type(scheme_pair) :: retval
+    character(len=*), parameter :: teststring = "hello"
+    allocate(scheme_number :: a)
+    allocate(scheme_string :: b)
+    allocate( integer :: a%value )
+    a%value = 1
+    b%value = teststring ! does automatic allocation work?
+    the_cars(free)%contents => a
+    the_cdrs(free)%contents => b
+    allocate( integer :: retval%value )
+    retval%value = free
+    free = free + 1
+  end subroutine test2
+
+  ! the idea of the following is like this: the only case when the
+  ! cons-memory garbage collector cannot reach for the string is when
+  ! this value is returned from a call. 
+  subroutine test3(retval) ! does make-string
+    type(scheme_string), intent(out) :: retval
+    allocate( retval%value, source="hello" ) ! when this object dies,
+    ! the finaliser should kill the string itself
+  end subroutine test3
   
   
 end module scheme
@@ -296,7 +358,8 @@ program main
   implicit none
   integer :: fake = 0
   class(scheme_object), pointer :: parsed_expression  
-  character(len=:), allocatable :: test_string
+  character(len=:), allocatable, target :: test_string
+  character(len=:), pointer     :: test_string_pointer
   !class(scheme_object), pointer :: test_object
   !test_object => read_sexp()
   ! 001 write (output_unit,'(a,i1)') "Hello, world, ", counter
@@ -307,8 +370,9 @@ program main
   
   test_string =  read_until_eof()
   !print *, "debug", test_string
-  test_string = remove_junk( test_string )
-  parsed_expression => parse_sexp( test_string ) ! test 1, should return a scheme_string
+  test_string = remove_junk( test_string ) ! test_string should be a string
+  test_string_pointer => test_string
+  parsed_expression => parse_sexp( test_string_pointer ) 
   print *, parsed_expression
   fake = c_exit(0)
   stop 0
