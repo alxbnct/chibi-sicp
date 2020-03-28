@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-28 15:13:28 lockywolf>
+! Time-stamp: <2020-03-28 21:08:46 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -67,6 +67,7 @@ module scheme
 
   type, extends( scheme_object ) :: scheme_string
    contains
+     procedure :: debug_display => debug_display_string
      procedure :: generic_scheme_print => print_scheme_string
      !      generic :: write (formatted) => print_scheme_string
      final :: scheme_string_deallocate
@@ -76,17 +77,20 @@ module scheme
 
   type, extends( scheme_object ) :: scheme_pair
    contains
+     procedure :: debug_display  => debug_display_pair
      procedure :: generic_scheme_print => print_scheme_pair
      final :: scheme_pair_deallocate
   end type scheme_pair
 
   type, extends( scheme_object ) :: scheme_symbol
    contains
+     procedure :: debug_display => debug_display_symbol
      procedure :: generic_scheme_print => print_scheme_symbol
   end type scheme_symbol
 
   type, extends( scheme_object ) :: scheme_empty_list
    contains
+     procedure :: debug_display => debug_display_empty_list
      procedure :: generic_scheme_print => print_scheme_empty_list
   end type scheme_empty_list
 
@@ -211,7 +215,7 @@ contains
   
   subroutine debug_display_object( this ) ! for the root object
     class(scheme_object), intent(in) :: this
-    write (output_unit, *) this
+    write (output_unit, fmt='(dt)', advance='no') this
   end
   
   function remove_junk( arg ) result( intermediate )
@@ -242,17 +246,19 @@ contains
     class(scheme_object), pointer :: token
     integer :: caret = 1
     character(:), allocatable :: interim_string
+    write (*,*) "debug:parse_string", arg
     allocate(interim_string, source="")
     allocate( scheme_string :: token )
     allocate( character :: token%value )
     token%value = "BUG1"
-    caret = 2 ! skipping the first quotation mark '"'
+    caret = 1 ! skipping the first quotation mark '"'
     do
+       caret = caret + 1
        if (arg(caret:caret) == '"') then
+          caret = caret + 1
           exit
        end if
        interim_string = interim_string // arg(caret:caret)
-       caret = caret + 1
     end do
     token%value = interim_string
     arg => arg(caret:)
@@ -381,37 +387,61 @@ contains
     free = free + 1
   end function cons
 
-  recursive function debug_display_pair( x ) result( retval )
-    class(scheme_pair) :: x
-    logical :: retval
-    class(scheme_object), pointer :: arg => null()
-    retval = .true.
-    associate (temp => x%value) ! just a type cast
-      select type (temp)
-      type is (integer)
+  recursive subroutine debug_display_pair( this )
+    class(scheme_pair), intent(in) :: this
+!    class(scheme_object), pointer :: arg
+!    associate ( temp => x%value ) 
+      select type (temp => this%value )
+      type is ( integer )
          !print *,"("
          write (output_unit, fmt='(1a)', advance='no') "("
-         arg => the_cars(temp)%contents
+         !arg => the_cars(temp)%contents
+         call the_cars(temp)%contents%debug_display()
          !retval = lowLevelDisplay( arg )
-         call arg%debug_display()
+         !call arg%debug_display
          !print *, " . "
          write (output_unit, fmt='(1a)', advance='no') " . "
-         arg => the_cdrs(temp)%contents
-         call arg%debug_display()
+         !arg => the_cdrs(temp)%contents
+         !call arg%debug_display
+         call the_cdrs(temp)%contents%debug_display()
          !retval = lowLevelDisplay( arg )
          !print *, ")"
          write (output_unit, fmt='(1a)', advance='no') ")"
       class default
          error stop "wrong pair contents"
       end select
-    end associate
-  end function debug_display_pair
+!    end associate
+  end subroutine debug_display_pair
+
+  subroutine debug_display_string( this )
+    class(scheme_string), intent(in):: this
+    select type (temp => this%value )
+      type is ( character(len=*) )
+         write (output_unit, fmt='(a,a,a)', advance='no') '"', temp, '"'
+      end select
+  end subroutine debug_display_string
+
+  subroutine debug_display_symbol( this )
+    class(scheme_symbol), intent(in) :: this
+    select type (temp => this%value )
+    type is ( character(len=*) )
+       write (output_unit, fmt='(a)', advance='no') temp
+    class default
+       error stop "non-character symbol value"
+    end select
+  end subroutine debug_display_symbol
+
+  subroutine debug_display_empty_list( this )
+    class(scheme_empty_list), intent(in) :: this
+    write (output_unit, fmt='(a)', advance='no') '()'
+  end subroutine debug_display_empty_list
+
   
 end module scheme
 
 program main
   use :: scheme, only : scheme_object, scheme_string, scheme_pair, &
-       scheme_symbol, remove_junk, parse_sexp, the_null, lowLevelDisplay
+       scheme_symbol, remove_junk, parse_sexp, the_null
   use, intrinsic :: iso_fortran_env
   use, non_intrinsic :: system_interface, only: c_exit, read_until_eof
   implicit none
@@ -436,7 +466,7 @@ program main
   parsed_expression => parse_sexp( test_string_pointer ) 
   !  print *, parsed_expression
   !useless_retval =  lowLevelDisplay( parsed_expression )
-!  parsed_expression%debug_display()
+  call parsed_expression%debug_display()
   fake = c_exit(0)
   stop 0
   
