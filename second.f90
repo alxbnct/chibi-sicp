@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-29 18:00:14 lockywolf>
+! Time-stamp: <2020-03-29 22:22:49 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -106,12 +106,20 @@ module scheme
   end type scheme_true
 
   type, extends( scheme_object ) :: scheme_primitive_procedure
+     procedure(sample), pointer, nopass :: proc_pointer
   end type scheme_primitive_procedure
+
+  abstract interface
+     function sample() result( retval )
+       import :: scheme_object
+       class(scheme_object), pointer :: retval
+     end function sample
+  end interface
 
   type scheme_pointer
      class(scheme_object), pointer :: contents
   end type scheme_pointer
-  
+
   type(scheme_pointer), dimension(memory_size) :: the_cars
   type(scheme_pointer), dimension(memory_size) :: the_cdrs
   integer :: free = 1
@@ -119,7 +127,7 @@ module scheme
   class(scheme_object), pointer :: exp
   class(scheme_object), pointer :: env
   class(scheme_object), pointer :: val
-  class(scheme_object), pointer :: continue
+  class(scheme_object), pointer :: reg_continue
   class(scheme_object), pointer :: proc
   class(scheme_object), pointer :: argl
   class(scheme_object), pointer :: unev
@@ -501,11 +509,54 @@ contains
     test_string_pointer => test_string
     parsed_expression => parse_sexp( test_string_pointer ) 
   end function low_level_read
+
+  subroutine low_level_initialize_stack()
+    print *, "initialize-stack not implemented"
+    !   nullify(env)
+    !   nullify(exp)
+    !   nullify(val)
+    !   nullify(proc)
+    !   nullify(argl)
+    !   nullify(reg_continue)
+    !   nullify(unev)
+  end subroutine low_level_initialize_stack
+
+  function ll_make_frame( vars, vals ) result( retval )
+    class(scheme_object), pointer :: vars
+    class(scheme_object), pointer :: vals
+    type(scheme_pair), pointer  :: retval
+    retval => cons( vars, vals )
+  end function ll_make_frame
+
+  function ll_extend_environment( names, objects, base_env ) result( retval )
+    class(scheme_object), pointer :: names
+    class(scheme_object), pointer :: objects
+    class(scheme_object), pointer :: base_env
+    type(scheme_pair), pointer :: retval
+    class(scheme_object), pointer :: intermediate_object
+    intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
+    retval => cons( intermediate_object, base_env )
+  end function ll_extend_environment
+
+  function make_primitive_procedure_object() result( retval )
+    type(scheme_primitive_procedure) :: retval
+    retval%proc_pointer => ll_extend_environment
+
+  end function make_primitive_procedure_object
   
   
-  subroutine main_loop() 
+  subroutine ll_setup_global_environment()
+    
+    error stop "not implemented"
+  end subroutine ll_setup_global_environment
+  
+  
+  subroutine main_loop()
+    integer :: i
 001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world
-   exp => null()
+    exp => low_level_read()
+    i = 001
+
   end subroutine main_loop
   
   

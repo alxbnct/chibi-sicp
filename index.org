@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-03-27 11:14:43 lockywolf>
+# Time-stamp: <2020-03-29 18:07:40 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -60897,11 +60897,11 @@ working with many :noweb blocks is unmanageable.
     (define (label-exp? exp) (tagged-list? exp 'label))
     (define (label-exp-label exp) (cadr exp))
 
-	(define the-global-environment (setup-environment))
-	(define (get-global-environment) the-global-environment)
-	(define eceval-operations
+    (define the-global-environment (setup-environment))
+    (define (get-global-environment) the-global-environment)
+    (define eceval-operations
 	  (list 
-    (list 'self-evaluating? self-evaluating?)
+             (list 'self-evaluating? self-evaluating?)
     (list 'car car)
     (list 'cdr cdr)
     (list 'cons cons)
