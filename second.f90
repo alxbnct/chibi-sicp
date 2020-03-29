@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-28 21:08:46 lockywolf>
+! Time-stamp: <2020-03-29 17:13:56 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -73,6 +73,8 @@ module scheme
      final :: scheme_string_deallocate
   end type scheme_string
   type, extends( scheme_object ) :: scheme_number
+   contains
+     procedure :: debug_display => debug_display_number
   end type scheme_number
 
   type, extends( scheme_object ) :: scheme_pair
@@ -288,6 +290,35 @@ contains
     arg => arg(caret:)
   end function parse_symbol
 
+  function parse_number( arg ) result( token )
+    character(:), pointer, intent(inout) :: arg
+    class(scheme_object), pointer :: token
+    integer :: caret = 1
+    character, parameter, dimension(*) :: allowed_chars = (/ '1', '2', '3', &
+         '4', '5', '6', '7', '8', '9', '0' /)
+    character(:), allocatable :: interim_string
+    allocate( scheme_number :: token )
+    allocate( integer :: token%value )
+    allocate( interim_string, source="")
+    token%value = int(z"DEAD")
+    caret = 0
+    do
+       caret = caret + 1
+       if (.not.any( arg(caret:caret) == allowed_chars )) then
+          exit
+       end if
+       interim_string = interim_string // arg(caret:caret) ! does it reallocate every assignment?
+    end do
+    !token%value = interim_string
+    select type (temp => token%value)
+    type is (integer)
+       read (interim_string, *) temp
+    class default
+       error stop "wrong number contents"
+    end select
+    arg => arg(caret:)
+  end function parse_number
+
   
   
   recursive function parse_list( arg ) result( retval )
@@ -318,6 +349,7 @@ contains
        print *, "debug: parse quote"
     case ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
        print *, "debug: parse number"
+       retval => parse_number( arg )
     case ( ')' )
        error stop "Closing parenthesis should be processed in parse_list"
        retval => the_null
@@ -430,6 +462,14 @@ contains
        error stop "non-character symbol value"
     end select
   end subroutine debug_display_symbol
+  subroutine debug_display_number( this )
+    class(scheme_number), intent(in) :: this
+    select type (temp => this%value )
+    type is (integer)
+       write (output_unit, fmt='(i0)', advance='no') temp
+    end select
+  end subroutine debug_display_number
+  
 
   subroutine debug_display_empty_list( this )
     class(scheme_empty_list), intent(in) :: this
