@@ -1,18 +1,18 @@
-! Time-stamp: <2020-03-29 17:13:56 lockywolf>
+! Time-stamp: <2020-03-29 18:00:14 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
 module system_interface
-  use, intrinsic :: iso_c_binding, only: c_int
+!  use, intrinsic :: iso_c_binding, only: c_int
   use, intrinsic :: iso_fortran_env, only: input_unit
   implicit none
-  interface
-     integer (c_int) function c_exit(x) bind(c, name="exit")
-       import :: c_int
-       integer(c_int), value :: x
-     end function c_exit
-  end interface
-contains
+!   interface
+!      integer (c_int) function c_exit(x) bind(c, name="exit")
+!        import :: c_int
+!        integer(c_int), value :: x
+!      end function c_exit
+!   end interface
+ contains
   function read_until_eof() result( retval )
     character(len=:), allocatable :: retval
     character(len=1) :: buffer
@@ -25,7 +25,8 @@ contains
           exit
        else if (reason > 0) then
           print*, "Fortran:read error"
-          dummy = c_exit(1) 
+          !dummy = c_exit(1)
+          error stop "reading problems"
        else
           retval = retval//buffer;
        end if
@@ -35,13 +36,13 @@ contains
 end module system_interface
 
 module scheme
-  use, non_intrinsic :: system_interface, only: c_exit
+!  use, non_intrinsic :: system_interface, only: c_exit
   use, intrinsic :: iso_fortran_env
   implicit none
   integer, parameter :: memory_size = 1024
   integer, parameter :: strings_pool_size = 1024
   integer, parameter :: symbol_pool_size = 1024
-
+  
   !  abstract interface
   !     subroutine scheme_object_printer(this, unit, iotype, v_list,
   !     iostat, iomsg)
@@ -115,6 +116,14 @@ module scheme
   type(scheme_pointer), dimension(memory_size) :: the_cdrs
   integer :: free = 1
 
+  class(scheme_object), pointer :: exp
+  class(scheme_object), pointer :: env
+  class(scheme_object), pointer :: val
+  class(scheme_object), pointer :: continue
+  class(scheme_object), pointer :: proc
+  class(scheme_object), pointer :: argl
+  class(scheme_object), pointer :: unev
+  
   
   !  type(scheme_pointer), dimension(strings_pool_size) :: the_strings
   !  type(scheme_pointer), dimension(symbol_pool_size) :: the_symbols ! obarray?
@@ -133,11 +142,13 @@ contains
   subroutine scheme_string_deallocate( this )
     type(scheme_string) :: this
     deallocate( this%value )
+    print *, "de-allocating string"
   end subroutine scheme_string_deallocate
   
   subroutine scheme_pair_deallocate( this )
     type(scheme_pair) :: this
     deallocate( this%value )
+    print *, "de-allocating pair"
   end subroutine scheme_pair_deallocate
     
   subroutine print_scheme_object(this, unit, iotype, v_list, iostat, iomsg)
@@ -164,7 +175,8 @@ contains
             '#<scheme_string "' // temp // '">'
     class default
        print *, 'error'
-       iostat = c_exit(1)
+       ! iostat = c_exit(1)
+       error stop "wrong string contents"
     end select
   end subroutine print_scheme_string
 
@@ -181,7 +193,8 @@ contains
             '#<scheme_pair address=', temp, '>'
     class default
        print *, 'error'
-       iostat = c_exit(1)
+       error stop "wrong pair contents"
+       ! iostat = c_exit(1)
     end select
   end subroutine print_scheme_pair
 
@@ -209,7 +222,8 @@ contains
        write (unit, fmt='(A)', iostat=iostat, iomsg=iomsg, advance='no') '#<scheme_symbol "' // temp // '">'
     class default
        print *, 'error'
-       iostat = c_exit(1)
+       error stop "wrong scheme symbol contents"
+       ! iostat = c_exit(1)
     end select
   end subroutine print_scheme_symbol
 
@@ -476,21 +490,39 @@ contains
     write (output_unit, fmt='(a)', advance='no') '()'
   end subroutine debug_display_empty_list
 
+  function low_level_read() result( parsed_expression )
+    use system_interface, only : read_until_eof
+    class(scheme_object), pointer :: parsed_expression  
+    character(len=:), allocatable, target :: test_string
+    character(len=:), pointer     :: test_string_pointer
+
+    test_string =  read_until_eof()
+    test_string = remove_junk( test_string ) ! test_string should be a string
+    test_string_pointer => test_string
+    parsed_expression => parse_sexp( test_string_pointer ) 
+  end function low_level_read
+  
+  
+  subroutine main_loop() 
+001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world
+   exp => null()
+  end subroutine main_loop
+  
   
 end module scheme
 
 program main
   use :: scheme, only : scheme_object, scheme_string, scheme_pair, &
-       scheme_symbol, remove_junk, parse_sexp, the_null
+       scheme_symbol, remove_junk, parse_sexp, low_level_read
   use, intrinsic :: iso_fortran_env
-  use, non_intrinsic :: system_interface, only: c_exit, read_until_eof
+  use, non_intrinsic :: system_interface, only: read_until_eof
   implicit none
-  integer :: fake = 0
+!  integer :: fake = 0
   class(scheme_object), pointer :: parsed_expression  
-  character(len=:), allocatable, target :: test_string
-  character(len=:), pointer     :: test_string_pointer
-  logical :: useless_retval
-  allocate( the_null%value, source="empty list" )
+!  character(len=:), allocatable, target :: test_string
+!  character(len=:), pointer     :: test_string_pointer
+!  logical :: useless_retval
+!  allocate( the_null%value, source="empty list" )
   !class(scheme_object), pointer :: test_object
   !test_object => read_sexp()
   ! 001 write (output_unit,'(a,i1)') "Hello, world, ", counter
@@ -499,15 +531,15 @@ program main
   !   nullify( test_object )
   !   if (counter < 3) goto 001
   
-  test_string =  read_until_eof()
-  !print *, "debug", test_string
-  test_string = remove_junk( test_string ) ! test_string should be a string
-  test_string_pointer => test_string
-  parsed_expression => parse_sexp( test_string_pointer ) 
+!  test_string =  read_until_eof()
+!  test_string = remove_junk( test_string ) ! test_string should be a string
+!  test_string_pointer => test_string
+!  parsed_expression => parse_sexp( test_string_pointer ) 
   !  print *, parsed_expression
   !useless_retval =  lowLevelDisplay( parsed_expression )
+  parsed_expression => low_level_read()
   call parsed_expression%debug_display()
-  fake = c_exit(0)
+  !fake = c_exit(0)
   stop 0
   
 end program main
