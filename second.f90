@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-29 22:22:49 lockywolf>
+! Time-stamp: <2020-03-30 15:05:52 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -106,14 +106,17 @@ module scheme
   end type scheme_true
 
   type, extends( scheme_object ) :: scheme_primitive_procedure
-     procedure(sample), pointer, nopass :: proc_pointer
+     procedure(packageable_procedure), pointer, nopass :: proc_pointer
   end type scheme_primitive_procedure
 
   abstract interface
-     function sample() result( retval )
+     function packageable_procedure( argl, env ) result( retval )
        import :: scheme_object
        class(scheme_object), pointer :: retval
-     end function sample
+       class(scheme_object), pointer :: argl
+       class(scheme_object), pointer :: env
+     end function packageable_procedure
+     
   end interface
 
   type scheme_pointer
@@ -288,6 +291,28 @@ contains
     arg => arg(caret:)
   end function parse_string
 
+  function make_symbol( string ) result( retval )
+    character(:), allocatable, intent(in) :: string
+    type(scheme_symbol), pointer :: retval
+    !    type(scheme_symbol), pointer :: retval_pointer
+    integer :: strlen
+    strlen = len(string)
+    allocate( scheme_symbol :: retval )
+    allocate( character(len=strlen) :: retval%value )
+    ! todo: check if it is free in final::
+    !    retval%value = "bug2"
+    !retval%value = ""
+    select type( temp => retval%value )
+    type is (character(*))
+       temp = string
+    class default
+       error stop "wrong string contents"
+    end select
+    !call move_alloc(from=string, to=retval%value)
+    !retval%value = transfer(string, string)
+    !    retval_pointer => retval
+  end function make_symbol
+  
   function parse_symbol( arg ) result( token )
     character(:), pointer, intent(inout) :: arg
     class(scheme_object), pointer :: token
@@ -295,11 +320,9 @@ contains
     character, parameter, dimension(*) :: allowed_chars = (/ 'a', 'b', 'c', &
          'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', &
          'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'/)
-    character(:), allocatable :: interim_string
-    allocate( scheme_symbol :: token )
-    allocate( character :: token%value )
+    character(:), allocatable, target :: interim_string
     allocate( interim_string, source="")
-    token%value = "BUG1"
+    !token%value = "BUG1"
     caret = 0
     do
        caret = caret + 1
@@ -308,7 +331,8 @@ contains
        end if
        interim_string = interim_string // arg(caret:caret) ! does it reallocate every assignment?
     end do
-    token%value = interim_string
+    !    token%value = interim_string
+    token => make_symbol( interim_string )
     arg => arg(caret:)
   end function parse_symbol
 
@@ -357,7 +381,7 @@ contains
   end function parse_list
   
   function parse_sexp( arg ) result( retval )
-    character(:), pointer :: arg
+    character(:), pointer, intent(inout) :: arg
     class(scheme_object), pointer :: retval
 
     select case (arg(1:1))
@@ -383,55 +407,10 @@ contains
 
   end function parse_sexp
 
-  ! subroutine test1() ! does (cons 1 2)
-  !   type(scheme_number), pointer :: a
-  !   type(scheme_number), pointer :: b
-    
-  !   type(scheme_pair) :: retval
-    
-  !   allocate(scheme_number :: a)
-  !   allocate(scheme_number :: b)
-  !   allocate( integer :: a%value )
-  !   a%value = 1
-  !   allocate( integer :: b%value )
-  !   b%value = 2
-  !   the_cars(free)%contents => a
-  !   the_cdrs(free)%contents => b
-  !   allocate( integer :: retval%value )
-  !   retval%value = free
-  !   free = free + 1
-  ! end subroutine test1
-
-  ! subroutine test2() ! does (cons 1 "hello")
-  !   type(scheme_number), pointer :: a
-  !   type(scheme_string), pointer :: b
-    
-  !   type(scheme_pair) :: retval
-  !   character(len=*), parameter :: teststring = "hello"
-  !   allocate(scheme_number :: a)
-  !   allocate(scheme_string :: b)
-  !   allocate( integer :: a%value )
-  !   a%value = 1
-  !   b%value = teststring ! does automatic allocation work?
-  !   the_cars(free)%contents => a
-  !   the_cdrs(free)%contents => b
-  !   allocate( integer :: retval%value )
-  !   retval%value = free
-  !   free = free + 1
-  ! end subroutine test2
-
-  ! the idea of the following is like this: the only case when the
-  ! cons-memory garbage collector cannot reach for the string is when
-  ! this value is returned from a call. 
-  ! subroutine test3(retval) ! does make-string
-  !   type(scheme_string), intent(out) :: retval
-  !   allocate( retval%value, source="hello" ) ! when this object dies,
-  !   ! the finaliser should kill the string itself
-  ! end subroutine test3
 
   function cons( a, b) result( retval )
-    class(scheme_object), pointer :: a
-    class(scheme_object), pointer :: b
+    class(scheme_object), pointer, intent(in) :: a
+    class(scheme_object), pointer, intent(in) :: b
     type(scheme_pair), pointer :: retval
     the_cars(free)%contents => a
     the_cdrs(free)%contents => b
@@ -440,6 +419,38 @@ contains
     retval%value = free
     free = free + 1
   end function cons
+
+  function car( pair ) result( retval )
+    class(scheme_object), intent(in) :: pair
+    class(scheme_object), pointer :: retval
+    select type (pair)
+    class is (scheme_pair)
+    class default
+       error stop "pair is not a pair"
+    end select
+    select type( temp => pair%value )
+    type is (integer)
+       retval => the_cars(temp)%contents
+    class default
+       error stop "wrong pair contents"
+    end select
+  end function car
+
+  function cdr( pair ) result( retval )
+    class(scheme_object), intent(in) :: pair
+    class(scheme_object), pointer :: retval
+    select type (pair)
+    class is (scheme_pair)
+    class default
+       error stop "pair is not a pair"
+    end select
+    select type( temp => pair%value )
+    type is (integer)
+       retval => the_cdrs(temp)%contents
+    class default
+       error stop "wrong pair contents"
+    end select
+  end function cdr
 
   recursive subroutine debug_display_pair( this )
     class(scheme_pair), intent(in) :: this
@@ -522,26 +533,36 @@ contains
   end subroutine low_level_initialize_stack
 
   function ll_make_frame( vars, vals ) result( retval )
-    class(scheme_object), pointer :: vars
-    class(scheme_object), pointer :: vals
+    class(scheme_object), pointer, intent(in) :: vars
+    class(scheme_object), pointer, intent(in) :: vals
     type(scheme_pair), pointer  :: retval
     retval => cons( vars, vals )
   end function ll_make_frame
 
   function ll_extend_environment( names, objects, base_env ) result( retval )
-    class(scheme_object), pointer :: names
-    class(scheme_object), pointer :: objects
-    class(scheme_object), pointer :: base_env
+    class(scheme_object), pointer, intent(in) :: names
+    class(scheme_object), pointer, intent(in) :: objects
+    class(scheme_object), pointer, intent(in) :: base_env
     type(scheme_pair), pointer :: retval
     class(scheme_object), pointer :: intermediate_object
-    intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
-    retval => cons( intermediate_object, base_env )
+    !intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
+    !answer to myself one day later: you need to mark a as pointer, intent(in)!
+    !retval => cons( intermediate_object, base_env )
+    retval => cons( ll_make_frame(names,objects) , base_env )
   end function ll_extend_environment
 
+  function packaged_ll_extend_environment( argl, env) result(retval)
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env
+    class(scheme_object), pointer :: retval
+    retval => ll_extend_environment( car(argl), car(car(argl)), car(car(car(argl))) )
+  end function packaged_ll_extend_environment
+  
   function make_primitive_procedure_object() result( retval )
-    type(scheme_primitive_procedure) :: retval
-    retval%proc_pointer => ll_extend_environment
-
+    type(scheme_primitive_procedure), allocatable, target :: retval
+    allocate( retval )
+    retval%proc_pointer => packaged_ll_extend_environment
+    
   end function make_primitive_procedure_object
   
   
