@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-30 15:05:52 lockywolf>
+! Time-stamp: <2020-03-30 23:08:55 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -268,16 +268,28 @@ contains
     !print *, new_line('a'), "remove_junk:result=", intermediate
   end function remove_junk
 
+  function make_string( string ) result( retval )
+    character(:), allocatable, intent(in) :: string
+    type(scheme_string), pointer :: retval
+    integer :: strlen
+    strlen = len(string)
+    allocate( scheme_string :: retval )
+    allocate( character(len=strlen) :: retval%value )
+    select type( temp => retval%value )
+    type is (character(*))
+       temp = string
+    class default
+       error stop "wrong string contents"
+    end select
+  end function make_string
+
+  
   function parse_string( arg ) result( token )
     character(:), pointer, intent(inout) :: arg
     class(scheme_object), pointer :: token
     integer :: caret = 1
     character(:), allocatable :: interim_string
-    write (*,*) "debug:parse_string", arg
     allocate(interim_string, source="")
-    allocate( scheme_string :: token )
-    allocate( character :: token%value )
-    token%value = "BUG1"
     caret = 1 ! skipping the first quotation mark '"'
     do
        caret = caret + 1
@@ -287,30 +299,23 @@ contains
        end if
        interim_string = interim_string // arg(caret:caret)
     end do
-    token%value = interim_string
+    token => make_string( interim_string )
     arg => arg(caret:)
   end function parse_string
 
   function make_symbol( string ) result( retval )
     character(:), allocatable, intent(in) :: string
     type(scheme_symbol), pointer :: retval
-    !    type(scheme_symbol), pointer :: retval_pointer
     integer :: strlen
     strlen = len(string)
     allocate( scheme_symbol :: retval )
     allocate( character(len=strlen) :: retval%value )
-    ! todo: check if it is free in final::
-    !    retval%value = "bug2"
-    !retval%value = ""
     select type( temp => retval%value )
     type is (character(*))
        temp = string
     class default
        error stop "wrong string contents"
     end select
-    !call move_alloc(from=string, to=retval%value)
-    !retval%value = transfer(string, string)
-    !    retval_pointer => retval
   end function make_symbol
   
   function parse_symbol( arg ) result( token )
@@ -567,7 +572,11 @@ contains
   
   
   subroutine ll_setup_global_environment()
-    
+    type(scheme_pair), pointer :: test
+    character(len=:), allocatable, target :: function_name
+    allocate( function_name, source="extend_environment")
+    test => cons( make_symbol( function_name ), &
+                  make_primitive_procedure_object( ))
     error stop "not implemented"
   end subroutine ll_setup_global_environment
   
