@@ -1,4 +1,4 @@
-! Time-stamp: <2020-03-30 23:08:55 lockywolf>
+! Time-stamp: <2020-04-01 13:40:50 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -425,6 +425,13 @@ contains
     free = free + 1
   end function cons
 
+  function packaged_cons( argl, env) result( retval )
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env
+    class(scheme_object), pointer :: retval
+    retval => cons( car(argl), car(car(argl)) )
+  end function packaged_cons
+  
   function car( pair ) result( retval )
     class(scheme_object), intent(in) :: pair
     class(scheme_object), pointer :: retval
