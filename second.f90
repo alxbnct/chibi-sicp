@@ -243,7 +243,7 @@ contains
   subroutine debug_display_object( this ) ! for the root object
     class(scheme_object), intent(in) :: this
     write (output_unit, fmt='(dt)', advance='no') this
-  end
+  end subroutine debug_display_object
   
   function remove_junk( arg ) result( intermediate )
     character(:), intent(in), allocatable :: arg
