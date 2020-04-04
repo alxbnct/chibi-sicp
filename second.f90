@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-01 13:40:50 lockywolf>
+! Time-stamp: <2020-04-04 16:10:52 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -448,6 +448,14 @@ contains
     end select
   end function car
 
+  function packaged_car( argl, env) result( retval )
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env
+    class(scheme_object), pointer :: retval
+    retval => car( car(argl) )
+  end function packaged_car
+
+  
   function cdr( pair ) result( retval )
     class(scheme_object), intent(in) :: pair
     class(scheme_object), pointer :: retval
@@ -463,7 +471,22 @@ contains
        error stop "wrong pair contents"
     end select
   end function cdr
+  function packaged_cdr( argl, env) result( retval )
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env
+    class(scheme_object), pointer :: retval
+    retval => cdr( car(argl) )
+  end function packaged_cdr
 
+  function packaged_blurb( argl, env ) result( retval )
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env
+    class(scheme_object), pointer :: retval
+    retval => the_null
+    write (*,*) "packaged_blurb test output"
+  end function packaged_blurb
+  
+  
   recursive subroutine debug_display_pair( this )
     class(scheme_pair), intent(in) :: this
 !    class(scheme_object), pointer :: arg
@@ -544,36 +567,37 @@ contains
     !   nullify(unev)
   end subroutine low_level_initialize_stack
 
-  function ll_make_frame( vars, vals ) result( retval )
-    class(scheme_object), pointer, intent(in) :: vars
-    class(scheme_object), pointer, intent(in) :: vals
-    type(scheme_pair), pointer  :: retval
-    retval => cons( vars, vals )
-  end function ll_make_frame
+  ! function ll_make_frame( vars, vals ) result( retval )
+  !   class(scheme_object), pointer, intent(in) :: vars
+  !   class(scheme_object), pointer, intent(in) :: vals
+  !   type(scheme_pair), pointer  :: retval
+  !   retval => cons( vars, vals )
+  ! end function ll_make_frame
 
-  function ll_extend_environment( names, objects, base_env ) result( retval )
-    class(scheme_object), pointer, intent(in) :: names
-    class(scheme_object), pointer, intent(in) :: objects
-    class(scheme_object), pointer, intent(in) :: base_env
-    type(scheme_pair), pointer :: retval
-    class(scheme_object), pointer :: intermediate_object
-    !intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
-    !answer to myself one day later: you need to mark a as pointer, intent(in)!
-    !retval => cons( intermediate_object, base_env )
-    retval => cons( ll_make_frame(names,objects) , base_env )
-  end function ll_extend_environment
+  ! function ll_extend_environment( names, objects, base_env ) result( retval )
+  !   class(scheme_object), pointer, intent(in) :: names
+  !   class(scheme_object), pointer, intent(in) :: objects
+  !   class(scheme_object), pointer, intent(in) :: base_env
+  !   type(scheme_pair), pointer :: retval
+  !   class(scheme_object), pointer :: intermediate_object
+  !   !intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
+  !   !answer to myself one day later: you need to mark a as pointer, intent(in)!
+  !   !retval => cons( intermediate_object, base_env )
+  !   retval => cons( ll_make_frame(names,objects) , base_env )
+  ! end function ll_extend_environment
 
-  function packaged_ll_extend_environment( argl, env) result(retval)
-    class(scheme_object), pointer :: argl
-    class(scheme_object), pointer :: env
-    class(scheme_object), pointer :: retval
-    retval => ll_extend_environment( car(argl), car(car(argl)), car(car(car(argl))) )
-  end function packaged_ll_extend_environment
+  ! function packaged_ll_extend_environment( argl, env) result(retval)
+  !   class(scheme_object), pointer :: argl
+  !   class(scheme_object), pointer :: env
+  !   class(scheme_object), pointer :: retval
+  !   retval => ll_extend_environment( car(argl), car(car(argl)), car(car(car(argl))) )
+  ! end function packaged_ll_extend_environment
   
-  function make_primitive_procedure_object() result( retval )
-    type(scheme_primitive_procedure), allocatable, target :: retval
+  function make_primitive_procedure_object( proc1 ) result( retval )
+    type(scheme_primitive_procedure), pointer :: retval
+    procedure(packageable_procedure), pointer :: proc1
     allocate( retval )
-    retval%proc_pointer => packaged_ll_extend_environment
+    retval%proc_pointer => proc1
     
   end function make_primitive_procedure_object
   
@@ -581,33 +605,43 @@ contains
   subroutine ll_setup_global_environment()
     type(scheme_pair), pointer :: test
     character(len=:), allocatable, target :: function_name
-    allocate( function_name, source="extend_environment")
+    procedure(packageable_procedure), pointer :: proc
+    type(scheme_symbol), pointer :: symbol_primitive
+    type(scheme_pair), pointer :: list_primitive_names
+    type(scheme_pair), pointer :: list_primitive_objects
+    allocate( symbol_primitive )
+    allocate( symbol_primitive%value, source="primitive")
+
+    ! cons
+    allocate( function_name, source="cons")
+    proc => packaged_cons
+    list_primitive_names => cons( make_symbol(function_name), the_null )
+    list_primitive_objects => cons( cons( symbol_primitive, &
+          make_primitive_procedure_object( proc ) ), the_null)
+    ! car
+    function_name = "car"    ! automatic reallocation
+    proc => packaged_car
+    list_primitive_names => cons( make_symbol(function_name), &
+                                  list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc ) ), &
+         list_primitive_objects)
+    ! cdr    
+    allocate( function_name, source="cdr" )
+    proc => packaged_cdr
+    test => cons( make_symbol( function_name), &
+         make_primitive_procedure_object( proc ))
+    
+    deallocate (function_name )
+    allocate( function_name, source="blurb")
+    proc => packaged_blurb
     test => cons( make_symbol( function_name ), &
-                  make_primitive_procedure_object( ))
-    error stop "not implemented"
+         make_primitive_procedure_object( proc ))
+    env => test
+!    error stop "not implemented"
   end subroutine ll_setup_global_environment
   
-  
-  subroutine main_loop()
-    integer :: i
-001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world
-    exp => low_level_read()
-    i = 001
-
-  end subroutine main_loop
-  
-  
-end module scheme
-
-program main
-  use :: scheme, only : scheme_object, scheme_string, scheme_pair, &
-       scheme_symbol, remove_junk, parse_sexp, low_level_read
-  use, intrinsic :: iso_fortran_env
-  use, non_intrinsic :: system_interface, only: read_until_eof
-  implicit none
-!  integer :: fake = 0
-  class(scheme_object), pointer :: parsed_expression  
-!  character(len=:), allocatable, target :: test_string
+  !  character(len=:), allocatable, target :: test_string
 !  character(len=:), pointer     :: test_string_pointer
 !  logical :: useless_retval
 !  allocate( the_null%value, source="empty list" )
@@ -625,9 +659,41 @@ program main
 !  parsed_expression => parse_sexp( test_string_pointer ) 
   !  print *, parsed_expression
   !useless_retval =  lowLevelDisplay( parsed_expression )
-  parsed_expression => low_level_read()
-  call parsed_expression%debug_display()
+  !parsed_expression => low_level_read()
+  !call parsed_expression%debug_display()
   !fake = c_exit(0)
+
+  subroutine main_loop()
+    procedure(packageable_procedure), pointer :: proc
+    class(scheme_object), pointer :: retval
+!    type(scheme_primitive_procedure), pointer :: proc_holder
+001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world
+    exp => low_level_read()
+    call exp%debug_display()
+    call ll_setup_global_environment()
+    select type( proc_holder => cdr(env) )
+    type is (scheme_primitive_procedure)
+       !proc => proc_holder%proc_pointer
+       retval => proc_holder%proc_pointer( argl, env)
+       !retval => proc( argl, env )
+    class default
+       error stop "primitive procedure not a procedure"
+    end select
+    
+  end subroutine main_loop
+  
+  
+end module scheme
+
+program main
+  use :: scheme, only : scheme_object, scheme_string, scheme_pair, &
+       scheme_symbol, remove_junk, parse_sexp, low_level_read, main_loop
+  use, intrinsic :: iso_fortran_env
+  use, non_intrinsic :: system_interface, only: read_until_eof
+  implicit none
+!  integer :: fake = 0
+  class(scheme_object), pointer :: parsed_expression  
+  call main_loop()
   stop 0
   
 end program main
