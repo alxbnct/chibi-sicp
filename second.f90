@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-04 16:10:52 lockywolf>
+! Time-stamp: <2020-04-05 12:58:11 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -58,7 +58,6 @@ module scheme
 
   
   type, abstract :: scheme_object
-     class(*), allocatable :: value
    contains
      procedure, pass :: generic_scheme_print => print_scheme_object
      procedure, pass :: debug_display => debug_display_object
@@ -67,6 +66,7 @@ module scheme
   end type scheme_object
 
   type, extends( scheme_object ) :: scheme_string
+     character(len=:), pointer :: value
    contains
      procedure :: debug_display => debug_display_string
      procedure :: generic_scheme_print => print_scheme_string
@@ -74,21 +74,26 @@ module scheme
      final :: scheme_string_deallocate
   end type scheme_string
   type, extends( scheme_object ) :: scheme_number
+     integer :: value
    contains
      procedure :: debug_display => debug_display_number
   end type scheme_number
 
   type, extends( scheme_object ) :: scheme_pair
+     integer :: value
    contains
      procedure :: debug_display  => debug_display_pair
      procedure :: generic_scheme_print => print_scheme_pair
-     final :: scheme_pair_deallocate
+     !final :: scheme_pair_deallocate
   end type scheme_pair
 
   type, extends( scheme_object ) :: scheme_symbol
+     character(len=:), pointer :: value
    contains
      procedure :: debug_display => debug_display_symbol
      procedure :: generic_scheme_print => print_scheme_symbol
+     procedure :: equal => equalp_symbol_symbol
+     generic, public :: operator(==) => equal
   end type scheme_symbol
 
   type, extends( scheme_object ) :: scheme_empty_list
@@ -99,12 +104,13 @@ module scheme
 
   type(scheme_empty_list), target :: the_null 
   
-  type, extends( scheme_object ) :: scheme_false
-  end type scheme_false
+  type, extends( scheme_object ) :: scheme_boolean
+     logical :: value
+  end type scheme_boolean
 
-  type, extends( scheme_object ) :: scheme_true
-  end type scheme_true
-
+  type(scheme_boolean), target :: the_false = scheme_boolean( .false. )
+  type(scheme_boolean), target :: the_true  = scheme_boolean( .true.  )
+  
   type, extends( scheme_object ) :: scheme_primitive_procedure
      procedure(packageable_procedure), pointer, nopass :: proc_pointer
   end type scheme_primitive_procedure
@@ -150,17 +156,28 @@ module scheme
 
 
 contains
+  function equalp_symbol_symbol( this, that ) result( retval )
+    class(scheme_symbol), intent(in) :: this
+    class(scheme_symbol), intent(in) :: that
+    logical :: retval
+    if ( this%value .eq. that%value ) then
+       retval = .true.
+    else
+       retval = .false.
+    end if
+  end function equalp_symbol_symbol
+
   subroutine scheme_string_deallocate( this )
     type(scheme_string) :: this
     deallocate( this%value )
     print *, "de-allocating string"
   end subroutine scheme_string_deallocate
   
-  subroutine scheme_pair_deallocate( this )
-    type(scheme_pair) :: this
-    deallocate( this%value )
-    print *, "de-allocating pair"
-  end subroutine scheme_pair_deallocate
+!  subroutine scheme_pair_deallocate( this )
+!    type(scheme_pair) :: this
+!    deallocate( this%value )
+!    print *, "de-allocating pair"
+!  end subroutine scheme_pair_deallocate
     
   subroutine print_scheme_object(this, unit, iotype, v_list, iostat, iomsg)
     class(scheme_object), intent(in) :: this
@@ -180,15 +197,15 @@ contains
     integer, intent(in)         :: v_list (:)
     integer, intent(out)        :: iostat
     character(*), intent(inout) :: iomsg
-    select type ( temp => this%value )
-    type is (character(len=*))
+!    select type ( temp => this%value )
+!    type is (character(len=*))
        write (unit, fmt=*, iostat=iostat, iomsg=iomsg) &
-            '#<scheme_string "' // temp // '">'
-    class default
-       print *, 'error'
+            '#<scheme_string "' // this%value // '">'
+!    class default
+!       print *, 'error'
        ! iostat = c_exit(1)
-       error stop "wrong string contents"
-    end select
+!       error stop "wrong string contents"
+!    end select
   end subroutine print_scheme_string
 
   subroutine print_scheme_pair(this, unit, iotype, v_list, iostat, iomsg)
@@ -198,15 +215,15 @@ contains
     integer, intent(in)         :: v_list (:)
     integer, intent(out)        :: iostat
     character(*), intent(inout) :: iomsg
-    select type ( temp => this%value )
-    type is (integer)
+!    select type ( temp => this%value )
+!    type is (integer)
        write (unit, fmt=*, iostat=iostat, iomsg=iomsg) &
-            '#<scheme_pair address=', temp, '>'
-    class default
-       print *, 'error'
-       error stop "wrong pair contents"
+            '#<scheme_pair address=', this%value, '>'
+!    class default
+!       print *, 'error'
+!       error stop "wrong pair contents"
        ! iostat = c_exit(1)
-    end select
+!    end select
   end subroutine print_scheme_pair
 
     subroutine print_scheme_empty_list(this, unit, iotype, v_list, iostat, iomsg)
@@ -228,14 +245,14 @@ contains
     integer, intent(in)         :: v_list (:)
     integer, intent(out)        :: iostat
     character(*), intent(inout) :: iomsg
-    select type ( temp => this%value )
-    type is (character(len=*))
-       write (unit, fmt='(A)', iostat=iostat, iomsg=iomsg, advance='no') '#<scheme_symbol "' // temp // '">'
-    class default
-       print *, 'error'
-       error stop "wrong scheme symbol contents"
+!    select type ( temp => this%value )
+!    type is (character(len=*))
+       write (unit, fmt='(A)', iostat=iostat, iomsg=iomsg, advance='no') '#<scheme_symbol "' // this%value // '">'
+!    class default
+!       print *, 'error'
+!       error stop "wrong scheme symbol contents"
        ! iostat = c_exit(1)
-    end select
+!    end select
   end subroutine print_scheme_symbol
 
 
@@ -274,13 +291,13 @@ contains
     integer :: strlen
     strlen = len(string)
     allocate( scheme_string :: retval )
-    allocate( character(len=strlen) :: retval%value )
-    select type( temp => retval%value )
-    type is (character(*))
-       temp = string
-    class default
-       error stop "wrong string contents"
-    end select
+    allocate( retval%value, source=string )
+!    select type( temp => retval%value )
+!    type is (character(*))
+!       temp = string
+!    class default
+!       error stop "wrong string contents"
+!    end select
   end function make_string
 
   
@@ -309,13 +326,13 @@ contains
     integer :: strlen
     strlen = len(string)
     allocate( scheme_symbol :: retval )
-    allocate( character(len=strlen) :: retval%value )
-    select type( temp => retval%value )
-    type is (character(*))
-       temp = string
-    class default
-       error stop "wrong string contents"
-    end select
+    allocate( retval%value, source=string )
+!    select type( temp => retval%value )
+!    type is (character(*))
+!       temp = string
+!    class default
+!       error stop "wrong string contents"
+!    end select
   end function make_symbol
   
   function parse_symbol( arg ) result( token )
@@ -343,15 +360,15 @@ contains
 
   function parse_number( arg ) result( token )
     character(:), pointer, intent(inout) :: arg
-    class(scheme_object), pointer :: token
+    class(scheme_number), pointer :: token
     integer :: caret = 1
     character, parameter, dimension(*) :: allowed_chars = (/ '1', '2', '3', &
          '4', '5', '6', '7', '8', '9', '0' /)
     character(:), allocatable :: interim_string
     allocate( scheme_number :: token )
-    allocate( integer :: token%value )
+!    allocate( integer :: token%value )
     allocate( interim_string, source="")
-    token%value = int(z"DEAD")
+!    token%value = int(z"DEAD")
     caret = 0
     do
        caret = caret + 1
@@ -361,12 +378,12 @@ contains
        interim_string = interim_string // arg(caret:caret) ! does it reallocate every assignment?
     end do
     !token%value = interim_string
-    select type (temp => token%value)
-    type is (integer)
-       read (interim_string, *) temp
-    class default
-       error stop "wrong number contents"
-    end select
+!    select type (temp => token%value)
+!    type is (integer)
+       read (interim_string, *) token%value
+!    class default
+!       error stop "wrong number contents"
+!    end select
     arg => arg(caret:)
   end function parse_number
 
@@ -420,7 +437,7 @@ contains
     the_cars(free)%contents => a
     the_cdrs(free)%contents => b
     allocate( retval )
-    allocate( integer :: retval%value )
+!    allocate( integer :: retval%value )
     retval%value = free
     free = free + 1
   end function cons
@@ -437,15 +454,16 @@ contains
     class(scheme_object), pointer :: retval
     select type (pair)
     class is (scheme_pair)
+       retval => the_cars(pair%value)%contents
     class default
-       error stop "pair is not a pair"
+       write (*,*) new_line('a')
+       error stop "car: argument is not a pair"
     end select
-    select type( temp => pair%value )
-    type is (integer)
-       retval => the_cars(temp)%contents
-    class default
-       error stop "wrong pair contents"
-    end select
+!    select type( temp => pair%value )
+!    type is (integer)
+!    class default
+!       error stop "wrong pair contents"
+!    end select
   end function car
 
   function packaged_car( argl, env) result( retval )
@@ -461,16 +479,19 @@ contains
     class(scheme_object), pointer :: retval
     select type (pair)
     class is (scheme_pair)
+       retval => the_cdrs(pair%value)%contents
     class default
-       error stop "pair is not a pair"
+       write (*,*) new_line('a')
+       error stop "cdr: argument is not a pair"
     end select
-    select type( temp => pair%value )
-    type is (integer)
-       retval => the_cdrs(temp)%contents
-    class default
-       error stop "wrong pair contents"
-    end select
+  !   select type( temp => pair%value )
+  !   type is (integer)
+  !      retval => the_cdrs(temp)%contents
+  !   class default
+  !      error stop "wrong pair contents"
+  !   end select
   end function cdr
+
   function packaged_cdr( argl, env) result( retval )
     class(scheme_object), pointer :: argl
     class(scheme_object), pointer :: env
@@ -485,57 +506,91 @@ contains
     retval => the_null
     write (*,*) "packaged_blurb test output"
   end function packaged_blurb
-  
+
+  function lookup_variable_value( var, env ) result( retval )
+    type(scheme_symbol), pointer, intent(in) :: var
+    class(scheme_object), pointer, intent(in) :: env
+    class(scheme_object), pointer :: retval
+    select type( env )
+    class is ( scheme_empty_list )
+       retval => the_false
+    class is (scheme_pair)
+       retval => frame_loop( car(car(env)), cdr(car(env)))
+    end select
+  contains
+
+    recursive function frame_loop( vars, vals) result( retval )
+      class(scheme_object), pointer, intent(in) :: vars
+      class(scheme_object), pointer, intent(in) :: vals
+      class(scheme_object), pointer :: retval
+      select type (vars)
+      type is (scheme_empty_list)
+         retval => lookup_variable_value( var, cdr(env) )
+      class is (scheme_pair)
+         select type ( name => car(vars))
+            class is (scheme_symbol)
+               if ( name == var ) then
+                  retval => car(vals)
+               end if
+            class default
+               error stop "scheme symbol not a symbol"
+            end select
+      class default
+         retval => frame_loop( cdr(vars), cdr(vals))
+      end select
+    end function frame_loop
+
+  end function lookup_variable_value
   
   recursive subroutine debug_display_pair( this )
     class(scheme_pair), intent(in) :: this
 !    class(scheme_object), pointer :: arg
 !    associate ( temp => x%value ) 
-      select type (temp => this%value )
-      type is ( integer )
+!      select type (temp => this%value )
+!      type is ( integer )
          !print *,"("
          write (output_unit, fmt='(1a)', advance='no') "("
          !arg => the_cars(temp)%contents
-         call the_cars(temp)%contents%debug_display()
+         call the_cars(this%value)%contents%debug_display()
          !retval = lowLevelDisplay( arg )
          !call arg%debug_display
          !print *, " . "
          write (output_unit, fmt='(1a)', advance='no') " . "
          !arg => the_cdrs(temp)%contents
          !call arg%debug_display
-         call the_cdrs(temp)%contents%debug_display()
+         call the_cdrs(this%value)%contents%debug_display()
          !retval = lowLevelDisplay( arg )
          !print *, ")"
          write (output_unit, fmt='(1a)', advance='no') ")"
-      class default
-         error stop "wrong pair contents"
-      end select
+!      class default
+!         error stop "wrong pair contents"
+!      end select
 !    end associate
   end subroutine debug_display_pair
 
   subroutine debug_display_string( this )
     class(scheme_string), intent(in):: this
-    select type (temp => this%value )
-      type is ( character(len=*) )
-         write (output_unit, fmt='(a,a,a)', advance='no') '"', temp, '"'
-      end select
+!    select type (temp => this%value )
+!      type is ( character(len=*) )
+         write (output_unit, fmt='(a,a,a)', advance='no') '"', this%value, '"'
+!      end select
   end subroutine debug_display_string
 
   subroutine debug_display_symbol( this )
     class(scheme_symbol), intent(in) :: this
-    select type (temp => this%value )
-    type is ( character(len=*) )
-       write (output_unit, fmt='(a)', advance='no') temp
-    class default
-       error stop "non-character symbol value"
-    end select
+!    select type (temp => this%value )
+!    type is ( character(len=*) )
+       write (output_unit, fmt='(a)', advance='no') this%value
+!    class default
+!       error stop "non-character symbol value"
+!    end select
   end subroutine debug_display_symbol
   subroutine debug_display_number( this )
     class(scheme_number), intent(in) :: this
-    select type (temp => this%value )
-    type is (integer)
-       write (output_unit, fmt='(i0)', advance='no') temp
-    end select
+!    select type (temp => this%value )
+!    type is (integer)
+       write (output_unit, fmt='(i0)', advance='no') this%value
+!    end select
   end subroutine debug_display_number
   
 
@@ -603,14 +658,13 @@ contains
   
   
   subroutine ll_setup_global_environment()
-    type(scheme_pair), pointer :: test
     character(len=:), allocatable, target :: function_name
     procedure(packageable_procedure), pointer :: proc
     type(scheme_symbol), pointer :: symbol_primitive
     type(scheme_pair), pointer :: list_primitive_names
     type(scheme_pair), pointer :: list_primitive_objects
     allocate( symbol_primitive )
-    allocate( symbol_primitive%value, source="primitive")
+    allocate( symbol_primitive%value, source="primitive" )
 
     ! cons
     allocate( function_name, source="cons")
@@ -627,18 +681,25 @@ contains
          make_primitive_procedure_object( proc ) ), &
          list_primitive_objects)
     ! cdr    
-    allocate( function_name, source="cdr" )
+    function_name="cdr" ! automatic reallocation?
     proc => packaged_cdr
-    test => cons( make_symbol( function_name), &
-         make_primitive_procedure_object( proc ))
-    
-    deallocate (function_name )
-    allocate( function_name, source="blurb")
+    list_primitive_names => cons( make_symbol(function_name), &
+                                  list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc ) ), &
+         list_primitive_objects)
+    ! blurb
+    function_name="blurb" ! automatic reallocation?
     proc => packaged_blurb
-    test => cons( make_symbol( function_name ), &
-         make_primitive_procedure_object( proc ))
-    env => test
-!    error stop "not implemented"
+    list_primitive_names => cons( make_symbol(function_name), &
+         list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc ) ), &
+         list_primitive_objects)
+    ! extend initial_environment
+    env => cons( cons( list_primitive_names, list_primitive_objects ), &
+                 the_null )
+
   end subroutine ll_setup_global_environment
   
   !  character(len=:), allocatable, target :: test_string
@@ -663,18 +724,34 @@ contains
   !call parsed_expression%debug_display()
   !fake = c_exit(0)
 
-  subroutine main_loop()
-    procedure(packageable_procedure), pointer :: proc
-    class(scheme_object), pointer :: retval
+  recursive subroutine main_loop()
+!    procedure(packageable_procedure), pointer :: proc
+!    class(scheme_object), pointer :: retval
 !    type(scheme_primitive_procedure), pointer :: proc_holder
 001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world
-    exp => low_level_read()
+  exp => low_level_read()
+  write (*,*) "SCHEMETRAN-Input: "
     call exp%debug_display()
+    write (*,*) new_line('a')
     call ll_setup_global_environment()
-    select type( proc_holder => cdr(env) )
+    select type (procname => car(exp))
+    type is (scheme_symbol)
+       write (*,fmt='(a,a)', advance='no') "debug: (car exp)="
+       call procname%debug_display()
+       write (*,fmt='(a)', advance='no') new_line('a')
+       proc => lookup_variable_value( procname, env )
+       write (*,fmt='(a)', advance='no') "debug: found variable="
+       call proc%debug_display()
+       write (*, fmt='(a)', advance='no') new_line('a')
+       proc => cdr( proc ) ! (primitive obj)
+    class default
+       error stop "variable name not a symbol"
+    end select
+    
+    select type( proc )
     type is (scheme_primitive_procedure)
        !proc => proc_holder%proc_pointer
-       retval => proc_holder%proc_pointer( argl, env)
+       val => proc%proc_pointer( argl, env)
        !retval => proc( argl, env )
     class default
        error stop "primitive procedure not a procedure"
@@ -692,7 +769,7 @@ program main
   use, non_intrinsic :: system_interface, only: read_until_eof
   implicit none
 !  integer :: fake = 0
-  class(scheme_object), pointer :: parsed_expression  
+!  class(scheme_object), pointer :: parsed_expression  
   call main_loop()
   stop 0
   
