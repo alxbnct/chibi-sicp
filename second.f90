@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-05 12:58:11 lockywolf>
+! Time-stamp: <2020-04-05 13:55:26 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -112,7 +112,10 @@ module scheme
   type(scheme_boolean), target :: the_true  = scheme_boolean( .true.  )
   
   type, extends( scheme_object ) :: scheme_primitive_procedure
+     character(len=:), pointer :: name
      procedure(packageable_procedure), pointer, nopass :: proc_pointer
+   contains
+     procedure, pass :: generic_scheme_print => print_scheme_primitive_procedure
   end type scheme_primitive_procedure
 
   abstract interface
@@ -189,6 +192,17 @@ contains
     write (unit, fmt=*, iostat=iostat, iomsg=iomsg) "#<unknown scheme object>"
   end subroutine print_scheme_object
 
+  subroutine print_scheme_primitive_procedure(this, unit, iotype, v_list,&
+                                                 iostat, iomsg)
+    class(scheme_primitive_procedure), intent(in) :: this
+    integer, intent(in)         :: unit
+    character(*), intent(in)    :: iotype
+    integer, intent(in)         :: v_list (:)
+    integer, intent(out)        :: iostat
+    character(*), intent(inout) :: iomsg
+    write (unit, fmt=*, iostat=iostat, iomsg=iomsg) "#<opcode ", this%name, ">"
+  end subroutine print_scheme_primitive_procedure
+  
 
   subroutine print_scheme_string(this, unit, iotype, v_list, iostat, iomsg)
     class(scheme_string), intent(in) :: this
@@ -599,7 +613,7 @@ contains
     write (output_unit, fmt='(a)', advance='no') '()'
   end subroutine debug_display_empty_list
 
-  function low_level_read() result( parsed_expression )
+  function ll_read() result( parsed_expression )
     use system_interface, only : read_until_eof
     class(scheme_object), pointer :: parsed_expression  
     character(len=:), allocatable, target :: test_string
@@ -609,9 +623,9 @@ contains
     test_string = remove_junk( test_string ) ! test_string should be a string
     test_string_pointer => test_string
     parsed_expression => parse_sexp( test_string_pointer ) 
-  end function low_level_read
+  end function ll_read
 
-  subroutine low_level_initialize_stack()
+  subroutine ll_initialize_stack()
     print *, "initialize-stack not implemented"
     !   nullify(env)
     !   nullify(exp)
@@ -620,26 +634,28 @@ contains
     !   nullify(argl)
     !   nullify(reg_continue)
     !   nullify(unev)
-  end subroutine low_level_initialize_stack
+  end subroutine ll_initialize_stack
 
-  ! function ll_make_frame( vars, vals ) result( retval )
-  !   class(scheme_object), pointer, intent(in) :: vars
-  !   class(scheme_object), pointer, intent(in) :: vals
-  !   type(scheme_pair), pointer  :: retval
-  !   retval => cons( vars, vals )
-  ! end function ll_make_frame
+  function ll_make_frame( vars, vals ) result( retval )
+    class(scheme_object), pointer, intent(in) :: vars
+    class(scheme_object), pointer, intent(in) :: vals
+    type(scheme_pair), pointer  :: retval
+    retval => cons( vars, vals )
+  end function ll_make_frame
 
-  ! function ll_extend_environment( names, objects, base_env ) result( retval )
-  !   class(scheme_object), pointer, intent(in) :: names
-  !   class(scheme_object), pointer, intent(in) :: objects
-  !   class(scheme_object), pointer, intent(in) :: base_env
-  !   type(scheme_pair), pointer :: retval
-  !   class(scheme_object), pointer :: intermediate_object
-  !   !intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
-  !   !answer to myself one day later: you need to mark a as pointer, intent(in)!
-  !   !retval => cons( intermediate_object, base_env )
-  !   retval => cons( ll_make_frame(names,objects) , base_env )
-  ! end function ll_extend_environment
+  function ll_extend_environment( names, objects, base_env ) result( retval )
+    ! used to create an initial environment, as well as when running a
+    ! compound procedure
+    class(scheme_object), pointer, intent(in) :: names
+    class(scheme_object), pointer, intent(in) :: objects
+    class(scheme_object), pointer, intent(in) :: base_env
+    type(scheme_pair), pointer :: retval
+    class(scheme_object), pointer :: intermediate_object
+    !intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
+    !answer to myself one day later: you need to mark a as pointer, intent(in)!
+    !retval => cons( intermediate_object, base_env )
+    retval => cons( ll_make_frame(names,objects) , base_env )
+  end function ll_extend_environment
 
   ! function packaged_ll_extend_environment( argl, env) result(retval)
   !   class(scheme_object), pointer :: argl
@@ -648,11 +664,14 @@ contains
   !   retval => ll_extend_environment( car(argl), car(car(argl)), car(car(car(argl))) )
   ! end function packaged_ll_extend_environment
   
-  function make_primitive_procedure_object( proc1 ) result( retval )
+  function make_primitive_procedure_object( proc1, name ) result( retval )
+    character(len=*) :: name
+    procedure(packageable_procedure), pointer, intent(in) :: proc1
     type(scheme_primitive_procedure), pointer :: retval
-    procedure(packageable_procedure), pointer :: proc1
     allocate( retval )
+    allocate( retval%name, source=name )
     retval%proc_pointer => proc1
+
     
   end function make_primitive_procedure_object
   
@@ -671,14 +690,14 @@ contains
     proc => packaged_cons
     list_primitive_names => cons( make_symbol(function_name), the_null )
     list_primitive_objects => cons( cons( symbol_primitive, &
-          make_primitive_procedure_object( proc ) ), the_null)
+          make_primitive_procedure_object( proc, "packaged_cons" ) ), the_null)
     ! car
     function_name = "car"    ! automatic reallocation
     proc => packaged_car
     list_primitive_names => cons( make_symbol(function_name), &
                                   list_primitive_names)
     list_primitive_objects => cons( cons( symbol_primitive, &
-         make_primitive_procedure_object( proc ) ), &
+         make_primitive_procedure_object( proc, "packaged_car" ) ), &
          list_primitive_objects)
     ! cdr    
     function_name="cdr" ! automatic reallocation?
@@ -686,7 +705,7 @@ contains
     list_primitive_names => cons( make_symbol(function_name), &
                                   list_primitive_names)
     list_primitive_objects => cons( cons( symbol_primitive, &
-         make_primitive_procedure_object( proc ) ), &
+         make_primitive_procedure_object( proc, "packaged_cdr" ) ), &
          list_primitive_objects)
     ! blurb
     function_name="blurb" ! automatic reallocation?
@@ -694,11 +713,13 @@ contains
     list_primitive_names => cons( make_symbol(function_name), &
          list_primitive_names)
     list_primitive_objects => cons( cons( symbol_primitive, &
-         make_primitive_procedure_object( proc ) ), &
+         make_primitive_procedure_object( proc, "packaged_blurb" ) ), &
          list_primitive_objects)
     ! extend initial_environment
-    env => cons( cons( list_primitive_names, list_primitive_objects ), &
-                 the_null )
+    ! env => cons( cons( list_primitive_names, list_primitive_objects ), &
+    !              the_null )
+    env => ll_extend_environment( list_primitive_names, &
+         list_primitive_objects, the_null)
 
   end subroutine ll_setup_global_environment
   
@@ -720,7 +741,7 @@ contains
 !  parsed_expression => parse_sexp( test_string_pointer ) 
   !  print *, parsed_expression
   !useless_retval =  lowLevelDisplay( parsed_expression )
-  !parsed_expression => low_level_read()
+  !parsed_expression => ll_read()
   !call parsed_expression%debug_display()
   !fake = c_exit(0)
 
@@ -729,7 +750,7 @@ contains
 !    class(scheme_object), pointer :: retval
 !    type(scheme_primitive_procedure), pointer :: proc_holder
 001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world
-  exp => low_level_read()
+  exp => ll_read()
   write (*,*) "SCHEMETRAN-Input: "
     call exp%debug_display()
     write (*,*) new_line('a')
@@ -747,7 +768,7 @@ contains
     class default
        error stop "variable name not a symbol"
     end select
-    
+    write (*,fmt='(a)', advance='no') "SCHEMETRAN-Output: "
     select type( proc )
     type is (scheme_primitive_procedure)
        !proc => proc_holder%proc_pointer
@@ -763,10 +784,9 @@ contains
 end module scheme
 
 program main
-  use :: scheme, only : scheme_object, scheme_string, scheme_pair, &
-       scheme_symbol, remove_junk, parse_sexp, low_level_read, main_loop
+  use :: scheme, only : main_loop
   use, intrinsic :: iso_fortran_env
-  use, non_intrinsic :: system_interface, only: read_until_eof
+!  use, non_intrinsic :: system_interface, only: read_until_eof
   implicit none
 !  integer :: fake = 0
 !  class(scheme_object), pointer :: parsed_expression  
