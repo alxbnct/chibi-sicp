@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-07 11:56:26 lockywolf>
+! Time-stamp: <2020-04-07 17:00:30 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -153,8 +153,10 @@ module scheme
 
   class(scheme_object), pointer :: the_global_environment => null()
   class(scheme_object), pointer :: the_stack => the_null
+
+  class(scheme_symbol), pointer :: reg_continue
+  !  character(len=:), allocatable :: reg_continue
   
-  character(len=:), allocatable :: reg_continue
   !  type(scheme_pointer), dimension(strings_pool_size) :: the_strings
   !  type(scheme_pointer), dimension(symbol_pool_size) :: the_symbols ! obarray?
 
@@ -898,13 +900,13 @@ contains
     ! type(scheme_primitive_procedure), pointer :: proc_holder
     ! not sure it is the best place for it
     character(len=:), allocatable :: label_value
-    type(scheme_symbol), pointer :: mysym
+    !type(scheme_symbol), pointer :: mysym
 !    character(len=:), allocatable :: quote_string
     the_global_environment => ll_setup_global_environment()
 !    quote_string = "quote"
     
     ! TODO: (perform (op initialize-stack))
-    mysym => make_symbol( "quote" )
+    !mysym => make_symbol( "quote" )
 
     label_value = "read-eval-print-loop"
 001 label_selector: select case (label_value)
@@ -919,7 +921,7 @@ contains
        !(assign env (op get-global-environment))
        env => the_global_environment
        !(assign continue (label print-result))
-       reg_continue = "print-result"
+       reg_continue => make_symbol("print-result")
        ! (goto (label eval-dispatch))
        label_value = "eval-dispatch"
        goto 001
@@ -969,7 +971,7 @@ contains
        !(assign val (reg exp))
        val => exp
        !(goto (reg continue))
-       label_value = reg_continue
+       label_value = reg_continue%value
        goto 001
     case ("ev-quoted")
        !(assign val (op text-of-quotation) (reg exp))
