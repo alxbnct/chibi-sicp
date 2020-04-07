@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-06 15:51:58 lockywolf>
+! Time-stamp: <2020-04-07 10:33:48 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -16,21 +16,24 @@ contains
   function read_until_eof() result( retval )
     character(len=:), allocatable :: retval
     character(len=1) :: buffer
-    integer :: dummy
     integer :: reason
-    do
-       read (input_unit, '(1a)', iostat=reason, advance='no') buffer
+    ! this function is broken and doesn't support comments
+    reader: do
+       read (input_unit, '(a1)', iostat=reason, advance='no') buffer
        if (is_iostat_end(reason))  then
-          !print *, "end of file"
-          exit
+          ! print *, "debug: end of input (EOF)"          
+          exit reader
+       else if (is_iostat_eor(reason)) then
+          ! print *, "debug: end of record (newline)"
+          exit reader
        else if (reason > 0) then
           print*, "Fortran:read error"
-          !dummy = c_exit(1)
           error stop "reading problems"
        else
+          !print *, "debug:read:char=", buffer, " code=", iachar(buffer)
           retval = retval//buffer;
        end if
-    end do
+    end do reader
     !print *, "debug:", retval, new_line('a')
   end function read_until_eof
 end module system_interface
@@ -87,15 +90,19 @@ module scheme
      !final :: scheme_pair_deallocate
   end type scheme_pair
 
+  
   type, extends( scheme_object ) :: scheme_symbol
      character(len=:), pointer :: value
    contains
      procedure :: debug_display => debug_display_symbol
      procedure :: generic_scheme_print => print_scheme_symbol
-     procedure :: equal => equalp_symbol_symbol
-     generic, public :: operator(==) => equal
+     procedure :: eq_symbol_symbol
+     procedure :: eq_symbol_string
+!     generic, public :: eq =>  eq_symbol_symbol, eq_symbol_string
+     generic, public :: operator(==) => eq_symbol_symbol, eq_symbol_string
   end type scheme_symbol
 
+  
   type, extends( scheme_object ) :: scheme_empty_list
    contains
      procedure :: debug_display => debug_display_empty_list
@@ -143,14 +150,11 @@ module scheme
   class(scheme_object), pointer :: proc => null()
   class(scheme_object), pointer :: argl => null()
   class(scheme_object), pointer :: unev => null()
-  interface ll_setup_global_environment
-     module procedure ll_setup_global_environment
-  end interface ll_setup_global_environment
+  ! interface ll_setup_global_environment
+  !    module procedure ll_setup_global_environment
+  ! end interface ll_setup_global_environment
 
   class(scheme_object), pointer :: the_global_environment => null()
-
-
-
 
   !  type(scheme_pointer), dimension(strings_pool_size) :: the_strings
   !  type(scheme_pointer), dimension(symbol_pool_size) :: the_symbols ! obarray?
@@ -168,7 +172,7 @@ module scheme
   character(len=:), allocatable :: reg_continue
 
 contains
-  function equalp_symbol_symbol( this, that ) result( retval )
+  function eq_symbol_symbol( this, that ) result( retval )
     class(scheme_symbol), intent(in) :: this
     class(scheme_symbol), intent(in) :: that
     logical :: retval
@@ -177,8 +181,20 @@ contains
     else
        retval = .false.
     end if
-  end function equalp_symbol_symbol
+  end function eq_symbol_symbol
 
+  function eq_symbol_string( this, that ) result( retval )
+    class(scheme_symbol), intent(in) :: this
+    character, intent(in) :: that
+    logical :: retval
+    if ( this%value .eq. that ) then
+       retval = .true.
+    else
+       retval = .false.
+    end if
+  end function eq_symbol_string
+
+  
   subroutine scheme_string_deallocate( this )
     type(scheme_string) :: this
     deallocate( this%value )
@@ -364,7 +380,7 @@ contains
     integer :: caret = 1
     character, parameter, dimension(*) :: allowed_chars = (/ 'a', 'b', 'c', &
          'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', &
-         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'/)
+         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-', '!', '*'/)
     character(:), allocatable, target :: interim_string
     allocate( interim_string, source="")
     !token%value = "BUG1"
@@ -629,7 +645,9 @@ contains
     character(len=:), pointer     :: test_string_pointer
 
     test_string =  read_until_eof()
+
     test_string = remove_junk( test_string ) ! test_string should be a string
+!        print *, "ll_read: got ", test_string
     test_string_pointer => test_string
     parsed_expression => parse_sexp( test_string_pointer ) 
   end function ll_read
@@ -754,25 +772,136 @@ contains
   !call parsed_expression%debug_display()
   !fake = c_exit(0)
 
+  logical function is_self_evaluating_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (arg)
+    class is (scheme_string)
+       retval = .true.
+    class is (scheme_number)
+       retval = .true.
+    class is (scheme_boolean)
+       retval = .true.
+    class default
+       retval = .false.
+    end select
+  end function is_self_evaluating_p
 
+  logical function is_symbol_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (arg)
+    class is (scheme_symbol)
+       retval = .true.
+    class default
+       retval = .false.
+    end select
+  end function is_symbol_p
 
+  logical function is_tagged_list_p( arg, tag ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_symbol), pointer, intent(in) :: tag
+    select type (arg)
+    class is (scheme_pair)
+       select type (sym => car(arg))
+       class is (scheme_symbol)
+          if ( sym == tag ) then ! TODO: double check that this works
+             retval = .true.
+          end if
+       class default
+          retval = .false.
+       end select
+    class default
+       retval = .false.
+    end select
+  end function is_tagged_list_p
+
+  logical function is_quoted_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "quote" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_quoted_p
+  
+  logical function is_assignment_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "set!" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_assignment_p
+
+  logical function is_definition_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "define" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_definition_p
+
+  logical function is_if_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "if" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_if_p
+
+  logical function is_lambda_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "lambda" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_lambda_p
+
+  logical function is_begin_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "begin" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_begin_p
+
+  logical function is_let_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "let" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_let_p
+
+  logical function is_cond_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    character(:), allocatable :: tag
+    tag = "cond" ! what the hell am I doing?
+    retval = is_tagged_list_p( exp, make_symbol(tag) )
+  end function is_cond_p
+
+  logical function is_application_p( exp ) result( retval )
+    class(scheme_object), pointer, intent(in) :: exp
+    select type (exp)
+    class is (scheme_pair)
+       retval = .true.
+    class default
+       retval = .false.
+    end select
+  end function is_application_p
+  
+  
   recursive subroutine main_loop()
-    !    procedure(packageable_procedure), pointer :: proc
-    !    class(scheme_object), pointer :: retval
-    !    type(scheme_primitive_procedure), pointer :: proc_holder
+    ! procedure(packageable_procedure), pointer :: proc
+    ! class(scheme_object), pointer :: retval
+    ! type(scheme_primitive_procedure), pointer :: proc_holder
     ! not sure it is the best place for it
-    character(len=:), allocatable :: label_value 
+    character(len=:), allocatable :: label_value
+!    character(len=:), allocatable :: quote_string
     the_global_environment => ll_setup_global_environment()
+!    quote_string = "quote"
+    
     ! TODO: (perform (op initialize-stack))
 
     label_value = "read-eval-print-loop"
 001 label_selector: select case (label_value)
     case ("read-eval-print-loop")
        ! (perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
-       write (*,*) "SCHEMETRAN-Input: " !
+       write (*,fmt='(a)', advance='no') "SCHEMETRAN-Input: " !
        ! (assign exp (op read))
        exp => ll_read()
        ! (perform (op user-print) (reg exp))
+       write (*, fmt='(a)', advance='no') "debug: I parsed as: "
        call exp%debug_display() ;     write (*,*) new_line('a')
        !(assign env (op get-global-environment))
        env => the_global_environment
@@ -825,8 +954,10 @@ contains
        error stop "ev-definition-1 not implemented"
     case ("ev-self-eval")
        !(assign val (reg exp))
+       val => exp
        !(goto (reg continue))
-       error stop "ev-self-eval not implemented"
+       label_value = reg_continue
+       goto 001
     case ("ev-quoted")
        !(assign val (op text-of-quotation) (reg exp))
        !(goto (reg continue))
@@ -977,7 +1108,7 @@ contains
        ! (goto (label eval-dispatch))
        error stop "ev-appl-operand-loop not implemented"
     case ("ev-appl-accumulate-arg")
-       ! (restore unev)x
+       ! (restore unev)
        ! (restore env)
        ! (restore argl)
        ! (assign argl (op adjoin-arg) (reg val) (reg argl))
@@ -1003,6 +1134,77 @@ contains
        error stop "apply-dispatch not implemented"
     case ("eval-dispatch")
        print *, "TODO: implement eval-dispatch"
+       ! (test (op self-evaluating?) (reg exp))
+       if (is_self_evaluating_p(exp)) then
+          ! (branch (label ev-self-eval))
+          label_value = "ev-self-eval"
+          goto 001
+       end if
+       ! (test (op variable?) (reg exp))
+       if (is_symbol_p(exp)) then
+          ! (branch (label ev-variable))
+          label_value = "ev-variable"
+          goto 001
+       end if
+       ! (test (op quoted?) (reg exp))
+       if (is_quoted_p(exp)) then
+          ! (branch (label ev-quoted))
+          label_value = "ev-quoted"
+          goto 001
+       end if
+       ! (test (op assignment?) (reg exp))
+       if (is_assignment_p(exp)) then
+          ! (branch (label ev-assignment))
+          label_value = "ev-assignment"
+          goto 001
+       end if
+       ! (test (op definition?) (reg exp))
+       if (is_definition_p(exp)) then
+          ! (branch (label ev-definition))
+          label_value = "ev-definition"
+          goto 001
+       end if
+       ! (test (op if?) (reg exp))
+       if (is_if_p(exp)) then
+          ! (branch (label ev-if))
+          label_value = "ev-if"
+          goto 001
+       end if
+       ! (test (op lambda?) (reg exp))
+       if (is_lambda_p(exp)) then
+          ! (branch (label ev-lambda))
+          label_value = "ev-lambda"
+          goto 001
+       end if
+       ! (test (op begin?) (reg exp))
+       if (is_begin_p(exp)) then
+          ! (branch (label ev-begin))
+          label_value = "ev-begin"
+          goto 001
+       end if
+       ! (test (op let?) (reg exp))
+       if (is_let_p(exp)) then
+          ! (branch (label ev-let))
+          label_value = "ev-let"
+          goto 001
+       end if
+       ! (test (op cond?) (reg exp))
+       if (is_cond_p(exp)) then
+          ! (branch (label ev-cond))   
+          label_value = "ev-cond"
+          goto 001
+       end if
+       ! (test (op application?) (reg exp))
+       if (is_application_p(exp)) then
+          ! (branch (label ev-application))
+          label_value = "ev-application"
+          goto 001
+       end if
+       ! (goto (label unknown-expression-type))
+       label_value = "unknown-expression-type"
+       goto 001
+       error stop "You need to implement here"
+
        select type (procname => car(exp))
        type is (scheme_symbol)
           write (*,fmt='(a,a)', advance='no') "debug: (car exp)="
@@ -1024,32 +1226,7 @@ contains
        class default
           error stop "primitive procedure not a procedure"
        end select
-       ! (test (op self-evaluating?) (reg exp))
-       ! (branch (label ev-self-eval))
-       ! (test (op variable?) (reg exp))
-       ! (branch (label ev-variable))
-       ! (test (op quoted?) (reg exp))
-       ! (branch (label ev-quoted))
-       ! (test (op assignment?) (reg exp))
-       ! (branch (label ev-assignment))
-       ! (test (op definition?) (reg exp))
-       ! (branch (label ev-definition))
-       ! (test (op if?) (reg exp))
-       ! (branch (label ev-if))
-       ! (test (op lambda?) (reg exp))
-       ! (branch (label ev-lambda))
-       ! (test (op begin?) (reg exp))
-       ! (branch (label ev-begin))
-       ! ;; added
-       ! (test (op let?) (reg exp))
-       ! (branch (label ev-let))   
-       ! (test (op cond?) (reg exp))
-       ! (branch (label ev-cond))   
-       ! ;; end
-       ! (test (op application?) (reg exp))
-       ! (branch (label ev-application))
-       ! (goto (label unknown-expression-type))
-       ! ;; added
+       
        error stop "eval-dispatch not implemented"
     case ("ev-let")
        ! (assign exp (op let->combination) (reg exp))
@@ -1063,7 +1240,7 @@ contains
     case default
        error stop "default case should never be reached"
     end select label_selector
-
+    error stop "The end of main loop should never be reached"
   end subroutine main_loop
 
 
@@ -1076,7 +1253,7 @@ program main
   implicit none
   !  integer :: fake = 0
   !  class(scheme_object), pointer :: parsed_expression
-001 print *, "Welcome to the rudimentary scheme in fortran" ! hello, world  
+  print *, "Welcome to the rudimentary scheme in fortran" ! hello, world  
   call main_loop()
   stop 0
 

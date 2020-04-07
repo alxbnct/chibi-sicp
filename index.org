@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-04-06 14:11:00 lockywolf>
+# Time-stamp: <2020-04-06 18:57:28 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -61558,8 +61558,5 @@ corresponds to the main_ loop() function in the Fortran code.
 **** TODO Exercise 5.52
 
 * Footnotes
-
-
-
 [fn:1] This exercise took me 7 hours.
 [fn:2] This exercise took me about 40 hours.
