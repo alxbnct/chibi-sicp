@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-07 10:33:48 lockywolf>
+! Time-stamp: <2020-04-07 11:56:26 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -150,12 +150,11 @@ module scheme
   class(scheme_object), pointer :: proc => null()
   class(scheme_object), pointer :: argl => null()
   class(scheme_object), pointer :: unev => null()
-  ! interface ll_setup_global_environment
-  !    module procedure ll_setup_global_environment
-  ! end interface ll_setup_global_environment
 
   class(scheme_object), pointer :: the_global_environment => null()
-
+  class(scheme_object), pointer :: the_stack => the_null
+  
+  character(len=:), allocatable :: reg_continue
   !  type(scheme_pointer), dimension(strings_pool_size) :: the_strings
   !  type(scheme_pointer), dimension(symbol_pool_size) :: the_symbols ! obarray?
 
@@ -169,7 +168,11 @@ module scheme
   ! end interface
 
   ! continue is a special register. It keeps labels rather than scheme objects
-  character(len=:), allocatable :: reg_continue
+
+  interface save_scheme
+     module procedure scheme_save_reg
+     module procedure scheme_save_continue
+  end interface save_scheme
 
 contains
   function eq_symbol_symbol( this, that ) result( retval )
@@ -325,7 +328,7 @@ contains
   end function remove_junk
 
   function make_string( string ) result( retval )
-    character(:), allocatable, intent(in) :: string
+    character(len=*), intent(in) :: string
     type(scheme_string), pointer :: retval
     integer :: strlen
     strlen = len(string)
@@ -360,18 +363,12 @@ contains
   end function parse_string
 
   function make_symbol( string ) result( retval )
-    character(:), allocatable, intent(in) :: string
+    character(len=*), intent(in) :: string
     type(scheme_symbol), pointer :: retval
     integer :: strlen
     strlen = len(string)
     allocate( scheme_symbol :: retval )
     allocate( retval%value, source=string )
-    !    select type( temp => retval%value )
-    !    type is (character(*))
-    !       temp = string
-    !    class default
-    !       error stop "wrong string contents"
-    !    end select
   end function make_symbol
 
   function parse_symbol( arg ) result( token )
@@ -380,7 +377,8 @@ contains
     integer :: caret = 1
     character, parameter, dimension(*) :: allowed_chars = (/ 'a', 'b', 'c', &
          'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', &
-         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-', '!', '*'/)
+         'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-', '!', '*', &
+         '+', '/' /)
     character(:), allocatable, target :: interim_string
     allocate( interim_string, source="")
     !token%value = "BUG1"
@@ -677,7 +675,7 @@ contains
     class(scheme_object), pointer, intent(in) :: objects
     class(scheme_object), pointer, intent(in) :: base_env
     type(scheme_pair), pointer :: retval
-    class(scheme_object), pointer :: intermediate_object
+!    class(scheme_object), pointer :: intermediate_object
     !intermediate_object => ll_make_frame(names,objects) ! why the hell do I need this?
     !answer to myself one day later: you need to mark a as pointer, intent(in)!
     !retval => cons( intermediate_object, base_env )
@@ -698,8 +696,6 @@ contains
     allocate( retval )
     allocate( retval%name, source=name )
     retval%proc_pointer => proc1
-
-
   end function make_primitive_procedure_object
 
 
@@ -879,19 +875,36 @@ contains
        retval = .false.
     end select
   end function is_application_p
-  
-  
+
+  subroutine scheme_save_reg( val )
+    class(scheme_object), pointer, intent(in) :: val
+    the_stack => cons(val, the_stack)
+  end subroutine scheme_save_reg
+  subroutine scheme_save_continue( val )
+    character(len=*), intent(in) :: val
+    !    the_stack => cons(make_string( val ), the_stack) ! auto-boxing
+    error stop "save should not be used"
+  end subroutine scheme_save_continue
+
+  function scheme_restore() result( retval )
+    class(scheme_object), pointer :: retval
+    retval => car(the_stack)
+    the_stack => cdr(the_stack)
+  end function scheme_restore
+    
   recursive subroutine main_loop()
     ! procedure(packageable_procedure), pointer :: proc
     ! class(scheme_object), pointer :: retval
     ! type(scheme_primitive_procedure), pointer :: proc_holder
     ! not sure it is the best place for it
     character(len=:), allocatable :: label_value
+    type(scheme_symbol), pointer :: mysym
 !    character(len=:), allocatable :: quote_string
     the_global_environment => ll_setup_global_environment()
 !    quote_string = "quote"
     
     ! TODO: (perform (op initialize-stack))
+    mysym => make_symbol( "quote" )
 
     label_value = "read-eval-print-loop"
 001 label_selector: select case (label_value)
