@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-07 17:00:30 lockywolf>
+! Time-stamp: <2020-04-07 23:37:45 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -155,6 +155,9 @@ module scheme
   class(scheme_object), pointer :: the_stack => the_null
 
   class(scheme_symbol), pointer :: reg_continue
+  integer :: stack_number_pushes = 0
+  integer :: stack_max_depth = 0
+  integer :: stack_current_depth = 0
   !  character(len=:), allocatable :: reg_continue
   
   !  type(scheme_pointer), dimension(strings_pool_size) :: the_strings
@@ -173,7 +176,7 @@ module scheme
 
   interface save_scheme
      module procedure scheme_save_reg
-     module procedure scheme_save_continue
+     !module procedure scheme_save_continue
   end interface save_scheme
 
 contains
@@ -552,7 +555,7 @@ contains
     class(scheme_object), pointer :: retval
     select type( env )
     class is ( scheme_empty_list )
-       retval => the_false
+       retval => cons( make_symbol("unbound"), the_false)
     class is (scheme_pair)
        retval => frame_loop( car(car(env)), cdr(car(env)))
     end select
@@ -569,7 +572,7 @@ contains
          select type ( name => car(vars))
          class is (scheme_symbol)
             if ( name == var ) then
-               retval => car(vals)
+               retval => cons( make_symbol("bound"), car(vals))
             end if
          class default
             error stop "scheme symbol not a symbol"
@@ -880,37 +883,57 @@ contains
 
   subroutine scheme_save_reg( val )
     class(scheme_object), pointer, intent(in) :: val
+    stack_number_pushes = stack_number_pushes + 1
+    stack_current_depth = stack_current_depth + 1
+    stack_max_depth = max( stack_current_depth, stack_max_depth )
     the_stack => cons(val, the_stack)
   end subroutine scheme_save_reg
-  subroutine scheme_save_continue( val )
-    character(len=*), intent(in) :: val
-    !    the_stack => cons(make_string( val ), the_stack) ! auto-boxing
-    error stop "save should not be used"
-  end subroutine scheme_save_continue
 
   function scheme_restore() result( retval )
     class(scheme_object), pointer :: retval
+    stack_current_depth = stack_current_depth - 1
     retval => car(the_stack)
     the_stack => cdr(the_stack)
   end function scheme_restore
-    
+
+  subroutine print_stack_statistics()
+    write (*,fmt='(a,a,i0,a,i0)') new_line('a'), "total-pushes=", stack_number_pushes, &
+         " maximum-depth=", stack_max_depth
+  end subroutine print_stack_statistics
+  
+  subroutine initialize_stack()
+    the_stack => the_null
+    stack_number_pushes = 0
+    stack_max_depth = 0
+    stack_current_depth = 0
+  end subroutine initialize_stack
+
+  function ll_operands(exp) result(retval)
+    class(scheme_object), pointer, intent(in) :: exp
+    class(scheme_object), pointer :: retval
+    retval => cdr(exp)
+  end function ll_operands
+
+  function ll_operator(exp) result(retval)
+    class(scheme_object), pointer, intent(in) :: exp
+    class(scheme_object), pointer :: retval
+    retval => car(exp)
+  end function ll_operator
+  
   recursive subroutine main_loop()
     ! procedure(packageable_procedure), pointer :: proc
     ! class(scheme_object), pointer :: retval
     ! type(scheme_primitive_procedure), pointer :: proc_holder
     ! not sure it is the best place for it
     character(len=:), allocatable :: label_value
-    !type(scheme_symbol), pointer :: mysym
-!    character(len=:), allocatable :: quote_string
+
     the_global_environment => ll_setup_global_environment()
-!    quote_string = "quote"
-    
-    ! TODO: (perform (op initialize-stack))
-    !mysym => make_symbol( "quote" )
 
     label_value = "read-eval-print-loop"
 001 label_selector: select case (label_value)
     case ("read-eval-print-loop")
+       ! (perform (op initialize-stack))
+       call initialize_stack()
        ! (perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
        write (*,fmt='(a)', advance='no') "SCHEMETRAN-Input: " !
        ! (assign exp (op read))
@@ -926,21 +949,23 @@ contains
        label_value = "eval-dispatch"
        goto 001
     case ("print-result") ! ec-label: print-result
-       print *, "TODO: implement print-result"
+       !print *, "TODO: implement print-result"
        !(perform (op announce-output) (const ";;EC-Eval value:"))
        write (*,fmt='(a)', advance='no') "SCHEMETRAN-Output: "
        !(perform (op user-print) (reg val))
        call val%debug_display(); write (*, fmt='(a)') new_line('a')
-       !TODO: (perform (op print-stack-statistics))
-       print *, "TODO: (perform (op print-stack-statistics))"
+       !(perform (op print-stack-statistics))
+       call print_stack_statistics()
        !(goto (label read-eval-print-loop))
        label_value = "read-eval-print-loop"
        goto 001
     case ("unknown-expression-type")
-       print *, "TODO: "
+       !print *, "TODO: "
        !(assign val (const unknown-expression-type-error))
+       val => make_symbol("unknown-expression-type-error")
        !(goto (label signal-error))
-       error stop "unknown-expression-type not implemented"
+       label_value = "signal-error"
+       goto 001
     case ("unknown-procedure-type")
        !(restore continue) ; clean up stack (from apply-dispatch )
        !(assign val (const unknown-procedure-type-error))
@@ -948,8 +973,10 @@ contains
        error stop "unknown-procedure-type not implemented"
     case ("signal-error")
        !(perform (op user-print) (reg val))
+       call val%debug_display()
        !(goto (label read-eval-print-loop))
-       error stop "signal-error not implemented"
+       label_value = "read-eval-print-loop"
+       goto 001
     case ("ev-definition")
        !(assign unev (op definition-variable) (reg exp))
        !(save unev) ; save variable for later
@@ -985,19 +1012,43 @@ contains
        error stop "ev-lambda not implemented"
     case ("ev-variable")
        !(assign val (op lookup-variable-value) (reg exp) (reg env))
+       select type (exp)
+       class is (scheme_symbol)
+          val => lookup_variable_value( exp, env )
+       class default
+          error stop "ev-variable: variable name is not a symbol"
+       end select
        !(save exp)
+       call scheme_save_reg( exp )
        !(assign exp (op car) (reg val))
+       exp => car( val )
        !(test (op eq?) (reg exp) (const unbound))
-       !(branch (label error-unbound-variable))
+       select type (exp)
+       class is (scheme_symbol)
+          if ( exp == make_symbol("unbound")) then
+             !(branch (label error-unbound-variable))
+             label_value = "error-unbound-variable"
+             goto 001
+          end if
+       class default
+          error stop "ev-variable: lookup-variable-value returned rubbish"
+       end select
        !(restore exp)
+       exp => scheme_restore()
        !(assign val (op cdr) (reg val))
+       val => cdr(val)
        !(goto (reg continue))
-       error stop "ev-variable not implemented"
+       label_value = reg_continue%value
+       goto 001
     case ("error-unbound-variable")
        !(restore exp)
+       exp => scheme_restore()
        !(assign val (op cons) (const unbound-variable-error) (reg exp))
+       val => cons( make_symbol("unbound-variable-error"), exp)
        !(goto (label signal-error))
-       error stop "error-unbound-variable not implemented"
+       label_value = "signal-error"
+       goto 001
+       !error stop "error-unbound-variable not implemented"
     case ("ev-assignment")
        ! (assign unev (op assignment-variable) (reg exp))
        ! (save unev) ; save variable for later
@@ -1096,13 +1147,20 @@ contains
        error stop "primitive-error not implemented"
     case ("ev-application")
        ! (save continue)
+       call scheme_save_reg(reg_continue)
        ! (save env)
+       call scheme_save_reg(reg_continue)
        ! (assign unev (op operands) (reg exp))
+       unev => ll_operands(exp)
        ! (save unev)
+       call scheme_save_reg(unev)
        ! (assign exp (op operator) (reg exp))
+       exp => ll_operator(exp)
        ! (assign continue (label ev-appl-did-operator))
+       reg_continue => make_symbol("ev-appl-did-operator")
        ! (goto (label eval-dispatch))
-       error stop "ev-application not implemented"
+       label_value = "eval-dispatch"
+       goto 001
     case ("ev-appl-did-operator")
        ! (restore unev) ; the operands
        ! (restore env)
