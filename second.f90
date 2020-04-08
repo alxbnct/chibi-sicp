@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-08 12:09:40 lockywolf>
+! Time-stamp: <2020-04-08 20:55:33 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -703,6 +703,19 @@ contains
   !   retval => ll_extend_environment( car(argl), car(car(argl)), car(car(car(argl))) )
   ! end function packaged_ll_extend_environment
 
+  function packaged_display( argl, env ) result(retval)
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env 
+    class(scheme_object), pointer :: retval
+    retval => the_null
+    select type (tmp => car(argl))
+    class is (scheme_object)
+       call tmp%debug_display()
+    class default
+       error stop "Critical error. This should never get executed."
+    end select
+  end function packaged_display
+  
   function make_primitive_procedure_object( proc1, name ) result( retval )
     character(len=*) :: name
     procedure(packageable_procedure), pointer, intent(in) :: proc1
@@ -745,8 +758,16 @@ contains
     list_primitive_objects => cons( cons( symbol_primitive, &
          make_primitive_procedure_object( proc, "packaged_cdr" ) ), &
          list_primitive_objects)
+    ! ersatz-display
+    function_name = "display"
+    proc => packaged_display
+    list_primitive_names => cons( make_symbol(function_name), &
+         list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc, "packaged_blurb" ) ), &
+         list_primitive_objects)
     ! blurb
-    function_name="blurb" ! automatic reallocation?
+    function_name = "blurb" ! automatic reallocation?
     proc => packaged_blurb
     list_primitive_names => cons( make_symbol(function_name), &
          list_primitive_names)
@@ -899,7 +920,17 @@ contains
        retval = .false.
     end select
   end function is_null_p
-  
+
+  logical function ll_last_operand_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (arg)
+    class is (scheme_pair)
+       retval = is_null_p( cdr(arg) )
+    class default
+       error stop "ll_last_operand_p: expected a pair"
+    end select
+  end function ll_last_operand_p
+    
   subroutine scheme_save_reg( val )
     class(scheme_object), pointer, intent(in) :: val
     stack_number_pushes = stack_number_pushes + 1
@@ -927,18 +958,31 @@ contains
     stack_current_depth = 0
   end subroutine initialize_stack
 
+  function ll_operator(exp) result(retval)
+    class(scheme_object), pointer, intent(in) :: exp
+    class(scheme_object), pointer :: retval
+    retval => car(exp)
+  end function ll_operator
+  
   function ll_operands(exp) result(retval)
     class(scheme_object), pointer, intent(in) :: exp
     class(scheme_object), pointer :: retval
     retval => cdr(exp)
   end function ll_operands
 
-  function ll_operator(exp) result(retval)
+  function ll_first_operand_p(exp) result(retval)
     class(scheme_object), pointer, intent(in) :: exp
     class(scheme_object), pointer :: retval
     retval => car(exp)
-  end function ll_operator
+  end function ll_first_operand_p
+    
+  function ll_rest_operands(exp) result(retval)
+    class(scheme_object), pointer, intent(in) :: exp
+    class(scheme_object), pointer :: retval
+    retval => cdr(exp)
+  end function ll_rest_operands
 
+  
   logical function is_primitive_procedure_p( arg ) result(retval)
     class(scheme_object), pointer, intent(in) :: arg
     retval = is_tagged_list_p( arg, make_symbol("primitive"))
@@ -949,12 +993,37 @@ contains
     retval = is_tagged_list_p( arg, make_symbol("procedure"))
   end function is_compound_procedure_p
 
+  ! Is this even remotely going to work?
+  ! (define (append list1 list2)
+  ! (if (null? list1)
+  !     list2
+  !     (cons (car list1) (append (cdr list1) list2))))
+  recursive function ll_append( list1, list2 ) result(retval)
+    class(scheme_object), pointer, intent(in) :: list1
+    class(scheme_object), pointer, intent(in) :: list2
+    class(scheme_object), pointer :: retval
+    if (is_null_p(list1)) then
+       retval => list2
+    else
+       retval => cons( car(list1), ll_append( cdr(list1), list2))
+    end if
+  end function ll_append
+
+  !(define (adjoin-arg arg arglist) (append arglist (list arg)))
+  function ll_adjoin_arg(arg, arglist) result(retval)
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer, intent(in) :: arglist
+    class(scheme_object), pointer :: retval
+    retval => ll_append( arglist, cons( arg, the_null ) )
+  end function ll_adjoin_arg
+  
+  
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
     class(scheme_object), pointer :: retval
     class(scheme_object), pointer, intent(in) :: proc
     class(scheme_object), pointer, intent(in) :: argl
     class(scheme_object), pointer, intent(in) :: env
-    
+
     select type (proc_object => cdr(proc))
     class is (scheme_primitive_procedure)
        ! TODO: implement type checkers
@@ -985,8 +1054,9 @@ contains
        ! (assign exp (op read))
        exp => ll_read()
        ! (perform (op user-print) (reg exp))
-       write (*, fmt='(a)', advance='no') "debug: I parsed as: "
-       call exp%debug_display() !;     write (*,*) new_line('a')
+       !write (*, fmt='(a,a)', advance='no') &
+       !     new_line(''), "debug: I parsed as: "
+       !call exp%debug_display() ;     write (*,'(a)', advance='no') new_line('a')
        !(assign env (op get-global-environment))
        env => the_global_environment
        !(assign continue (label print-result))
@@ -997,7 +1067,7 @@ contains
     case ("print-result") ! ec-label: print-result
        !print *, "TODO: implement print-result"
        !(perform (op announce-output) (const ";;EC-Eval value:"))
-       write (*,fmt='(a)', advance='no') "SCHEMETRAN-Output: "
+       write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Value: "
        !(perform (op user-print) (reg val))
        call val%debug_display() !; write (*, fmt='(a)') new_line('a')
        !(perform (op print-stack-statistics))
@@ -1208,10 +1278,14 @@ contains
        goto 001
     case ("primitive-error")
        ! (restore val)
+       val => scheme_restore()
        ! (assign val (op cdr) (reg val)) ; error-code
+       val => cdr(val)
        ! (assign val (op cons) (const primitive-application-error) (reg val))
+       val => cons( make_symbol( "primitive-application-error" ), val)
        ! (goto (label signal-error))
-       error stop "primitive-error not implemented"
+       label_value = "signal-error"
+       goto 001
     case ("ev-application")
        ! (save continue)
        call scheme_save_reg(reg_continue)
@@ -1249,32 +1323,54 @@ contains
        goto 001
     case ("ev-appl-operand-loop")
        ! (save argl)
+       call scheme_save_reg( argl )
        ! (assign exp (op first-operand) (reg unev))
+       exp => ll_first_operand_p(unev)
        ! (test (op last-operand?) (reg unev))
-       ! (branch (label ev-appl-last-arg))
+       if (ll_last_operand_p(unev)) then
+          ! (branch (label ev-appl-last-arg))
+          label_value = "ev-appl-last-arg"
+          goto 001
+       end if
        ! (save env)
+       call scheme_save_reg( env )
        ! (save unev)
+       call scheme_save_reg( unev )
        ! (assign continue (label ev-appl-accumulate-arg))
+       reg_continue => make_symbol("ev-appl-accumulate-arg")
        ! (goto (label eval-dispatch))
-       error stop "ev-appl-operand-loop not implemented"
+       label_value = "eval-dispatch"
+       goto 001
     case ("ev-appl-accumulate-arg")
        ! (restore unev)
+       unev => scheme_restore()
        ! (restore env)
+       env => scheme_restore()
        ! (restore argl)
+       argl => scheme_restore()
        ! (assign argl (op adjoin-arg) (reg val) (reg argl))
+       argl => ll_adjoin_arg( val, argl )
        ! (assign unev (op rest-operands) (reg unev))
+       unev => ll_rest_operands( unev )
        ! (goto (label ev-appl-operand-loop))
-       error stop "ev-appl-accumulate-arg not implemented"
+       label_value = "ev-appl-operand-loop"
+       goto 001
     case ("ev-appl-last-arg")
        ! (assign continue (label ev-appl-accum-last-arg))
+       reg_continue => make_symbol( "ev-appl-accum-last-arg" )
        ! (goto (label eval-dispatch))
-       error stop "ev-appl-last-arg not implemented"
+       label_value = "eval-dispatch"
+       goto 001
     case ("ev-appl-accum-last-arg")
        ! (restore argl)
+       argl => scheme_restore()
        ! (assign argl (op adjoin-arg) (reg val) (reg argl))
+       argl => ll_adjoin_arg( val, argl )
        ! (restore proc)
+       proc => scheme_restore()
        ! (goto (label apply-dispatch))
-       error stop "ev-appl-accum-last-arg not implemented"
+       label_value = "apply-dispatch"
+       goto 001
     case ("apply-dispatch")
        ! (test (op primitive-procedure?) (reg proc))
        if (is_primitive_procedure_p(proc)) then
@@ -1292,7 +1388,6 @@ contains
        label_value = "unknown-procedure-type"
        goto 001
     case ("eval-dispatch")
-       print *, new_line(''), "TODO: eval-dispatch unfinished"
        ! (test (op self-evaluating?) (reg exp))
        if (is_self_evaluating_p(exp)) then
           ! (branch (label ev-self-eval))
@@ -1362,31 +1457,6 @@ contains
        ! (goto (label unknown-expression-type))
        label_value = "unknown-expression-type"
        goto 001
-       error stop "You need to implement here"
-
-       select type (procname => car(exp))
-       type is (scheme_symbol)
-          write (*,fmt='(a,a)', advance='no') "debug: (car exp)="
-          call procname%debug_display()
-          write (*,fmt='(a)', advance='no') new_line('a')
-          proc => lookup_variable_value( procname, env )
-          write (*,fmt='(a)', advance='no') "debug: found variable="
-          call proc%debug_display()
-          write (*, fmt='(a)', advance='no') new_line('a')
-          proc => cdr( proc ) ! (primitive obj)
-       class default
-          error stop "variable name not a symbol"
-       end select
-       select type( proc )
-       type is (scheme_primitive_procedure)
-          !proc => proc_holder%proc_pointer
-          val => proc%proc_pointer( argl, env)
-          !retval => proc( argl, env )
-       class default
-          error stop "primitive procedure not a procedure"
-       end select
-       
-       error stop "eval-dispatch not implemented"
     case ("ev-let")
        ! (assign exp (op let->combination) (reg exp))
        ! ;(save continue)
@@ -1397,9 +1467,9 @@ contains
        ! (goto (label eval-dispatch))
        error stop "ev-cond not implemented"
     case default
-       error stop "default case should never be reached"
+       error stop "Critical error. Default case should never be reached."
     end select label_selector
-    error stop "The end of main loop should never be reached"
+    error stop "Critical error. The end of main loop should never be reached."
   end subroutine main_loop
 
 
