@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-07 23:37:45 lockywolf>
+! Time-stamp: <2020-04-08 12:09:40 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -184,6 +184,7 @@ contains
     class(scheme_symbol), intent(in) :: this
     class(scheme_symbol), intent(in) :: that
     logical :: retval
+!    write (*,*) "this%value=", this%value, " that%value=", that%value
     if ( this%value .eq. that%value ) then
        retval = .true.
     else
@@ -233,7 +234,8 @@ contains
     integer, intent(in)         :: v_list (:)
     integer, intent(out)        :: iostat
     character(*), intent(inout) :: iomsg
-    write (unit, fmt=*, iostat=iostat, iomsg=iomsg) "#<opcode ", this%name, ">"
+    write (unit, fmt='(a,a,a)', iostat=iostat, iomsg=iomsg, advance='no') &
+         "#<opcode ", this%name, ">"
   end subroutine print_scheme_primitive_procedure
 
 
@@ -246,7 +248,7 @@ contains
     character(*), intent(inout) :: iomsg
     !    select type ( temp => this%value )
     !    type is (character(len=*))
-    write (unit, fmt=*, iostat=iostat, iomsg=iomsg) &
+    write (unit, fmt='(a)', iostat=iostat, iomsg=iomsg, advance='no') &
          '#<scheme_string "' // this%value // '">'
     !    class default
     !       print *, 'error'
@@ -264,7 +266,7 @@ contains
     character(*), intent(inout) :: iomsg
     !    select type ( temp => this%value )
     !    type is (integer)
-    write (unit, fmt=*, iostat=iostat, iomsg=iomsg) &
+    write (unit, fmt='(a,i0)', iostat=iostat, iomsg=iomsg, advance='no') &
          '#<scheme_pair address=', this%value, '>'
     !    class default
     !       print *, 'error'
@@ -450,7 +452,7 @@ contains
 
     select case (arg(1:1))
     case ('(')
-       print *, "debug: parsing list"
+!       print *, "debug: parsing list"
        arg => arg(2:)
        retval => parse_list( arg )
     case ('"')
@@ -558,28 +560,35 @@ contains
        retval => cons( make_symbol("unbound"), the_false)
     class is (scheme_pair)
        retval => frame_loop( car(car(env)), cdr(car(env)))
+    class default
+       error stop "lookup_variable_value: wrong object in an env"
     end select
+    !write (*,'(a)', advance='no') "debug: retval=>"
+    !call retval%debug_display() ! break tail recursion
   contains
 
-    recursive function frame_loop( vars, vals) result( retval )
+    recursive function frame_loop( vars, vals ) result( retval )
       class(scheme_object), pointer, intent(in) :: vars
       class(scheme_object), pointer, intent(in) :: vals
       class(scheme_object), pointer :: retval
       select type (vars)
-      type is (scheme_empty_list)
+      type is (scheme_empty_list) ! frame empty
          retval => lookup_variable_value( var, cdr(env) )
-      class is (scheme_pair)
-         select type ( name => car(vars))
+      class is (scheme_pair) ! frame is a list
+         select type ( name => car(vars) )
          class is (scheme_symbol)
             if ( name == var ) then
                retval => cons( make_symbol("bound"), car(vals))
+            else
+               retval => frame_loop( cdr(vars), cdr(vals))
             end if
          class default
-            error stop "scheme symbol not a symbol"
+            error stop "lookup_variable_value::frame_loop: variable name not a symbol"
          end select
-      class default
-         retval => frame_loop( cdr(vars), cdr(vals))
+      class default ! frame is not a list
+         error stop "lookup_variable_value::frame_loop: frame-vars is not a list"
       end select
+
     end function frame_loop
 
   end function lookup_variable_value
@@ -881,6 +890,16 @@ contains
     end select
   end function is_application_p
 
+  logical function is_null_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (arg)
+    class is (scheme_empty_list)
+       retval = .true.
+    class default
+       retval = .false.
+    end select
+  end function is_null_p
+  
   subroutine scheme_save_reg( val )
     class(scheme_object), pointer, intent(in) :: val
     stack_number_pushes = stack_number_pushes + 1
@@ -897,7 +916,7 @@ contains
   end function scheme_restore
 
   subroutine print_stack_statistics()
-    write (*,fmt='(a,a,i0,a,i0)') new_line('a'), "total-pushes=", stack_number_pushes, &
+    write (*,fmt='(a,a,i0,a,i0)', advance='no') new_line('a'), "total-pushes=", stack_number_pushes, &
          " maximum-depth=", stack_max_depth
   end subroutine print_stack_statistics
   
@@ -919,6 +938,33 @@ contains
     class(scheme_object), pointer :: retval
     retval => car(exp)
   end function ll_operator
+
+  logical function is_primitive_procedure_p( arg ) result(retval)
+    class(scheme_object), pointer, intent(in) :: arg
+    retval = is_tagged_list_p( arg, make_symbol("primitive"))
+  end function is_primitive_procedure_p
+
+  logical function is_compound_procedure_p( arg ) result(retval)
+    class(scheme_object), pointer, intent(in) :: arg
+    retval = is_tagged_list_p( arg, make_symbol("procedure"))
+  end function is_compound_procedure_p
+
+  function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
+    class(scheme_object), pointer :: retval
+    class(scheme_object), pointer, intent(in) :: proc
+    class(scheme_object), pointer, intent(in) :: argl
+    class(scheme_object), pointer, intent(in) :: env
+    
+    select type (proc_object => cdr(proc))
+    class is (scheme_primitive_procedure)
+       ! TODO: implement type checkers
+       retval => cons( make_symbol("no-error"), proc_object%proc_pointer( argl , env ))
+    class default
+       error stop "apply-primitive-procedure: expected procedure object &
+            & not actually a procedure"
+    end select
+  end function apply_primitive_procedure_with_errors
+  
   
   recursive subroutine main_loop()
     ! procedure(packageable_procedure), pointer :: proc
@@ -935,12 +981,12 @@ contains
        ! (perform (op initialize-stack))
        call initialize_stack()
        ! (perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
-       write (*,fmt='(a)', advance='no') "SCHEMETRAN-Input: " !
+       write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Input: " !
        ! (assign exp (op read))
        exp => ll_read()
        ! (perform (op user-print) (reg exp))
        write (*, fmt='(a)', advance='no') "debug: I parsed as: "
-       call exp%debug_display() ;     write (*,*) new_line('a')
+       call exp%debug_display() !;     write (*,*) new_line('a')
        !(assign env (op get-global-environment))
        env => the_global_environment
        !(assign continue (label print-result))
@@ -953,7 +999,7 @@ contains
        !(perform (op announce-output) (const ";;EC-Eval value:"))
        write (*,fmt='(a)', advance='no') "SCHEMETRAN-Output: "
        !(perform (op user-print) (reg val))
-       call val%debug_display(); write (*, fmt='(a)') new_line('a')
+       call val%debug_display() !; write (*, fmt='(a)') new_line('a')
        !(perform (op print-stack-statistics))
        call print_stack_statistics()
        !(goto (label read-eval-print-loop))
@@ -1130,15 +1176,36 @@ contains
        error stop "compound-apply not implemented"
     case ("primitive-apply")
        ! (assign val (op apply-primitive-procedure-with-errors) (reg proc) (reg argl))
+       val => apply_primitive_procedure_with_errors( proc, argl, env )
        ! (save val)
+       call scheme_save_reg( val )
        ! (assign val (op car) (reg val)) ; error or not
+       val => car(val)
        ! (test (op eq?) (const error) (reg val))
-       ! (branch (label primitive-error))
+       select type (val)
+       class is (scheme_symbol)
+          if ( val == make_symbol("error")) then
+             ! (branch (label primitive-error))
+             label_value = "primitive-error"
+             goto 001
+          end if
+       class default
+          error stop "primitive-apply: apply-primitive-procedure returned garbage"
+       end select
        ! (restore val)
+       val => scheme_restore()
        ! (assign val (op cdr) (reg val))
+       val => cdr(val)
        ! (restore continue)
+       select type (temp => scheme_restore())
+       class is (scheme_symbol)
+          reg_continue => temp
+       class default
+          error stop "primitive-apply: cannot restore reg_continue, wrong type"
+       end select
        ! (goto (reg continue))
-       error stop "primitive-apply not implemented"
+       label_value = reg_continue%value
+       goto 001
     case ("primitive-error")
        ! (restore val)
        ! (assign val (op cdr) (reg val)) ; error-code
@@ -1163,13 +1230,23 @@ contains
        goto 001
     case ("ev-appl-did-operator")
        ! (restore unev) ; the operands
+       unev => scheme_restore()
        ! (restore env)
+       env => scheme_restore()
        ! (assign argl (op empty-arglist))
+       argl => the_null
        ! (assign proc (reg val)) ; the operator
+       proc => val
        ! (test (op no-operands?) (reg unev))
-       ! (branch (label apply-dispatch))
+       if (is_null_p(unev)) then
+          ! (branch (label apply-dispatch))
+          label_value = "apply-dispatch"
+          goto 001
+       end if
        ! (save proc)
-       error stop "ev-appl-did-operator not implemented"
+       call scheme_save_reg( proc )
+       label_value = "ev-appl-operand-loop"
+       goto 001
     case ("ev-appl-operand-loop")
        ! (save argl)
        ! (assign exp (op first-operand) (reg unev))
@@ -1200,13 +1277,22 @@ contains
        error stop "ev-appl-accum-last-arg not implemented"
     case ("apply-dispatch")
        ! (test (op primitive-procedure?) (reg proc))
-       ! (branch (label primitive-apply))
+       if (is_primitive_procedure_p(proc)) then
+          ! (branch (label primitive-apply))
+          label_value = "primitive-apply"
+          goto 001
+       end if
        ! (test (op compound-procedure?) (reg proc))
-       ! (branch (label compound-apply))
+       if (is_compound_procedure_p(proc)) then
+          ! (branch (label compound-apply))
+          label_value = "compound-apply"
+          goto 001
+       end if
        ! (goto (label unknown-procedure-type))
-       error stop "apply-dispatch not implemented"
+       label_value = "unknown-procedure-type"
+       goto 001
     case ("eval-dispatch")
-       print *, "TODO: implement eval-dispatch"
+       print *, new_line(''), "TODO: eval-dispatch unfinished"
        ! (test (op self-evaluating?) (reg exp))
        if (is_self_evaluating_p(exp)) then
           ! (branch (label ev-self-eval))
