@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-08 20:55:33 lockywolf>
+! Time-stamp: <2020-04-08 23:50:33 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -113,6 +113,8 @@ module scheme
 
   type, extends( scheme_object ) :: scheme_boolean
      logical :: value
+   contains
+     procedure :: debug_display => debug_display_boolean
   end type scheme_boolean
 
   type(scheme_boolean), target :: the_false = scheme_boolean( .false. )
@@ -450,7 +452,7 @@ contains
     character(:), pointer, intent(inout) :: arg
     class(scheme_object), pointer :: retval
 
-    select case (arg(1:1))
+    sexp_detector: select case (arg(1:1))
     case ('(')
 !       print *, "debug: parsing list"
        arg => arg(2:)
@@ -465,11 +467,21 @@ contains
     case ( ')' )
        error stop "Closing parenthesis should be processed in parse_list"
        retval => the_null
+    case ( '#')
+       hashed_select: select case (arg(2:2))
+       case ('t')
+          retval => the_true
+       case ('f')
+          retval => the_false
+       case default
+          error stop "Additional read syntax not implemented."
+       end select hashed_select
+       arg => arg(3:)
     case default
        !       print *, new_line('a'), "debug: parse symbol"
 
        retval => parse_symbol( arg )
-    end select
+    end select sexp_detector
 
   end function parse_sexp
 
@@ -627,6 +639,24 @@ contains
     !      end select
   end subroutine debug_display_string
 
+  subroutine debug_display_boolean( this )
+    class(scheme_boolean), intent(in):: this
+    !    select type (temp => this%value )
+    !      type is ( character(len=*) )
+    character(len=:), allocatable :: marker
+    marker = 'fixme'
+    if ( this%value .eqv. .true.) then
+       marker = 't'
+    else if ( this%value .eqv. .false. ) then
+       marker = 'f'
+    else
+       error stop "Wrong logical contents"
+    end if
+    write (output_unit, fmt='(a,a)', advance='no') '#', marker
+    !      end select
+  end subroutine debug_display_boolean
+
+  
   subroutine debug_display_symbol( this )
     class(scheme_symbol), intent(in) :: this
     !    select type (temp => this%value )
@@ -1016,8 +1046,48 @@ contains
     class(scheme_object), pointer :: retval
     retval => ll_append( arglist, cons( arg, the_null ) )
   end function ll_adjoin_arg
+
+  function ll_if_predicate( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr( arg ))
+  end function ll_if_predicate
+
+  function ll_if_alternative( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    select type (tmp => cdr(cdr(cdr(arg))))
+    class is (scheme_empty_list)
+       retval => the_false
+    class is (scheme_pair)
+       retval => car( tmp )
+    class default
+       error stop "Critical error. If structure is malformed."
+    end select
+  end function ll_if_alternative
+
+  function ll_if_consequent( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(cdr(arg)))
+  end function ll_if_consequent
   
+  logical function ll_true_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (arg)
+    class is (scheme_boolean)
+       if (arg%value .eqv. the_false%value) then
+          retval = .false.
+       else
+          retval = .true.
+       end if
+    class default
+       retval = .true.
+    end select
+    
+  end function ll_true_p
   
+    
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
     class(scheme_object), pointer :: retval
     class(scheme_object), pointer, intent(in) :: proc
@@ -1065,7 +1135,6 @@ contains
        label_value = "eval-dispatch"
        goto 001
     case ("print-result") ! ec-label: print-result
-       !print *, "TODO: implement print-result"
        !(perform (op announce-output) (const ";;EC-Eval value:"))
        write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Value: "
        !(perform (op user-print) (reg val))
@@ -1084,9 +1153,18 @@ contains
        goto 001
     case ("unknown-procedure-type")
        !(restore continue) ; clean up stack (from apply-dispatch )
+       select type (temp => scheme_restore())
+       class is (scheme_symbol)
+          reg_continue => temp
+       class default
+          error stop "unknown-procedure-type:&
+           & cannot restore reg_continue, wrong type"
+       end select
        !(assign val (const unknown-procedure-type-error))
+       val => make_symbol("unknown-procedure-type-error")
        !(goto (label signal-error))
-       error stop "unknown-procedure-type not implemented"
+       label_value = "signal-error"
+       goto 001
     case ("signal-error")
        !(perform (op user-print) (reg val))
        call val%debug_display()
@@ -1164,7 +1242,7 @@ contains
        !(goto (label signal-error))
        label_value = "signal-error"
        goto 001
-       !error stop "error-unbound-variable not implemented"
+       error stop "error-unbound-variable guard"
     case ("ev-assignment")
        ! (assign unev (op assignment-variable) (reg exp))
        ! (save unev) ; save variable for later
@@ -1192,26 +1270,53 @@ contains
        error stop "assignment-failed not implemented"
     case ("ev-if")
        ! (save exp) ; save expression for later
+       call scheme_save_reg( exp )
        ! (save env)
+       call scheme_save_reg( env )
        ! (save continue)
+       call scheme_save_reg( reg_continue )
        ! (assign continue (label ev-if-decide))
+       reg_continue => make_symbol( "ev-if-decide" )
        ! (assign exp (op if-predicate) (reg exp))
+       exp => ll_if_predicate( exp )
        ! (goto (label eval-dispatch)) ; evaluate the predicate
-       error stop "ev-if not implemented"
+       label_value = "eval-dispatch"
+       goto 001
     case ("ev-if-decide")
        ! (restore continue)
+       select type (temp => scheme_restore())
+       class is (scheme_symbol)
+          reg_continue => temp
+       class default
+          error stop "ev-if-decide:&
+           & cannot restore reg_continue, wrong type"
+       end select
        ! (restore env)
+       env => scheme_restore()
        ! (restore exp)
+       exp => scheme_restore()
        ! (test (op true?) (reg val))
-       ! (branch (label ev-if-consequent))
-       error stop "ev-if-decide not implemented"
+       if (ll_true_p(val)) then
+          ! (branch (label ev-if-consequent))
+          label_value = "ev-if-consequent"
+          goto 001
+       end if
+       label_value = "ev-if-alternative"
+       goto 001
+       error stop "ev-if-decide guard"
     case ("ev-if-alternative")
        ! (assign exp (op if-alternative) (reg exp))
+       exp => ll_if_alternative( exp )
        ! (goto (label eval-dispatch))
+       label_value = "eval-dispatch"
+       goto 001
     case ("ev-if-consequent")
        ! (assign exp (op if-consequent) (reg exp))
+       exp => ll_if_consequent( exp )
        ! (goto (label eval-dispatch))
-       error stop "ev-if-consequent not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-if-consequent guard"
     case ("ev-sequence")
        ! (assign exp (op first-exp) (reg unev))
        ! (test (op last-exp?) (reg unev))
