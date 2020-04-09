@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-09 10:36:58 lockywolf>
+! Time-stamp: <2020-04-09 10:56:04 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -449,7 +449,7 @@ contains
     retval => cons( parse_sexp(arg), parse_list( arg ) )
   end function parse_list
 
-  function parse_sexp( arg ) result( retval )
+  recursive function parse_sexp( arg ) result( retval )
     character(:), pointer, intent(inout) :: arg
     class(scheme_object), pointer :: retval
 
@@ -458,11 +458,13 @@ contains
 !       print *, "debug: parsing list"
        arg => arg(2:)
        retval => parse_list( arg )
+    case ( "'" )
+       print *, "parse_sexp: parsing quote"
+       arg => arg(2:)
+       retval => cons( make_symbol("quote"), cons( parse_sexp(arg), the_null ))
     case ('"')
        print *, "parse_sexp: parsing string"
        retval => parse_string( arg ) ! returns sexp and moves arg
-    case ("'")
-       print *, "parse_sexp: parsing quote"
     case ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
        print *, "parse_sexp: parsing number"
        retval => parse_number( arg )
@@ -1116,6 +1118,12 @@ contains
     class(scheme_object), pointer :: retval
     retval => cdr(arg)
   end function ll_rest_exps
+
+  function ll_text_of_quotation( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(arg))
+  end function ll_text_of_quotation
   
     
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
@@ -1123,7 +1131,6 @@ contains
     class(scheme_object), pointer, intent(in) :: proc
     class(scheme_object), pointer, intent(in) :: argl
     class(scheme_object), pointer, intent(in) :: env
-
     select type (proc_object => cdr(proc))
     class is (scheme_primitive_procedure)
        ! TODO: implement type checkers
@@ -1175,7 +1182,6 @@ contains
        label_value = "read-eval-print-loop"
        goto 001
     case ("unknown-expression-type")
-       !print *, "TODO: "
        !(assign val (const unknown-expression-type-error))
        val => make_symbol("unknown-expression-type-error")
        !(goto (label signal-error))
@@ -1226,8 +1232,11 @@ contains
        goto 001
     case ("ev-quoted")
        !(assign val (op text-of-quotation) (reg exp))
+       val => ll_text_of_quotation( exp )
        !(goto (reg continue))
-       error stop "ev-quoted not implemented"
+       label_value = reg_continue%value
+       goto 001
+       error stop "ev-quoted guard"
     case ("ev-lambda")
        !(assign unev (op lambda-parameters) (reg exp))
        !(assign exp (op lambda-body) (reg exp))
