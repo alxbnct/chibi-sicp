@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-08 23:50:33 lockywolf>
+! Time-stamp: <2020-04-09 10:36:58 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -387,7 +387,7 @@ contains
     character, parameter, dimension(*) :: allowed_chars = (/ 'a', 'b', 'c', &
          'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', &
          'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-', '!', '*', &
-         '+', '/' /)
+         '+', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' /)
     character(:), allocatable, target :: interim_string
     allocate( interim_string, source="")
     !token%value = "BUG1"
@@ -443,6 +443,7 @@ contains
     end do
     if (arg(1:1) == ")") then
        retval => the_null
+       arg => arg(2:) ! is this correct?
        return
     end if
     retval => cons( parse_sexp(arg), parse_list( arg ) )
@@ -458,11 +459,12 @@ contains
        arg => arg(2:)
        retval => parse_list( arg )
     case ('"')
+       print *, "parse_sexp: parsing string"
        retval => parse_string( arg ) ! returns sexp and moves arg
     case ("'")
-       print *, "debug: parse quote"
+       print *, "parse_sexp: parsing quote"
     case ( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-       print *, "debug: parse number"
+       print *, "parse_sexp: parsing number"
        retval => parse_number( arg )
     case ( ')' )
        error stop "Closing parenthesis should be processed in parse_list"
@@ -1086,6 +1088,34 @@ contains
     end select
     
   end function ll_true_p
+
+  function ll_begin_actions( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => cdr(arg)
+  end function ll_begin_actions
+
+  function ll_first_exp( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(arg)
+  end function ll_first_exp
+
+  logical function ll_last_exp_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (arg)
+    class is (scheme_pair)
+       retval = is_null_p( cdr(arg) )
+    class default
+       error stop "ll_last_exp_p: expected a pair"
+    end select
+  end function ll_last_exp_p
+
+  function ll_rest_exps( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => cdr(arg)
+  end function ll_rest_exps
   
     
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
@@ -1124,9 +1154,9 @@ contains
        ! (assign exp (op read))
        exp => ll_read()
        ! (perform (op user-print) (reg exp))
-       !write (*, fmt='(a,a)', advance='no') &
-       !     new_line(''), "debug: I parsed as: "
-       !call exp%debug_display() ;     write (*,'(a)', advance='no') new_line('a')
+       write (*, fmt='(a,a)', advance='no') &
+            new_line(''), "debug: I parsed as: "
+       call exp%debug_display() ;     write (*,'(a)', advance='no') new_line('a')
        !(assign env (op get-global-environment))
        env => the_global_environment
        !(assign continue (label print-result))
@@ -1319,28 +1349,56 @@ contains
        error stop "ev-if-consequent guard"
     case ("ev-sequence")
        ! (assign exp (op first-exp) (reg unev))
+       exp => ll_first_exp( unev )
        ! (test (op last-exp?) (reg unev))
-       ! (branch (label ev-sequence-last-exp))
+       if (ll_last_exp_p(unev)) then
+          ! (branch (label ev-sequence-last-exp))
+          label_value = "ev-sequence-last-exp"
+          goto 001
+       end if
        ! (save unev)
+       call scheme_save_reg( unev )
        ! (save env)
+       call scheme_save_reg( env  )
        ! (assign continue (label ev-sequence-continue))
+       reg_continue => make_symbol( "ev-sequence-continue" )
        ! (goto (label eval-dispatch))
-       error stop "ev-sequence not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-sequence guard"
     case ("ev-sequence-continue")
        ! (restore env)
+       env => scheme_restore()
        ! (restore unev)
+       unev => scheme_restore()
        ! (assign unev (op rest-exps) (reg unev))
+       unev => ll_rest_exps( unev )
        ! (goto (label ev-sequence))
-       error stop "ev-sequence-continue not implemented"
+       label_value = "ev-sequence"
+       goto 001
+       error stop "ev-sequence-continue guard"
     case ("ev-sequence-last-exp")
        ! (restore continue)
+       select type (temp => scheme_restore())
+       class is (scheme_symbol)
+          reg_continue => temp
+       class default
+          error stop "ev-sequence-last-exp:&
+               & cannot restore reg_continue, wrong type"
+       end select
        ! (goto (label eval-dispatch))
-       error stop "ev-sequence-last-exp not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-sequence-last-exp guard"
     case ("ev-begin")
        ! (assign unev (op begin-actions) (reg exp))
+       unev => ll_begin_actions( exp )
        ! (save continue)
+       call scheme_save_reg( reg_continue )
        ! (goto (label ev-sequence))
-       error stop "ev-begin not implemented"
+       label_value = "ev-sequence"
+       goto 001
+       error stop "ev-begin guard"
     case ("compound-apply")
        ! (assign unev (op procedure-parameters) (reg proc))
        ! (assign env (op procedure-environment) (reg proc))
