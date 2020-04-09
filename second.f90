@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-09 21:45:51 lockywolf>
+! Time-stamp: <2020-04-09 22:51:01 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -1424,7 +1424,138 @@ contains
          ll_let_contents( arg )), &
          ll_bindings_expressions( ll_let_bindings( arg )))
   end function ll_let_to_combination
-   
+
+  ! (define (cond-clauses exp) (cdr exp))
+  function ll_cond_clauses( arg ) result (retval)
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => cdr( arg )
+  end function ll_cond_clauses
+  
+  ! (define (cond-else-clause? clause)
+  !   (eq? (cond-predicate clause) 'else))
+  logical function ll_cond_else_clause_p( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    select type (tmp => ll_cond_predicate(arg))
+    class is (scheme_symbol)
+       if (tmp == make_symbol( "else") ) then
+          retval = .true.
+       else
+          retval = .false.
+       end if
+    class default
+       retval = .false.
+    end select
+  end function ll_cond_else_clause_p
+  
+  ! (define (cond-predicate clause) (car clause))
+  function ll_cond_predicate( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car( arg )
+  end function ll_cond_predicate
+  
+  ! (define (cond-actions clause) (cdr clause))
+  function ll_cond_actions( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => cdr(arg)
+  end function ll_cond_actions
+  
+    ! (define (cond->if exp)
+    !   (expand-clauses (cond-clauses exp)))
+  function ll_cond_to_if( arg ) result (retval)
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => ll_expand_clauses( ll_cond_clauses( arg ) )
+  end function ll_cond_to_if
+
+  ! (define (expand-clauses clauses)
+  !   (if (null? clauses)
+  !       'false 
+  !       (let ((first (car clauses))
+  !     	(rest (cdr clauses)))
+  !         (if (cond-else-clause? first)
+  !     	(if (null? rest)
+  !     	    (sequence->exp (cond-actions first))
+  !     	    (error "ELSE clause isn't last -- COND->IF"
+  !     		   clauses))
+  !     	(make-if (cond-predicate first)
+  !     		 (sequence->exp (cond-actions first))
+  !     		 (expand-clauses rest))))))
+  recursive function ll_expand_clauses( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    class(scheme_object), pointer :: first
+    class(scheme_object), pointer :: rest
+    select type (arg)
+    class is (scheme_empty_list)
+       retval => the_false
+    class is (scheme_pair)
+       first => car(arg)
+       rest  => cdr(arg)
+       if (ll_cond_else_clause_p(first)) then
+          if (is_null_p(rest)) then
+             retval => ll_sequence_to_exp( ll_cond_actions( first ))
+          else
+             error stop "cond->if: else clause is not last"
+          end if
+       else
+          retval => ll_make_if( &
+                      ll_cond_predicate(first), &
+                      ll_sequence_to_exp( ll_cond_actions(first)), &
+                      ll_expand_clauses(rest))
+       end if
+    class default
+       error stop "ll_expand_clauses: malformed sequence"
+    end select
+  end function ll_expand_clauses
+
+  ! (define (sequence->exp seq)
+  !   (cond ((null? seq) seq)
+  !         ((last-exp? seq) (first-exp seq))
+  !         (else (make-begin seq))))
+  function ll_sequence_to_exp(seq) result( retval )
+    class(scheme_object), pointer, intent(in) :: seq
+    class(scheme_object), pointer :: retval
+    if (is_null_p(seq)) then
+       retval => seq
+    elseif (is_last_exp_p(seq)) then
+       retval => ll_first_exp(seq)
+    else
+       retval => ll_make_begin(seq)
+    end if
+  end function ll_sequence_to_exp
+
+  !(define (last-exp? seq) (null? (cdr seq)))
+  logical function is_last_exp_p(seq) result(retval)
+    class(scheme_object), pointer, intent(in) :: seq
+    select type( tmp => cdr(seq))
+    class is (scheme_empty_list)
+       retval = .true.
+    class default
+       retval = .false.
+    end select
+  end function is_last_exp_p
+
+  function ll_make_begin( seq ) result(retval)
+    class(scheme_object), pointer, intent(in) :: seq
+    class(scheme_object), pointer :: retval
+    retval => cons( make_symbol("begin"), seq)
+  end function ll_make_begin
+
+  function ll_make_if( predicate, consequent, alternative ) result(retval)
+    class(scheme_object), pointer, intent(in) :: predicate
+    class(scheme_object), pointer, intent(in) :: consequent
+    class(scheme_object), pointer, intent(in) :: alternative
+    class(scheme_object), pointer :: retval
+    retval => cons( make_symbol("if"), &
+                cons( predicate, &
+                  cons( consequent, &
+                    cons( alternative, the_null))))
+  end function ll_make_if
+  
+  
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
     class(scheme_object), pointer :: retval
     class(scheme_object), pointer, intent(in) :: proc
@@ -2016,8 +2147,11 @@ contains
        error stop "ev-let guard"
     case ("ev-cond")
        ! (assign exp (op cond->if) (reg exp))
+       exp => ll_cond_to_if( exp )
        ! (goto (label eval-dispatch))
-       error stop "ev-cond not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-cond guard"
     case default
        error stop "Critical error. Default case should never be reached."
     end select label_selector
