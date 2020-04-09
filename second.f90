@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-09 10:56:04 lockywolf>
+! Time-stamp: <2020-04-09 12:09:44 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -579,8 +579,6 @@ contains
     class default
        error stop "lookup_variable_value: wrong object in an env"
     end select
-    !write (*,'(a)', advance='no') "debug: retval=>"
-    !call retval%debug_display() ! break tail recursion
   contains
 
     recursive function frame_loop( vars, vals ) result( retval )
@@ -1124,8 +1122,111 @@ contains
     class(scheme_object), pointer :: retval
     retval => car(cdr(arg))
   end function ll_text_of_quotation
+
+  function ll_lambda_parameters( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(arg))
+  end function ll_lambda_parameters
+
+  function ll_lambda_body( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => cdr(cdr(arg))
+  end function ll_lambda_body
+
+  ! (define (make-procedure parameters body env)
+  !    (list 'procedure parameters body env))
+  function ll_make_procedure( parameters, body, env ) result( retval )
+    class(scheme_object), pointer, intent(in) :: parameters
+    class(scheme_object), pointer, intent(in) :: body
+    class(scheme_object), pointer, intent(in) :: env
+    class(scheme_object), pointer :: retval
+    retval => cons( make_symbol("procedure"), cons( parameters, &
+       cons( body, cons( env, the_null))))
+  end function ll_make_procedure
+
+  function ll_assignment_variable( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(arg))
+  end function ll_assignment_variable
+
+  function ll_assignment_value( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(cdr(arg)))
+  end function ll_assignment_value
+
+      ! (define (set-variable-value! var val env)
+      ! (define (env-loop env)
+      !   (define (scan vars vals)
+      !     (cond ((null? vars)
+      !   	 (env-loop (enclosing-environment env)))
+      !   	((eq? var (car vars))
+      !   	 (set-car! vals val))
+      !   	(else (scan (cdr vars) (cdr vals)))))
+      !   (if (eq? env the-empty-environment)
+      !       (cons 'unbound 'error)
+      !       (let ((frame (first-frame env)))
+      !         (scan (frame-variables frame)
+      !   	    (frame-values frame)))))
+      ! (env-loop env))
+  function ll_set_variable_value_b( var, val, env ) result( retval )
+    type(scheme_symbol), pointer, intent(in) :: var
+    class(scheme_object), pointer, intent(in) :: val
+    class(scheme_object), pointer, intent(in) :: env
+    class(scheme_object), pointer :: retval
+    select type( env )
+    class is ( scheme_empty_list )
+       retval => cons( make_symbol("unbound"), make_symbol("error"))
+    class is (scheme_pair)
+       retval => frame_loop( car(car(env)), cdr(car(env)))
+    class default
+       error stop "set_variable_value_b: wrong object in an env"
+    end select
+    !error stop "set-variable-value! not implemented"
+  contains
+
+    recursive function frame_loop( vars, vals ) result( retval )
+      class(scheme_object), pointer, intent(in) :: vars
+      class(scheme_object), pointer, intent(in) :: vals
+      class(scheme_object), pointer :: retval
+
+      select type (vars)
+      type is (scheme_empty_list) ! frame empty
+         retval => ll_set_variable_value_b( var, val, cdr(env) )
+      class is (scheme_pair) ! frame is a list
+         select type ( name => car(vars) )
+         class is (scheme_symbol)
+            if ( name == var ) then
+               !retval => cons( make_symbol("bound"), car(vals))
+               !(set-car! vals val)
+               select type( vals )
+               class is (scheme_pair)
+                  ! todo: implement set-car!
+                  ! the following line is creepy
+                  the_cars(vals%value)%contents => val !do I actually need = ?
+                  retval => cons(make_symbol("ok"), make_symbol("no-error"))
+                  ! cons( make_symbol("bound"), )
+               class default
+                  error stop "set_variable_value_b: weird error"
+               end select
+            else
+               retval => frame_loop( cdr(vars), cdr(vals))
+            end if
+         class default
+            error stop "set_variable_value_b::frame_loop: variable name not a symbol"
+         end select
+      class default ! frame is not a list
+         error stop "set_variable_value_b::frame_loop: frame-vars is not a list"
+      end select
+
+    end function frame_loop
+
+  end function ll_set_variable_value_b
+
   
-    
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
     class(scheme_object), pointer :: retval
     class(scheme_object), pointer, intent(in) :: proc
@@ -1148,9 +1249,7 @@ contains
     ! type(scheme_primitive_procedure), pointer :: proc_holder
     ! not sure it is the best place for it
     character(len=:), allocatable :: label_value
-
     the_global_environment => ll_setup_global_environment()
-
     label_value = "read-eval-print-loop"
 001 label_selector: select case (label_value)
     case ("read-eval-print-loop")
@@ -1239,10 +1338,15 @@ contains
        error stop "ev-quoted guard"
     case ("ev-lambda")
        !(assign unev (op lambda-parameters) (reg exp))
+       unev => ll_lambda_parameters( exp )
        !(assign exp (op lambda-body) (reg exp))
+       exp => ll_lambda_body( exp )
        !(assign val (op make-procedure) (reg unev) (reg exp) (reg env))
+       val => ll_make_procedure( unev, exp, env)
        !(goto (reg continue))
-       error stop "ev-lambda not implemented"
+       label_value = reg_continue%value
+       goto 001
+       error stop "ev-lambda guard"
     case ("ev-variable")
        !(assign val (op lookup-variable-value) (reg exp) (reg env))
        select type (exp)
@@ -1284,29 +1388,69 @@ contains
        error stop "error-unbound-variable guard"
     case ("ev-assignment")
        ! (assign unev (op assignment-variable) (reg exp))
+       unev => ll_assignment_variable( exp )
        ! (save unev) ; save variable for later
+       call scheme_save_reg( unev )
        ! (assign exp (op assignment-value) (reg exp))
+       exp => ll_assignment_value( exp )
        ! (save env)
+       call scheme_save_reg(env)
        ! (save continue)
+       call scheme_save_reg(reg_continue)
        ! (assign continue (label ev-assignment-1))
+       reg_continue => make_symbol( "ev-assignment-1" )
        ! (goto (label eval-dispatch)) ; evaluate the assignment value
-       error stop "ev-assignment not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-assignment guard"
     case ("ev-assignment-1")
        ! (restore continue)
+       select type (temp => scheme_restore())
+       class is (scheme_symbol)
+          reg_continue => temp
+       class default
+          error stop "ev-assignment-1:&
+               & cannot restore reg_continue, wrong type"
+       end select
        ! (restore env)
+       env => scheme_restore()
        ! (restore unev)
+       unev => scheme_restore()
        ! (assign val (op set-variable-value!) (reg unev) (reg val) (reg env))
+       select type( unev )
+       class is (scheme_symbol)
+          val => ll_set_variable_value_b( unev, val, env )
+       class default
+          error stop "ev-assignment-1: Non-symbol passed as a variable name."
+       end select
        ! (assign val (op car) (reg val))
+       val => car(val)
        ! (test (op eq?) (reg val) (const unbound))
-       ! (branch (label assignment-failed))
+       select type (val)
+       class is (scheme_symbol)
+          if ( val == make_symbol("unbound")) then
+             ! (branch (label assignment-failed))
+             label_value = "assignment-failed"
+             goto 001
+          end if
+       class default
+          error stop "ev-assignment-1: Error. assignment return not a symbol"
+       end select
        ! (assign val (const ok))
+       val => make_symbol( "ok" )
        ! (goto (reg continue))
-       error stop "ev-assignment-1 not implemented"
+       label_value = reg_continue%value
+       goto 001
+       error stop "ev-assignment-1 guard"
     case ("assignment-failed")
        ! (assign exp (reg unev))
+       exp => unev
        ! (save exp)
+       call scheme_save_reg( exp )
        ! (goto (label error-unbound-variable))
-       error stop "assignment-failed not implemented"
+       label_value = "error-unbound-variable"
+       goto 001
+       error stop "assignment-failed guard"
     case ("ev-if")
        ! (save exp) ; save expression for later
        call scheme_save_reg( exp )
