@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-09 12:09:44 lockywolf>
+! Time-stamp: <2020-04-09 13:41:31 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -1226,6 +1226,111 @@ contains
 
   end function ll_set_variable_value_b
 
+  function ll_definition_variable( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    select type (tmp => car(cdr(arg)))
+    class is (scheme_symbol)
+       retval => tmp
+    class default
+       retval => car( tmp )
+    end select
+  end function ll_definition_variable
+
+  ! (define (definition-value exp)
+  !       	(if (symbol? (cadr exp))
+  !       	    (caddr exp)
+  !       	    (make-lambda (cdadr exp)
+  !       			 (cddr exp))))
+  function ll_definition_value( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    select type (tmp => car(cdr(arg)))
+    class is (scheme_symbol)
+       retval => car(cdr(cdr( exp )))
+    class default
+       retval => ll_make_lambda( cdr(car(cdr(exp))), cdr(cdr(exp)))
+    end select
+  end function ll_definition_value
+
+  function ll_make_lambda( parameters, body ) result( retval )
+    class(scheme_object), pointer, intent(in) :: parameters
+    class(scheme_object), pointer, intent(in) :: body
+    class(scheme_object), pointer :: retval
+    retval => cons( make_symbol("lambda"), cons( parameters, body ) )
+  end function ll_make_lambda
+
+      ! (define (define-variable! var val env)
+      ! (let ((frame (first-frame env)))
+      !   (define (scan vars vals)
+      !     (cond ((null? vars)
+      !   	 (add-binding-to-frame! var val frame))
+      !   	((eq? var (car vars))
+      !   	 (set-car! vals val))
+      !   	(else (scan (cdr vars) (cdr vals)))))
+      !   (scan (frame-variables frame)
+      !         (frame-values frame))))
+  subroutine ll_define_variable_b( var, val, env)
+    type(scheme_symbol), pointer, intent(in) :: var
+    class(scheme_object), pointer, intent(in) :: val
+    class(scheme_object), pointer, intent(in) :: env
+
+    select type( env )
+    class is (scheme_pair)
+      call frame_loop( car(car(env)), cdr(car(env)))
+    class default
+       error stop "ll_define_variable_b: wrong object in an env"
+    end select
+    !error stop "set-variable-value! not implemented"
+  contains
+
+    recursive subroutine frame_loop( vars, vals )
+      class(scheme_object), pointer, intent(in) :: vars
+      class(scheme_object), pointer, intent(in) :: vals
+      select type (vars)
+      type is (scheme_empty_list) ! frame empty
+        call ll_add_binding_to_frame_b( var, val, car(env))
+      class is (scheme_pair) ! frame is a list
+         select type ( name => car(vars) )
+         class is (scheme_symbol)
+            if ( name == var ) then
+               !(set-car! vals val)
+               select type( vals )
+               class is (scheme_pair)
+                  ! todo: implement set-car!
+                  ! the following line is creepy
+                  the_cars(vals%value)%contents => val !do I actually need = ?
+               class default
+                  error stop "ll_define_variable_b: vals not a list"
+               end select
+            else
+               call frame_loop( cdr(vars), cdr(vals))
+            end if
+         class default
+            error stop "ll_define_variable_b::frame_loop: variable name not a symbol"
+         end select
+      class default ! frame is not a list
+         error stop "set_variable_value_b::frame_loop: frame-vars is not a list"
+      end select
+
+    end subroutine frame_loop
+      !   (define (add-binding-to-frame! var val frame)
+      !      (set-car! frame (cons var (car frame)))
+      !      (set-cdr! frame (cons val (cdr frame))))
+    subroutine ll_add_binding_to_frame_b( var, val, frame)
+      class(scheme_object), pointer, intent(in) :: var
+      class(scheme_object), pointer, intent(in) :: val
+      class(scheme_object), pointer, intent(in) :: frame
+      select type (frame)
+      class is (scheme_pair)
+         the_cars(frame%value)%contents => cons( var, car(frame))
+         the_cdrs(frame%value)%contents => cons( val, cdr(frame))
+      class default
+         error stop "ll_add_binding_to_frame_b: Error. Frame not a pair."
+      end select
+    end subroutine ll_add_binding_to_frame_b
+    
+  end subroutine ll_define_variable_b
   
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
     class(scheme_object), pointer :: retval
@@ -1308,21 +1413,49 @@ contains
        goto 001
     case ("ev-definition")
        !(assign unev (op definition-variable) (reg exp))
+       unev => ll_definition_variable( exp )
        !(save unev) ; save variable for later
+       call scheme_save_reg( unev )
        !(assign exp (op definition-value) (reg exp))
+       exp => ll_definition_value( exp )
        !(save env)
+       call scheme_save_reg( env )
        !(save continue)
+       call scheme_save_reg( reg_continue )
        !(assign continue (label ev-definition-1))
+       reg_continue => make_symbol( "ev-definition-1" )
        !(goto (label eval-dispatch)) ; evaluate the definition value
-       error stop "ev-definition not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-definition guard"
     case ("ev-definition-1")
        !(restore continue)
+       select type (temp => scheme_restore())
+       class is (scheme_symbol)
+          reg_continue => temp
+       class default
+          error stop "ev-definition-1:&
+           & cannot restore reg_continue, wrong type"
+       end select
        !(restore env)
+       env => scheme_restore()
        !(restore unev)
+       unev => scheme_restore()
        !(perform (op define-variable!) (reg unev) (reg val) (reg env))
+       select type (unev)
+       class is (scheme_symbol)
+          call ll_define_variable_b( unev, val, env )
+       class default
+          print *, new_line(''), "unev="
+          call unev%debug_display()
+          error stop "ev-definition-1: Error. Definition variable not a symbol."
+       end select
        !(assign val (const ok))
+       val => make_symbol( "ok" )
        !(goto (reg continue))
-       error stop "ev-definition-1 not implemented"
+       label_value = reg_continue%value
+       goto 001
+       error stop "ev-definition-1 guard"
     case ("ev-self-eval")
        !(assign val (reg exp))
        val => exp
