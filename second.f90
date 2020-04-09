@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-09 13:41:31 lockywolf>
+! Time-stamp: <2020-04-09 21:45:51 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -137,6 +137,15 @@ module scheme
 
   end interface
 
+  interface
+     recursive function mappable_proc( arg ) result(retval)
+       import scheme_object
+       class(scheme_object), pointer, intent(in) :: arg
+       class(scheme_object), pointer :: retval
+     end function mappable_proc
+  end interface
+
+  
   type scheme_pointer
      class(scheme_object), pointer :: contents
   end type scheme_pointer
@@ -577,6 +586,11 @@ contains
     class is (scheme_pair)
        retval => frame_loop( car(car(env)), cdr(car(env)))
     class default
+       write (*, "(a)", advance='no') "error:irritant:var="
+       call var%debug_display()
+       write (*, "(a)", advance='no') "irritant:env="
+       call env%debug_display()
+       write (*,*) ""
        error stop "lookup_variable_value: wrong object in an env"
     end select
   contains
@@ -1221,9 +1235,7 @@ contains
       class default ! frame is not a list
          error stop "set_variable_value_b::frame_loop: frame-vars is not a list"
       end select
-
     end function frame_loop
-
   end function ll_set_variable_value_b
 
   function ll_definition_variable( arg ) result( retval )
@@ -1274,7 +1286,6 @@ contains
     type(scheme_symbol), pointer, intent(in) :: var
     class(scheme_object), pointer, intent(in) :: val
     class(scheme_object), pointer, intent(in) :: env
-
     select type( env )
     class is (scheme_pair)
       call frame_loop( car(car(env)), cdr(car(env)))
@@ -1283,7 +1294,6 @@ contains
     end select
     !error stop "set-variable-value! not implemented"
   contains
-
     recursive subroutine frame_loop( vars, vals )
       class(scheme_object), pointer, intent(in) :: vars
       class(scheme_object), pointer, intent(in) :: vals
@@ -1312,7 +1322,6 @@ contains
       class default ! frame is not a list
          error stop "set_variable_value_b::frame_loop: frame-vars is not a list"
       end select
-
     end subroutine frame_loop
       !   (define (add-binding-to-frame! var val frame)
       !      (set-car! frame (cons var (car frame)))
@@ -1329,9 +1338,93 @@ contains
          error stop "ll_add_binding_to_frame_b: Error. Frame not a pair."
       end select
     end subroutine ll_add_binding_to_frame_b
-    
   end subroutine ll_define_variable_b
+
+  function ll_procedure_parameters( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(arg)) 
+  end function ll_procedure_parameters
+
+  function ll_procedure_body( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(cdr(arg)))
+  end function ll_procedure_body
   
+  function ll_procedure_environment( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(cdr(cdr(arg))))
+  end function ll_procedure_environment
+
+  ! (define (let-bindings exp)
+  !   (cadr exp))
+  function ll_let_bindings( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(arg))
+  end function ll_let_bindings
+  
+  recursive function ll_map( proc1, lst ) result( retval )
+    class(scheme_object), pointer, intent(in) :: lst
+    class(scheme_object), pointer :: retval
+    procedure(mappable_proc), pointer :: proc1
+    select type (lst)
+    class is (scheme_empty_list)
+       retval => the_null
+    class is (scheme_pair)
+       retval => cons( proc1( car(lst) ), ll_map( proc1, cdr(lst) ) )
+    end select
+  end function ll_map
+  ! (define (let-bindings-variables l)
+  !   (map car l))
+  recursive function ll_let_bindings_variables( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    procedure(mappable_proc), pointer :: tmp => car
+    retval => ll_map( tmp, arg)
+  end function ll_let_bindings_variables
+
+  function cadr( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => car(cdr(arg))
+  end function cadr
+    ! (define (let-bindings-expressions l)
+    !   (map cadr l))
+  function ll_bindings_expressions( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    procedure(mappable_proc), pointer :: tmp => cadr
+    retval => ll_map( tmp, arg)
+  end function ll_bindings_expressions
+  
+  ! (define (let-contents exp)
+  !     (cddr exp))
+  function ll_let_contents( arg ) result( retval )
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => cdr(cdr(arg))
+  end function ll_let_contents
+  
+    ! (define (let->combination exp)
+    !   (cons
+    !      (make-lambda 
+    !           (let-bindings-variables (let-bindings exp))
+    !           (let-contents exp)) 
+    !      (let-bindings-expressions (let-bindings exp))))
+  function ll_let_to_combination( arg ) result(retval)
+    class(scheme_object), pointer, intent(in) :: arg
+    class(scheme_object), pointer :: retval
+    retval => &
+         cons( &
+         ll_make_lambda( &
+         ll_let_bindings_variables( ll_let_bindings( arg )), &
+         ll_let_contents( arg )), &
+         ll_bindings_expressions( ll_let_bindings( arg )))
+  end function ll_let_to_combination
+   
   function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
     class(scheme_object), pointer :: retval
     class(scheme_object), pointer, intent(in) :: proc
@@ -1446,8 +1539,6 @@ contains
        class is (scheme_symbol)
           call ll_define_variable_b( unev, val, env )
        class default
-          print *, new_line(''), "unev="
-          call unev%debug_display()
           error stop "ev-definition-1: Error. Definition variable not a symbol."
        end select
        !(assign val (const ok))
@@ -1687,12 +1778,18 @@ contains
        error stop "ev-begin guard"
     case ("compound-apply")
        ! (assign unev (op procedure-parameters) (reg proc))
+       unev => ll_procedure_parameters( proc )
        ! (assign env (op procedure-environment) (reg proc))
+       env => ll_procedure_environment( proc )
        ! (assign env (op extend-environment)
-       ! (reg unev) (reg argl) (reg env))
+       !     (reg unev) (reg argl) (reg env))
+       env => ll_extend_environment( unev, argl, env )
        ! (assign unev (op procedure-body) (reg proc))
+       unev => ll_procedure_body( proc )
        ! (goto (label ev-sequence))
-       error stop "compound-apply not implemented"
+       label_value = "ev-sequence"
+       goto 001
+       error stop "compound-apply guard"
     case ("primitive-apply")
        ! (assign val (op apply-primitive-procedure-with-errors) (reg proc) (reg argl))
        val => apply_primitive_procedure_with_errors( proc, argl, env )
@@ -1739,7 +1836,7 @@ contains
        ! (save continue)
        call scheme_save_reg(reg_continue)
        ! (save env)
-       call scheme_save_reg(reg_continue)
+       call scheme_save_reg( env )
        ! (assign unev (op operands) (reg exp))
        unev => ll_operands(exp)
        ! (save unev)
@@ -1908,9 +2005,15 @@ contains
        goto 001
     case ("ev-let")
        ! (assign exp (op let->combination) (reg exp))
+       exp => ll_let_to_combination( exp )
+       !write (*,*) "debug"
+       !call exp%debug_display()
        ! ;(save continue)
+       !call scheme_save_reg( reg_continue )
        ! (goto (label eval-dispatch))
-       error stop "ev-let not implemented"
+       label_value = "eval-dispatch"
+       goto 001
+       error stop "ev-let guard"
     case ("ev-cond")
        ! (assign exp (op cond->if) (reg exp))
        ! (goto (label eval-dispatch))
