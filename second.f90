@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-09 22:51:01 lockywolf>
+! Time-stamp: <2020-04-11 15:53:25 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 
@@ -43,8 +43,8 @@ module scheme
   use, intrinsic :: iso_fortran_env
   implicit none
   integer, parameter :: memory_size = 1024
-  integer, parameter :: strings_pool_size = 1024
-  integer, parameter :: symbol_pool_size = 1024
+  !integer, parameter :: strings_pool_size = 1024
+  !integer, parameter :: symbol_pool_size = 1024
 
   !  abstract interface
   !     subroutine scheme_object_printer(this, unit, iotype, v_list,
@@ -120,6 +120,13 @@ module scheme
   type(scheme_boolean), target :: the_false = scheme_boolean( .false. )
   type(scheme_boolean), target :: the_true  = scheme_boolean( .true.  )
 
+  type, extends( scheme_object ) :: scheme_broken_heart
+  end type scheme_broken_heart
+
+  type, extends( scheme_object ) :: scheme_forwarding_address
+     integer :: moved_to
+  end type scheme_forwarding_address
+  
   type, extends( scheme_object ) :: scheme_primitive_procedure
      character(len=:), pointer :: name
      procedure(packageable_procedure), pointer, nopass :: proc_pointer
@@ -157,15 +164,13 @@ module scheme
   class(scheme_object), pointer :: exp => null()
   class(scheme_object), pointer :: env => null()
   class(scheme_object), pointer :: val => null()
-
   class(scheme_object), pointer :: proc => null()
   class(scheme_object), pointer :: argl => null()
   class(scheme_object), pointer :: unev => null()
-
   class(scheme_object), pointer :: the_global_environment => null()
   class(scheme_object), pointer :: the_stack => the_null
-
   class(scheme_symbol), pointer :: reg_continue
+
   integer :: stack_number_pushes = 0
   integer :: stack_max_depth = 0
   integer :: stack_current_depth = 0
@@ -503,19 +508,23 @@ contains
     class(scheme_object), pointer, intent(in) :: a
     class(scheme_object), pointer, intent(in) :: b
     type(scheme_pair), pointer :: retval
-    the_cars(free)%contents => a
-    the_cdrs(free)%contents => b
+    !the_cars(free)%contents => a ! allocate? structure-copying?
+    allocate( the_cars(free)%contents, source=a )
+    !the_cdrs(free)%contents => b ! allocate? structure-copying?
+    allocate( the_cdrs(free)%contents, source=b )
     allocate( retval )
     !    allocate( integer :: retval%value )
     retval%value = free
     free = free + 1
+    !print *, "garbage collection not implemented yet"
+
   end function cons
 
-  function packaged_cons( argl, env) result( retval )
+  function packaged_cons( argl, env ) result( retval )
     class(scheme_object), pointer :: argl
     class(scheme_object), pointer :: env
     class(scheme_object), pointer :: retval
-    retval => cons( car(argl), car(car(argl)) )
+    retval => cons( car(argl), car(cdr(argl)) )
   end function packaged_cons
 
   function car( pair ) result( retval )
@@ -523,9 +532,14 @@ contains
     class(scheme_object), pointer :: retval
     select type (pair)
     class is (scheme_pair)
+       if (.not. associated(the_cars(pair%value)%contents)) then
+          write (*, fmt='(a,i0)') "error:car:disassociated pointer: address=", pair%value
+          error stop "disassociated pointer"
+       end if
        retval => the_cars(pair%value)%contents
     class default
-       write (*,*) new_line('a')
+       write (*,fmt='(a,a)', advance='no') new_line('a'), "argument is: "
+       call pair%debug_display()
        error stop "car: argument is not a pair"
     end select
     !    select type( temp => pair%value )
@@ -548,9 +562,14 @@ contains
     class(scheme_object), pointer :: retval
     select type (pair)
     class is (scheme_pair)
+       if (.not. associated(the_cdrs(pair%value)%contents)) then
+          write (*, fmt='(a,i0)') "error:cdr:disassociated pointer: address=", pair%value
+          error stop "disassociated pointer"
+       end if
        retval => the_cdrs(pair%value)%contents
     class default
-       write (*,*) new_line('a')
+       write (*,fmt='(a,a)', advance='no') new_line('a'), "argument is: "
+       call pair%debug_display()
        error stop "cdr: argument is not a pair"
     end select
     !   select type( temp => pair%value )
@@ -565,8 +584,205 @@ contains
     class(scheme_object), pointer :: argl
     class(scheme_object), pointer :: env
     class(scheme_object), pointer :: retval
-    retval => cdr( car(argl) )
+       retval => cdr( car(argl) )
   end function packaged_cdr
+
+  integer function run_garbage_collector( oldfree ) result(retval)
+    integer :: dstat
+    character(:), allocatable :: derr
+    integer :: oldfree 
+    class(scheme_object), pointer, save :: root => null()
+    type(scheme_pointer), dimension(memory_size) :: new_cars
+    type(scheme_pointer), dimension(memory_size) :: new_cdrs
+    type(scheme_broken_heart), target :: the_broken_heart
+    type(scheme_forwarding_address), pointer :: &
+         new_forwarding_address_holder  ! this place may be wrong. m.b. pointer?
+    integer :: newfree
+    integer :: scan
+    newfree = 1
+    scan = 1
+    if (.not.(newfree == 1)) then
+       write(*,fmt='(a,a,i0)') new_line(''), "error:gc:free=", newfree
+       error stop "assertion failed"
+    end if
+
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:exp="; call exp%debug_display()
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:env="; call env%debug_display()
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:val="; call val%debug_display()
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:proc="; call proc%debug_display()
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:argl="; call argl%debug_display()
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:unev="; call unev%debug_display()
+    write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:reg_continue="; call reg_continue%debug_display()
+    if (.not.(newfree == 1)) then
+       write(*,fmt='(a,a,i0)') new_line(''), "error:gc:free=", newfree
+       error stop "assertion failed"
+    end if
+    
+    
+    root => cons(  exp, &
+            cons(  env, &
+            cons(  val, &
+            cons( proc, &
+            cons( argl, &
+            cons( unev, &
+            cons( the_global_environment, &
+            cons( the_stack, &
+            cons( reg_continue, the_null))))))))) ! do we even need "continue"?
+    if (.not.(newfree == 1)) then
+       write(*,fmt='(a,a,i0)') new_line(''), "error:gc:free=", newfree
+       error stop "assertion failed"
+    end if
+
+    allocate( new_cars(newfree)%contents, source=car(root)) 
+    allocate( new_cdrs(newfree)%contents, source=cdr(root))
+
+    if (.not.(newfree == 1)) then
+       write(*,fmt='(a,a,i0)') new_line(''), "error:gc:free=", newfree
+       error stop "assertion failed"
+    end if
+    
+    select type (root)
+    class is (scheme_pair)
+       allocate( the_cars(root%value)%contents, source=the_broken_heart )
+       allocate(new_forwarding_address_holder) ! if it deallocates, I'm wrong
+       new_forwarding_address_holder%moved_to = newfree
+       the_cdrs(root%value)%contents => new_forwarding_address_holder
+       root%value = newfree ! in the new memory
+    class default
+       error stop "run_garbage_collector: root not a pair."
+    end select
+    newfree = newfree + 1
+    scanning: do
+       if ( scan >= newfree) exit scanning
+       ! move car
+       select type (scan_car => new_cars(scan)%contents)
+       class is (scheme_pair) ! update the pair
+          select type (scan_car_pointee => the_cars(scan_car%value)%contents)
+          class is (scheme_broken_heart) ! actualize the pointer
+             select type (new_address => the_cdrs(scan_car%value)%contents)
+             class is (scheme_forwarding_address)
+                scan_car%value = new_address%moved_to
+             class default
+                error stop "gc: broken heart with no address"
+             end select
+          class default ! not broken heart, copy contents
+             ! m.b. transfer? copy? =?
+             !new_cars(free)%contents => scan_car_pointee
+             allocate( new_cars(newfree)%contents, &
+               source=the_cars(scan_car%value)%contents)
+             deallocate( the_cars(scan_car%value)%contents )
+
+             ! m.b. transfer? copy? =?
+             !new_cdrs(free)%contents => the_cdrs(scan_car%value)%contents
+             allocate( new_cdrs(newfree)%contents, &
+                  source=the_cdrs(scan_car%value)%contents)
+             deallocate( the_cdrs(scan_car%value)%contents )
+             
+             !the_cars(scan_car%value)%contents => the_broken_heart
+             allocate( the_cars(scan_car%value)%contents, source=the_broken_heart)
+             allocate(new_forwarding_address_holder) ! if it deallocates, I'm wrong
+             new_forwarding_address_holder%moved_to = newfree
+             the_cdrs(scan_car%value)%contents => new_forwarding_address_holder
+             ! record where to moved
+             scan_car%value = newfree
+             newfree = newfree + 1
+          end select
+       class default
+          ! no need to actualize the pointer for a non-pair
+       end select
+       ! move cdr
+       select type (scan_cdr => new_cdrs(scan)%contents)
+       class is (scheme_pair) ! update the pair
+          select type (scan_cdr_pointee => the_cars(scan_cdr%value)%contents)
+          class is (scheme_broken_heart) ! actualize the pointer
+             select type (new_address => the_cdrs(scan_cdr%value)%contents)
+             class is (scheme_forwarding_address)
+                scan_cdr%value = new_address%moved_to
+             class default
+                error stop "gc: broken heart with no address"
+             end select
+          class default ! not broken heart, copy contents
+             ! m.b. transfer? copy? =?
+             !new_cars(free)%contents => scan_car_pointee
+             allocate( new_cars(newfree)%contents, source=the_cars(scan_cdr%value)%contents)
+             deallocate( the_cars(scan_cdr%value)%contents )
+             ! m.b. transfer? copy? =?
+             !new_cdrs(free)%contents => the_cdrs(scan_car%value)%contents
+             allocate( new_cdrs(newfree)%contents, source=the_cdrs(scan_cdr%value)%contents)
+             deallocate( the_cdrs(scan_cdr%value)%contents )
+             
+             !the_cars(scan_cdr%value)%contents => the_broken_heart
+             allocate( the_cars(scan_cdr%value)%contents, source=the_broken_heart )
+             allocate(new_forwarding_address_holder) ! if it deallocates, I'm wrong
+             new_forwarding_address_holder%moved_to = newfree
+             the_cdrs(scan_cdr%value)%contents => new_forwarding_address_holder
+             ! record where to moved
+             scan_cdr%value = newfree
+             newfree = newfree + 1
+          end select
+       class default
+          ! no need to actualize the pointer for a non-pair
+       end select
+       scan = scan + 1
+    end do scanning
+    write (*, fmt='(a,a,i0)') new_line(''), "Collected garbage. newfree=", newfree
+
+    scan = 1
+    deallocation: do
+       if ( scan == (oldfree-1)) exit deallocation
+       if (associated(the_cars(scan)%contents)) then
+          !deallocate(the_cars(scan)%contents, stat=dstat, errmsg=derr)
+          deallocate( the_cars(scan)%contents )
+       end if
+       if (associated(the_cdrs(scan)%contents)) then
+          !deallocate(the_cdrs(scan)%contents, stat=dstat, errmsg=derr)
+          deallocate( the_cdrs(scan)%contents )
+       end if
+       scan = scan + 1
+    end do deallocation
+
+    the_cars = new_cars
+    the_cdrs = new_cdrs
+    ! root => cons(  exp, &
+    !         cons(  env, &
+    !         cons(  val, &
+    !         cons( proc, &
+    !         cons( argl, &
+    !         cons( unev, &
+    !         cons( the_global_environment, &
+    !         cons( the_stack, &
+    !         cons( reg_continue, the_null))))))))) ! do we even need "continue"?
+
+    exp =>  car(root)
+    env =>  car(cdr(root))
+    val =>  car(cdr(cdr(root)))
+    proc => car(cdr(cdr(cdr(root))))
+    argl => car(cdr(cdr(cdr(cdr(root)))))
+    unev => car(cdr(cdr(cdr(cdr(cdr(root))))))
+    the_global_environment => &
+            car(cdr(cdr(cdr(cdr(cdr(cdr(root)))))))
+    the_stack => &
+            car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(root))))))))
+    ! write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:exp="; call exp%debug_display()
+    ! write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:env="; call env%debug_display()
+    ! write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:val="; call val%debug_display()
+    ! write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:proc="; call proc%debug_display()
+    ! write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:argl="; call argl%debug_display()
+    ! write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:unev="; call unev%debug_display()
+
+    select type (tmp2 => car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(root))))))))))
+    class is (scheme_symbol)
+       reg_continue => tmp2
+    class is (scheme_object)
+       write (*,fmt='(a,a)', advance='no') new_line('a'), "argument is: "
+       call tmp2%debug_display()
+       error stop "garbage collection failed"
+    class default
+       error stop "garbage collection failed even more"
+    end select
+    !write (*,fmt='(a,a)', advance='no') new_line(''), "gc:debug:reg_continue="; call reg_continue%debug_display()
+    retval = newfree
+  end function run_garbage_collector
 
   function packaged_blurb( argl, env ) result( retval )
     class(scheme_object), pointer :: argl
@@ -710,17 +926,6 @@ contains
     parsed_expression => parse_sexp( test_string_pointer ) 
   end function ll_read
 
-  subroutine ll_initialize_stack()
-    print *, "initialize-stack not implemented"
-    !   nullify(env)
-    !   nullify(exp)
-    !   nullify(val)
-    !   nullify(proc)
-    !   nullify(argl)
-    !   nullify(reg_continue)
-    !   nullify(unev)
-  end subroutine ll_initialize_stack
-
   function ll_make_frame( vars, vals ) result( retval )
     class(scheme_object), pointer, intent(in) :: vars
     class(scheme_object), pointer, intent(in) :: vals
@@ -749,6 +954,13 @@ contains
   !   retval => ll_extend_environment( car(argl), car(car(argl)), car(car(car(argl))) )
   ! end function packaged_ll_extend_environment
 
+  function packaged_exit( argl, env ) result(retval)
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env 
+    class(scheme_object), pointer :: retval
+    stop 0
+  end function packaged_exit
+
   function packaged_display( argl, env ) result(retval)
     class(scheme_object), pointer :: argl
     class(scheme_object), pointer :: env 
@@ -761,6 +973,7 @@ contains
        error stop "Critical error. This should never get executed."
     end select
   end function packaged_display
+
   
   function make_primitive_procedure_object( proc1, name ) result( retval )
     character(len=*) :: name
@@ -820,6 +1033,14 @@ contains
     list_primitive_objects => cons( cons( symbol_primitive, &
          make_primitive_procedure_object( proc, "packaged_blurb" ) ), &
          list_primitive_objects)
+    function_name = "exit" ! automatic reallocation?
+    proc => packaged_exit
+    list_primitive_names => cons( make_symbol(function_name), &
+         list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc, "packaged_exit" ) ), &
+         list_primitive_objects)
+    
     ! extend initial_environment
     ! env => cons( cons( list_primitive_names, list_primitive_objects ), &
     !              the_null )
@@ -993,8 +1214,8 @@ contains
   end function scheme_restore
 
   subroutine print_stack_statistics()
-    write (*,fmt='(a,a,i0,a,i0)', advance='no') new_line('a'), "total-pushes=", stack_number_pushes, &
-         " maximum-depth=", stack_max_depth
+    write (*,fmt='(a,a,i0,a,i0,a,i0)', advance='no') new_line('a'), "total-pushes=", stack_number_pushes, &
+         " maximum-depth=", stack_max_depth, " free=", free
   end subroutine print_stack_statistics
   
   subroutine initialize_stack()
@@ -2065,6 +2286,9 @@ contains
        label_value = "unknown-procedure-type"
        goto 001
     case ("eval-dispatch")
+       if (free >= memory_size/4) then ! is this a good place?
+          free = run_garbage_collector(free)
+       end if
        ! (test (op self-evaluating?) (reg exp))
        if (is_self_evaluating_p(exp)) then
           ! (branch (label ev-self-eval))
