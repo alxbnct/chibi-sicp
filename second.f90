@@ -1,6 +1,21 @@
-! Time-stamp: <2020-04-11 15:53:25 lockywolf>
+! Time-stamp: <2020-04-11 16:10:07 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
+! This interpreter was only implemented as an exercise 5.51 of the SICP
+! It has he following issues:
+! Leaks everything that is (read)
+! Leaks symbols
+! Leaks labels
+! (It shouldn't leak strings though.)
+! Has no obarray, so symbol equality is done in O(n) => slow
+! The garbage collector seems to be working though, and everything
+! above can be fixed/improved if at least one person on Earth needs it.
+! Writing it took me about 104 hours.
+! I didn't know any Fortran at all before.
+! I found 3 gfortran bugs while writing this:
+! https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94471
+! https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94380
+! https://gcc.gnu.org/pipermail/fortran/2020-April/054173.html
 
 module system_interface
   !  use, intrinsic :: iso_c_binding, only: c_int
@@ -460,7 +475,7 @@ contains
        arg => arg(2:) ! is this correct?
        return
     end if
-    retval => cons( parse_sexp(arg), parse_list( arg ) )
+    retval => cons( parse_sexp(arg), parse_list( arg ) ) ! memory leak?
   end function parse_list
 
   recursive function parse_sexp( arg ) result( retval )
@@ -2286,7 +2301,7 @@ contains
        label_value = "unknown-procedure-type"
        goto 001
     case ("eval-dispatch")
-       if (free >= memory_size/4) then ! is this a good place?
+       if (free >= memory_size*0.9) then ! is this a good place?
           free = run_garbage_collector(free)
        end if
        ! (test (op self-evaluating?) (reg exp))
