@@ -1,4 +1,4 @@
-! Time-stamp: <2020-04-11 16:10:07 lockywolf>
+! Time-stamp: <2020-04-13 11:13:41 lockywolf>
 ! Author: lockywolf gmail.com
 ! A rudimentary scheme interpreter
 ! This interpreter was only implemented as an exercise 5.51 of the SICP
@@ -36,7 +36,8 @@ contains
     reader: do
        read (input_unit, '(a1)', iostat=reason, advance='no') buffer
        if (is_iostat_end(reason))  then
-          ! print *, "debug: end of input (EOF)"          
+          ! print *, "debug: end of input (EOF)"
+          stop 0
           exit reader
        else if (is_iostat_eor(reason)) then
           ! print *, "debug: end of record (newline)"
@@ -989,6 +990,69 @@ contains
     end select
   end function packaged_display
 
+  function packaged_mul( argl, env ) result(retval)
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env 
+    class(scheme_object), pointer :: retval
+    select type (t1 => car(argl))
+    class is (scheme_number)
+       select type (t2 => car(cdr(argl)))
+       class is (scheme_number)
+          allocate( scheme_number :: retval )
+          select type (retval)
+          class is (scheme_number)   
+             retval%value = t1%value * t2%value 
+          end select
+       class default
+          error stop "mul: second argument not a number"
+       end select
+    class default
+       error stop "mul: first argument not a number"
+    end select
+  end function packaged_mul
+
+  function packaged_minus( argl, env ) result(retval)
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env 
+    class(scheme_object), pointer :: retval
+    select type (t1 => car(argl))
+    class is (scheme_number)
+       select type (t2 => car(cdr(argl)))
+       class is (scheme_number)
+          allocate( scheme_number :: retval )
+          select type (retval)
+          class is (scheme_number)   
+             retval%value = t1%value - t2%value 
+          end select
+       class default
+          error stop "minus: second argument not a number"
+       end select
+    class default
+       error stop "minus: first argument not a number"
+    end select
+  end function packaged_minus
+
+  function packaged_equality( argl, env ) result(retval)
+    class(scheme_object), pointer :: argl
+    class(scheme_object), pointer :: env 
+    class(scheme_object), pointer :: retval
+    select type (t1 => car(argl))
+    class is (scheme_number)
+       select type (t2 => car(cdr(argl)))
+       class is (scheme_number)
+             if ( t1%value == t2%value)  then
+                allocate( retval, source=the_true)
+             else
+                allocate( retval, source=the_false)
+             end if
+       class default
+          error stop "=: second argument not a number"
+       end select
+    class default
+       error stop "=: first argument not a number"
+    end select
+  end function packaged_equality
+  
   
   function make_primitive_procedure_object( proc1, name ) result( retval )
     character(len=*) :: name
@@ -1048,12 +1112,37 @@ contains
     list_primitive_objects => cons( cons( symbol_primitive, &
          make_primitive_procedure_object( proc, "packaged_blurb" ) ), &
          list_primitive_objects)
+    ! exit
     function_name = "exit" ! automatic reallocation?
     proc => packaged_exit
     list_primitive_names => cons( make_symbol(function_name), &
          list_primitive_names)
     list_primitive_objects => cons( cons( symbol_primitive, &
          make_primitive_procedure_object( proc, "packaged_exit" ) ), &
+         list_primitive_objects)
+    ! mul
+    function_name = "*" ! automatic reallocation?
+    proc => packaged_mul
+    list_primitive_names => cons( make_symbol(function_name), &
+         list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc, "packaged_mul" ) ), &
+         list_primitive_objects)
+    ! minus
+    function_name = "-" ! automatic reallocation?
+    proc => packaged_minus
+    list_primitive_names => cons( make_symbol(function_name), &
+         list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc, "packaged_minus" ) ), &
+         list_primitive_objects)
+    ! equality
+    function_name = "=" ! automatic reallocation?
+    proc => packaged_equality
+    list_primitive_names => cons( make_symbol(function_name), &
+         list_primitive_names)
+    list_primitive_objects => cons( cons( symbol_primitive, &
+         make_primitive_procedure_object( proc, "packaged_equality" ) ), &
          list_primitive_objects)
     
     ! extend initial_environment
