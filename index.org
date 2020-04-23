@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-04-21 13:24:14 lockywolf>
+# Time-stamp: <2020-04-23 13:58:23 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -64070,6 +64070,17 @@ This exercise took me about 104 hours of work.
 
 **** TODO Exercise 5.52 Making a compiler for scheme
 
+ - [ ] transpile labels
+ - [ ] transpile (perform)
+ - [ ] transpile (assign)
+ - [ ] transpile (save)
+ - [ ] transpile (restore)
+ - [ ] transpile (reg)
+ - [ ] transpile (test)
+ - [ ] transpile (branch)
+ - [ ] transpile (const)
+ - [ ] transpile (op)
+
 This is a bit of an evil task for a person who just wrote a scheme
 interpreter in fortran. Would it be fair if I just make a compiler
 from scheme into Fortran? Then I would be able to just reuse the
@@ -64079,9 +64090,37 @@ run-time support from Fortran, rather than writing it from scratch in C.
 #+begin_src scheme :exports code
 
 (define ec-label? symbol?)
+(define (ec-perform? statement)
+  (and (pair? statement) (eq? (car statement) 'perform)))
+(define (ec-const? statement)
+  (and (pair? statement) (eq? (car statement) 'const)))
+(define (ec-reg? statement)
+  (and (pair? statement) (eq? (car statement) 'reg)))
+
+(define (ec-perform-opname-get statement) (cadr (cadr statement)))
+(define (ec-perform-arglist-get statement) (cddr statement))
+(define (ec-perform-arglist-eval arglist) 
+   (map const-or-reg arglist))
+(define (const-or-reg clause)
+   (cond ((ec-const? clause) (string-append
+                             "todo-const: " 
+                             (write-to-string (cadr clause))))
+         ((ec-reg? clause) (string-append
+                             "todo-reg: " 
+                             (write-to-string (cadr clause))))
+         (else (error "TODO arglist"))))
+
+
+
+(define (string-list-decorate l d)
+  (cond ((null? l) "")
+        ((= 1 (length l)) (car l))
+        (else (string-append (car l) d (string-list-decorate (cdr l) d)))))
+
 
 (define (ec-statement->string statement)
   (cond ((ec-label? statement) (ec-label->fortran-label statement))
+        ((ec-perform? statement) (ec-perform->fortran-application statement))
         (else (write-to-string statement))))
 
 (define (write-to-string form)
@@ -64095,8 +64134,12 @@ run-time support from Fortran, rather than writing it from scratch in C.
 (define (ec-label->fortran-label label)
   (let* ((label-value (symbol->string label))
         (answer (string-append "goto 001\ncase (\"" label-value "\")\n")))
-       (display "debug-print: ") (display answer)
+       ;(display "debug-print: ") (newline) (display answer)
        answer))
+(define (ec-perform->fortran-application statement)
+   (string-append "call ll_" (symbol->string (ec-perform-opname-get statement)) "( "
+       (string-list-decorate (ec-perform-arglist-eval (ec-perform-arglist-get statement)) ",")
+     ")"))
 
 #+end_src
 
@@ -64162,193 +64205,11 @@ The following piece of code is only needed to shorten the testing.
 
 #+RESULTS: simple-test-ec-to-fortran
 #+begin_src shell
-debug-print: goto 001
-case ("entry68")
-debug-print: goto 001
-case ("compiled-branch90")
-debug-print: goto 001
-case ("interpreted-branch89")
-debug-print: goto 001
-case ("primitive-branch91")
-debug-print: goto 001
-case ("after-call88")
-debug-print: goto 001
-case ("true-branch71")
-debug-print: goto 001
-case ("false-branch70")
-debug-print: goto 001
-case ("compiled-branch78")
-debug-print: goto 001
-case ("interpreted-branch77")
-debug-print: goto 001
-case ("primitive-branch79")
-debug-print: goto 001
-case ("after-call76")
-debug-print: goto 001
-case ("compiled-branch82")
-debug-print: goto 001
-case ("interpreted-branch81")
-debug-print: goto 001
-case ("primitive-branch83")
-debug-print: goto 001
-case ("after-call80")
-debug-print: goto 001
-case ("compiled-branch74")
-debug-print: goto 001
-case ("interpreted-branch73")
-debug-print: goto 001
-case ("primitive-branch75")
-debug-print: goto 001
-case ("after-call72")
-debug-print: goto 001
-case ("compiled-branch86")
-debug-print: goto 001
-case ("interpreted-branch85")
-debug-print: goto 001
-case ("primitive-branch87")
-debug-print: goto 001
-case ("after-call84")
-debug-print: goto 001
-case ("after-if69")
-debug-print: goto 001
-case ("after-lambda67")
-debug-print: goto 001
-case ("entry52")
-debug-print: goto 001
-case ("entry54")
-debug-print: goto 001
-case ("compiled-branch57")
-debug-print: goto 001
-case ("interpreted-branch56")
-debug-print: goto 001
-case ("primitive-branch58")
-debug-print: goto 001
-case ("after-call55")
-debug-print: goto 001
-case ("compiled-branch61")
-debug-print: goto 001
-case ("interpreted-branch60")
-debug-print: goto 001
-case ("primitive-branch62")
-debug-print: goto 001
-case ("after-call59")
-debug-print: goto 001
-case ("after-lambda53")
-debug-print: goto 001
-case ("compiled-branch65")
-debug-print: goto 001
-case ("interpreted-branch64")
-debug-print: goto 001
-case ("primitive-branch66")
-debug-print: goto 001
-case ("after-call63")
-debug-print: goto 001
-case ("after-lambda51")
-debug-print: goto 001
-case ("entry46")
-debug-print: goto 001
-case ("compiled-branch49")
-debug-print: goto 001
-case ("interpreted-branch48")
-debug-print: goto 001
-case ("primitive-branch50")
-debug-print: goto 001
-case ("after-call47")
-debug-print: goto 001
-case ("after-lambda45")
-debug-print: goto 001
-case ("entry38")
-debug-print: goto 001
-case ("entry40")
-debug-print: goto 001
-case ("after-lambda39")
-debug-print: goto 001
-case ("compiled-branch43")
-debug-print: goto 001
-case ("interpreted-branch42")
-debug-print: goto 001
-case ("primitive-branch44")
-debug-print: goto 001
-case ("after-call41")
-debug-print: goto 001
-case ("after-lambda37")
-debug-print: goto 001
-case ("entry10")
-debug-print: goto 001
-case ("compiled-branch35")
-debug-print: goto 001
-case ("interpreted-branch34")
-debug-print: goto 001
-case ("primitive-branch36")
-debug-print: goto 001
-case ("after-call33")
-debug-print: goto 001
-case ("true-branch13")
-debug-print: goto 001
-case ("false-branch12")
-debug-print: goto 001
-case ("compiled-branch27")
-debug-print: goto 001
-case ("interpreted-branch26")
-debug-print: goto 001
-case ("primitive-branch28")
-debug-print: goto 001
-case ("after-call25")
-debug-print: goto 001
-case ("compiled-branch31")
-debug-print: goto 001
-case ("interpreted-branch30")
-debug-print: goto 001
-case ("primitive-branch32")
-debug-print: goto 001
-case ("after-call29")
-debug-print: goto 001
-case ("true-branch16")
-debug-print: goto 001
-case ("false-branch15")
-debug-print: goto 001
-case ("compiled-branch19")
-debug-print: goto 001
-case ("interpreted-branch18")
-debug-print: goto 001
-case ("primitive-branch20")
-debug-print: goto 001
-case ("after-call17")
-debug-print: goto 001
-case ("compiled-branch23")
-debug-print: goto 001
-case ("interpreted-branch22")
-debug-print: goto 001
-case ("primitive-branch24")
-debug-print: goto 001
-case ("after-call21")
-debug-print: goto 001
-case ("after-if14")
-debug-print: goto 001
-case ("after-if11")
-debug-print: goto 001
-case ("after-lambda9")
-debug-print: goto 001
-case ("compiled-branch7")
-debug-print: goto 001
-case ("interpreted-branch6")
-debug-print: goto 001
-case ("primitive-branch8")
-debug-print: goto 001
-case ("after-call5")
-debug-print: goto 001
-case ("compiled-branch3")
-debug-print: goto 001
-case ("interpreted-branch2")
-debug-print: goto 001
-case ("primitive-branch4")
-debug-print: goto 001
-case ("after-call1")
 ("(assign val (const #t))"
- "(perform (op define-variable!) (const true) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: true,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(assign val (const #f))"
- "(perform (op define-variable!) (const false) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: false,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(assign val (op make-compiled-procedure) (label entry68) (reg env))"
  "(goto (label after-lambda67))"
@@ -64471,7 +64332,7 @@ case ("after-call1")
  "goto 001\ncase (\"after-call84\")\n"
  "goto 001\ncase (\"after-if69\")\n"
  "goto 001\ncase (\"after-lambda67\")\n"
- "(perform (op define-variable!) (const accumulate) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: accumulate,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(assign val (op make-compiled-procedure) (label entry52) (reg env))"
  "(goto (label after-lambda51))"
@@ -64547,7 +64408,7 @@ case ("after-call1")
  "(goto (reg continue))"
  "goto 001\ncase (\"after-call63\")\n"
  "goto 001\ncase (\"after-lambda51\")\n"
- "(perform (op define-variable!) (const map) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: map,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(assign val (op make-compiled-procedure) (label entry46) (reg env))"
  "(goto (label after-lambda45))"
@@ -64576,7 +64437,7 @@ case ("after-call1")
  "(goto (reg continue))"
  "goto 001\ncase (\"after-call47\")\n"
  "goto 001\ncase (\"after-lambda45\")\n"
- "(perform (op define-variable!) (const append) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: append,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(assign val (op make-compiled-procedure) (label entry38) (reg env))"
  "(goto (label after-lambda37))"
@@ -64614,7 +64475,7 @@ case ("after-call1")
  "(goto (reg continue))"
  "goto 001\ncase (\"after-call41\")\n"
  "goto 001\ncase (\"after-lambda37\")\n"
- "(perform (op define-variable!) (const length) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: length,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(assign val (op make-compiled-procedure) (label entry10) (reg env))"
  "(goto (label after-lambda9))"
@@ -64745,7 +64606,7 @@ case ("after-call1")
  "goto 001\ncase (\"after-if14\")\n"
  "goto 001\ncase (\"after-if11\")\n"
  "goto 001\ncase (\"after-lambda9\")\n"
- "(perform (op define-variable!) (const memq) (reg val) (reg env))"
+ "call ll_define-variable!( todo-const: memq,todo-reg: val,todo-reg: env)"
  "(assign val (const ok))"
  "(save continue)"
  "(save env)"
