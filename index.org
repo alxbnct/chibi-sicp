@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; flyspell-mode: 1 -*-
-# Time-stamp: <2020-04-27 21:40:37 lockywolf>
+# Time-stamp: <2020-04-27 23:56:59 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -61713,8 +61713,8 @@ corresponds to the main_ loop() function in the Fortran code.
     class(scheme_object), pointer :: the_stack => the_null
     class(scheme_symbol), pointer :: reg_continue
     class(scheme_symbol), pointer :: compapp
-    class(scheme_symbol), pointer :: arg1
-    class(scheme_symbol), pointer :: arg2
+    class(scheme_object), pointer :: arg1
+    class(scheme_object), pointer :: arg2
 
 
 
@@ -62326,7 +62326,7 @@ corresponds to the main_ loop() function in the Fortran code.
       write (*,*) "packaged_blurb test output"
     end function packaged_blurb
 
-    function lookup_variable_value( var, env ) result( retval )
+    function ll_lookup_variable_value( var, env ) result( retval )
       type(scheme_symbol), pointer, intent(in) :: var
       class(scheme_object), pointer, intent(in) :: env
       class(scheme_object), pointer :: retval
@@ -62341,7 +62341,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	 write (*, "(a)", advance='no') "irritant:env="
 	 call env%debug_display()
 	 write (*,*) ""
-	 error stop "lookup_variable_value: wrong object in an env"
+	 error stop "ll_lookup_variable_value: wrong object in an env"
       end select
     contains
 
@@ -62351,7 +62351,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	class(scheme_object), pointer :: retval
 	select type (vars)
 	type is (scheme_empty_list) ! frame empty
-	   retval => lookup_variable_value( var, cdr(env) )
+	   retval => ll_lookup_variable_value( var, cdr(env) )
 	class is (scheme_pair) ! frame is a list
 	   select type ( name => car(vars) )
 	   class is (scheme_symbol)
@@ -62361,15 +62361,15 @@ corresponds to the main_ loop() function in the Fortran code.
 		 retval => frame_loop( cdr(vars), cdr(vals))
 	      end if
 	   class default
-	      error stop "lookup_variable_value::frame_loop: variable name not a symbol"
+	      error stop "ll_lookup_variable_value::frame_loop: variable name not a symbol"
 	   end select
 	class default ! frame is not a list
-	   error stop "lookup_variable_value::frame_loop: frame-vars is not a list"
+	   error stop "ll_lookup_variable_value::frame_loop: frame-vars is not a list"
 	end select
 
       end function frame_loop
 
-    end function lookup_variable_value
+    end function ll_lookup_variable_value
 
     recursive subroutine debug_display_pair( this )
       class(scheme_pair), intent(in) :: this
@@ -62466,6 +62466,13 @@ corresponds to the main_ loop() function in the Fortran code.
       type(scheme_pair), pointer  :: retval
       retval => cons( vars, vals )
     end function ll_make_frame
+
+    function ll_list( arg ) result( retval )
+      class(scheme_object), pointer, intent(in) :: arg
+      type(scheme_pair), pointer  :: retval
+      retval => cons( arg, the_null )
+    end function ll_list
+
 
     function ll_extend_environment( names, objects, base_env ) result( retval )
       ! used to create an initial environment, as well as when running a
@@ -62872,15 +62879,15 @@ corresponds to the main_ loop() function in the Fortran code.
     end function ll_rest_operands
 
 
-    logical function is_primitive_procedure_p( arg ) result(retval)
+    logical function ll_primitive_procedure_p( arg ) result(retval)
       class(scheme_object), pointer, intent(in) :: arg
       retval = is_tagged_list_p( arg, make_symbol("primitive"))
-    end function is_primitive_procedure_p
+    end function ll_primitive_procedure_p
 
-    logical function is_compound_procedure_p( arg ) result(retval)
+    logical function ll_compound_procedure_p( arg ) result(retval)
       class(scheme_object), pointer, intent(in) :: arg
       retval = is_tagged_list_p( arg, make_symbol("procedure"))
-    end function is_compound_procedure_p
+    end function ll_compound_procedure_p
 
     ! Is this even remotely going to work?
     ! (define (append list1 list2)
@@ -63398,6 +63405,38 @@ corresponds to the main_ loop() function in the Fortran code.
 		      cons( alternative, the_null))))
     end function ll_make_if
 
+!  (define (make-compiled-procedure entry env)
+!    (list 'compiled-procedure entry env))
+    function ll_make_compiled_procedure( entry1, env ) result(retval)
+      class(scheme_object), pointer, intent(in) :: entry1
+      class(scheme_object), pointer, intent(in) :: env
+      class(scheme_object), pointer :: retval
+      retval => cons( make_symbol("compiled-procedure"), &
+		  cons( entry1, &
+		      cons( env, the_null)))
+    end function ll_make_compiled_procedure
+
+!  (define (compiled-procedure? proc)
+!    (tagged-list? proc 'compiled-procedure))
+    logical function ll_compiled_procedure_p( arg ) result(retval)
+      class(scheme_object), pointer, intent(in) :: arg
+      retval = is_tagged_list_p( arg, make_symbol("compiled-procedure"))
+    end function ll_compiled_procedure_p
+
+!  (define (compiled-procedure-entry c-proc) (cadr c-proc))
+    function ll_compiled_procedure_entry( arg ) result(retval)
+      class(scheme_object), pointer, intent(in) :: arg
+      class(scheme_object), pointer :: retval
+      retval => car( cdr( arg ) )
+    end function ll_compiled_procedure_entry
+
+!  (define (compiled-procedure-env c-proc) (caddr c-proc))
+    function ll_compiled_procedure_env( arg ) result(retval)
+      class(scheme_object), pointer, intent(in) :: arg
+      class(scheme_object), pointer :: retval
+      retval => car( cdr( cdr(arg) ) )
+    end function ll_compiled_procedure_env
+
 
     function apply_primitive_procedure_with_errors( proc, argl, env ) result(retval)
       class(scheme_object), pointer :: retval
@@ -63454,582 +63493,582 @@ corresponds to the main_ loop() function in the Fortran code.
 
 #+name: fortran-scheme-interpreter
 #+begin_src f90 :exports code :results verbatim output :stdin fortran-scheme-test
-<<fortran-scheme-interpreter-runtime-prologue>>
-      case ("read-eval-print-loop")
-	 ! (perform (op initialize-stack))
-	 call initialize_stack()
-	 ! (perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
-	 write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Input: " !
-	 ! (assign exp (op read))
-	 exp => ll_read()
-	 ! (perform (op user-print) (reg exp))
-	 write (*, fmt='(a,a)', advance='no') &
-	      new_line(''), "debug: I parsed as: "
-	 call exp%debug_display() ;     write (*,'(a)', advance='no') new_line('a')
-	 !(assign env (op get-global-environment))
-	 env => the_global_environment
-	 !(assign continue (label print-result))
-	 reg_continue => make_symbol("print-result")
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-      case ("print-result") ! ec-label: print-result
-	 !(perform (op announce-output) (const ";;EC-Eval value:"))
-	 write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Value: "
-	 !(perform (op user-print) (reg val))
-	 call val%debug_display() !; write (*, fmt='(a)') new_line('a')
-	 !(perform (op print-stack-statistics))
-	 call print_stack_statistics()
-	 !(goto (label read-eval-print-loop))
-	 label_value = "read-eval-print-loop"
-	 goto 001
-      case ("unknown-expression-type")
-	 !(assign val (const unknown-expression-type-error))
-	 val => make_symbol("unknown-expression-type-error")
-	 !(goto (label signal-error))
-	 label_value = "signal-error"
-	 goto 001
-      case ("unknown-procedure-type")
-	 !(restore continue) ; clean up stack (from apply-dispatch )
-	 select type (temp => scheme_restore())
-	 class is (scheme_symbol)
-	    reg_continue => temp
-	 class default
-	    error stop "unknown-procedure-type:&
-	     & cannot restore reg_continue, wrong type"
-	 end select
-	 !(assign val (const unknown-procedure-type-error))
-	 val => make_symbol("unknown-procedure-type-error")
-	 !(goto (label signal-error))
-	 label_value = "signal-error"
-	 goto 001
-      case ("signal-error")
-	 !(perform (op user-print) (reg val))
-	 call val%debug_display()
-	 !(goto (label read-eval-print-loop))
-	 label_value = "read-eval-print-loop"
-	 goto 001
-      case ("ev-definition")
-	 !(assign unev (op definition-variable) (reg exp))
-	 unev => ll_definition_variable( exp )
-	 !(save unev) ; save variable for later
-	 call scheme_save_reg( unev )
-	 !(assign exp (op definition-value) (reg exp))
-	 exp => ll_definition_value( exp )
-	 !(save env)
-	 call scheme_save_reg( env )
-	 !(save continue)
-	 call scheme_save_reg( reg_continue )
-	 !(assign continue (label ev-definition-1))
-	 reg_continue => make_symbol( "ev-definition-1" )
-	 !(goto (label eval-dispatch)) ; evaluate the definition value
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-definition guard"
-      case ("ev-definition-1")
-	 !(restore continue)
-	 select type (temp => scheme_restore())
-	 class is (scheme_symbol)
-	    reg_continue => temp
-	 class default
-	    error stop "ev-definition-1:&
-	     & cannot restore reg_continue, wrong type"
-	 end select
-	 !(restore env)
-	 env => scheme_restore()
-	 !(restore unev)
-	 unev => scheme_restore()
-	 !(perform (op define-variable!) (reg unev) (reg val) (reg env))
-	 select type (unev)
-	 class is (scheme_symbol)
-	    call ll_define_variable_b( unev, val, env )
-	 class default
-	    error stop "ev-definition-1: Error. Definition variable not a symbol."
-	 end select
-	 !(assign val (const ok))
-	 val => make_symbol( "ok" )
-	 !(goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-	 error stop "ev-definition-1 guard"
-      case ("ev-self-eval")
-	 !(assign val (reg exp))
-	 val => exp
-	 !(goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-      case ("ev-quoted")
-	 !(assign val (op text-of-quotation) (reg exp))
-	 val => ll_text_of_quotation( exp )
-	 !(goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-	 error stop "ev-quoted guard"
-      case ("ev-lambda")
-	 !(assign unev (op lambda-parameters) (reg exp))
-	 unev => ll_lambda_parameters( exp )
-	 !(assign exp (op lambda-body) (reg exp))
-	 exp => ll_lambda_body( exp )
-	 !(assign val (op make-procedure) (reg unev) (reg exp) (reg env))
-	 val => ll_make_procedure( unev, exp, env)
-	 !(goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-	 error stop "ev-lambda guard"
-      case ("ev-variable")
-	 !(assign val (op lookup-variable-value) (reg exp) (reg env))
-	 select type (exp)
-	 class is (scheme_symbol)
-	    val => lookup_variable_value( exp, env )
-	 class default
-	    error stop "ev-variable: variable name is not a symbol"
-	 end select
-	 !(save exp)
-	 call scheme_save_reg( exp )
-	 !(assign exp (op car) (reg val))
-	 exp => car( val )
-	 !(test (op eq?) (reg exp) (const unbound))
-	 select type (exp)
-	 class is (scheme_symbol)
-	    if ( exp == make_symbol("unbound")) then
-	       !(branch (label error-unbound-variable))
-	       label_value = "error-unbound-variable"
-	       goto 001
-	    end if
-	 class default
-	    error stop "ev-variable: lookup-variable-value returned rubbish"
-	 end select
-	 !(restore exp)
-	 exp => scheme_restore()
-	 !(assign val (op cdr) (reg val))
-	 val => cdr(val)
-	 !(goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-      case ("error-unbound-variable")
-	 !(restore exp)
-	 exp => scheme_restore()
-	 !(assign val (op cons) (const unbound-variable-error) (reg exp))
-	 val => cons( make_symbol("unbound-variable-error"), exp)
-	 !(goto (label signal-error))
-	 label_value = "signal-error"
-	 goto 001
-	 error stop "error-unbound-variable guard"
-      case ("ev-assignment")
-	 ! (assign unev (op assignment-variable) (reg exp))
-	 unev => ll_assignment_variable( exp )
-	 ! (save unev) ; save variable for later
-	 call scheme_save_reg( unev )
-	 ! (assign exp (op assignment-value) (reg exp))
-	 exp => ll_assignment_value( exp )
-	 ! (save env)
-	 call scheme_save_reg(env)
-	 ! (save continue)
-	 call scheme_save_reg(reg_continue)
-	 ! (assign continue (label ev-assignment-1))
-	 reg_continue => make_symbol( "ev-assignment-1" )
-	 ! (goto (label eval-dispatch)) ; evaluate the assignment value
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-assignment guard"
-      case ("ev-assignment-1")
-	 ! (restore continue)
-	 select type (temp => scheme_restore())
-	 class is (scheme_symbol)
-	    reg_continue => temp
-	 class default
-	    error stop "ev-assignment-1:&
-		 & cannot restore reg_continue, wrong type"
-	 end select
-	 ! (restore env)
-	 env => scheme_restore()
-	 ! (restore unev)
-	 unev => scheme_restore()
-	 ! (assign val (op set-variable-value!) (reg unev) (reg val) (reg env))
-	 select type( unev )
-	 class is (scheme_symbol)
-	    val => ll_set_variable_value_b( unev, val, env )
-	 class default
-	    error stop "ev-assignment-1: Non-symbol passed as a variable name."
-	 end select
-	 ! (assign val (op car) (reg val))
-	 val => car(val)
-	 ! (test (op eq?) (reg val) (const unbound))
-	 select type (val)
-	 class is (scheme_symbol)
-	    if ( val == make_symbol("unbound")) then
-	       ! (branch (label assignment-failed))
-	       label_value = "assignment-failed"
-	       goto 001
-	    end if
-	 class default
-	    error stop "ev-assignment-1: Error. assignment return not a symbol"
-	 end select
-	 ! (assign val (const ok))
-	 val => make_symbol( "ok" )
-	 ! (goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-	 error stop "ev-assignment-1 guard"
-      case ("assignment-failed")
-	 ! (assign exp (reg unev))
-	 exp => unev
-	 ! (save exp)
-	 call scheme_save_reg( exp )
-	 ! (goto (label error-unbound-variable))
-	 label_value = "error-unbound-variable"
-	 goto 001
-	 error stop "assignment-failed guard"
-      case ("ev-if")
-	 ! (save exp) ; save expression for later
-	 call scheme_save_reg( exp )
-	 ! (save env)
-	 call scheme_save_reg( env )
-	 ! (save continue)
-	 call scheme_save_reg( reg_continue )
-	 ! (assign continue (label ev-if-decide))
-	 reg_continue => make_symbol( "ev-if-decide" )
-	 ! (assign exp (op if-predicate) (reg exp))
-	 exp => ll_if_predicate( exp )
-	 ! (goto (label eval-dispatch)) ; evaluate the predicate
-	 label_value = "eval-dispatch"
-	 goto 001
-      case ("ev-if-decide")
-	 ! (restore continue)
-	 select type (temp => scheme_restore())
-	 class is (scheme_symbol)
-	    reg_continue => temp
-	 class default
-	    error stop "ev-if-decide:&
-	     & cannot restore reg_continue, wrong type"
-	 end select
-	 ! (restore env)
-	 env => scheme_restore()
-	 ! (restore exp)
-	 exp => scheme_restore()
-	 ! (test (op true?) (reg val))
-	 if (ll_true_p(val)) then
-	    ! (branch (label ev-if-consequent))
-	    label_value = "ev-if-consequent"
-	    goto 001
-	 end if
-	 label_value = "ev-if-alternative"
-	 goto 001
-	 error stop "ev-if-decide guard"
-      case ("ev-if-alternative")
-	 ! (assign exp (op if-alternative) (reg exp))
-	 exp => ll_if_alternative( exp )
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-      case ("ev-if-consequent")
-	 ! (assign exp (op if-consequent) (reg exp))
-	 exp => ll_if_consequent( exp )
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-if-consequent guard"
-      case ("ev-sequence")
-	 ! (assign exp (op first-exp) (reg unev))
-	 exp => ll_first_exp( unev )
-	 ! (test (op last-exp?) (reg unev))
-	 if (ll_last_exp_p(unev)) then
-	    ! (branch (label ev-sequence-last-exp))
-	    label_value = "ev-sequence-last-exp"
-	    goto 001
-	 end if
-	 ! (save unev)
-	 call scheme_save_reg( unev )
-	 ! (save env)
-	 call scheme_save_reg( env  )
-	 ! (assign continue (label ev-sequence-continue))
-	 reg_continue => make_symbol( "ev-sequence-continue" )
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-sequence guard"
-      case ("ev-sequence-continue")
-	 ! (restore env)
-	 env => scheme_restore()
-	 ! (restore unev)
-	 unev => scheme_restore()
-	 ! (assign unev (op rest-exps) (reg unev))
-	 unev => ll_rest_exps( unev )
-	 ! (goto (label ev-sequence))
-	 label_value = "ev-sequence"
-	 goto 001
-	 error stop "ev-sequence-continue guard"
-      case ("ev-sequence-last-exp")
-	 ! (restore continue)
-	 select type (temp => scheme_restore())
-	 class is (scheme_symbol)
-	    reg_continue => temp
-	 class default
-	    error stop "ev-sequence-last-exp:&
-		 & cannot restore reg_continue, wrong type"
-	 end select
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-sequence-last-exp guard"
-      case ("ev-begin")
-	 ! (assign unev (op begin-actions) (reg exp))
-	 unev => ll_begin_actions( exp )
-	 ! (save continue)
-	 call scheme_save_reg( reg_continue )
-	 ! (goto (label ev-sequence))
-	 label_value = "ev-sequence"
-	 goto 001
-	 error stop "ev-begin guard"
-      case ("compound-apply")
-	 ! (assign unev (op procedure-parameters) (reg proc))
-	 unev => ll_procedure_parameters( proc )
-	 ! (assign env (op procedure-environment) (reg proc))
-	 env => ll_procedure_environment( proc )
-	 ! (assign env (op extend-environment)
-	 !     (reg unev) (reg argl) (reg env))
-	 env => ll_extend_environment( unev, argl, env )
-	 ! (assign unev (op procedure-body) (reg proc))
-	 unev => ll_procedure_body( proc )
-	 ! (goto (label ev-sequence))
-	 label_value = "ev-sequence"
-	 goto 001
-	 error stop "compound-apply guard"
-      case ("primitive-apply")
-	 ! (assign val (op apply-primitive-procedure-with-errors) (reg proc) (reg argl))
-	 val => apply_primitive_procedure_with_errors( proc, argl, env )
-	 ! (save val)
-	 call scheme_save_reg( val )
-	 ! (assign val (op car) (reg val)) ; error or not
-	 val => car(val)
-	 ! (test (op eq?) (const error) (reg val))
-	 select type (val)
-	 class is (scheme_symbol)
-	    if ( val == make_symbol("error")) then
-	       ! (branch (label primitive-error))
-	       label_value = "primitive-error"
-	       goto 001
-	    end if
-	 class default
-	    error stop "primitive-apply: apply-primitive-procedure returned garbage"
-	 end select
-	 ! (restore val)
-	 val => scheme_restore()
-	 ! (assign val (op cdr) (reg val))
-	 val => cdr(val)
-	 ! (restore continue)
-	 select type (temp => scheme_restore())
-	 class is (scheme_symbol)
-	    reg_continue => temp
-	 class default
-	    error stop "primitive-apply: cannot restore reg_continue, wrong type"
-	 end select
-	 ! (goto (reg continue))
-	 label_value = reg_continue%value
-	 goto 001
-      case ("primitive-error")
-	 ! (restore val)
-	 val => scheme_restore()
-	 ! (assign val (op cdr) (reg val)) ; error-code
-	 val => cdr(val)
-	 ! (assign val (op cons) (const primitive-application-error) (reg val))
-	 val => cons( make_symbol( "primitive-application-error" ), val)
-	 ! (goto (label signal-error))
-	 label_value = "signal-error"
-	 goto 001
-      case ("ev-application")
-	 ! (save continue)
-	 call scheme_save_reg(reg_continue)
-	 ! (save env)
-	 call scheme_save_reg( env )
-	 ! (assign unev (op operands) (reg exp))
-	 unev => ll_operands(exp)
-	 ! (save unev)
-	 call scheme_save_reg(unev)
-	 ! (assign exp (op operator) (reg exp))
-	 exp => ll_operator(exp)
-	 ! (assign continue (label ev-appl-did-operator))
-	 reg_continue => make_symbol("ev-appl-did-operator")
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-      case ("ev-appl-did-operator")
-	 ! (restore unev) ; the operands
-	 unev => scheme_restore()
-	 ! (restore env)
-	 env => scheme_restore()
-	 ! (assign argl (op empty-arglist))
-	 argl => the_null
-	 ! (assign proc (reg val)) ; the operator
-	 proc => val
-	 ! (test (op no-operands?) (reg unev))
-	 if (is_null_p(unev)) then
-	    ! (branch (label apply-dispatch))
-	    label_value = "apply-dispatch"
-	    goto 001
-	 end if
-	 ! (save proc)
-	 call scheme_save_reg( proc )
-	 label_value = "ev-appl-operand-loop"
-	 goto 001
-      case ("ev-appl-operand-loop")
-	 ! (save argl)
-	 call scheme_save_reg( argl )
-	 ! (assign exp (op first-operand) (reg unev))
-	 exp => ll_first_operand_p(unev)
-	 ! (test (op last-operand?) (reg unev))
-	 if (ll_last_operand_p(unev)) then
-	    ! (branch (label ev-appl-last-arg))
-	    label_value = "ev-appl-last-arg"
-	    goto 001
-	 end if
-	 ! (save env)
-	 call scheme_save_reg( env )
-	 ! (save unev)
-	 call scheme_save_reg( unev )
-	 ! (assign continue (label ev-appl-accumulate-arg))
-	 reg_continue => make_symbol("ev-appl-accumulate-arg")
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-      case ("ev-appl-accumulate-arg")
-	 ! (restore unev)
-	 unev => scheme_restore()
-	 ! (restore env)
-	 env => scheme_restore()
-	 ! (restore argl)
-	 argl => scheme_restore()
-	 ! (assign argl (op adjoin-arg) (reg val) (reg argl))
-	 argl => ll_adjoin_arg( val, argl )
-	 ! (assign unev (op rest-operands) (reg unev))
-	 unev => ll_rest_operands( unev )
-	 ! (goto (label ev-appl-operand-loop))
-	 label_value = "ev-appl-operand-loop"
-	 goto 001
-      case ("ev-appl-last-arg")
-	 ! (assign continue (label ev-appl-accum-last-arg))
-	 reg_continue => make_symbol( "ev-appl-accum-last-arg" )
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-      case ("ev-appl-accum-last-arg")
-	 ! (restore argl)
-	 argl => scheme_restore()
-	 ! (assign argl (op adjoin-arg) (reg val) (reg argl))
-	 argl => ll_adjoin_arg( val, argl )
-	 ! (restore proc)
-	 proc => scheme_restore()
-	 ! (goto (label apply-dispatch))
-	 label_value = "apply-dispatch"
-	 goto 001
-      case ("apply-dispatch")
-	 ! (test (op primitive-procedure?) (reg proc))
-	 if (is_primitive_procedure_p(proc)) then
-	    ! (branch (label primitive-apply))
-	    label_value = "primitive-apply"
-	    goto 001
-	 end if
-	 ! (test (op compound-procedure?) (reg proc))
-	 if (is_compound_procedure_p(proc)) then
-	    ! (branch (label compound-apply))
-	    label_value = "compound-apply"
-	    goto 001
-	 end if
-	 ! (goto (label unknown-procedure-type))
-	 label_value = "unknown-procedure-type"
-	 goto 001
-      case ("eval-dispatch")
-	 if (free >= memory_size*0.9) then ! is this a good place?
-	    free = run_garbage_collector(free)
-	 end if
-	 ! (test (op self-evaluating?) (reg exp))
-	 if (is_self_evaluating_p(exp)) then
-	    ! (branch (label ev-self-eval))
-	    label_value = "ev-self-eval"
-	    goto 001
-	 end if
-	 ! (test (op variable?) (reg exp))
-	 if (is_symbol_p(exp)) then
-	    ! (branch (label ev-variable))
-	    label_value = "ev-variable"
-	    goto 001
-	 end if
-	 ! (test (op quoted?) (reg exp))
-	 if (is_quoted_p(exp)) then
-	    ! (branch (label ev-quoted))
-	    label_value = "ev-quoted"
-	    goto 001
-	 end if
-	 ! (test (op assignment?) (reg exp))
-	 if (is_assignment_p(exp)) then
-	    ! (branch (label ev-assignment))
-	    label_value = "ev-assignment"
-	    goto 001
-	 end if
-	 ! (test (op definition?) (reg exp))
-	 if (is_definition_p(exp)) then
-	    ! (branch (label ev-definition))
-	    label_value = "ev-definition"
-	    goto 001
-	 end if
-	 ! (test (op if?) (reg exp))
-	 if (is_if_p(exp)) then
-	    ! (branch (label ev-if))
-	    label_value = "ev-if"
-	    goto 001
-	 end if
-	 ! (test (op lambda?) (reg exp))
-	 if (is_lambda_p(exp)) then
-	    ! (branch (label ev-lambda))
-	    label_value = "ev-lambda"
-	    goto 001
-	 end if
-	 ! (test (op begin?) (reg exp))
-	 if (is_begin_p(exp)) then
-	    ! (branch (label ev-begin))
-	    label_value = "ev-begin"
-	    goto 001
-	 end if
-	 ! (test (op let?) (reg exp))
-	 if (is_let_p(exp)) then
-	    ! (branch (label ev-let))
-	    label_value = "ev-let"
-	    goto 001
-	 end if
-	 ! (test (op cond?) (reg exp))
-	 if (is_cond_p(exp)) then
-	    ! (branch (label ev-cond))   
-	    label_value = "ev-cond"
-	    goto 001
-	 end if
-	 ! (test (op application?) (reg exp))
-	 if (is_application_p(exp)) then
-	    ! (branch (label ev-application))
-	    label_value = "ev-application"
-	    goto 001
-	 end if
-	 ! (goto (label unknown-expression-type))
-	 label_value = "unknown-expression-type"
-	 goto 001
-      case ("ev-let")
-	 ! (assign exp (op let->combination) (reg exp))
-	 exp => ll_let_to_combination( exp )
-	 !write (*,*) "debug"
-	 !call exp%debug_display()
-	 ! ;(save continue)
-	 !call scheme_save_reg( reg_continue )
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-let guard"
-      case ("ev-cond")
-	 ! (assign exp (op cond->if) (reg exp))
-	 exp => ll_cond_to_if( exp )
-	 ! (goto (label eval-dispatch))
-	 label_value = "eval-dispatch"
-	 goto 001
-	 error stop "ev-cond guard"
-<<fortran-scheme-interpreter-runtime-epilogue>>
+  <<fortran-scheme-interpreter-runtime-prologue>>
+	case ("read-eval-print-loop")
+	   ! (perform (op initialize-stack))
+	   call initialize_stack()
+	   ! (perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
+	   write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Input: " !
+	   ! (assign exp (op read))
+	   exp => ll_read()
+	   ! (perform (op user-print) (reg exp))
+	   write (*, fmt='(a,a)', advance='no') &
+		new_line(''), "debug: I parsed as: "
+	   call exp%debug_display() ;     write (*,'(a)', advance='no') new_line('a')
+	   !(assign env (op get-global-environment))
+	   env => the_global_environment
+	   !(assign continue (label print-result))
+	   reg_continue => make_symbol("print-result")
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	case ("print-result") ! ec-label: print-result
+	   !(perform (op announce-output) (const ";;EC-Eval value:"))
+	   write (*,fmt='(a,a)', advance='no') new_line(''), "SCHEMETRAN-Value: "
+	   !(perform (op user-print) (reg val))
+	   call val%debug_display() !; write (*, fmt='(a)') new_line('a')
+	   !(perform (op print-stack-statistics))
+	   call print_stack_statistics()
+	   !(goto (label read-eval-print-loop))
+	   label_value = "read-eval-print-loop"
+	   goto 001
+	case ("unknown-expression-type")
+	   !(assign val (const unknown-expression-type-error))
+	   val => make_symbol("unknown-expression-type-error")
+	   !(goto (label signal-error))
+	   label_value = "signal-error"
+	   goto 001
+	case ("unknown-procedure-type")
+	   !(restore continue) ; clean up stack (from apply-dispatch )
+	   select type (temp => scheme_restore())
+	   class is (scheme_symbol)
+	      reg_continue => temp
+	   class default
+	      error stop "unknown-procedure-type:&
+	       & cannot restore reg_continue, wrong type"
+	   end select
+	   !(assign val (const unknown-procedure-type-error))
+	   val => make_symbol("unknown-procedure-type-error")
+	   !(goto (label signal-error))
+	   label_value = "signal-error"
+	   goto 001
+	case ("signal-error")
+	   !(perform (op user-print) (reg val))
+	   call val%debug_display()
+	   !(goto (label read-eval-print-loop))
+	   label_value = "read-eval-print-loop"
+	   goto 001
+	case ("ev-definition")
+	   !(assign unev (op definition-variable) (reg exp))
+	   unev => ll_definition_variable( exp )
+	   !(save unev) ; save variable for later
+	   call scheme_save_reg( unev )
+	   !(assign exp (op definition-value) (reg exp))
+	   exp => ll_definition_value( exp )
+	   !(save env)
+	   call scheme_save_reg( env )
+	   !(save continue)
+	   call scheme_save_reg( reg_continue )
+	   !(assign continue (label ev-definition-1))
+	   reg_continue => make_symbol( "ev-definition-1" )
+	   !(goto (label eval-dispatch)) ; evaluate the definition value
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-definition guard"
+	case ("ev-definition-1")
+	   !(restore continue)
+	   select type (temp => scheme_restore())
+	   class is (scheme_symbol)
+	      reg_continue => temp
+	   class default
+	      error stop "ev-definition-1:&
+	       & cannot restore reg_continue, wrong type"
+	   end select
+	   !(restore env)
+	   env => scheme_restore()
+	   !(restore unev)
+	   unev => scheme_restore()
+	   !(perform (op define-variable!) (reg unev) (reg val) (reg env))
+	   select type (unev)
+	   class is (scheme_symbol)
+	      call ll_define_variable_b( unev, val, env )
+	   class default
+	      error stop "ev-definition-1: Error. Definition variable not a symbol."
+	   end select
+	   !(assign val (const ok))
+	   val => make_symbol( "ok" )
+	   !(goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	   error stop "ev-definition-1 guard"
+	case ("ev-self-eval")
+	   !(assign val (reg exp))
+	   val => exp
+	   !(goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	case ("ev-quoted")
+	   !(assign val (op text-of-quotation) (reg exp))
+	   val => ll_text_of_quotation( exp )
+	   !(goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	   error stop "ev-quoted guard"
+	case ("ev-lambda")
+	   !(assign unev (op lambda-parameters) (reg exp))
+	   unev => ll_lambda_parameters( exp )
+	   !(assign exp (op lambda-body) (reg exp))
+	   exp => ll_lambda_body( exp )
+	   !(assign val (op make-procedure) (reg unev) (reg exp) (reg env))
+	   val => ll_make_procedure( unev, exp, env)
+	   !(goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	   error stop "ev-lambda guard"
+	case ("ev-variable")
+	   !(assign val (op lookup-variable-value) (reg exp) (reg env))
+	   select type (exp)
+	   class is (scheme_symbol)
+	      val => ll_lookup_variable_value( exp, env )
+	   class default
+	      error stop "ev-variable: variable name is not a symbol"
+	   end select
+	   !(save exp)
+	   call scheme_save_reg( exp )
+	   !(assign exp (op car) (reg val))
+	   exp => car( val )
+	   !(test (op eq?) (reg exp) (const unbound))
+	   select type (exp)
+	   class is (scheme_symbol)
+	      if ( exp == make_symbol("unbound")) then
+		 !(branch (label error-unbound-variable))
+		 label_value = "error-unbound-variable"
+		 goto 001
+	      end if
+	   class default
+	      error stop "ev-variable: lookup-variable-value returned rubbish"
+	   end select
+	   !(restore exp)
+	   exp => scheme_restore()
+	   !(assign val (op cdr) (reg val))
+	   val => cdr(val)
+	   !(goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	case ("error-unbound-variable")
+	   !(restore exp)
+	   exp => scheme_restore()
+	   !(assign val (op cons) (const unbound-variable-error) (reg exp))
+	   val => cons( make_symbol("unbound-variable-error"), exp)
+	   !(goto (label signal-error))
+	   label_value = "signal-error"
+	   goto 001
+	   error stop "error-unbound-variable guard"
+	case ("ev-assignment")
+	   ! (assign unev (op assignment-variable) (reg exp))
+	   unev => ll_assignment_variable( exp )
+	   ! (save unev) ; save variable for later
+	   call scheme_save_reg( unev )
+	   ! (assign exp (op assignment-value) (reg exp))
+	   exp => ll_assignment_value( exp )
+	   ! (save env)
+	   call scheme_save_reg(env)
+	   ! (save continue)
+	   call scheme_save_reg(reg_continue)
+	   ! (assign continue (label ev-assignment-1))
+	   reg_continue => make_symbol( "ev-assignment-1" )
+	   ! (goto (label eval-dispatch)) ; evaluate the assignment value
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-assignment guard"
+	case ("ev-assignment-1")
+	   ! (restore continue)
+	   select type (temp => scheme_restore())
+	   class is (scheme_symbol)
+	      reg_continue => temp
+	   class default
+	      error stop "ev-assignment-1:&
+		   & cannot restore reg_continue, wrong type"
+	   end select
+	   ! (restore env)
+	   env => scheme_restore()
+	   ! (restore unev)
+	   unev => scheme_restore()
+	   ! (assign val (op set-variable-value!) (reg unev) (reg val) (reg env))
+	   select type( unev )
+	   class is (scheme_symbol)
+	      val => ll_set_variable_value_b( unev, val, env )
+	   class default
+	      error stop "ev-assignment-1: Non-symbol passed as a variable name."
+	   end select
+	   ! (assign val (op car) (reg val))
+	   val => car(val)
+	   ! (test (op eq?) (reg val) (const unbound))
+	   select type (val)
+	   class is (scheme_symbol)
+	      if ( val == make_symbol("unbound")) then
+		 ! (branch (label assignment-failed))
+		 label_value = "assignment-failed"
+		 goto 001
+	      end if
+	   class default
+	      error stop "ev-assignment-1: Error. assignment return not a symbol"
+	   end select
+	   ! (assign val (const ok))
+	   val => make_symbol( "ok" )
+	   ! (goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	   error stop "ev-assignment-1 guard"
+	case ("assignment-failed")
+	   ! (assign exp (reg unev))
+	   exp => unev
+	   ! (save exp)
+	   call scheme_save_reg( exp )
+	   ! (goto (label error-unbound-variable))
+	   label_value = "error-unbound-variable"
+	   goto 001
+	   error stop "assignment-failed guard"
+	case ("ev-if")
+	   ! (save exp) ; save expression for later
+	   call scheme_save_reg( exp )
+	   ! (save env)
+	   call scheme_save_reg( env )
+	   ! (save continue)
+	   call scheme_save_reg( reg_continue )
+	   ! (assign continue (label ev-if-decide))
+	   reg_continue => make_symbol( "ev-if-decide" )
+	   ! (assign exp (op if-predicate) (reg exp))
+	   exp => ll_if_predicate( exp )
+	   ! (goto (label eval-dispatch)) ; evaluate the predicate
+	   label_value = "eval-dispatch"
+	   goto 001
+	case ("ev-if-decide")
+	   ! (restore continue)
+	   select type (temp => scheme_restore())
+	   class is (scheme_symbol)
+	      reg_continue => temp
+	   class default
+	      error stop "ev-if-decide:&
+	       & cannot restore reg_continue, wrong type"
+	   end select
+	   ! (restore env)
+	   env => scheme_restore()
+	   ! (restore exp)
+	   exp => scheme_restore()
+	   ! (test (op true?) (reg val))
+	   if (ll_true_p(val)) then
+	      ! (branch (label ev-if-consequent))
+	      label_value = "ev-if-consequent"
+	      goto 001
+	   end if
+	   label_value = "ev-if-alternative"
+	   goto 001
+	   error stop "ev-if-decide guard"
+	case ("ev-if-alternative")
+	   ! (assign exp (op if-alternative) (reg exp))
+	   exp => ll_if_alternative( exp )
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	case ("ev-if-consequent")
+	   ! (assign exp (op if-consequent) (reg exp))
+	   exp => ll_if_consequent( exp )
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-if-consequent guard"
+	case ("ev-sequence")
+	   ! (assign exp (op first-exp) (reg unev))
+	   exp => ll_first_exp( unev )
+	   ! (test (op last-exp?) (reg unev))
+	   if (ll_last_exp_p(unev)) then
+	      ! (branch (label ev-sequence-last-exp))
+	      label_value = "ev-sequence-last-exp"
+	      goto 001
+	   end if
+	   ! (save unev)
+	   call scheme_save_reg( unev )
+	   ! (save env)
+	   call scheme_save_reg( env  )
+	   ! (assign continue (label ev-sequence-continue))
+	   reg_continue => make_symbol( "ev-sequence-continue" )
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-sequence guard"
+	case ("ev-sequence-continue")
+	   ! (restore env)
+	   env => scheme_restore()
+	   ! (restore unev)
+	   unev => scheme_restore()
+	   ! (assign unev (op rest-exps) (reg unev))
+	   unev => ll_rest_exps( unev )
+	   ! (goto (label ev-sequence))
+	   label_value = "ev-sequence"
+	   goto 001
+	   error stop "ev-sequence-continue guard"
+	case ("ev-sequence-last-exp")
+	   ! (restore continue)
+	   select type (temp => scheme_restore())
+	   class is (scheme_symbol)
+	      reg_continue => temp
+	   class default
+	      error stop "ev-sequence-last-exp:&
+		   & cannot restore reg_continue, wrong type"
+	   end select
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-sequence-last-exp guard"
+	case ("ev-begin")
+	   ! (assign unev (op begin-actions) (reg exp))
+	   unev => ll_begin_actions( exp )
+	   ! (save continue)
+	   call scheme_save_reg( reg_continue )
+	   ! (goto (label ev-sequence))
+	   label_value = "ev-sequence"
+	   goto 001
+	   error stop "ev-begin guard"
+	case ("compound-apply")
+	   ! (assign unev (op procedure-parameters) (reg proc))
+	   unev => ll_procedure_parameters( proc )
+	   ! (assign env (op procedure-environment) (reg proc))
+	   env => ll_procedure_environment( proc )
+	   ! (assign env (op extend-environment)
+	   !     (reg unev) (reg argl) (reg env))
+	   env => ll_extend_environment( unev, argl, env )
+	   ! (assign unev (op procedure-body) (reg proc))
+	   unev => ll_procedure_body( proc )
+	   ! (goto (label ev-sequence))
+	   label_value = "ev-sequence"
+	   goto 001
+	   error stop "compound-apply guard"
+	case ("primitive-apply")
+	   ! (assign val (op apply-primitive-procedure-with-errors) (reg proc) (reg argl))
+	   val => apply_primitive_procedure_with_errors( proc, argl, env )
+	   ! (save val)
+	   call scheme_save_reg( val )
+	   ! (assign val (op car) (reg val)) ; error or not
+	   val => car(val)
+	   ! (test (op eq?) (const error) (reg val))
+	   select type (val)
+	   class is (scheme_symbol)
+	      if ( val == make_symbol("error")) then
+		 ! (branch (label primitive-error))
+		 label_value = "primitive-error"
+		 goto 001
+	      end if
+	   class default
+	      error stop "primitive-apply: apply-primitive-procedure returned garbage"
+	   end select
+	   ! (restore val)
+	   val => scheme_restore()
+	   ! (assign val (op cdr) (reg val))
+	   val => cdr(val)
+	   ! (restore continue)
+	   select type (temp => scheme_restore())
+	   class is (scheme_symbol)
+	      reg_continue => temp
+	   class default
+	      error stop "primitive-apply: cannot restore reg_continue, wrong type"
+	   end select
+	   ! (goto (reg continue))
+	   label_value = reg_continue%value
+	   goto 001
+	case ("primitive-error")
+	   ! (restore val)
+	   val => scheme_restore()
+	   ! (assign val (op cdr) (reg val)) ; error-code
+	   val => cdr(val)
+	   ! (assign val (op cons) (const primitive-application-error) (reg val))
+	   val => cons( make_symbol( "primitive-application-error" ), val)
+	   ! (goto (label signal-error))
+	   label_value = "signal-error"
+	   goto 001
+	case ("ev-application")
+	   ! (save continue)
+	   call scheme_save_reg(reg_continue)
+	   ! (save env)
+	   call scheme_save_reg( env )
+	   ! (assign unev (op operands) (reg exp))
+	   unev => ll_operands(exp)
+	   ! (save unev)
+	   call scheme_save_reg(unev)
+	   ! (assign exp (op operator) (reg exp))
+	   exp => ll_operator(exp)
+	   ! (assign continue (label ev-appl-did-operator))
+	   reg_continue => make_symbol("ev-appl-did-operator")
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	case ("ev-appl-did-operator")
+	   ! (restore unev) ; the operands
+	   unev => scheme_restore()
+	   ! (restore env)
+	   env => scheme_restore()
+	   ! (assign argl (op empty-arglist))
+	   argl => the_null
+	   ! (assign proc (reg val)) ; the operator
+	   proc => val
+	   ! (test (op no-operands?) (reg unev))
+	   if (is_null_p(unev)) then
+	      ! (branch (label apply-dispatch))
+	      label_value = "apply-dispatch"
+	      goto 001
+	   end if
+	   ! (save proc)
+	   call scheme_save_reg( proc )
+	   label_value = "ev-appl-operand-loop"
+	   goto 001
+	case ("ev-appl-operand-loop")
+	   ! (save argl)
+	   call scheme_save_reg( argl )
+	   ! (assign exp (op first-operand) (reg unev))
+	   exp => ll_first_operand_p(unev)
+	   ! (test (op last-operand?) (reg unev))
+	   if (ll_last_operand_p(unev)) then
+	      ! (branch (label ev-appl-last-arg))
+	      label_value = "ev-appl-last-arg"
+	      goto 001
+	   end if
+	   ! (save env)
+	   call scheme_save_reg( env )
+	   ! (save unev)
+	   call scheme_save_reg( unev )
+	   ! (assign continue (label ev-appl-accumulate-arg))
+	   reg_continue => make_symbol("ev-appl-accumulate-arg")
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	case ("ev-appl-accumulate-arg")
+	   ! (restore unev)
+	   unev => scheme_restore()
+	   ! (restore env)
+	   env => scheme_restore()
+	   ! (restore argl)
+	   argl => scheme_restore()
+	   ! (assign argl (op adjoin-arg) (reg val) (reg argl))
+	   argl => ll_adjoin_arg( val, argl )
+	   ! (assign unev (op rest-operands) (reg unev))
+	   unev => ll_rest_operands( unev )
+	   ! (goto (label ev-appl-operand-loop))
+	   label_value = "ev-appl-operand-loop"
+	   goto 001
+	case ("ev-appl-last-arg")
+	   ! (assign continue (label ev-appl-accum-last-arg))
+	   reg_continue => make_symbol( "ev-appl-accum-last-arg" )
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	case ("ev-appl-accum-last-arg")
+	   ! (restore argl)
+	   argl => scheme_restore()
+	   ! (assign argl (op adjoin-arg) (reg val) (reg argl))
+	   argl => ll_adjoin_arg( val, argl )
+	   ! (restore proc)
+	   proc => scheme_restore()
+	   ! (goto (label apply-dispatch))
+	   label_value = "apply-dispatch"
+	   goto 001
+	case ("apply-dispatch")
+	   ! (test (op primitive-procedure?) (reg proc))
+	   if (ll_primitive_procedure_p(proc)) then
+	      ! (branch (label primitive-apply))
+	      label_value = "primitive-apply"
+	      goto 001
+	   end if
+	   ! (test (op compound-procedure?) (reg proc))
+	   if (ll_compound_procedure_p(proc)) then
+	      ! (branch (label compound-apply))
+	      label_value = "compound-apply"
+	      goto 001
+	   end if
+	   ! (goto (label unknown-procedure-type))
+	   label_value = "unknown-procedure-type"
+	   goto 001
+	case ("eval-dispatch")
+	   if (free >= memory_size*0.9) then ! is this a good place?
+	      free = run_garbage_collector(free)
+	   end if
+	   ! (test (op self-evaluating?) (reg exp))
+	   if (is_self_evaluating_p(exp)) then
+	      ! (branch (label ev-self-eval))
+	      label_value = "ev-self-eval"
+	      goto 001
+	   end if
+	   ! (test (op variable?) (reg exp))
+	   if (is_symbol_p(exp)) then
+	      ! (branch (label ev-variable))
+	      label_value = "ev-variable"
+	      goto 001
+	   end if
+	   ! (test (op quoted?) (reg exp))
+	   if (is_quoted_p(exp)) then
+	      ! (branch (label ev-quoted))
+	      label_value = "ev-quoted"
+	      goto 001
+	   end if
+	   ! (test (op assignment?) (reg exp))
+	   if (is_assignment_p(exp)) then
+	      ! (branch (label ev-assignment))
+	      label_value = "ev-assignment"
+	      goto 001
+	   end if
+	   ! (test (op definition?) (reg exp))
+	   if (is_definition_p(exp)) then
+	      ! (branch (label ev-definition))
+	      label_value = "ev-definition"
+	      goto 001
+	   end if
+	   ! (test (op if?) (reg exp))
+	   if (is_if_p(exp)) then
+	      ! (branch (label ev-if))
+	      label_value = "ev-if"
+	      goto 001
+	   end if
+	   ! (test (op lambda?) (reg exp))
+	   if (is_lambda_p(exp)) then
+	      ! (branch (label ev-lambda))
+	      label_value = "ev-lambda"
+	      goto 001
+	   end if
+	   ! (test (op begin?) (reg exp))
+	   if (is_begin_p(exp)) then
+	      ! (branch (label ev-begin))
+	      label_value = "ev-begin"
+	      goto 001
+	   end if
+	   ! (test (op let?) (reg exp))
+	   if (is_let_p(exp)) then
+	      ! (branch (label ev-let))
+	      label_value = "ev-let"
+	      goto 001
+	   end if
+	   ! (test (op cond?) (reg exp))
+	   if (is_cond_p(exp)) then
+	      ! (branch (label ev-cond))   
+	      label_value = "ev-cond"
+	      goto 001
+	   end if
+	   ! (test (op application?) (reg exp))
+	   if (is_application_p(exp)) then
+	      ! (branch (label ev-application))
+	      label_value = "ev-application"
+	      goto 001
+	   end if
+	   ! (goto (label unknown-expression-type))
+	   label_value = "unknown-expression-type"
+	   goto 001
+	case ("ev-let")
+	   ! (assign exp (op let->combination) (reg exp))
+	   exp => ll_let_to_combination( exp )
+	   !write (*,*) "debug"
+	   !call exp%debug_display()
+	   ! ;(save continue)
+	   !call scheme_save_reg( reg_continue )
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-let guard"
+	case ("ev-cond")
+	   ! (assign exp (op cond->if) (reg exp))
+	   exp => ll_cond_to_if( exp )
+	   ! (goto (label eval-dispatch))
+	   label_value = "eval-dispatch"
+	   goto 001
+	   error stop "ev-cond guard"
+  <<fortran-scheme-interpreter-runtime-epilogue>>
 #+end_src
 
 
@@ -64097,19 +64136,20 @@ This exercise took me about 104 hours of work.
  - [X] transpile (const)
  - [X] transpile (op)
  - [ ] transpile ll_... lots of unimplemented functions
- - [ ] transpile (list)
+ - [X] transpile (list)
  - [ ] make a list of functions to transpile
  - [X] 5.51 prologue
  - [X] 5.51 epilogue
  - [X] 5.51 manual ec-eval
  - [ ] rename functions
- - [ ] lookup-variable-value
+ - [X] ll-lookup-variable-value
  - [ ] ll-lexical-address-lookup
  - [ ] ll-make-compiled-procedure
  - [ ] make-number
  - [ ] ll-compiled-procedure-env
- - [ ] ll-extend-environment
- - [ ] ll-list
+ - [X] ll-extend-environment
+ - [X] ll-list
+ - [X] ll-compound-procedure-p
  - [ ] ll-cons
  - [ ] ll-false-p
 
