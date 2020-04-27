@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; flyspell-mode: 1 -*-
-# Time-stamp: <2020-04-27 11:28:45 lockywolf>
+# Time-stamp: <2020-04-27 19:59:23 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -61563,8 +61563,10 @@ corresponds to the main_ loop() function in the Fortran code.
 (exit)
 #+end_src
 
+
+
 #+name: fortran-scheme-interpreter
-#+begin_src fortran :exports code :results verbatim output :stdin fortran-scheme-test
+#+begin_src f90 :exports code :results verbatim output :stdin fortran-scheme-test
   module system_interface
     use, intrinsic :: iso_fortran_env, only: input_unit
     implicit none
@@ -64064,7 +64066,6 @@ debug: I parsed as: (exit . ())
 STOP 0
 #+end_src
 
-#+RESULTS:
 
 This exercise took me about 104 hours of work.
 
@@ -64084,6 +64085,10 @@ This exercise took me about 104 hours of work.
  - [ ] transpile ll_... lots of unimplemented functions
  - [ ] transpile (list)
  - [ ] make a list of functions to transpile
+ - [ ] 5.51 prologue
+ - [ ] 5.51 epilogue
+ - [ ] 5.51 manual ec-eval
+ - [ ] rename functions
  - [ ] ll-lexical-address-lookup
  - [ ] ll-make-compiled-procedure
  - [ ] make-number
@@ -64214,8 +64219,6 @@ run-time support from Fortran, rather than writing it from scratch in C.
         (else (string-append "check this" (write-to-string s))))
     "\ngoto 001")))
 
-
-
 (define (ec-label->fortran-label label)
   (let* ((label-value (symbol->string label))
          (answer (string-append "label_value=\"" label-value  "\"\ngoto 001\ncase ( \"" label-value "\" )")))
@@ -64334,7 +64337,8 @@ The following piece of code is only needed to shorten the testing.
 ;)
 #+end_src
 
-#+begin_src f90 :exports code
+#+name: transpiled-metacircular-evaluator
+#+begin_src f90 :exports code :tangle yes :file transpiled_mce.f90
   module system_interface
     use, intrinsic :: iso_fortran_env, only: input_unit
     implicit none
@@ -66190,7 +66194,6 @@ The following piece of code is only needed to shorten the testing.
     stop 0
 
   end program main
-
 #+end_src
 
 #+header: :stdin compiled-metacircular-test
