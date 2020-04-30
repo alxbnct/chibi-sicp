@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-04-30 13:55:29 lockywolf>
+# Time-stamp: <2020-04-30 22:19:19 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -62144,6 +62144,75 @@ corresponds to the main_ loop() function in the Fortran code.
 	     retval => cdr( car(argl) )
 	end function packaged_cdr
 
+	function packaged_cadr( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+	     retval => car(cdr( car(argl) ))
+	end function packaged_cadr
+
+	function packaged_null_p( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+	     !retval => car(cdr( car(argl) ))
+          select type( tmp => car(argl) )
+          class is (scheme_empty_list)
+              retval => the_true
+          class default
+              retval => the_false
+          end select
+	end function packaged_null_p
+
+	function packaged_newline( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+          retval => make_symbol( "ok" )
+          print *,""
+	end function packaged_newline
+
+!(define (assoc key records)
+!  (cond ((null? records) false)
+!        ((equal? key (caar records)) (car records))
+!        (else (assoc key (cdr records)))))
+!	recursive function packaged_assoc( argl, env) result( retval )
+!	  class(scheme_object), pointer :: argl
+!	  class(scheme_object), pointer :: env
+!	  class(scheme_object), pointer :: retval
+!          select type( records => car(cdr( argl )))
+!          class is (scheme_empty_list)
+!              retval => the_false
+!          class is (scheme_pair)
+!              if ( car(argl) == car( car( records )) ) then
+!                  retval => car( records )
+!              else
+!                 retval => packaged_assoc( cons( ))
+!          cla
+!              
+!
+!	end function packaged_assoc
+
+	function packaged_list( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+          retval => argl
+	end function packaged_list
+
+	function packaged_symbol_p( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+          select type( tmp => car(argl) )
+          class is (scheme_symbol)
+              retval => the_true
+          class default
+              retval => the_false
+          end select
+	end function packaged_symbol_p
+
+
 	integer function run_garbage_collector( oldfree ) result(retval)
 	  integer :: dstat
 	  character(:), allocatable :: derr
@@ -62692,6 +62761,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	       make_primitive_procedure_object( proc, "packaged_minus" ) ), &
 	       list_primitive_objects)
 	  ! equality
+
 	  function_name = "=" ! automatic reallocation?
 	  proc => packaged_equality
 	  list_primitive_names => cons( make_symbol(function_name), &
@@ -62699,6 +62769,47 @@ corresponds to the main_ loop() function in the Fortran code.
 	  list_primitive_objects => cons( cons( symbol_primitive, &
 	       make_primitive_procedure_object( proc, "packaged_equality" ) ), &
 	       list_primitive_objects)
+
+	  function_name = "cadr" ! automatic reallocation?
+	  proc => packaged_cadr
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_cadr" ) ), &
+	       list_primitive_objects)
+
+	  function_name = "null?" ! automatic reallocation?
+	  proc => packaged_null_p
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_null_p" ) ), &
+	       list_primitive_objects)
+
+	  function_name = "newline" ! automatic reallocation?
+	  proc => packaged_newline
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_newline" ) ), &
+	       list_primitive_objects)
+
+          function_name = "list" ! automatic reallocation?
+	  proc => packaged_list
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_list" ) ), &
+	       list_primitive_objects)
+
+          function_name = "symbol?" ! automatic reallocation?
+	  proc => packaged_symbol_p
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_symbol_p" ) ), &
+	       list_primitive_objects)
+
 
 	  ! extend initial_environment
 	  ! env => cons( cons( list_primitive_names, list_primitive_objects ), &
@@ -64251,22 +64362,22 @@ SCHEMETRAN-Input:
 debug: I parsed as: (display . ("hello" . ()))
 "hello"
 SCHEMETRAN-Value: ()
-total-pushes=7 maximum-depth=4 free=42
+total-pushes=7 maximum-depth=4 free=54
 SCHEMETRAN-Input: 
 debug: I parsed as: (let . (((a . (1 . ())) . ()) . ((display . (a . ())) . ())))
 1
 SCHEMETRAN-Value: ()
-total-pushes=13 maximum-depth=4 free=79
+total-pushes=13 maximum-depth=4 free=91
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#t . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 1
-total-pushes=3 maximum-depth=3 free=86
+total-pushes=3 maximum-depth=3 free=98
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#f . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 2
-total-pushes=3 maximum-depth=3 free=93
+total-pushes=3 maximum-depth=3 free=105
 SCHEMETRAN-Input: 
 debug: I parsed as: (exit . ())
 STOP 0
@@ -64307,20 +64418,20 @@ This exercise took me about 104 hours of work.
  - [X] ll-cons
  - [X] ll-false-p
  - [ ] implement packaged procedures
- - [ ] car
- - [ ] cdr
- - [ ] cons
- - [ ] cadr
- - [ ] null?
- - [ ] newline
- - [ ] assoc?
- - [ ] =
+ - [X] car
+ - [X] cdr
+ - [X] cons
+ - [X] cadr
+ - [X] null?
+ - [X] newline
+ - [X] assoc
+ - [X] =
  - [ ] <
  - [ ] >
  - [ ] +
- - [ ] -
+ - [X] -
  - [ ] not
- - [ ] *
+ - [X] *
  - [ ] current-second
  - [ ] list
  - [ ] eq?
@@ -64679,6 +64790,10 @@ The following piece of code is only needed to shorten the testing.
      '(begin       
   (define true #t)
   (define false #f)
+  (define (assoc key records)
+    (cond ((null? records) false)
+          ((equal? key (caar records)) (car records))
+          (else (assoc key (cdr records)))))
   <<accumulate>>
   <<map-append-length>>
   <<memq>>
@@ -64725,7 +64840,7 @@ The following piece of code is only needed to shorten the testing.
 #+begin_src fortran
 Welcome to the rudimentary scheme in fortran
 "above loads" lookup-variable-value: unbound symbol: 
-list
+string?
 #+end_src
 
 
