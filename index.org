@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-03 21:44:15 lockywolf>
+# Time-stamp: <2020-05-03 22:35:54 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -62164,6 +62164,40 @@ corresponds to the main_ loop() function in the Fortran code.
           end select
 	end function packaged_null_p
 
+	function packaged_not( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+	     !retval => car(cdr( car(argl) ))
+          select type( tmp => car(argl) )
+          class is (scheme_boolean)
+              if (tmp%value .eqv. .false.) then
+                  retval => the_true
+              else
+                  retval => the_false
+              end if
+          class default
+              retval => the_false
+          end select
+	end function packaged_not
+
+
+
+	function packaged_pair_p( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+	     !retval => car(cdr( car(argl) ))
+          select type( tmp => car(argl) )
+          class is (scheme_pair)
+              retval => the_true
+          class default
+              retval => the_false
+          end select
+	end function packaged_pair_p
+
+
+
 	function packaged_newline( argl, env) result( retval )
 	  class(scheme_object), pointer :: argl
 	  class(scheme_object), pointer :: env
@@ -62265,6 +62299,27 @@ corresponds to the main_ loop() function in the Fortran code.
               error stop "less (<) only works for numbers. First argument not a number"
           end select
 	end function packaged_less
+
+	function packaged_more( argl, env) result( retval )
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env
+	  class(scheme_object), pointer :: retval
+          select type( arg1 => car(argl) )
+          class is (scheme_number)
+            select type (arg2 => car(cdr(argl)))
+            class is (scheme_number)
+               if (arg1%value > arg2%value) then
+                  retval => the_true
+               else 
+                  retval => the_false
+               end if
+            class default
+               error stop "less (<) only works for numbers. Second argument not a number"
+            end select
+          class default
+              error stop "less (<) only works for numbers. First argument not a number"
+          end select
+	end function packaged_more
 
         function packaged_notimplemented(argl, env ) result( retval )
 	  class(scheme_object), pointer :: argl
@@ -62709,6 +62764,14 @@ corresponds to the main_ loop() function in the Fortran code.
 	  stop 0
 	end function packaged_exit
 
+	function packaged_error( argl, env ) result(retval)
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env 
+	  class(scheme_object), pointer :: retval
+	  error stop "Error called. (Irritants handling not implemented)"
+	end function packaged_error
+
+
 	function packaged_display( argl, env ) result(retval)
 	  class(scheme_object), pointer :: argl
 	  class(scheme_object), pointer :: env 
@@ -62786,6 +62849,27 @@ corresponds to the main_ loop() function in the Fortran code.
 	  end select
 	end function packaged_mul
 
+	function packaged_plus( argl, env ) result(retval)
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env 
+	  class(scheme_object), pointer :: retval
+	  select type (t1 => car(argl))
+	  class is (scheme_number)
+	     select type (t2 => car(cdr(argl)))
+	     class is (scheme_number)
+		allocate( scheme_number :: retval )
+		select type (retval)
+		class is (scheme_number)   
+		   retval%value = t1%value + t2%value 
+		end select
+	     class default
+		error stop "plus (+): second argument not a number"
+	     end select
+	  class default
+	     error stop "plus (+): first argument not a number"
+	  end select
+	end function packaged_plus
+
 	function packaged_minus( argl, env ) result(retval)
 	  class(scheme_object), pointer :: argl
 	  class(scheme_object), pointer :: env 
@@ -62827,6 +62911,38 @@ corresponds to the main_ loop() function in the Fortran code.
 	     error stop "=: first argument not a number"
 	  end select
 	end function packaged_equality
+
+	function packaged_eq_p( argl, env ) result(retval)
+	  class(scheme_object), pointer :: argl
+	  class(scheme_object), pointer :: env 
+	  class(scheme_object), pointer :: retval
+	  select type (t1 => car(argl))
+	  class is (scheme_symbol)
+	     select type (t2 => car(cdr(argl)))
+	     class is (scheme_symbol)
+		   if ( t1%value == t2%value)  then
+		      allocate( retval, source=the_true)
+		   else
+		      allocate( retval, source=the_false)
+		   end if
+	     class default
+		error stop "eq? error: first arg symbol, second not"
+	     end select
+          class is (scheme_pair)
+             select type(t2 => car(cdr(argl)))
+             class is (scheme_pair)
+                   if ( t1%value == t2%value)  then
+		      allocate( retval, source=the_true)
+		   else
+		      allocate( retval, source=the_false)
+		   end if
+             class default 
+                error stop "eq? error: first arg pair, second not"
+	     end select
+	  class default
+	     retval => the_false
+	  end select
+	end function packaged_eq_p
 
 
 	function make_primitive_procedure_object( proc1, name ) result( retval )
@@ -62913,6 +63029,15 @@ corresponds to the main_ loop() function in the Fortran code.
 	       make_primitive_procedure_object( proc, "packaged_minus" ) ), &
 	       list_primitive_objects)
 
+	  ! plus
+	  function_name = "+" ! automatic reallocation?
+	  proc => packaged_plus
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_plus" ) ), &
+	       list_primitive_objects)
+
 	  ! division
 	  function_name = "/" ! automatic reallocation?
 	  proc => packaged_division
@@ -62922,7 +63047,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	       make_primitive_procedure_object( proc, "packaged_division" ) ), &
 	       list_primitive_objects)
 
-	  ! division
+	  ! remainder
 	  function_name = "remainder" ! automatic reallocation?
 	  proc => packaged_remainder
 	  list_primitive_names => cons( make_symbol(function_name), &
@@ -62931,13 +63056,49 @@ corresponds to the main_ loop() function in the Fortran code.
 	       make_primitive_procedure_object( proc, "packaged_remainder" ) ), &
 	       list_primitive_objects)
 
-	  ! division
+	  ! random-integer
 	  function_name = "random-integer" ! automatic reallocation?
 	  proc => packaged_notimplemented
 	  list_primitive_names => cons( make_symbol(function_name), &
 	       list_primitive_names)
 	  list_primitive_objects => cons( cons( symbol_primitive, &
 	       make_primitive_procedure_object( proc, "packaged_notimplemented" ) ), &
+	       list_primitive_objects)
+
+	  ! error
+	  function_name = "error" ! automatic reallocation?
+	  proc => packaged_error
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_error" ) ), &
+	       list_primitive_objects)
+
+	  ! pair?
+	  function_name = "pair?" ! automatic reallocation?
+	  proc => packaged_pair_p
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_pair_p" ) ), &
+	       list_primitive_objects)
+
+	  ! eq?
+	  function_name = "eq?" ! automatic reallocation?
+	  proc => packaged_eq_p
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_eq_p" ) ), &
+	       list_primitive_objects)
+
+	  ! not
+	  function_name = "not" ! automatic reallocation?
+	  proc => packaged_not
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_not" ) ), &
 	       list_primitive_objects)
 
 
@@ -62966,6 +63127,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	       make_primitive_procedure_object( proc, "packaged_null_p" ) ), &
 	       list_primitive_objects)
 
+
 	  function_name = "newline" ! automatic reallocation?
 	  proc => packaged_newline
 	  list_primitive_names => cons( make_symbol(function_name), &
@@ -62990,13 +63152,22 @@ corresponds to the main_ loop() function in the Fortran code.
 	       make_primitive_procedure_object( proc, "packaged_symbol_p" ) ), &
 	       list_primitive_objects)
 
-          function_name = "less" ! automatic reallocation?
+          function_name = "<" ! automatic reallocation?
 	  proc => packaged_less
 	  list_primitive_names => cons( make_symbol(function_name), &
 	       list_primitive_names)
 	  list_primitive_objects => cons( cons( symbol_primitive, &
 	       make_primitive_procedure_object( proc, "packaged_less" ) ), &
 	       list_primitive_objects)
+
+          function_name = ">" ! automatic reallocation?
+	  proc => packaged_more
+	  list_primitive_names => cons( make_symbol(function_name), &
+	       list_primitive_names)
+	  list_primitive_objects => cons( cons( symbol_primitive, &
+	       make_primitive_procedure_object( proc, "packaged_more" ) ), &
+	       list_primitive_objects)
+
 
           function_name = "current-second" ! automatic reallocation?
 	  proc => packaged_notimplemented
@@ -64631,22 +64802,22 @@ SCHEMETRAN-Input:
 debug: I parsed as: (display . ("hello" . ()))
 "hello"
 SCHEMETRAN-Value: ()
-total-pushes=7 maximum-depth=4 free=84
+total-pushes=7 maximum-depth=4 free=111
 SCHEMETRAN-Input: 
 debug: I parsed as: (let . (((a . (1 . ())) . ()) . ((display . (a . ())) . ())))
 1
 SCHEMETRAN-Value: ()
-total-pushes=13 maximum-depth=4 free=121
+total-pushes=13 maximum-depth=4 free=148
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#t . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 1
-total-pushes=3 maximum-depth=3 free=128
+total-pushes=3 maximum-depth=3 free=155
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#f . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 2
-total-pushes=3 maximum-depth=3 free=135
+total-pushes=3 maximum-depth=3 free=162
 SCHEMETRAN-Input: 
 debug: I parsed as: (exit . ())
 STOP 0
@@ -64704,33 +64875,33 @@ This exercise took me about 104 hours of work.
  - [X] current-second
  - [X] list
  - [X] eq?
- - [ ] equal?
- - [ ] pair?
- - [ ] error
- - [ ] random-integer
- - [ ] even?
- - [ ] remainder
- - [ ] square
- - [ ] /
- - [ ] member
- - [ ] abs
- - [ ] cdar
- - [ ] cdadr
- - [ ] caar
- - [ ] caadr
- - [ ] cddr
- - [ ] cdddr
- - [ ] caddr
- - [ ] cadddr
- - [ ] set-car!
- - [ ] set-cdr!
- - [ ] memq
- - [ ] read
- - [ ] show
- - [ ] pretty
- - [ ] number?
- - [ ] string?
- - [ ] symbol?
+ - [X] equal?
+ - [X] pair?
+ - [X] error
+ - [X] random-integer
+ - [X] even?
+ - [X] remainder
+ - [X] square
+ - [X] /
+ - [X] member
+ - [X] abs
+ - [X] cdar
+ - [X] cdadr
+ - [X] caar
+ - [X] caadr
+ - [X] cddr
+ - [X] cdddr
+ - [X] caddr
+ - [X] cadddr
+ - [X] set-car!
+ - [X] set-cdr!
+ - [X] memq
+ - [X] read
+ - [X] show
+ - [X] pretty
+ - [X] number?
+ - [X] string?
+ - [X] symbol?
 
 This is a bit of an evil task for a person who just wrote a scheme
 interpreter in fortran. Would it be fair if I just make a compiler
@@ -65094,6 +65265,11 @@ The following piece of code is only needed to shorten the testing.
      (if (= 0 (remainder x 2))
         #t
         #f))
+  (define (equal? o1 o2)
+    (cond ((eq? o1 o2) #t)
+	  ((and (list? o1) (list? o2))     (accumulate (lambda (x y) (and x y)) #t (map equal? o1 o2)))
+	  ((and (number? o1) (number? o2)) (= o1 o2))
+	  (else #f)))
 
   <<accumulate>>
   <<map-append-length>>
@@ -65114,15 +65290,12 @@ The following piece of code is only needed to shorten the testing.
   <<s-cond>>
   <<s-truefalse>>
   <<s-compound-procedures>>
-  (display "above loads")
   <<s-primitive-procedures>>
-  (display "debug1")
-  (exit)
-
   <<s-environments>>
   <<s-driver-loop>>
   <<s-glue2>>
-
+  (display "hello")
+  (exit)
   (driver-loop)
   (exit)
   ))
@@ -65135,13 +65308,6 @@ The following piece of code is only needed to shorten the testing.
       <<fortran-scheme-interpreter-runtime-prologue>>
       <<fortran-scheme-interpreter-interlogue()>>
       <<fortran-scheme-interpreter-runtime-epilogue>>
-#+end_src
-
-#+RESULTS: transpiled-metacircular-evaluator-bigger-test
-#+begin_src fortran
-Welcome to the rudimentary scheme in fortran
-"above loads" lookup-variable-value: unbound symbol: 
-random-integer
 #+end_src
 
 
