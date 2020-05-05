@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-04 16:32:32 lockywolf>
+# Time-stamp: <2020-05-05 23:55:28 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -28751,7 +28751,7 @@ it myself.
 	(user-print output)))
     (driver-loop))
   <<s-user-prompt-print>>
-  #+end_src
+#+end_src
 
 #+name: s-user-prompt-print  
 #+begin_src scheme :exports both :results value
@@ -61600,7 +61600,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	  !  use, non_intrinsic :: system_interface, only: c_exit
 	  use, intrinsic :: iso_fortran_env
 	  implicit none
-	  integer, parameter :: memory_size = 1024
+	  integer, parameter :: memory_size = 102400
 
 	  type, abstract :: scheme_object
 	   contains
@@ -61622,6 +61622,8 @@ corresponds to the main_ loop() function in the Fortran code.
 	     integer :: value
 	   contains
 	     procedure :: debug_display => debug_display_number
+             procedure :: generic_scheme_print => print_scheme_number
+
 	  end type scheme_number
 
 	  type, extends( scheme_object ) :: scheme_pair
@@ -61657,6 +61659,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	     logical :: value
 	   contains
 	     procedure :: debug_display => debug_display_boolean
+             procedure :: generic_scheme_print => print_scheme_boolean
 	  end type scheme_boolean
 
 	  type(scheme_boolean), target :: the_false = scheme_boolean( .false. )
@@ -61721,7 +61724,8 @@ corresponds to the main_ loop() function in the Fortran code.
 	  integer :: stack_number_pushes = 0
 	  integer :: stack_max_depth = 0
 	  integer :: stack_current_depth = 0
-
+          
+          logical :: garbage_collector_on = .false.
 	  ! continue is a special register. It keeps labels rather than scheme objects
 
 	  interface save_scheme
@@ -61816,7 +61820,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	    character(*), intent(inout) :: iomsg
 	    !    select type ( temp => this%value )
 	    !    type is (integer)
-	    write (unit, fmt='(a,i0)', iostat=iostat, iomsg=iomsg, advance='no') &
+	    write (unit, fmt='(a,i0,a)', iostat=iostat, iomsg=iomsg, advance='no') &
 		 '#<scheme_pair address=', this%value, '>'
 	    !    class default
 	    !       print *, 'error'
@@ -61824,6 +61828,43 @@ corresponds to the main_ loop() function in the Fortran code.
 	    ! iostat = c_exit(1)
 	    !    end select
 	  end subroutine print_scheme_pair
+
+        subroutine print_scheme_number(this, unit, iotype, v_list, iostat, iomsg)
+	  class(scheme_number), intent(in) :: this
+	  integer, intent(in)         :: unit
+	  character(*), intent(in)    :: iotype
+	  integer, intent(in)         :: v_list (:)
+	  integer, intent(out)        :: iostat
+	  character(*), intent(inout) :: iomsg
+	  !    select type ( temp => this%value )
+	  !    type is (character(len=*))
+	  write (unit, fmt='(a,i0,a)', iostat=iostat, iomsg=iomsg, advance='no') &
+	       '#<scheme_number "', this%value, '">'
+	  !    class default
+	  !       print *, 'error'
+	  ! iostat = c_exit(1)
+	  !       error stop "wrong string contents"
+	  !    end select
+	end subroutine print_scheme_number
+
+        subroutine print_scheme_boolean(this, unit, iotype, v_list, iostat, iomsg)
+	  class(scheme_boolean), intent(in) :: this
+	  integer, intent(in)         :: unit
+	  character(*), intent(in)    :: iotype
+	  integer, intent(in)         :: v_list (:)
+	  integer, intent(out)        :: iostat
+	  character(*), intent(inout) :: iomsg
+	  !    select type ( temp => this%value )
+	  !    type is (character(len=*))
+	  write (unit, fmt='(a,l0,a)', iostat=iostat, iomsg=iomsg, advance='no') &
+	       '#<scheme_boolean "', this%value, '">'
+	  !    class default
+	  !       print *, 'error'
+	  ! iostat = c_exit(1)
+	  !       error stop "wrong string contents"
+	  !    end select
+	end subroutine print_scheme_boolean
+
 
 	  subroutine print_scheme_empty_list(this, unit, iotype, v_list, iostat, iomsg)
 	    class(scheme_empty_list), intent(in) :: this
@@ -61853,8 +61894,6 @@ corresponds to the main_ loop() function in the Fortran code.
 	    ! iostat = c_exit(1)
 	    !    end select
 	  end subroutine print_scheme_symbol
-
-
 
 	  subroutine debug_display_object( this ) ! for the root object
 	    class(scheme_object), intent(in) :: this
@@ -61943,8 +61982,8 @@ corresponds to the main_ loop() function in the Fortran code.
 	    integer :: caret = 1
 	    character, parameter, dimension(*) :: allowed_chars = (/ 'a', 'b', 'c', &
 		 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', &
-		 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-', '!', '*', &
-		 '+', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' /)
+		 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-', '+', '*', &
+		 '/', '=', '!', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' /)
 	    character(:), allocatable, target :: interim_string
 	    allocate( interim_string, source="")
 	    !token%value = "BUG1"
@@ -62046,6 +62085,49 @@ corresponds to the main_ loop() function in the Fortran code.
 
 	  end function parse_sexp
 
+          recursive subroutine debug_is_environment_well_formed_p( env, lineno ) 
+            class(scheme_object), pointer :: env
+            integer :: lineno
+            if (lineno > 0) then
+               print *, "checking environment instance ", lineno
+            end if
+            select type (env)
+            class is (scheme_empty_list)
+                !write (*,*) "seems to be ok"
+                return
+            class is (scheme_pair)
+                call debug_is_frame_well_p( car(car(env)), cdr(car(env)) )
+                call debug_is_environment_well_formed_p( cdr(env), -1 )
+            class default
+                error stop "malformed environment"
+            end select
+          contains
+             recursive subroutine debug_is_frame_well_p( vars, vals )
+               class(scheme_object), pointer :: vars
+               class(scheme_object), pointer :: vals ! ignored
+               select type (vars)
+               class is (scheme_empty_list)
+                 select type (vals)
+                 class is (scheme_empty_list)
+                   !seems ok
+                 class default
+                   error stop "vars empty, vals not empty"
+                 end select       
+               class is (scheme_pair)
+                 select type ( v1 => car(vars) )
+                 class is (scheme_symbol)
+                    ! seems fine
+                    ! checking for validity of vals is not implemented
+                    call debug_is_frame_well_p( cdr(vars), cdr(vals) )
+                 class default
+                    print *,"v1=", v1
+                    error stop "var name is not a symbol"
+                 end select
+               class default
+                 error stop "vars not empty and not a pair"
+               end select
+             end subroutine debug_is_frame_well_p
+          end subroutine
 
 	  function cons( a, b) result( retval )
 	    class(scheme_object), pointer, intent(in) :: a
@@ -62090,13 +62172,20 @@ corresponds to the main_ loop() function in the Fortran code.
 	    select type (pair)
 	    class is (scheme_pair)
 	       if (.not. associated(the_cars(pair%value)%contents)) then
-		  write (*, fmt='(a,i0)') "error:car:disassociated pointer: address=", pair%value
+		  write (error_unit, fmt='(a,i0)') "error:car:disassociated pointer: address=", pair%value
+                  write (error_unit, '(a,i0)') "free=", free
 		  error stop "disassociated pointer"
 	       end if
 	       retval => the_cars(pair%value)%contents
-	    class default
-	       write (*,fmt='(a,a)', advance='no') new_line('a'), "argument is: "
+            class is (scheme_object)
+	       write (error_unit,fmt='(a,a,a,a)', advance='no') new_line('a'), "argument is: ", pair, ":  "
 	       call pair%debug_display()
+               write (error_unit, '(a,i0)') "free=", free
+	       error stop "car: argument is not a pair"
+	    class default
+	       write (error_unit,fmt='(a,a)', advance='no') new_line('a'), "cdr: not even scheme object, argument is: "
+	       call pair%debug_display()
+               write (error_unit, '(a,i0)') "free=", free
 	       error stop "car: argument is not a pair"
 	    end select
 	    !    select type( temp => pair%value )
@@ -62120,14 +62209,21 @@ corresponds to the main_ loop() function in the Fortran code.
 	    select type (pair)
 	    class is (scheme_pair)
 	       if (.not. associated(the_cdrs(pair%value)%contents)) then
-		  write (*, fmt='(a,i0)') "error:cdr:disassociated pointer: address=", pair%value
+		  write (error_unit, fmt='(a,i0)') "error:cdr:disassociated pointer: address=", pair%value
+                  write (error_unit, '(a,i0)') "free=", free
 		  error stop "disassociated pointer"
 	       end if
 	       retval => the_cdrs(pair%value)%contents
+            class is (scheme_object)
+               write (error_unit,fmt='(a,a,dt)', advance='no') new_line('a'), "argument is: ", pair
+               call pair%debug_display()
+               write (error_unit, '(a,i0)') "free=", free
+               error stop "cdr given not a pair"
 	    class default
-	       write (*,fmt='(a,a)', advance='no') new_line('a'), "argument is: "
+	       write (error_unit,fmt='(a,a)', advance='no') new_line('a'), "argument is: "
 	       call pair%debug_display()
-	       error stop "cdr: argument is not a pair"
+               write (error_unit, '(a,i0)') "free=", free
+	       error stop "cdr: argument is not a scheme_object"
 	    end select
 	    !   select type( temp => pair%value )
 	    !   type is (integer)
@@ -62144,12 +62240,12 @@ corresponds to the main_ loop() function in the Fortran code.
 	       retval => cdr( car(argl) )
 	  end function packaged_cdr
 
-	  function packaged_cadr( argl, env) result( retval )
-	    class(scheme_object), pointer :: argl
-	    class(scheme_object), pointer :: env
-	    class(scheme_object), pointer :: retval
-	       retval => car(cdr( car(argl) ))
-	  end function packaged_cadr
+!	  function packaged_cadr( argl, env) result( retval )
+!	    class(scheme_object), pointer :: argl
+!	    class(scheme_object), pointer :: env
+!	    class(scheme_object), pointer :: retval
+!	       retval => car(cdr( car(argl) ))
+!	  end function packaged_cadr
 
 	  function packaged_null_p( argl, env) result( retval )
 	    class(scheme_object), pointer :: argl
@@ -62568,7 +62664,10 @@ corresponds to the main_ loop() function in the Fortran code.
 		       retval => frame_loop( cdr(vars), cdr(vals))
 		    end if
 		 class default
-		    error stop "ll_lookup_variable_value::frame_loop: variable name not a symbol"
+                    print *,  "ll_lookup_variable_value::frame_loop: variable name not a symbol"
+                    print *, "free=", free
+                    stop 0
+		    !error stop
 		 end select
 	      class default ! frame is not a list
 		 !error stop "ll_lookup_variable_value::frame_loop: vars is not a list"
@@ -62690,6 +62789,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	    class default 
 		 write (*,'(a)', advance='no') "error: set-cdr! first argument not a pair, but is "
 		 call pair%debug_display()
+                 stop 0
 	    end select
 	  end subroutine set_cdr_b
 
@@ -62708,8 +62808,9 @@ corresponds to the main_ loop() function in the Fortran code.
 	    class is (scheme_pair)
 		 the_cars(pair%value)%contents => v
 	    class default 
-		 write (*,'(a)', advance='no') "error: set-cdr! first argument not a pair, but is "
+		 write (error_unit,'(a)', advance='no') "error: set-car! first argument not a pair, but is "
 		 call pair%debug_display()
+                 stop 0
 	    end select
 	  end subroutine set_car_b
 
@@ -62717,7 +62818,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	    class(scheme_object), pointer :: argl
 	    class(scheme_object), pointer :: env 
 	    class(scheme_object), pointer :: retval
-	    call set_cdr_b( car(argl), car(cdr(argl)))
+	    call set_car_b( car(argl), car(cdr(argl)))
 	    retval => make_symbol( "ok" )
 	  end function packaged_set_car_b
 
@@ -62768,7 +62869,9 @@ corresponds to the main_ loop() function in the Fortran code.
 	    class(scheme_object), pointer :: argl
 	    class(scheme_object), pointer :: env 
 	    class(scheme_object), pointer :: retval
-	    error stop "Error called. (Irritants handling not implemented)"
+            write (error_unit,'(a)', advance='no') "Error. Irritants: "
+            call argl%debug_display()
+	    error stop "Error called."
 	  end function packaged_error
 
 
@@ -62784,6 +62887,19 @@ corresponds to the main_ loop() function in the Fortran code.
 	       error stop "Critical error. This should never get executed."
 	    end select
 	  end function packaged_display
+
+	  function packaged_show( argl, env ) result(retval)
+	    class(scheme_object), pointer :: argl
+	    class(scheme_object), pointer :: env 
+	    class(scheme_object), pointer :: retval
+	    retval => the_null
+	    select type (tmp => car(cdr(argl))) ! this is the only difference with display
+	    class is (scheme_object)
+	       call tmp%debug_display()
+	    class default
+	       error stop "Critical error. This should never get executed."
+	    end select
+	  end function packaged_show
 
 	  function packaged_division( argl, env ) result(retval)
 	    class(scheme_object), pointer :: argl
@@ -62900,9 +63016,11 @@ corresponds to the main_ loop() function in the Fortran code.
 	       select type (t2 => car(cdr(argl)))
 	       class is (scheme_number)
 		     if ( t1%value == t2%value)  then
-			allocate( retval, source=the_true)
+			!allocate( retval, source=the_true)
+                        retval => the_true
 		     else
-			allocate( retval, source=the_false)
+			!allocate( retval, source=the_false)
+                        retval => the_false
 		     end if
 	       class default
 		  error stop "=: second argument not a number"
@@ -62926,7 +63044,7 @@ corresponds to the main_ loop() function in the Fortran code.
 			allocate( retval, source=the_false)
 		     end if
 	       class default
-		  error stop "eq? error: first arg symbol, second not"
+		  retval => the_false ! allocate?
 	       end select
 	    class is (scheme_pair)
 	       select type(t2 => car(cdr(argl)))
@@ -62937,10 +63055,28 @@ corresponds to the main_ loop() function in the Fortran code.
 			allocate( retval, source=the_false)
 		     end if
 	       class default 
-		  error stop "eq? error: first arg pair, second not"
+		  retval => the_false ! allocate?
+	       end select
+            class is (scheme_empty_list)
+	       select type(t2 => car(cdr(argl)))
+	       class is (scheme_empty_list)
+			allocate( retval, source=the_true)
+	       class default 
+		  retval => the_false ! allocate?
+	       end select
+	    class is (scheme_boolean)
+	       select type(t2 => car(cdr(argl)))
+	       class is (scheme_boolean)
+		     if ( t1%value .eqv. t2%value)  then
+			allocate( retval, source=the_true)
+		     else
+			allocate( retval, source=the_false)
+		     end if
+	       class default 
+		  retval => the_false ! allocate?
 	       end select
 	    class default
-	       retval => the_false
+	       retval => the_false ! allocate?
 	    end select
 	  end function packaged_eq_p
 
@@ -63111,13 +63247,13 @@ corresponds to the main_ loop() function in the Fortran code.
 		 make_primitive_procedure_object( proc, "packaged_equality" ) ), &
 		 list_primitive_objects)
 
-	    function_name = "cadr" ! automatic reallocation?
-	    proc => packaged_cadr
-	    list_primitive_names => cons( make_symbol(function_name), &
-		 list_primitive_names)
-	    list_primitive_objects => cons( cons( symbol_primitive, &
-		 make_primitive_procedure_object( proc, "packaged_cadr" ) ), &
-		 list_primitive_objects)
+!	    function_name = "cadr" ! automatic reallocation?
+!	    proc => packaged_cadr
+!	    list_primitive_names => cons( make_symbol(function_name), &
+!		 list_primitive_names)
+!	    list_primitive_objects => cons( cons( symbol_primitive, &
+!		 make_primitive_procedure_object( proc, "packaged_cadr" ) ), &
+!		 list_primitive_objects)
 
 	    function_name = "null?" ! automatic reallocation?
 	    proc => packaged_null_p
@@ -63202,11 +63338,11 @@ corresponds to the main_ loop() function in the Fortran code.
 		 list_primitive_objects)
 
 	    function_name = "show" ! automatic reallocation?
-	    proc => packaged_display
+	    proc => packaged_show
 	    list_primitive_names => cons( make_symbol(function_name), &
 		 list_primitive_names)
 	    list_primitive_objects => cons( cons( symbol_primitive, &
-		 make_primitive_procedure_object( proc, "packaged_show_not_implemented_uses_display" ) ), &
+		 make_primitive_procedure_object( proc, "packaged_show" ) ), &
 		 list_primitive_objects)
 
 	    function_name = "read" ! automatic reallocation?
@@ -63231,6 +63367,14 @@ corresponds to the main_ loop() function in the Fortran code.
 		 list_primitive_names)
 	    list_primitive_objects => cons( cons( symbol_primitive, &
 		 make_primitive_procedure_object( proc, "packaged_set_car_b" ) ), &
+		 list_primitive_objects)
+
+	    function_name = "apply-in-real-scheme" ! automatic reallocation?
+	    proc => packaged_apply_in_real_scheme
+	    list_primitive_names => cons( make_symbol(function_name), &
+		 list_primitive_names)
+	    list_primitive_objects => cons( cons( symbol_primitive, &
+		 make_primitive_procedure_object( proc, "packaged_apply_in_real_scheme" ) ), &
 		 list_primitive_objects)
 
 
@@ -64021,34 +64165,38 @@ corresponds to the main_ loop() function in the Fortran code.
 	    retval => car( cdr( cdr(arg) ) )
 	  end function ll_compiled_procedure_env
 
-	  function ll_lexical_address_lookup( addr, env ) result( retval )
+	  function ll_lexical_address_lookup( addr, env1 ) result( retval )
 	    class(scheme_object), pointer, intent(in) :: addr
-	    class(scheme_object), pointer, intent(in) :: env
+	    class(scheme_object), pointer, intent(in) :: env1
 	    class(scheme_object), pointer :: tmp_env
 	    class(scheme_object), pointer :: tmp_frame
 	    class(scheme_object), pointer :: retval
 	    integer :: frame_number   = 0
 	    integer :: order_in_frame = 0
 	    integer :: i = 0
+
 	    select type( a1 => car( addr ) )
 	    class is (scheme_number)
 	       frame_number = a1%value
 	    class default
 	       error stop "lexical (frame number) address not a number"
 	    end select
+
 	    select type( a2 => car( cdr( addr )) )
 	    class is (scheme_number)
 	       order_in_frame = a2%value
 	    class default
 	       error stop "lexical (order within frame) address not a number"
 	    end select
-	    tmp_env => env
-	    do i=0,frame_number
+
+	    tmp_env => env1
+	    do i=1,frame_number
 	       tmp_env => cdr( tmp_env )
 	    end do
-	    tmp_frame => car( tmp_env ) !
-	    tmp_frame => cdr( tmp_frame ) ! list of values
-	    do i=0,order_in_frame
+	    tmp_frame => car( tmp_env ) ! frame
+	    tmp_frame => cdr( tmp_frame ) ! list of values, second part of frame
+
+	    do i=1,order_in_frame
 	       tmp_frame => cdr( tmp_frame )
 	    end do
 	    tmp_frame => car( tmp_frame ) ! the actual value
@@ -64084,20 +64232,20 @@ corresponds to the main_ loop() function in the Fortran code.
 	       error stop "lexical (order within frame) address not a number"
 	    end select
 	    tmp_env => env
-	    do i=0,frame_number
+	    do i=1,frame_number
 	       tmp_env => cdr( tmp_env )
 	    end do
 	    tmp_frame => car( tmp_env ) !
 	    tmp_frame => cdr( tmp_frame ) ! list of values
-	    do i=0,order_in_frame
+	    do i=1,order_in_frame
 	       tmp_frame => cdr( tmp_frame )
 	    end do
 	    select type( tmp_frame )
 	    class is (scheme_pair)
 	       ! shall I deallocate here?
-	       !deallocate( the_cars( tmp_frame%value )%contents )
-	       !allocate( the_cars( tmp_frame%value )%contents, source=val )
-	       the_cars( tmp_frame%value )%contents => val
+	       deallocate( the_cars( tmp_frame%value )%contents )
+	       allocate( the_cars( tmp_frame%value )%contents, source=val )
+	       !the_cars( tmp_frame%value )%contents => val
 	    class default 
 	       error stop "lexical_address_set_b: pair not a pair"
 	    end select
@@ -64110,15 +64258,52 @@ corresponds to the main_ loop() function in the Fortran code.
 	    class(scheme_object), pointer, intent(in) :: proc
 	    class(scheme_object), pointer, intent(in) :: argl
 	    !class(scheme_object), pointer, intent(in) :: env
+
+            select type( tmp => car(proc))
+            class is (scheme_object)
+                !write (*,'(a)', advance='no') "ll_apply_primitive_proc, car is: " 
+                !call tmp%debug_display()
+                !print *,""
+            class default
+                error stop "ll_appl_primi_proc: car not a scheme object"
+            end select
+
 	    select type (proc_object => cdr(proc))
 	    class is (scheme_primitive_procedure)
 	       ! TODO: implement type checkers
 	       retval => cons( make_symbol("no-error"), proc_object%proc_pointer( argl , env ))
-	    class default
+	    class is (scheme_object)
+             write (error_unit,'(a,dt)') "debug: ll_apply_primitive_procedure received not a procedure, instead=>: ", proc_object
+             call proc_object%debug_display()
+             select type( tmp => car(proc))
+             class is (scheme_object)
+                write (error_unit,'(a,dt,a)', advance='no') "\nll_apply_primitive_proc, car is: ", tmp, " : "
+                call tmp%debug_display()
+                print *,""
+               class default
+                   error stop "ll_appl_primi_proc: car not a scheme object"
+               end select
+
+               ! call proc_object%debug_display()
+               !stop 0
 	       error stop "apply-primitive-procedure: expected procedure object &
 		    & not actually a procedure"
+	    class default
+               write (*,*) "debug: ll_apply_primitive_procedure received non-scheme thingy"
+	       error stop "apply-primitive-procedure: expected procedure object &
+		    & not actually a scheme_object"
 	    end select
 	  end function ll_apply_primitive_procedure
+
+	  function packaged_apply_in_real_scheme( argl, env ) result( retval )
+	    class(scheme_object), pointer :: argl
+	    class(scheme_object), pointer :: env 
+	    class(scheme_object), pointer :: retval
+	    
+	    retval => cdr(ll_apply_primitive_procedure( car(argl), car(cdr(argl))))
+	  end function packaged_apply_in_real_scheme
+
+
 
 	  function ll_plus( arg1, arg2 ) result( retval )
 	    class(scheme_object), pointer, intent(in) :: arg1
@@ -64165,6 +64350,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	    env => the_global_environment
 	    call initialize_stack()
 	    reg_continue => make_symbol( "delibrately-invalid" )
+            call debug_is_environment_well_formed_p( env, 0 ) 
 	    label_value = "read-eval-print-loop"
 	001 label_selector: select case (label_value)
 	    case default
@@ -64802,26 +64988,27 @@ SCHEMETRAN-Input:
 debug: I parsed as: (display . ("hello" . ()))
 "hello"
 SCHEMETRAN-Value: ()
-total-pushes=7 maximum-depth=4 free=111
+total-pushes=7 maximum-depth=4 free=108
 SCHEMETRAN-Input: 
 debug: I parsed as: (let . (((a . (1 . ())) . ()) . ((display . (a . ())) . ())))
 1
 SCHEMETRAN-Value: ()
-total-pushes=13 maximum-depth=4 free=148
+total-pushes=13 maximum-depth=4 free=145
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#t . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 1
-total-pushes=3 maximum-depth=3 free=155
+total-pushes=3 maximum-depth=3 free=152
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#f . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 2
-total-pushes=3 maximum-depth=3 free=162
+total-pushes=3 maximum-depth=3 free=159
 SCHEMETRAN-Input: 
 debug: I parsed as: (exit . ())
 STOP 0
 #+end_src
+
 
 
 This exercise took me about 104 hours of work.
@@ -64969,10 +65156,11 @@ run-time support from Fortran, rather than writing it from scratch in C.
         ((= 1 (length l)) (car l))
         (else (string-append (car l) d (string-list-decorate (cdr l) d)))))
 
-
+(define idx 0)
 (define (ec-statement->string statement)
 (string-append 
   "!" (write-to-string statement) "\n"
+  ;"call debug_is_environment_well_formed_p( env, " (begin (set! idx (+ idx 1)) (write-to-string idx)) " ) !super slow\n"
   (car (list ;'was (write-to-string statement) 'became
     (cond ((ec-label? statement) (ec-label->fortran-label statement))
         ((ec-perform? statement) 
@@ -65031,7 +65219,9 @@ run-time support from Fortran, rather than writing it from scratch in C.
              (string-append 
 "	 select type (" (ec-process-reg (cadr s)) ")\n	 class is (scheme_symbol)\n"
 
-"label_value = " (ec-process-reg (cadr s))  "%value" "\n end select"))
+"label_value = " (ec-process-reg (cadr s))  "%value" "
+class default
+   error stop \"goto target not a label\"\n end select"))
         (else (string-append "check this" (write-to-string s))))
     "\ngoto 001")))
 
@@ -65088,9 +65278,9 @@ if ( val1 == make_symbol(\"unbound\")) then\n
   print *, \"lookup-variable-value: unbound symbol: \"\n
  "
   (ec-process-reg (ec-assign-target statement)) " => cdr( " (ec-process-reg (ec-assign-target statement)) ")\n"
-  "! disabled call "(ec-process-reg (ec-assign-target statement)) "%debug_display()\n"
-  "!stop 0
-  error stop \"lookup-variable-value: unbound symbol\"
+  "call "(ec-process-reg (ec-assign-target statement)) "%debug_display()\n"
+  "stop 0
+  !error stop \"lookup-variable-value: unbound symbol\"
 	      end if
 	   class default
 	      error stop \"ev-assignment-1: Error. lookup-variable-value status return not a symbol\"
@@ -65099,7 +65289,11 @@ if ( val1 == make_symbol(\"unbound\")) then\n
            (ec-process-reg (ec-assign-target statement))
                  " => cdr( " 
                  (ec-process-reg (ec-assign-target statement))
-                        ")") "\n!not lookup variable")))
+                        ")") 
+              "\n!not lookup variable")
+              (if (eq? 'apply-primitive-procedure (cadr (car (ec-assign-source statement))))
+                  (string-append "\n" (ec-process-reg (ec-assign-target statement)) " => cdr( " (ec-process-reg (ec-assign-target statement)) ")\n")
+                  "")))
             ((ec-label-label? (car (ec-assign-source statement)))
                (string-append "make_symbol(\"" 
                  (symbol->string (cadr (car (ec-assign-source statement))))
@@ -65163,25 +65357,35 @@ The following piece of code is only needed to shorten the testing.
   ;(show #t 
   ;(pretty 
   (compile-and-dont-go
-     '(begin       
-  (define true #t)
-  (define false #f)
-  <<accumulate>>
-  <<map-append-length>>
-  <<memq>>
-  (driver-loop)
-  (exit)
+ '(begin       
+  (define (accumulate op initial sequence)
+    (if (null? sequence)
+	initial
+	(op (car sequence)
+	    (accumulate op initial (cdr sequence)))))
+  (define (length sequence)
+    (accumulate (lambda (x y)  (+ 1 y)) 0 sequence))
+   (display (length (list 1 2 3 4)))
+   (exit)
   ))
 ;)
 ;)
 #+end_src
 
 #+name: transpiled-metacircular-evaluator-small-test
-#+begin_src fortran :exports code :tangle yes :file transpiled_mce.f90
+#+begin_src fortran :exports code :flags -g :results code output
       <<fortran-scheme-interpreter-runtime-prologue>>
       <<simple-test-ec-to-fortran()>>
       <<fortran-scheme-interpreter-runtime-epilogue>>
 #+end_src
+
+#+RESULTS: transpiled-metacircular-evaluator-small-test
+#+begin_src fortran
+Welcome to the rudimentary scheme in fortran
+4
+#+end_src
+
+
 
 #+name: fortran-scheme-interpreter-interlogue
 #+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results code scheme output
@@ -65238,8 +65442,10 @@ The following piece of code is only needed to shorten the testing.
       (cond ((null? records) false)
 	    ((equal? key (caar records)) (car records))
 	    (else (assoc key (cdr records)))))
+    (define (cadr l)
+       (car (cdr l)))
     (define (cadddr l)
-       (car (cdr (cdr ( cdr l)))))
+       (car (cdr (cdr (cdr l)))))
     (define (caddr l)
        (car (cdr (cdr l))))
     (define (cdadr l)
@@ -65270,19 +65476,20 @@ The following piece of code is only needed to shorten the testing.
 	  #f))
     (define (equal? o1 o2)
       (cond ((eq? o1 o2) #t)
-	    ((and (list? o1) (list? o2))     (accumulate (lambda (x y) (and x y)) #t (map equal? o1 o2)))
+	    ((and (list? o1) (list? o2))  (accumulate (lambda (x y) (and x y)) #t (map equal? o1 o2)))
 	    ((and (number? o1) (number? o2)) (= o1 o2))
 	    (else #f)))
+    (define (written x) x)
 
     <<accumulate>>
     <<map-append-length>>
     <<memq>>
+    
     (define (apply-in-underlying-scheme proc argl)
-      (display "apply-in-underlying-scheme not implemented")
-      (exit)
       (if (primitive-procedure? proc)
-	 (apply-in-real-scheme (primitive-implementation proc) argl)
-	 (apply1 proc argl)))
+	 (apply-in-real-scheme proc argl)
+	 ;(apply1 proc argl)
+         (error "not implemented compiled procedures"))) ; compiled procedure
     <<s-apply>>
     <<s-eval>>
     <<s-list-of-values>>
@@ -65295,12 +65502,11 @@ The following piece of code is only needed to shorten the testing.
     <<s-cond>>
     <<s-truefalse>>
     <<s-compound-procedures>>
-    <<s-primitive-procedures>>
     <<s-environments>>
+    <<s-primitive-procedures>>
     <<s-driver-loop>>
+
     <<s-glue2>>
-    (display "marker-after-glue2")
-    (exit)
     (driver-loop)
     (exit)
     ))
@@ -65309,10 +65515,138 @@ The following piece of code is only needed to shorten the testing.
 
 
 #+name: transpiled-metacircular-evaluator-bigger-test
-#+begin_src fortran :exports code :stdin fortran-scheme-test :results raw output code :flags -g
+#+begin_src fortran :exports code :results raw output code :flags -g :stdin fortran-scheme-test-last-1
       <<fortran-scheme-interpreter-runtime-prologue>>
       <<fortran-scheme-interpreter-interlogue()>>
       <<fortran-scheme-interpreter-runtime-epilogue>>
+#+end_src
+
+#+RESULTS: transpiled-metacircular-evaluator-bigger-test
+#+begin_src fortran
+Welcome to the rudimentary scheme in fortran
+ 
+";;; M-Eval input:" 
+ debug: end of input (EOF)
+#+end_src
+
+
+#+name: fortran-scheme-test-last-1
+#+begin_src scheme :exports code
+(let ((a 1)) (display a))
+(if #t 1 2)
+(if #f 1 2)
+(display "hello")
+(exit)
+#+end_src
+
+
+Since debugging took a lot of time, I'm testing this again:
+
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results code output
+    <<ec-glue1>>
+    <<s-truefalse>>
+    <<s-let-implementation>>
+    <<s-let-star-implementation>>
+    <<ec-s-additional-syntax>>
+    <<s-syntax>>
+    <<s-application>>
+    <<s-environments>>
+    <<s-compound-procedures>>
+    <<s-primitive-procedures>>
+    <<s-cond>>
+    <<s-user-prompt-print-with-compiled>>
+    <<regmac-make-machine>>
+    <<regmac-make-register-tracing>>
+    <<regmac-make-stack-with-performance>>
+    <<regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk>>
+    <<regmac-extract-labels-improved-labels-brk>>
+    <<regmac-assembler-with-metadata-register-labels-brk>>
+    <<regmac-generating-execution-procedures>>
+    <<regmac-make-operation-exp>>
+    <<regmac-make-operation-exp-syntax>>
+    <<regmac-make-assign>>
+    <<regmac-make-test>>
+    <<regmac-make-save-restore>>
+    <<regmac-other-instructions>>
+
+    <<c-compile-and-go-lexical-for-compiling>>
+    <<c-compile-lexical-with-open-code-let>>
+    <<c-compile-lexical-open-code>>
+    <<c-make-instruction-sequence-empty-instruction-sequence>>
+    <<c-compile-linkage>>
+    <<c-end-with-linkage>>
+    <<c-compile-lexical-simple-expressions>>
+    <<c-compile-lexical-definition>>
+    <<c-lexical-compile-variable-compile-assignment>>
+    <<c-make-label>>
+    <<c-compile-lexical-if>>
+    <<c-compile-lexical-sequence>>
+    <<c-compiled-procedures>>
+    <<c-compile-lexical-lambda>>
+    <<c-compile-lexical-lambda-body-nodefines>>
+    <<c-compile-lexical-application>>
+    <<c-lexical-address-lookup>>
+    <<c-lexical-find-variable>>
+    <<c-construct-arglist>>
+    <<c-compile-procedure-call-with-interpreted>>
+    <<c-compile-proc-appl>>
+    <<c-combining-registers>>
+    <<c-append-instruction-sequences>>
+    <<c-list-union>>
+    <<c-preserving>>
+    <<c-tack-on-instruction-sequence>>
+    <<c-parallel-instruction-sequences>>
+
+    <<c-ec-compile-and-run>>
+
+    (define the-global-environment (setup-environment))
+    ;(define-variable! 'apply-in-underlying-scheme (list 'primitive apply-in-underlying-scheme) the-global-environment)
+    (define (get-global-environment) the-global-environment)
+
+    (define eceval-operations
+	  (list 
+    <<ec-eceval-operations-basic>>
+    <<ec-eceval-operations-let-cond>>
+    <<ec-eceval-operations-compiled>>
+    <<c-lexical-controller-ops>>
+    <<ec-eceval-operations-opencode>>
+    <<ec-eceval-operations-compile-and-run>>
+      ))
+
+    (define eceval
+	  (make-machine
+	   '() ;'(exp env val proc argl continue unev)
+	   eceval-operations
+	   (quote (
+	   <<ec-before-repl-branch-to-compile>>
+	   <<ec-end-of-the-world>>
+      ))))
+  (set-register-contents! eceval 'flag false)
+
+  #;(show #t (pretty (compile 
+	'placeholder 
+	'val
+	'next
+	the-global-environment)) nl)
+
+  (compile-and-go
+     '(begin       
+  (define (accumulate op initial sequence)
+    (if (null? sequence)
+	initial
+	(op (car sequence)
+	    (accumulate op initial (cdr sequence)))))
+  (define (length sequence)
+    (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+   (display (length (list 1 2 3 4)))
+
+  (exit)
+  ))
+#+end_src
+
+#+RESULTS:
+#+begin_src shell
+4
 #+end_src
 
 
