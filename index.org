@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-05 23:55:28 lockywolf>
+# Time-stamp: <2020-05-06 10:31:41 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -64354,7 +64354,42 @@ corresponds to the main_ loop() function in the Fortran code.
 	    label_value = "read-eval-print-loop"
 	001 label_selector: select case (label_value)
 	    case default
-
+              !(let ((var 'apply1)
+              !       (proc-entry (make-label 'entry))
+              !       (after-lambda (make-label 'after-lambda)))
+              !    (make-instruction-sequence '() '()
+              !      `((assign val (op make-compiled-procedure) (label ,proc-entry) (reg env))
+              val => ll_make_compiled_procedure( make_symbol("entry-special-apply1"), env)
+              !        (perform (op define-variable!) (const ,var) (reg val) (reg env))
+              call ll_define_variable_b( make_symbol( "apply1"), val, env)
+              !        (goto (label ,after-lambda))
+              label_value = "after-apply1-body"
+              goto 001
+              ! ,proc-entry
+              ! entry-special-apply (handwritten)
+              label_value="entry-special-apply1"
+              goto 001
+              case ( "entry-special-apply1" )
+              !  (assign proc (op car) (reg argl))
+              proc => car(argl)
+              !  (assign argl (op cadr) (reg argl))
+              argl => car(cdr(argl))
+              !  (perform (op user-print) (reg argl))
+              ! no need?
+              !  (assign val (op compiled-procedure-entry) (reg proc))
+              val => ll_compiled_procedure_entry( proc )
+              !  (goto (reg val))
+              select type (val)
+              class is (scheme_symbol)
+                    label_value = val%value
+                    goto 001
+              class default 
+                    error stop "compiled procedure is not a symbol (not a label)"
+              end select
+              !        ,after-lambda
+              label_value = "after-apply1-body"
+              goto 001
+              case ( "after-apply1-body" )
 
 #+end_src
 
@@ -64988,22 +65023,22 @@ SCHEMETRAN-Input:
 debug: I parsed as: (display . ("hello" . ()))
 "hello"
 SCHEMETRAN-Value: ()
-total-pushes=7 maximum-depth=4 free=108
+total-pushes=7 maximum-depth=4 free=111
 SCHEMETRAN-Input: 
 debug: I parsed as: (let . (((a . (1 . ())) . ()) . ((display . (a . ())) . ())))
 1
 SCHEMETRAN-Value: ()
-total-pushes=13 maximum-depth=4 free=145
+total-pushes=13 maximum-depth=4 free=148
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#t . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 1
-total-pushes=3 maximum-depth=3 free=152
+total-pushes=3 maximum-depth=3 free=155
 SCHEMETRAN-Input: 
 debug: I parsed as: (if . (#f . (1 . (2 . ()))))
 
 SCHEMETRAN-Value: 2
-total-pushes=3 maximum-depth=3 free=159
+total-pushes=3 maximum-depth=3 free=162
 SCHEMETRAN-Input: 
 debug: I parsed as: (exit . ())
 STOP 0
@@ -65089,6 +65124,7 @@ This exercise took me about 104 hours of work.
  - [X] number?
  - [X] string?
  - [X] symbol?
+ - [ ] apply1
 
 This is a bit of an evil task for a person who just wrote a scheme
 interpreter in fortran. Would it be fair if I just make a compiler
@@ -65488,8 +65524,8 @@ Welcome to the rudimentary scheme in fortran
     (define (apply-in-underlying-scheme proc argl)
       (if (primitive-procedure? proc)
 	 (apply-in-real-scheme proc argl)
-	 ;(apply1 proc argl)
-         (error "not implemented compiled procedures"))) ; compiled procedure
+	 (apply1 proc argl)
+         )) ; compiled procedure
     <<s-apply>>
     <<s-eval>>
     <<s-list-of-values>>
