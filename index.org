@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-06 10:31:41 lockywolf>
+# Time-stamp: <2020-05-06 10:48:01 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -61578,7 +61578,7 @@ corresponds to the main_ loop() function in the Fortran code.
 	       read (input_unit, '(a1)', iostat=reason, advance='no') buffer
 	       if (is_iostat_end(reason))  then
 		   print *, "debug: end of input (EOF)", retval
-		  stop 0
+		  !stop 0
 		  exit reader
 	       else if (is_iostat_eor(reason)) then
 		  !print *, "debug: end of record (newline)"
@@ -62869,8 +62869,10 @@ corresponds to the main_ loop() function in the Fortran code.
 	    class(scheme_object), pointer :: argl
 	    class(scheme_object), pointer :: env 
 	    class(scheme_object), pointer :: retval
+            write (error_unit,*) ""
             write (error_unit,'(a)', advance='no') "Error. Irritants: "
             call argl%debug_display()
+            write (*,*) ""
 	    error stop "Error called."
 	  end function packaged_error
 
@@ -65568,11 +65570,81 @@ Welcome to the rudimentary scheme in fortran
 
 #+name: fortran-scheme-test-last-1
 #+begin_src scheme :exports code
-(let ((a 1)) (display a))
 (if #t 1 2)
 (if #f 1 2)
 (display "hello")
+(cadr (list 1 2 3))
+(define (fac x) (if (= x 1) 1 (* x (fac (- x 1)))))
+(fac 6)
+(let ((a 1)) (display a))
 (exit)
+#+end_src
+
+#+header: :stdin empty
+#+begin_src shell :results output code
+  cat <<'EOF' > interpreter-compiled.f90
+  <<transpiled-metacircular-evaluator-bigger-test>>
+  EOF
+  gfortran -Wno-all -g interpreter-compiled.f90 -o schemetran-compiled
+
+  cat <<'EOF' > testfile.scm
+  <<fortran-scheme-test-last-1>>
+  EOF
+
+  ./schemetran-compiled < testfile.scm
+  #rm -rf schemetran-compiled
+  #rm -rf testfile.scm
+  #rm -rf system_interface.mod
+  #rm -rf scheme.mod
+#+end_src
+
+#+RESULTS:
+#+begin_src shell
+ Welcome to the rudimentary scheme in fortran
+ 
+";;; M-Eval input:" 
+(if . (#t . (1 . (2 . ())))) 
+";;; M-Eval value:" 
+1 
+";;; M-Eval input:" 
+(if . (#f . (1 . (2 . ())))) 
+";;; M-Eval value:" 
+2 
+";;; M-Eval input:" 
+(display . ("hello" . ()))"hello" 
+";;; M-Eval value:" 
+() 
+";;; M-Eval input:" 
+(cadr . ((list . (1 . (2 . (3 . ())))) . ())) 
+";;; M-Eval value:" 
+2 
+";;; M-Eval input:" 
+(define . ((fac . (x . ())) . ((if . ((= . (x . (1 . ()))) . (1 . ((* . (x . ((fac . ((- . (x . (1 . ()))) . ())) . ()))) . ())))) . ()))) 
+";;; M-Eval value:" 
+ok 
+";;; M-Eval input:" 
+(fac . (6 . ())) 
+";;; M-Eval value:" 
+720 
+";;; M-Eval input:" 
+(let . (((a . (1 . ())) . ()) . ((display . (a . ())) . ()))) 
+Error. Irritants: ("Unbound variable" . (a . ())) 
+ERROR STOP Error called.
+
+Error termination. Backtrace:
+#0  0x7fb9b38b7b90 in ???
+#1  0x7fb9b38b8635 in ???
+#2  0x7fb9b38b9793 in ???
+#3  0x51a18f in __scheme_MOD_packaged_error
+	at /home/lockywolf/DevLinux/chibi-sicp/interpreter-compiled.f90:1309
+#4  0x5117f2 in __scheme_MOD_ll_apply_primitive_procedure
+	at /home/lockywolf/DevLinux/chibi-sicp/interpreter-compiled.f90:2709
+#5  0x4b6ed1 in __scheme_MOD_main_loop
+	at /home/lockywolf/DevLinux/chibi-sicp/interpreter-compiled.f90:30039
+#6  0x5221f3 in MAIN__
+	at /home/lockywolf/DevLinux/chibi-sicp/interpreter-compiled.f90:44018
+#7  0x522236 in main
+	at /home/lockywolf/DevLinux/chibi-sicp/interpreter-compiled.f90:44011
 #+end_src
 
 
