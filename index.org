@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-06 11:08:52 lockywolf>
+# Time-stamp: <2020-05-06 11:50:29 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -86,7 +86,7 @@
 
 \(E=mc^{2 \)}
 
-* SICP [383/404]
+* SICP [384/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -48329,7 +48329,7 @@ ok
 ;;; Starting a new problem 
 #+end_example
 
-** TODO Chapter 5: Computing with Register Machines [53/54]
+** TODO Chapter 5: Computing with Register Machines [54/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
@@ -55130,7 +55130,7 @@ primitive-error
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
 
-*** 5.5 Compilation [21/22]
+*** 5.5 Compilation [22/22]
 **** Common code
 
 #+name: c-compile
@@ -65063,7 +65063,8 @@ STOP 0
 
 This exercise took me about 104 hours of work.
 
-**** TODO Exercise 5.52 Making a compiler for scheme
+**** DONE Exercise 5.52 Making a compiler for scheme
+     CLOSED: [2020-05-06 Wed 11:09]
 
  - [X] transpile labels
  - [X] transpile (perform)
@@ -65094,7 +65095,7 @@ This exercise took me about 104 hours of work.
  - [X] ll_apply_primitive_procedure
  - [X] ll-cons
  - [X] ll-false-p
- - [ ] implement packaged procedures
+ - [X] implement packaged procedures
  - [X] car
  - [X] cdr
  - [X] cons
@@ -65104,10 +65105,10 @@ This exercise took me about 104 hours of work.
  - [X] assoc
  - [X] =
  - [X] <
- - [ ] >
- - [ ] +
+ - [X] >
+ - [X] +
  - [X] -
- - [ ] not
+ - [X] not
  - [X] *
  - [X] current-second
  - [X] list
@@ -65139,7 +65140,7 @@ This exercise took me about 104 hours of work.
  - [X] number?
  - [X] string?
  - [X] symbol?
- - [ ] apply1
+ - [X] apply1
 
 This is a bit of an evil task for a person who just wrote a scheme
 interpreter in fortran. Would it be fair if I just make a compiler
