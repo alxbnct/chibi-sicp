@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-06 20:03:46 lockywolf>
+# Time-stamp: <2020-05-08 10:02:38 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -46382,1083 +46382,721 @@ exit
 
 #+RESULTS:
 #+begin_example
+
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (an-element-of items)
-  (require (not (null? items)))
-  (amb (car items) (an-element-of (cdr items))))
-
+(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n)
-  (amb n (an-integer-starting-from (+ n 1))))
-
+(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (distinct? items)
-  (cond ((null? items) true)
-        ((null? (cdr items)) true)
-        ((member (car items) (cdr items)) false)
-        (else (distinct? (cdr items)))))
-
+(define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define THE-ASSERTIONS '())
-
+(define THE-ASSERTIONS (quote ()))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define THE-RULES '())
-
+(define THE-RULES (quote ()))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (add-rule-or-assertion! assertion)
-  (if (rule? assertion) (add-rule! assertion) (add-assertion! assertion)))
-
+(define (add-rule-or-assertion! assertion) (if (rule? assertion) (add-rule! assertion) (add-assertion! assertion)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (add-assertion! assertion)
-  (set! THE-ASSERTIONS (cons assertion THE-ASSERTIONS))
-  'ok)
-
+(define (add-assertion! assertion) (set! THE-ASSERTIONS (cons assertion THE-ASSERTIONS)) (quote ok))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (add-rule! rule) (set! THE-RULES (cons rule THE-RULES)) 'ok)
-
+(define (add-rule! rule) (set! THE-RULES (cons rule THE-RULES)) (quote ok))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (rule? statement) (tagged-list? statement 'rule))
-
+(define (rule? statement) (tagged-list? statement (quote rule)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (conclusion rule) (cadr rule))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (rule-body rule) (if (null? (cddr rule)) '(always-true) (caddr rule)))
-
+(define (rule-body rule) (if (null? (cddr rule)) (quote (always-true)) (caddr rule)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (lq i)
-  (let ((q (query-syntax-process i)))
-    (cond
-     ((assertion-to-be-added? q)
-      (add-rule-or-assertion! (add-assertion-body q))
-      'added)
-     (else
-      (instantiate q
-                   (try-qeval (qeval q (make-frame-prolog '() '())))
-                   (lambda (v f) (contract-question-mark v)))))))
-
+(define (lq i) (let ((q (query-syntax-process i))) (cond ((assertion-to-be-added? q) (add-rule-or-assertion! (add-assertion-body q)) (quote added)) (else (instantiate q (try-qeval (qeval q (make-frame-prolog (quote ()) (quote ())))) (lambda (v f) (contract-question-mark v)))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (query-syntax-process exp)
-  (map-over-symbols expand-question-mark exp))
-
+(define (query-syntax-process exp) (map-over-symbols expand-question-mark exp))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (map-over-symbols proc exp)
-  (cond
-   ((pair? exp)
-    (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp))))
-   ((symbol? exp) (proc exp))
-   (else exp)))
-
+(define (map-over-symbols proc exp) (cond ((pair? exp) (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp)))) ((symbol? exp) (proc exp)) (else exp)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (type exp)
-  (if (pair? exp) (car exp) (error "Unknown expression TYPE" exp)))
-
+(define (type exp) (if (pair? exp) (car exp) (error "Unknown expression TYPE" exp)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (contents exp)
-  (if (pair? exp) (cdr exp) (error "Unknown expression CONTENTS" exp)))
-
+(define (contents exp) (if (pair? exp) (cdr exp) (error "Unknown expression CONTENTS" exp)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (assertion-to-be-added? exp) (eq? (type exp) 'assert!))
-
+(define (assertion-to-be-added? exp) (eq? (type exp) (quote assert!)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (add-assertion-body exp) (car (contents exp)))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (empty-conjunction? exps) (null? exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (first-conjunct exps) (car exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (rest-conjuncts exps) (cdr exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (empty-disjunction? exps) (null? exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (first-disjunct exps) (car exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (rest-disjuncts exps) (cdr exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (negated-query exps) (car exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (predicate exps) (car exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (args exps) (cdr exps))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (rule? statement) (tagged-list? statement 'rule))
-
+(define (rule? statement) (tagged-list? statement (quote rule)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (conclusion rule) (cadr rule))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (rule-body rule) (if (null? (cddr rule)) '(always-true) (caddr rule)))
-
+(define (rule-body rule) (if (null? (cddr rule)) (quote (always-true)) (caddr rule)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (query-syntax-process exp)
-  (map-over-symbols expand-question-mark exp))
-
+(define (query-syntax-process exp) (map-over-symbols expand-question-mark exp))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (map-over-symbols proc exp)
-  (cond
-   ((pair? exp)
-    (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp))))
-   ((symbol? exp) (proc exp))
-   (else exp)))
-
+(define (map-over-symbols proc exp) (cond ((pair? exp) (cons (map-over-symbols proc (car exp)) (map-over-symbols proc (cdr exp)))) ((symbol? exp) (proc exp)) (else exp)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (expand-question-mark symbol)
-  (let ((chars (symbol->string symbol)))
-    (if (string=? (substring chars 0 1) "?")
-        (list '? (string->symbol (substring chars 1 (string-length chars))))
-        symbol)))
-
+(define (expand-question-mark symbol) (let ((chars (symbol->string symbol))) (if (string=? (substring chars 0 1) "?") (list (quote ?) (string->symbol (substring chars 1 (string-length chars)))) symbol)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (var? exp) (tagged-list? exp '?))
-
+(define (var? exp) (tagged-list? exp (quote ?)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (constant-symbol? exp) (symbol? exp))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define rule-counter 0)
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (new-rule-application-id)
-  (set! rule-counter (+ 1 rule-counter))
-  rule-counter)
-
+(define (new-rule-application-id) (set! rule-counter (+ 1 rule-counter)) rule-counter)
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (make-new-variable var rule-application-id)
-  (cons '? (cons rule-application-id (cdr var))))
-
+(define (make-new-variable var rule-application-id) (cons (quote ?) (cons rule-application-id (cdr var))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (contract-question-mark variable)
-  (string->symbol
-   (string-append "?"
-                  (if (number? (cadr variable))
-                      (string-append (symbol->string (caddr variable))
-                                     "-"
-                                     (number->string (cadr variable)))
-                      (symbol->string (cadr variable))))))
-
+(define (contract-question-mark variable) (string->symbol (string-append "?" (if (number? (cadr variable)) (string-append (symbol->string (caddr variable)) "-" (number->string (cadr variable))) (symbol->string (cadr variable))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (frame-promises frame) (if (null? frame) '() (cadr frame)))
-
+(define (frame-promises frame) (if (null? frame) (quote ()) (cadr frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (frame-bindings frame) (if (null? frame) '() (car frame)))
-
+(define (frame-bindings frame) (if (null? frame) (quote ()) (car frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (make-binding variable value) (cons variable value))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (binding-variable binding) (car binding))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (binding-value binding) (cdr binding))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (binding-in-frame variable frame)
-  (assoc variable (frame-bindings frame)))
-
+(define (binding-in-frame variable frame) (assoc variable (frame-bindings frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (extend variable value frame)
-  (make-frame-prolog
-   (cons (make-binding variable value) (frame-bindings frame))
-   (frame-promises frame)))
-
+(define (extend variable value frame) (make-frame-prolog (cons (make-binding variable value) (frame-bindings frame)) (frame-promises frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (frame-add-promise frame promise)
-  (make-frame-prolog (frame-bindings frame)
-                     (cons promise (frame-promises frame))))
-
+(define (frame-add-promise frame promise) (make-frame-prolog (frame-bindings frame) (cons promise (frame-promises frame))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (make-frame-prolog bindings promises) (list bindings promises))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (instantiate exp frame unbound-var-handler)
-  (define (copy exp)
-    (cond
-     ((var? exp)
-      (let ((binding (binding-in-frame exp frame)))
-        (if binding
-            (copy (binding-value binding))
-            (unbound-var-handler exp frame))))
-     ((pair? exp) (cons (copy (car exp)) (copy (cdr exp))))
-     (else exp)))
-  (copy exp))
-
+(define (instantiate exp frame unbound-var-handler) (define (copy exp) (cond ((var? exp) (let ((binding (binding-in-frame exp frame))) (if binding (copy (binding-value binding)) (unbound-var-handler exp frame)))) ((pair? exp) (cons (copy (car exp)) (copy (cdr exp)))) (else exp))) (copy exp))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (make-table)
-  (let ((local-table (list '*table*)))
-    (define (lookup key-1 key-2)
-      (let ((subtable (assoc key-1 (cdr local-table))))
-        (if subtable
-            (let ((record (assoc key-2 (cdr subtable))))
-              (if record (cdr record) false))
-            false)))
-    (define (insert! key-1 key-2 value)
-      (let ((subtable (assoc key-1 (cdr local-table))))
-        (if
-         subtable
-         (let ((record (assoc key-2 (cdr subtable))))
-           (if record
-               (set-cdr! record value)
-               (set-cdr! subtable (cons (cons key-2 value) (cdr subtable)))))
-         (set-cdr! local-table
-                   (cons (list key-1 (cons key-2 value)) (cdr local-table)))))
-      'ok)
-    (define (dispatch m)
-      (cond ((eq? m 'lookup-proc) lookup)
-            ((eq? m 'insert-proc!) insert!)
-            (else (error "Unknown operation -- TABLE" m))))
-    dispatch))
-
+(define (make-table) (let ((local-table (list (quote *table*)))) (define (lookup key-1 key-2) (let ((subtable (assoc key-1 (cdr local-table)))) (if subtable (let ((record (assoc key-2 (cdr subtable)))) (if record (cdr record) false)) false))) (define (insert! key-1 key-2 value) (let ((subtable (assoc key-1 (cdr local-table)))) (if subtable (let ((record (assoc key-2 (cdr subtable)))) (if record (set-cdr! record value) (set-cdr! subtable (cons (cons key-2 value) (cdr subtable))))) (set-cdr! local-table (cons (list key-1 (cons key-2 value)) (cdr local-table))))) (quote ok)) (define (dispatch m) (cond ((eq? m (quote lookup-proc)) lookup) ((eq? m (quote insert-proc!)) insert!) (else (error "Unknown operation -- TABLE" m)))) dispatch))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define operation-table (make-table))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define get (operation-table 'lookup-proc))
-
+(define get (operation-table (quote lookup-proc)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define put (operation-table 'insert-proc!))
-
+(define put (operation-table (quote insert-proc!)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define coercion-table (make-table))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define get-coercion (coercion-table 'lookup-proc))
-
+(define get-coercion (coercion-table (quote lookup-proc)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define put-coercion (coercion-table 'insert-proc!))
-
+(define put-coercion (coercion-table (quote insert-proc!)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (try-qeval result) (if (eq? result 'no-more-answers) (amb) result))
-
+(define (try-qeval result) (if (eq? result (quote no-more-answers)) (amb) result))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (qeval query frame)
-  (amb
-   (processor
-    (let ((qproc (get (type query) 'qeval)))
-      (if qproc (qproc (contents query) frame) (simple-query query frame))))
-   'no-more-answers))
-
+(define (qeval query frame) (amb (processor (let ((qproc (get (type query) (quote qeval)))) (if qproc (qproc (contents query) frame) (simple-query query frame)))) (quote no-more-answers)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (processor frame)
-  (define (loop bindings promises retval)
-    (cond ((null? promises) retval)
-          ((eq? ((car promises) retval) 'kill-it) (amb))
-          ((eq? ((car promises) retval) 'let-it-stay)
-           (loop bindings (cdr promises) retval))
-          ((eq? ((car promises) retval) 'has-not-bound)
-           (loop bindings (cdr promises)
-             (frame-add-promise retval (car promises))))
-          (else (error "process-promises -- unknown promise protocol"))))
-  (loop (frame-bindings frame)
-    (frame-promises frame)
-    (make-frame-prolog (frame-bindings frame) '())))
-
+(define (processor frame) (define (loop bindings promises retval) (cond ((null? promises) retval) ((eq? ((car promises) retval) (quote kill-it)) (amb)) ((eq? ((car promises) retval) (quote let-it-stay)) (loop bindings (cdr promises) retval)) ((eq? ((car promises) retval) (quote has-not-bound)) (loop bindings (cdr promises) (frame-add-promise retval (car promises)))) (else (error "process-promises -- unknown promise protocol")))) (loop (frame-bindings frame) (frame-promises frame) (make-frame-prolog (frame-bindings frame) (quote ()))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (simple-query query-pattern frame)
-  (amb (find-assertions query-pattern frame)
-       (apply-rules query-pattern frame)))
-
+(define (simple-query query-pattern frame) (amb (find-assertions query-pattern frame) (apply-rules query-pattern frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (find-assertions query-pattern frame)
-  (let ((a (an-element-of THE-ASSERTIONS)))
-    (check-an-assertion a query-pattern frame)))
-
+(define (find-assertions query-pattern frame) (let ((a (an-element-of THE-ASSERTIONS))) (check-an-assertion a query-pattern frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (check-an-assertion assertion query-pat query-frame)
-  (let ((match-result (pattern-match query-pat assertion query-frame)))
-    (if (eq? match-result 'failed) (amb) match-result)))
-
+(define (check-an-assertion assertion query-pat query-frame) (let ((match-result (pattern-match query-pat assertion query-frame))) (if (eq? match-result (quote failed)) (amb) match-result)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (apply-rules pattern frame)
-  (let ((r (an-element-of THE-RULES))) (apply-a-rule r pattern frame)))
-
+(define (apply-rules pattern frame) (let ((r (an-element-of THE-RULES))) (apply-a-rule r pattern frame)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (apply-a-rule rule query-pattern query-frame)
-  (let ((clean-rule (rename-variables-in rule)))
-    (let ((unify-result
-           (unify-match query-pattern (conclusion clean-rule) query-frame)))
-      (if (eq? unify-result 'failed)
-          (amb)
-          (try-qeval (qeval (rule-body clean-rule) unify-result))))))
-
+(define (apply-a-rule rule query-pattern query-frame) (let ((clean-rule (rename-variables-in rule))) (let ((unify-result (unify-match query-pattern (conclusion clean-rule) query-frame))) (if (eq? unify-result (quote failed)) (amb) (try-qeval (qeval (rule-body clean-rule) unify-result))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (rename-variables-in rule)
-  (let ((rule-application-id (new-rule-application-id)))
-    (define (tree-walk exp)
-      (cond ((var? exp) (make-new-variable exp rule-application-id))
-            ((pair? exp) (cons (tree-walk (car exp)) (tree-walk (cdr exp))))
-            (else exp)))
-    (tree-walk rule)))
-
+(define (rename-variables-in rule) (let ((rule-application-id (new-rule-application-id))) (define (tree-walk exp) (cond ((var? exp) (make-new-variable exp rule-application-id)) ((pair? exp) (cons (tree-walk (car exp)) (tree-walk (cdr exp)))) (else exp))) (tree-walk rule)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (unify-match p1 p2 frame)
-  (cond ((eq? frame 'failed) 'failed)
-        ((equal? p1 p2) frame)
-        ((var? p1) (extend-if-possible p1 p2 frame))
-        ((var? p2) (extend-if-possible p2 p1 frame))
-        ((and (pair? p1) (pair? p2))
-         (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame)))
-        (else 'failed)))
-
+(define (unify-match p1 p2 frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? p1 p2) frame) ((var? p1) (extend-if-possible p1 p2 frame)) ((var? p2) (extend-if-possible p2 p1 frame)) ((and (pair? p1) (pair? p2)) (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame))) (else (quote failed))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (extend-if-possible var val frame)
-  (let ((binding (binding-in-frame var frame)))
-    (cond (binding (unify-match (binding-value binding) val frame))
-          ((var? val)
-           (let ((binding (binding-in-frame val frame)))
-             (if binding
-                 (unify-match var (binding-value binding) frame)
-                 (extend var val frame))))
-          ((depends-on? val var frame) 'failed)
-          (else (extend var val frame)))))
-
+(define (extend-if-possible var val frame) (let ((binding (binding-in-frame var frame))) (cond (binding (unify-match (binding-value binding) val frame)) ((var? val) (let ((binding (binding-in-frame val frame))) (if binding (unify-match var (binding-value binding) frame) (extend var val frame)))) ((depends-on? val var frame) (quote failed)) (else (extend var val frame)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (depends-on? exp var frame)
-  (define (tree-walk e)
-    (cond
-     ((var? e)
-      (if (equal? var e)
-          true
-          (let ((b (binding-in-frame e frame)))
-            (if b (tree-walk (binding-value b)) false))))
-     ((pair? e) (or (tree-walk (car e)) (tree-walk (cdr e))))
-     (else false)))
-  (tree-walk exp))
-
+(define (depends-on? exp var frame) (define (tree-walk e) (cond ((var? e) (if (equal? var e) true (let ((b (binding-in-frame e frame))) (if b (tree-walk (binding-value b)) false)))) ((pair? e) (or (tree-walk (car e)) (tree-walk (cdr e)))) (else false))) (tree-walk exp))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (and a b) (if a (if b true false) false))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (or a b) (if a true (if b true false)))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (not e) (if e false true))
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (pattern-match pat dat frame)
-  (cond ((eq? frame 'failed) 'failed)
-        ((equal? pat dat) frame)
-        ((var? pat) (extend-if-consistent pat dat frame))
-        ((and (pair? pat) (pair? dat))
-         (pattern-match (cdr pat)
-                        (cdr dat)
-                        (pattern-match (car pat) (car dat) frame)))
-        (else 'failed)))
-
+(define (pattern-match pat dat frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? pat dat) frame) ((var? pat) (extend-if-consistent pat dat frame)) ((and (pair? pat) (pair? dat)) (pattern-match (cdr pat) (cdr dat) (pattern-match (car pat) (car dat) frame))) (else (quote failed))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (extend-if-consistent var dat frame)
-  (let ((binding (binding-in-frame var frame)))
-    (if binding
-        (pattern-match (binding-value binding) dat frame)
-        (extend var dat frame))))
-
+(define (extend-if-consistent var dat frame) (let ((binding (binding-in-frame var frame))) (if binding (pattern-match (binding-value binding) dat frame) (extend var dat frame))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (always-true ignore frame-stream) frame-stream)
-
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(put 'always-true 'qeval always-true)
-
+(put (quote always-true) (quote qeval) always-true)
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (conjoin conjuncts frame)
-  (if (empty-conjunction? conjuncts)
-      frame
-      (conjoin (rest-conjuncts conjuncts)
-               (try-qeval (qeval (first-conjunct conjuncts) frame)))))
-
+(define (conjoin conjuncts frame) (if (empty-conjunction? conjuncts) frame (conjoin (rest-conjuncts conjuncts) (try-qeval (qeval (first-conjunct conjuncts) frame)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(put 'and 'qeval conjoin)
-
+(put (quote and) (quote qeval) conjoin)
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (disjoin disjuncts frame)
-  (if (empty-disjunction? disjuncts)
-      (amb)
-      (amb (try-qeval (qeval (first-disjunct disjuncts) frame))
-           (disjoin (rest-disjuncts disjuncts) frame))))
-
+(define (disjoin disjuncts frame) (if (empty-disjunction? disjuncts) (amb) (amb (try-qeval (qeval (first-disjunct disjuncts) frame)) (disjoin (rest-disjuncts disjuncts) frame))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(put 'or 'qeval disjoin)
-
+(put (quote or) (quote qeval) disjoin)
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (negate operands frame1)
-  (let ((promise
-         (lambda (frame)
-           (if (has-not-bound? (negated-query operands) frame)
-               'has-not-bound
-               (if (eq? 'no-more-values
-                        (qeval (negated-query operands) frame))
-                   'let-it-stay
-                   'kill-it)))))
-    (frame-add-promise frame1 promise)))
-
+(define (negate operands frame1) (let ((promise (lambda (frame) (if (has-not-bound? (negated-query operands) frame) (quote has-not-bound) (if (eq? (quote no-more-values) (qeval (negated-query operands) frame)) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (has-not-bound? query frame)
-  (cond ((null? query) #f)
-        ((var? query)
-         (if (binding-in-frame query frame)
-             (has-not-bound? (binding-value (binding-in-frame query frame))
-                             frame)
-             #t))
-        ((pair? query)
-         (or (has-not-bound? (car query) frame)
-             (has-not-bound? (cdr query) frame)))
-        (else #f)))
-
+(define (has-not-bound? query frame) (cond ((null? query) #f) ((var? query) (if (binding-in-frame query frame) (has-not-bound? (binding-value (binding-in-frame query frame)) frame) #t)) ((pair? query) (or (has-not-bound? (car query) frame) (has-not-bound? (cdr query) frame))) (else #f)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(put 'not 'qeval negate)
-
+(put (quote not) (quote qeval) negate)
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (lisp-value call frame1)
-  (let ((promise
-         (lambda (frame)
-           (if (has-not-bound? call frame)
-               'has-not-bound
-               (if (execute
-                    (instantiate call
-                                 frame
-                                 (lambda (v f)
-                                   (error "Unknown pat var: LISP-VALUE" v))))
-                   'let-it-stay
-                   'kill-it)))))
-    (frame-add-promise frame1 promise)))
-
+(define (lisp-value call frame1) (let ((promise (lambda (frame) (if (has-not-bound? call frame) (quote has-not-bound) (if (execute (instantiate call frame (lambda (v f) (error "Unknown pat var: LISP-VALUE" v)))) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (execute exp)
-  (let ((pred (eval (predicate exp) (interaction-environment))))
-    (apply-in-underlying-scheme pred (args exp))))
-
+(define (execute exp) (let ((pred (eval (predicate exp) (interaction-environment)))) (apply-in-underlying-scheme pred (args exp))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(put 'lisp-value 'qeval lisp-value)
-
+(put (quote lisp-value) (quote qeval) lisp-value)
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
-
+(lq (quote (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Bitdiddle Ben) (computer wizard))))
-
+(lq (quote (assert! (job (Bitdiddle Ben) (computer wizard)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Bitdiddle Ben) 60000)))
-
+(lq (quote (assert! (salary (Bitdiddle Ben) 60000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
-
+(lq (quote (assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Hacker Alyssa P) (computer programmer))))
-
+(lq (quote (assert! (job (Hacker Alyssa P) (computer programmer)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Hacker Alyssa P) 40000)))
-
+(lq (quote (assert! (salary (Hacker Alyssa P) 40000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben))))
-
+(lq (quote (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Fect Cy D) (Cambridge (Ames Street) 3))))
-
+(lq (quote (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Fect Cy D) (computer programmer))))
-
+(lq (quote (assert! (job (Fect Cy D) (computer programmer)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Fect Cy D) 35000)))
-
+(lq (quote (assert! (salary (Fect Cy D) 35000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Fect Cy D) (Bitdiddle Ben))))
-
+(lq (quote (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22))))
-
+(lq (quote (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Tweakit Lem E) (computer technician))))
-
+(lq (quote (assert! (job (Tweakit Lem E) (computer technician)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Tweakit Lem E) 25000)))
-
+(lq (quote (assert! (salary (Tweakit Lem E) 25000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben))))
-
+(lq (quote (assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80))))
-
+(lq (quote (assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Reasoner Louis) (computer programmer trainee))))
-
+(lq (quote (assert! (job (Reasoner Louis) (computer programmer trainee)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Reasoner Louis) 30000)))
-
+(lq (quote (assert! (salary (Reasoner Louis) 30000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Reasoner Louis) (Hacker Alyssa P))))
-
+(lq (quote (assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver))))
-
+(lq (quote (assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road)))))
-
+(lq (quote (assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Warbucks Oliver) (administration big wheel))))
-
+(lq (quote (assert! (job (Warbucks Oliver) (administration big wheel)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Warbucks Oliver) 150000)))
-
+(lq (quote (assert! (salary (Warbucks Oliver) 150000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Scrooge Eben) (Weston (Shady Lane) 10))))
-
+(lq (quote (assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Scrooge Eben) (accounting chief accountant))))
-
+(lq (quote (assert! (job (Scrooge Eben) (accounting chief accountant)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Scrooge Eben) 75000)))
-
+(lq (quote (assert! (salary (Scrooge Eben) 75000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Scrooge Eben) (Warbucks Oliver))))
-
+(lq (quote (assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16))))
-
+(lq (quote (assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Cratchet Robert) (accounting scrivener))))
-
+(lq (quote (assert! (job (Cratchet Robert) (accounting scrivener)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Cratchet Robert) 18000)))
-
+(lq (quote (assert! (salary (Cratchet Robert) 18000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Cratchet Robert) (Scrooge Eben))))
-
+(lq (quote (assert! (supervisor (Cratchet Robert) (Scrooge Eben)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5))))
-
+(lq (quote (assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (job (Aull DeWitt) (administration secretary))))
-
+(lq (quote (assert! (job (Aull DeWitt) (administration secretary)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (salary (Aull DeWitt) 25000)))
-
+(lq (quote (assert! (salary (Aull DeWitt) 25000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (supervisor (Aull DeWitt) (Warbucks Oliver))))
-
+(lq (quote (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (can-do-job (computer wizard) (computer programmer))))
-
+(lq (quote (assert! (can-do-job (computer wizard) (computer programmer)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (can-do-job (computer wizard) (computer technician))))
-
+(lq (quote (assert! (can-do-job (computer wizard) (computer technician)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq
- '(assert! (can-do-job (computer programmer) (computer programmer trainee))))
-
+(lq (quote (assert! (can-do-job (computer programmer) (computer programmer trainee)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq
- '(assert! (can-do-job (administration secretary) (administration big wheel))))
-
+(lq (quote (assert! (can-do-job (administration secretary) (administration big wheel)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq
- '(assert!
-   (rule (lives-near ?person-1 ?person-2)
-         (and (address ?person-1 (?town . ?rest-1))
-              (address ?person-2 (?town . ?rest-2))
-              (not (same ?person-1 ?person-2))))))
-
+(lq (quote (assert! (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2)) (not (same ?person-1 ?person-2)))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (rule (same ?x ?x))))
-
+(lq (quote (assert! (rule (same ?x ?x)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq
- '(assert!
-   (rule (wheel ?person)
-         (and (supervisor ?middle-manager ?person)
-              (supervisor ?x ?middle-manager)))))
-
+(lq (quote (assert! (rule (wheel ?person) (and (supervisor ?middle-manager ?person) (supervisor ?x ?middle-manager))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq
- '(assert!
-   (rule (outranked-by ?staff-person ?boss)
-         (or (supervisor ?staff-person ?boss)
-             (and (supervisor ?staff-person ?middle-manager)
-                  (outranked-by ?middle-manager ?boss))))))
-
+(lq (quote (assert! (rule (outranked-by ?staff-person ?boss) (or (supervisor ?staff-person ?boss) (and (supervisor ?staff-person ?middle-manager) (outranked-by ?middle-manager ?boss)))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(assert! (rule (append-to-form () ?y ?y))))
-
+(lq (quote (assert! (rule (append-to-form () ?y ?y)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq
- '(assert!
-   (rule (append-to-form (?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z))))
-
+(lq (quote (assert! (rule (append-to-form (?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq '(job ?x (computer programmer)))
-
+(lq (quote (job ?x (computer programmer))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (job (Fect Cy D) (computer programmer))
 ;;; Amb-Eval input:
 try-again
-
 ;;; Amb-Eval value:
 (job (Hacker Alyssa P) (computer programmer))
 ;;; Amb-Eval input:
-(lq '(same a ?x))
-
+(lq (quote (same a ?x)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (same a a)
 ;;; Amb-Eval input:
-(lq '(and (job ?x (computer programmer)) (salary ?x 40000)))
-
+(lq (quote (and (job ?x (computer programmer)) (salary ?x 40000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-(and (job (Hacker Alyssa P) (computer programmer))
-     (salary (Hacker Alyssa P) 40000))
+(and (job (Hacker Alyssa P) (computer programmer)) (salary (Hacker Alyssa P) 40000))
 ;;; Amb-Eval input:
-(lq '(or (job ?x (computer programmer)) (salary ?x 18000)))
-
+(lq (quote (or (job ?x (computer programmer)) (salary ?x 18000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (or (job (Fect Cy D) (computer programmer)) (salary (Fect Cy D) 18000))
 ;;; Amb-Eval input:
-(lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
-
+(lq (quote (and (job ?x (computer programmer)) (not (salary ?x 40000)))))
 ;;; Starting a new problem 
 ;;; There are no more values of
 
-(lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
+(lq (quote (and (job ?x (computer programmer)) (not (salary ?x 40000)))))
 ;;; Amb-Eval input:
-(lq '(and (job ?x (computer programmer)) (salary ?x ?y)))
-
+(lq (quote (and (job ?x (computer programmer)) (salary ?x ?y))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (and (job (Fect Cy D) (computer programmer)) (salary (Fect Cy D) 35000))
 ;;; Amb-Eval input:
-(lq '(and (salary ?x ?y) (lisp-value < ?y 50000)))
-
+(lq (quote (and (salary ?x ?y) (lisp-value < ?y 50000))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (and (salary (Aull DeWitt) 25000) (lisp-value < 25000 50000))
 ;;; Amb-Eval input:
 try-again
-
 ;;; Amb-Eval value:
 (and (salary (Cratchet Robert) 18000) (lisp-value < 18000 50000))
 ;;; Amb-Eval input:
 try-again
-
 ;;; Amb-Eval value:
 (and (salary (Reasoner Louis) 30000) (lisp-value < 30000 50000))
 ;;; Amb-Eval input:
 try-again
-
 ;;; Amb-Eval value:
 (and (salary (Tweakit Lem E) 25000) (lisp-value < 25000 50000))
 ;;; Amb-Eval input:
 (exit)
-
 ;;; Starting a new problem 
 #+end_example
 
 ~lisp-value~ is implemented in the "underlying scheme", but in
-principle you can forward the ~ambeval~ primitive.
+principle you can forward it to the ~ambeval~ primitive.
 
 ***** TODO Exercise 4.79 prolog environments
 
@@ -47955,7 +47593,9 @@ value inside the query.
 
 
     (lq '(job ?x (computer programmer)))
+    (exit)
     try-again
+
     ;(lq '(same a ?x))
     ;(lq '(and (job ?x (computer programmer)) (salary ?x 40000)))
     ;(lq '(or (job ?x (computer programmer)) (salary ?x 18000)))
@@ -48039,16 +47679,6 @@ ok
 ok
 ;;; Amb-Eval input:
 (define (distinct? items) (cond ((null? items) true) ((null? (cdr items)) true) ((member (car items) (cdr items)) false) (else (distinct? (cdr items)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (print-frame frame) (display "bindings={") (for-each (lambda (b) (display "[") (display (car b)) (display ",") (display (cdr b)) (display "] ")) (frame-bindings frame)) (display "}  ") (display "promises={") (write (frame-promises frame)) (display "}"))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (print-prolog-environment env) (define (loop env) (if (null? env) (quote ok) (loop (cdr env))) (newline) (print-frame (car env))) (loop env))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48279,12 +47909,7 @@ ok
 ok
 ;;; Amb-Eval input:
 (define (logical-var? exp) (and (pair? exp) (var? (car exp))))
-;;; Starting a new ERROR: todo
-  called from execute-application on line 160 of file /tmp/babel-af9eEI/sh-script-HT2TdN
-  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-problem 
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
@@ -48313,11 +47938,12 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(show #t "test:var->logical-var:" (pretty (var->logical-var (expand-question-mark (quote ?x)))))
-;;; Starting a new problem test:var->logical-var:#0=((? x) cell . #0#)
+(show #t "\ntest:var->logical-var:" (pretty (var->logical-var (expand-question-mark (quote ?x)))))
+;;; Starting a new problem 
+test:var->logical-var:#0=((? x) cell . #0#)
 
 ;;; Amb-Eval value:
-{Show-Env #56 #<Output-Port 140239853907936> 1 0 78 10 #f #\  #f #f #<procedure substring-length> #f #f #<procedure output-default> ()}
+{Show-Env #56 #<Output-Port 140630109691872> 2 0 78 10 #f #\  #f #f #<procedure substring-length> #f #f #<procedure output-default> ()}
 ;;; Amb-Eval input:
 (display "var converted\n")
 ;;; Starting a new problem var converted
@@ -48325,7 +47951,417 @@ ok
 ;;; Amb-Eval value:
 #<undef>
 ;;; Amb-Eval input:
-(error "todo")
+(define (make-variables-in-form form) (define (copy exp) (cond ((var? exp) (var->logical-var exp)) ((pair? exp) (cons (copy (car exp)) (copy (cdr exp)))) (else exp))) (copy exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-table) (let ((local-table (list (quote *table*)))) (define (lookup key-1 key-2) (let ((subtable (assoc key-1 (cdr local-table)))) (if subtable (let ((record (assoc key-2 (cdr subtable)))) (if record (cdr record) false)) false))) (define (insert! key-1 key-2 value) (let ((subtable (assoc key-1 (cdr local-table)))) (if subtable (let ((record (assoc key-2 (cdr subtable)))) (if record (set-cdr! record value) (set-cdr! subtable (cons (cons key-2 value) (cdr subtable))))) (set-cdr! local-table (cons (list key-1 (cons key-2 value)) (cdr local-table))))) (quote ok)) (define (dispatch m) (cond ((eq? m (quote lookup-proc)) lookup) ((eq? m (quote insert-proc!)) insert!) (else (error "Unknown operation -- TABLE" m)))) dispatch))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define operation-table (make-table))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define get (operation-table (quote lookup-proc)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define put (operation-table (quote insert-proc!)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define coercion-table (make-table))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define get-coercion (coercion-table (quote lookup-proc)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define put-coercion (coercion-table (quote insert-proc!)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (try-qeval result) (if (eq? result (quote no-more-answers)) (amb) result))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (qeval query frame) (amb (processor (let ((qproc (get (type query) (quote qeval)))) (if qproc (qproc (contents query) frame) (simple-query query frame)))) (quote no-more-answers)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (processor frame) (define (loop bindings promises retval) (cond ((null? promises) retval) ((eq? ((car promises) retval) (quote kill-it)) (amb)) ((eq? ((car promises) retval) (quote let-it-stay)) (loop bindings (cdr promises) retval)) ((eq? ((car promises) retval) (quote has-not-bound)) (loop bindings (cdr promises) (frame-add-promise retval (car promises)))) (else (error "process-promises -- unknown promise protocol")))) (loop (frame-bindings frame) (frame-promises frame) (make-frame-prolog (frame-bindings frame) (quote ()))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (simple-query query-pattern frame) (amb (find-assertions query-pattern frame) (apply-rules query-pattern frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (find-assertions query-pattern frame) (let ((a (an-element-of THE-ASSERTIONS))) (check-an-assertion a query-pattern frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (check-an-assertion assertion query-pat query-frame) (let ((match-result (pattern-match query-pat assertion query-frame))) (if (eq? match-result (quote failed)) (amb) match-result)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (apply-rules pattern frame) (let ((r (an-element-of THE-RULES))) (apply-a-rule r pattern frame)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (apply-a-rule rule query-pattern query-frame) (let ((clean-rule (rename-variables-in rule))) (let ((unify-result (unify-match query-pattern (conclusion clean-rule) query-frame))) (if (eq? unify-result (quote failed)) (amb) (try-qeval (qeval (rule-body clean-rule) unify-result))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rename-variables-in rule) (let ((rule-application-id (new-rule-application-id))) (define (tree-walk exp) (cond ((var? exp) (make-new-variable exp rule-application-id)) ((pair? exp) (cons (tree-walk (car exp)) (tree-walk (cdr exp)))) (else exp))) (tree-walk rule)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (unify-match p1 p2 frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? p1 p2) frame) ((var? p1) (extend-if-possible p1 p2 frame)) ((var? p2) (extend-if-possible p2 p1 frame)) ((and (pair? p1) (pair? p2)) (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame))) (else (quote failed))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (extend-if-possible var val frame) (let ((binding (binding-in-frame var frame))) (cond (binding (unify-match (binding-value binding) val frame)) ((var? val) (let ((binding (binding-in-frame val frame))) (if binding (unify-match var (binding-value binding) frame) (extend var val frame)))) ((depends-on? val var frame) (quote failed)) (else (extend var val frame)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (depends-on? exp var frame) (define (tree-walk e) (cond ((var? e) (if (equal? var e) true (let ((b (binding-in-frame e frame))) (if b (tree-walk (binding-value b)) false)))) ((pair? e) (or (tree-walk (car e)) (tree-walk (cdr e)))) (else false))) (tree-walk exp))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (and a b) (if a (if b true false) false))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (or a b) (if a true (if b true false)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (not e) (if e false true))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (pattern-match pat dat frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? pat dat) frame) ((var? pat) (extend-if-consistent pat dat frame)) ((and (pair? pat) (pair? dat)) (pattern-match (cdr pat) (cdr dat) (pattern-match (car pat) (car dat) frame))) (else (quote failed))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (extend-if-consistent var dat frame) (let ((binding (binding-in-frame var frame))) (if binding (pattern-match (binding-value binding) dat frame) (extend var dat frame))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (always-true ignore frame-stream) frame-stream)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(put (quote always-true) (quote qeval) always-true)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (conjoin conjuncts frame) (if (empty-conjunction? conjuncts) frame (conjoin (rest-conjuncts conjuncts) (try-qeval (qeval (first-conjunct conjuncts) frame)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(put (quote and) (quote qeval) conjoin)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (disjoin disjuncts frame) (if (empty-disjunction? disjuncts) (amb) (amb (try-qeval (qeval (first-disjunct disjuncts) frame)) (disjoin (rest-disjuncts disjuncts) frame))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(put (quote or) (quote qeval) disjoin)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (negate operands frame1) (let ((promise (lambda (frame) (if (has-not-bound? (negated-query operands) frame) (quote has-not-bound) (if (eq? (quote no-more-values) (qeval (negated-query operands) frame)) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (has-not-bound? query frame) (cond ((null? query) #f) ((var? query) (if (binding-in-frame query frame) (has-not-bound? (binding-value (binding-in-frame query frame)) frame) #t)) ((pair? query) (or (has-not-bound? (car query) frame) (has-not-bound? (cdr query) frame))) (else #f)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(put (quote not) (quote qeval) negate)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (lisp-value call frame1) (let ((promise (lambda (frame) (if (has-not-bound? call frame) (quote has-not-bound) (if (execute (instantiate call frame (lambda (v f) (error "Unknown pat var: LISP-VALUE" v)))) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (execute exp) (let ((pred (eval (predicate exp) (interaction-environment)))) (apply-in-underlying-scheme pred (args exp))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(put (quote lisp-value) (quote qeval) lisp-value)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Bitdiddle Ben) (computer wizard)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Bitdiddle Ben) 60000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Hacker Alyssa P) (computer programmer)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Hacker Alyssa P) 40000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Fect Cy D) (computer programmer)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Fect Cy D) 35000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Tweakit Lem E) (computer technician)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Tweakit Lem E) 25000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Reasoner Louis) (computer programmer trainee)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Reasoner Louis) 30000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Warbucks Oliver) (administration big wheel)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Warbucks Oliver) 150000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Scrooge Eben) (accounting chief accountant)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Scrooge Eben) 75000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Cratchet Robert) (accounting scrivener)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Cratchet Robert) 18000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Cratchet Robert) (Scrooge Eben)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (job (Aull DeWitt) (administration secretary)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (salary (Aull DeWitt) 25000))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (can-do-job (computer wizard) (computer programmer)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (can-do-job (computer wizard) (computer technician)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (can-do-job (computer programmer) (computer programmer trainee)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (can-do-job (administration secretary) (administration big wheel)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2)) (not (same ?person-1 ?person-2)))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (same ?x ?x)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (wheel ?person) (and (supervisor ?middle-manager ?person) (supervisor ?x ?middle-manager))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (outranked-by ?staff-person ?boss) (or (supervisor ?staff-person ?boss) (and (supervisor ?staff-person ?middle-manager) (outranked-by ?middle-manager ?boss)))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (append-to-form () ?y ?y)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (append-to-form (?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+added
+;;; Amb-Eval input:
+(exit)
 ;;; Starting a new problem 
 #+end_example
 
