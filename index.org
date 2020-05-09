@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-08 10:02:38 lockywolf>
+# Time-stamp: <2020-05-09 22:48:04 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -6362,7 +6362,8 @@ that this representation would be good enough, or even faster.
 *** DONE Exercise 2.62 ordered-union-set (ordered list)
     CLOSED: [2019-09-26 Thu 21:38]
 
-#+begin_src scheme :exports both :results raw value :noweb-ref ordered-set
+#+name: ordered-set
+#+begin_src scheme :exports both :results raw value
   (define (element-of-set? x set)
     (cond ((null? set) false)
 	  ((= x (car set)) true)
@@ -6406,7 +6407,7 @@ that this representation would be good enough, or even faster.
 #+end_src
 
 #+RESULTS:
-| (1 2 3 4 5 10) | 1 |
+((1 2 3 4 5 10) 1)
 
 *** TODO Figure 2.16 Various binary trees that represent the set {1,3,5,7,9,11}.
 *** DONE Exercise 2.63 tree->list (binary search tree)
@@ -46071,6 +46072,7 @@ exit
 (list 'nl nl)
 (list 'apply-in-underlying-scheme apply-in-underlying-scheme)
 (list 'eval eval)
+(list 'assq assq)
 (list 'interaction-environment interaction-environment)
 ) primitive-procedures))
 #+end_src
@@ -46280,7 +46282,12 @@ exit
     (let ((promise (lambda (frame)
 		     (if (has-not-bound?  (negated-query operands) frame)
 			 'has-not-bound
-			 (if (eq? 'no-more-values (qeval (negated-query operands) frame))
+			 (if (eq? 'no-more-values (let ((retval (qeval 
+								  (negated-query operands) 
+								  frame))) 
+						    #;(display "testing negation: ")
+						    ;(display retval) (newline)
+						    retval))
 			     'let-it-stay ; let it stay
 			     'kill-it)))))
       (frame-add-promise frame1 promise)))
@@ -46312,8 +46319,8 @@ exit
       ))
   (define (execute exp)
     (let ((pred (eval 
-                  (predicate exp)
-                  (interaction-environment))))
+		  (predicate exp)
+		  (interaction-environment))))
    (apply-in-underlying-scheme pred  (args exp))))
 
   <<prolog-lisp-filter-installation>>
@@ -46342,6 +46349,9 @@ exit
   try-again
   try-again
   try-again
+  (lq '(outranked-by ?w1 ?w2))
+  try-again
+  (lq '(lives-near ?w1 ?w2))
   (exit)
   EOF
 #+end_src
@@ -46784,7 +46794,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (negate operands frame1) (let ((promise (lambda (frame) (if (has-not-bound? (negated-query operands) frame) (quote has-not-bound) (if (eq? (quote no-more-values) (qeval (negated-query operands) frame)) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
+(define (negate operands frame1) (let ((promise (lambda (frame) (if (has-not-bound? (negated-query operands) frame) (quote has-not-bound) (if (eq? (quote no-more-values) (let ((retval (qeval (negated-query operands) frame))) retval)) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -47091,6 +47101,21 @@ try-again
 ;;; Amb-Eval value:
 (and (salary (Tweakit Lem E) 25000) (lisp-value < 25000 50000))
 ;;; Amb-Eval input:
+(lq (quote (outranked-by ?w1 ?w2)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+(outranked-by (Aull DeWitt) (Warbucks Oliver))
+;;; Amb-Eval input:
+try-again
+;;; Amb-Eval value:
+(outranked-by (Cratchet Robert) (Scrooge Eben))
+;;; Amb-Eval input:
+(lq (quote (lives-near ?w1 ?w2)))
+;;; Starting a new problem 
+;;; There are no more values of
+
+(lq (quote (lives-near ?w1 ?w2)))
+;;; Amb-Eval input:
 (exit)
 ;;; Starting a new problem 
 #+end_example
@@ -47100,7 +47125,6 @@ principle you can forward it to the ~ambeval~ primitive.
 
 ***** TODO Exercise 4.79 prolog environments
 
-_THIS PROBLEM IS NOT FINISHED_
 
 I expect this work to require some heavy modifications, so I will
 copy the source.
@@ -47138,7 +47162,7 @@ value inside the query.
 
 #+name: prolog-environments
 #+begin_src shell :exports code :results verbatim output
-  cat << EOF
+    cat <<'EOF'
     (define (require p) (if (not p) (amb)))
     (define (an-element-of items)
       (require (not (null? items)))
@@ -47147,11 +47171,9 @@ value inside the query.
       (amb n (an-integer-starting-from (+ n 1))))
     (define (distinct? items)
       (cond ((null? items) true)
-	  ((null? (cdr items)) true)
-	  ((member (car items) (cdr items)) false)
-	  (else (distinct? (cdr items)))))
-
-
+	    ((null? (cdr items)) true)
+	    ((member (car items) (cdr items)) false)
+	    (else (distinct? (cdr items)))))
     (define THE-ASSERTIONS '())
     (define THE-RULES '())  
 
@@ -47172,25 +47194,28 @@ value inside the query.
     (define (rule-body rule)
       (if (null? (cddr rule)) '(always-true) (caddr rule)))
 
+    (define (identity-var v f)
+	v)
+
     (define (lq i)
       (let ((q (query-syntax-process i)))
 	(cond  ((assertion-to-be-added? q)
-	      (add-rule-or-assertion! (add-assertion-body q))
-	      'added)
-	     (else
-	      (instantiate
-		  q
-		  (try-qeval (qeval q (make-frame-prolog '() '())))
-		(lambda (v f)
-		  (contract-question-mark v)))))))  
+		(add-rule-or-assertion! (add-assertion-body q))
+		'added)
+	       (else
+		(instantiate
+		    q
+		    (try-qeval (qeval q THE-ASSERTIONS THE-RULES))
+		  (lambda (v f)
+		    (contract-question-mark v)))))))  
     (define (query-syntax-process exp)
       (map-over-symbols expand-question-mark exp))
     (define (map-over-symbols proc exp)
       (cond ((pair? exp)
-	   (cons (map-over-symbols proc (car exp))
-		 (map-over-symbols proc (cdr exp))))
-	  ((symbol? exp) (proc exp))
-	  (else exp)))
+	     (cons (map-over-symbols proc (car exp))
+		   (map-over-symbols proc (cdr exp))))
+	    ((symbol? exp) (proc exp))
+	    (else exp)))
 
     (define (type exp)
       (if (pair? exp)
@@ -47217,21 +47242,39 @@ value inside the query.
     (define (conclusion rule) (cadr rule))
     (define (rule-body rule)
       (if (null? (cddr rule)) '(always-true) (caddr rule)))
+
+    (define (rule-inner-rules-and-assertions rule2)
+      (if (equal? '(always-true) (rule-body rule2))
+	  (list '() '())
+	  (cdddr rule2)))
+
+    (define (rule-subfeatures-assertions subfeatures)
+	(assq 'assertions subfeatures))
+
+    (define (rule-subfeatures-rules subfeatures)
+	(assq 'rules subfeatures))
+
+    (define (rule-subrules r)
+      (cdr (rule-subfeatures-rules (rule-inner-rules-and-assertions r))))
+
+    (define (rule-subassertions r)
+      (cdr (rule-subfeatures-assertions (rule-inner-rules-and-assertions r))))
+
     (define (query-syntax-process exp)
       (map-over-symbols expand-question-mark exp))
     (define (map-over-symbols proc exp)
       (cond ((pair? exp)
-	   (cons (map-over-symbols proc (car exp))
-		 (map-over-symbols proc (cdr exp))))
-	  ((symbol? exp) (proc exp))
-	  (else exp)))
+	     (cons (map-over-symbols proc (car exp))
+		   (map-over-symbols proc (cdr exp))))
+	    ((symbol? exp) (proc exp))
+	    (else exp)))
     (define (expand-question-mark symbol)
       (let ((chars (symbol->string symbol)))
 	(if (string=? (substring chars 0 1) "?")
-	  (list '?
-		(string->symbol
-		 (substring chars 1 (string-length chars))))
-	  symbol)))
+	    (list '?
+		  (string->symbol
+		   (substring chars 1 (string-length chars))))
+	    symbol)))
     (define (var? exp) (tagged-list? exp '?))
     (define (constant-symbol? exp) (symbol? exp))
     (define rule-counter 0)
@@ -47243,11 +47286,11 @@ value inside the query.
     (define (contract-question-mark variable)
       (string->symbol
        (string-append "?"
-		    (if (number? (cadr variable))
-			(string-append (symbol->string (caddr variable))
-				       "-"
-				       (number->string (cadr variable)))
-			(symbol->string (cadr variable))))))
+		      (if (number? (cadr variable))
+			  (string-append (symbol->string (caddr variable))
+					 "-"
+					 (number->string (cadr variable)))
+			  (symbol->string (cadr variable))))))
     (define (frame-promises frame)
 	(if (null? frame)
 	    '()
@@ -47269,38 +47312,18 @@ value inside the query.
       (make-frame-prolog (frame-bindings frame) (cons promise (frame-promises frame))))
     (define (make-frame-prolog bindings promises)
        (list bindings promises))
-    
-    (define (logical-var? exp)
-        (and (pair? exp) (var? (car exp))))
-    (define (logical-var-value exp)
-       (cdr exp))
-    (define (logical-var-variable exp)
-        (car exp))
+    (define (instantiate exp frame unbound-var-handler)
+      (define (copy exp)
+	(cond ((var? exp)
+	       (let ((binding (binding-in-frame exp frame)))
+		 (if binding
+		     (copy (binding-value binding))
+		     (unbound-var-handler exp frame))))
+	      ((pair? exp)
+	       (cons (copy (car exp)) (copy (cdr exp))))
+	      (else exp)))
+      (copy exp))
 
-    (define (instantiate exp)
-      (define (copy exp)
-	(cond ((logical-var? exp) (logical-var-value exp))
-              ((pair? exp)
-	        (cons (copy (car exp)) (copy (cdr exp))))
-	      (else exp)))
-      (copy exp))
-    (define (make-cell contents)
-       (cons 'cell contents))
-    (define (var->logical-var exp)
-       (let ((cell (make-cell '*uninitialized*)))
-        (let ((retval (cons exp cell)))
-          (set-cdr! cell retval)
-          retval)))
-    (show #t "\ntest:var->logical-var:" (pretty (var->logical-var (expand-question-mark '?x))))
-    (display "var converted\n")
-    (define (make-variables-in-form form)
-      (define (copy exp)
-	(cond ((var? exp) (var->logical-var exp))
-              ((pair? exp)
-	        (cons (copy (car exp)) (copy (cdr exp))))
-	      (else exp)))
-      (copy exp))
-    
     (define (make-table)
       (let ((local-table (list '*table*)))
 	(define (lookup key-1 key-2)
@@ -47342,110 +47365,170 @@ value inside the query.
       (if (eq? result 'no-more-answers)
 	  (amb)
 	  result))
-    (define (qeval query frame)
+    (define (qeval query assertions-env rules-env)
+      ;(newline) (display "debug:") (display query) (newline)
+      ;(newline) (display "debug:contents:") (display (contents query)) (newline)
       (amb (processor 
-	  (let ((qproc (get (type query) 'qeval)))
-	    (if qproc
-		(qproc (contents query) frame)
-		(simple-query query frame))))
+	    (let ((qproc (get (type query) 'qeval)))
+	      (if qproc
+		  (qproc (contents query) assertions-env rules-env)
+		  (simple-query query assertions-env rules-env))))
 	   'no-more-answers))
     (define (processor frame)
       (define (loop bindings promises retval)
 	(cond ((null? promises) retval)
-	    ((eq? ((car promises) retval) 'kill-it) 
-	     (amb))
-	    ((eq? ((car promises) retval) 'let-it-stay) 
-	     (loop bindings 
-		   (cdr promises)
-		   retval)) ;; this promise can't kill this frame
-	    ((eq? ((car promises) retval) 'has-not-bound) 
-	     (loop bindings 
-		   (cdr promises) 
-		   (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
-	    (else (error "process-promises -- unknown promise protocol"))))
+	      ((eq? ((car promises) retval) 'kill-it) 
+	       (amb))
+	      ((eq? ((car promises) retval) 'let-it-stay) 
+	       (loop bindings 
+		     (cdr promises)
+		     retval)) ;; this promise can't kill this frame
+	      ((eq? ((car promises) retval) 'has-not-bound) 
+	       (loop bindings 
+		     (cdr promises) 
+		     (frame-add-promise retval (car promises)))) ;; we don't have enough variables so far
+	      (else (error "process-promises -- unknown promise protocol"))))
       (loop (frame-bindings frame) 
-	  (frame-promises frame) 
-	  (make-frame-prolog (frame-bindings frame) '())))
-    (define (simple-query query-pattern frame)
+	    (frame-promises frame) 
+	    (make-frame-prolog (frame-bindings frame) '())))
+    (define (simple-query query-pattern assertions-env rules-env)
       (amb
-       (find-assertions query-pattern frame)
-       (apply-rules query-pattern frame)))
-    (define (find-assertions query-pattern frame)
-      (let ((a (an-element-of THE-ASSERTIONS)))
-	(check-an-assertion a query-pattern frame)))
+       (find-assertions query-pattern assertions-env)
+       (apply-rules query-pattern assertions-env rules-env)))
+
+    (define (find-assertions query-pattern assertions-env) ; -> frame
+      (let ((a (an-element-of assertions-env)))
+	(check-an-assertion a query-pattern (make-frame-prolog '() '()) )))
+
     (define (check-an-assertion assertion query-pat query-frame)
       (let ((match-result
-	   (pattern-match query-pat assertion query-frame)))
+	     (pattern-match query-pat assertion query-frame)))
 	(if (eq? match-result 'failed)
-	  (amb)
-	  match-result)))
-    (define (apply-rules pattern frame)
-      (let ((r (an-element-of THE-RULES)))
-	(apply-a-rule r pattern frame)))
-
-    (define (apply-a-rule rule query-pattern query-frame)
-      (let ((clean-rule (rename-variables-in rule)))
-	(let ((unify-result (unify-match query-pattern
-				       (conclusion clean-rule)
-				       query-frame)))
-	  (if (eq? unify-result 'failed)
 	    (amb)
-	    (try-qeval (qeval (rule-body clean-rule) unify-result))))))
+	    match-result)))
 
-    (define (rename-variables-in rule)
-      (let ((rule-application-id (new-rule-application-id)))
-	(define (tree-walk exp)
-	  (cond ((var? exp)
-	       (make-new-variable exp rule-application-id))
-	      ((pair? exp)
-	       (cons (tree-walk (car exp))
-		     (tree-walk (cdr exp))))
-	      (else exp)))
-	(tree-walk rule)))
+    (define (apply-rules pattern assertions-env rules-env)
+      (let ((r (an-element-of rules-env)))
+	(apply-a-rule r pattern assertions-env rules-env)))
+
+    (define (prolog-extend-env lst env)
+       (append lst env))
+
+    (define (extend-if-unifies var pat1 pat2 frame)
+      (let ((val (unify-match pat1 pat2 frame)))
+	 (if (eq? 'failed val)
+	   'failed
+	   (extend var val frame))))
+    <<accumulate>>
+    <<map-append-length>>
+    (define (union-set set1 set2)
+       (if (null? set2)
+          set1
+          (if (member (car set2) set1)
+              (union-set set1 (cdr set2))
+              (union-set (cons (car set2) set1) (cdr set2)))))
+    (define (unify-two-frames f1 f2 iframe)
+     ; We have at most two bindings for each variable. The final binding is a unification of those. 
+       (cond ((eq? 'failed f1) 'failed)
+             ((eq? 'failed f2) 'failed)
+             (else   (let ((f1-vars (map car (frame-bindings f1)))
+	                   (f2-vars (map car (frame-bindings f2))))
+                 	  (let ((ret-vars (union-set f2-vars f2-vars)))
+	                     (accumulate  (lambda (var iframe) 
+                    (if (eq? 'failed iframe)
+                         'failed
+			 (let ((binding-f1 (binding-in-frame var f1))
+			       (binding-f2 (binding-in-frame var f2)))
+			   (cond ((and binding-f1 (not binding-f2)) 
+                                    (extend-if-possible var (binding-value binding-f1) iframe))
+				 ((and binding-f2 (not binding-f1)) 
+                                    (begin (display "running extend-if--f2") (extend-if-possible var (binding-value binding-f2) iframe)))
+				 ((and binding-f1 binding-f2)       
+                                    (begin (display "running extend-if-unifies") 
+                                           (extend-if-unifies  var 
+                                                               (binding-value binding-f1)
+                                                               (binding-value binding-f2)
+                                                                iframe)))
+				 (else (error "Impossible case"))))))
+		    (make-frame-prolog '() '())
+		    ret-vars)
+)))))
+
+    (define (apply-a-rule rule query-pattern assertions-env rules-env)
+      (let ((doubleframe-result (two-sided-match query-pattern
+						   (conclusion rule)
+						   )))
+	  (if (or (eq? (doubleframe-downframe-get doubleframe-result) 'failed)
+                  (eq? (doubleframe-upframe-get doubleframe-result) 'failed))
+	      (amb)
+	      (let ((retval (unify-two-frames ; fail if conflict
+		                (doubleframe-upframe-get doubleframe-result)
+		                (try-qeval (qeval (instantiate 
+					 (rule-body rule)
+					 (doubleframe-downframe-get doubleframe-result)
+					 identity-var) 
+				(prolog-extend-env (rule-subassertions rule) assertions-env)
+				(prolog-extend-env (rule-subrules rule) rules-env)  ))
+                                (make-frame-prolog '() '()))))
+                  (if (eq? 'failed retval)
+                     (amb)
+                     retval)))))
 
     (define (unify-match p1 p2 frame)
+      (newline)
+      (display "p1=") (display p1)
+      (display "p2=") (display p2)
+      (display "frame=") (display frame)
+      (newline)
       (cond ((eq? frame 'failed) 'failed)
-	  ((equal? p1 p2) frame)
-	  ((var? p1) (extend-if-possible p1 p2 frame))
-	  ((var? p2) (extend-if-possible p2 p1 frame))
-					  ; ***
-	  ((and (pair? p1) (pair? p2))
-	   (unify-match (cdr p1)
-			(cdr p2)
-			(unify-match (car p1)
-				     (car p2)
-				     frame)))
-	  (else 'failed)))
+	    ((equal? p1 p2) frame)
+	    ((var? p1) (extend-if-possible p1 p2 frame))
+	    ((var? p2) (extend-if-possible p2 p1 frame))
+					    ; ***
+	    ((and (pair? p1) (pair? p2))
+	     (unify-match (cdr p1)
+			  (cdr p2)
+			  (unify-match (car p1)
+				       (car p2)
+				       frame)))
+	    (else 'failed)))
+  
+  
 
     (define (extend-if-possible var val frame)
+    (newline) (display "entering extend-if-possible")
+    (newline) (display "var=") (display var)
+    (newline) (display "val=") (display val)
+    (newline) (display "frame=") (display frame)
+    (newline)
       (let ((binding (binding-in-frame var frame)))
 	(cond (binding
-	     (unify-match (binding-value binding) val frame))
-					  ; ***
-	    ((var? val)
-	     (let ((binding (binding-in-frame val frame)))
-	       (if binding
-		   (unify-match
-		    var (binding-value binding) frame)
-		   (extend var val frame))))
-	    ((depends-on? val var frame)
-					  ; ***
-	     'failed)
-	    (else (extend var val frame)))))
+	       (unify-match (binding-value binding) val frame))
+					    ; ***
+	      ((var? val)
+	       (let ((binding (binding-in-frame val frame)))
+		 (if binding
+		     (unify-match
+		      var (binding-value binding) frame)
+		     (extend var val frame))))
+	      ((depends-on? val var frame)
+					    ; ***
+	       'failed)
+	      (else (extend var val frame)))))
 
     (define (depends-on? exp var frame)
       (define (tree-walk e)
 	(cond ((var? e)
-	     (if (equal? var e)
-		 true
-		 (let ((b (binding-in-frame e frame)))
-		   (if b
-		       (tree-walk (binding-value b))
-		       false))))
-	    ((pair? e)
-	     (or (tree-walk (car e))
-		 (tree-walk (cdr e))))
-	    (else false)))
+	       (if (equal? var e)
+		   true
+		   (let ((b (binding-in-frame e frame)))
+		     (if b
+			 (tree-walk (binding-value b))
+			 false))))
+	      ((pair? e)
+	       (or (tree-walk (car e))
+		   (tree-walk (cdr e))))
+	      (else false)))
       (tree-walk exp))
 
 
@@ -47461,73 +47544,98 @@ value inside the query.
 
     (define (not e)
       (if e false true))
+  
+    (define (pattern-match-weak pat dat frame)
+      (cond ((eq? frame 'failed) 'failed)
+	    ((equal? pat dat) frame)
+	    ((var? pat) (extend-if-consistent pat dat frame))
+	    ((and (pair? pat) (pair? dat))
+	     (pattern-match-weak
+	      (cdr pat)
+	      (cdr dat)
+	      (pattern-match-weak (car pat) (car dat) frame)))
+	    ((var? dat) frame) ; This is the difference
+	    (else 'failed)))
+
+    (define (two-sided-match p1 p2)
+      (make-doubleframe (pattern-match-weak p1 p2 (make-frame-prolog '() '()))
+	    (pattern-match-weak p2 p1 (make-frame-prolog '() '()))
+	      ))
+    (define (make-doubleframe upward-frame downward-frame)
+       (list upward-frame downward-frame))
+    (define (doubleframe-upframe-get doubleframe)
+       (car doubleframe))
+    (define (doubleframe-downframe-get doubleframe)
+       (cadr doubleframe))
 
     (define (pattern-match pat dat frame)
       (cond ((eq? frame 'failed) 'failed)
-	  ((equal? pat dat) frame)
-	  ((var? pat) (extend-if-consistent pat dat frame))
-	  ((and (pair? pat) (pair? dat))
-	   (pattern-match
-	    (cdr pat)
-	    (cdr dat)
-	    (pattern-match (car pat) (car dat) frame)))
-	  (else 'failed)))
+	    ((equal? pat dat) frame)
+	    ((var? pat) (extend-if-consistent pat dat frame))
+	    ((and (pair? pat) (pair? dat))
+	     (pattern-match
+	      (cdr pat)
+	      (cdr dat)
+	      (pattern-match (car pat) (car dat) frame)))
+	    (else 'failed)))
     (define (extend-if-consistent var dat frame)
       (let ((binding (binding-in-frame var frame)))
 	(if binding
-	  (pattern-match (binding-value binding) dat frame)
-	  (extend var dat frame))))
-    (define (always-true ignore frame-stream) frame-stream)
+	    (pattern-match (binding-value binding) dat frame)
+	    (extend var dat frame))))
+    (define (always-true pat assertions rules) (make-frame-prolog '() '()))
     (put 'always-true 'qeval always-true)
-    (define (conjoin conjuncts frame)
+    (define (conjoin conjuncts assertions rules)
       (if (empty-conjunction? conjuncts)
-	  frame
-	  (conjoin (rest-conjuncts conjuncts)
-		 (try-qeval (qeval (first-conjunct conjuncts) frame)))))
+	  (make-frame-prolog '() '())
+	  (unify-two-frames 
+	      (conjoin (rest-conjuncts conjuncts) assertions rules)
+	      (try-qeval (qeval (first-conjunct conjuncts) assertions rules))
+              (make-frame-prolog '() '()))))
     (put 'and 'qeval conjoin)
     ;; This place has a subtle bug in case the stream happens to be infinite.
-    (define (disjoin disjuncts frame)
+    (define (disjoin disjuncts assertions rules)
       (if (empty-disjunction? disjuncts)
 	  (amb)
 	  (amb
-	   (try-qeval (qeval (first-disjunct disjuncts) frame))
-	   (disjoin (rest-disjuncts disjuncts) frame))))
+	   (try-qeval (qeval (first-disjunct disjuncts) assertions rules))
+	   (disjoin (rest-disjuncts disjuncts) assertions rules))))
     (put 'or 'qeval disjoin)
 
-    (define (negate operands frame1)
+    (define (negate operands assertions rules)
       (let ((promise (lambda (frame)
-		     (if (has-not-bound?  (negated-query operands) frame)
-			 'has-not-bound
-			 (if (eq? 'no-more-values (qeval (negated-query operands) frame))
-			     'let-it-stay ; let it stay
-			     'kill-it)))))
+		       (if (has-not-bound?  (negated-query operands) frame)
+			   'has-not-bound
+			   (if (eq? 'no-more-values (qeval (negated-query operands) assertions rules))
+			       'let-it-stay ; let it stay
+			       'kill-it)))))
 	(frame-add-promise frame1 promise)))
 
 
     (define (has-not-bound? query frame)
       (cond ((null? query) #f)
-	  ((var? query) (if (binding-in-frame query frame)
-			    (has-not-bound? 
-			     (binding-value (binding-in-frame query frame))
-			     frame)
-			    #t))
-	  ((pair? query) (or (has-not-bound? (car query) frame)
-			     (has-not-bound? (cdr query) frame)))
-	  (else #f)))
+	    ((var? query) (if (binding-in-frame query frame)
+			      (has-not-bound? 
+			       (binding-value (binding-in-frame query frame))
+			       frame)
+			      #t))
+	    ((pair? query) (or (has-not-bound? (car query) frame)
+			       (has-not-bound? (cdr query) frame)))
+	    (else #f)))
     (put 'not 'qeval negate)
-    (define (lisp-value call frame1)
+    (define (lisp-value call ignore ignore)
       (let ((promise (lambda (frame) (if (has-not-bound? call frame)
-				  'has-not-bound
-				  (if (execute
-				       (instantiate
-					   call
-					   frame
-					 (lambda (v f)
-					   (error "Unknown pat var: LISP-VALUE" v))))
-				      'let-it-stay
-				      'kill-it)))))
+				    'has-not-bound
+				    (if (execute
+					 (instantiate
+					     call
+					     frame
+					   (lambda (v f)
+					     (error "Unknown pat var: LISP-VALUE" v))))
+					'let-it-stay
+					'kill-it)))))
 	(frame-add-promise frame1 promise)
-      ))
+	))
     (define (execute exp)
       (let ((pred (eval 
 		    (predicate exp)
@@ -47536,17 +47644,51 @@ value inside the query.
 
     (put 'lisp-value 'qeval lisp-value)
 
-    (lq '(assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10))))
-    (lq '(assert! (job (Bitdiddle Ben) (computer wizard))))
-    (lq '(assert! (salary (Bitdiddle Ben) 60000)))
+    (unify-match 
+	 (query-syntax-process '(can-do-job (computer programmer) (computer ?x trainee)))
+	 (query-syntax-process '(can-do-job (computer ?x) (computer programmer trainee)))
+	 (make-frame-prolog '() '()))
+  
+    (two-sided-match
+	 (query-syntax-process '(can-do-job (computer programmer) (computer ?x trainee)))
+	 (query-syntax-process '(can-do-job (computer programmer) (computer programmer ?x))))
+  
+    (two-sided-match
+	 (query-syntax-process '(can-do-job (computer programmer) (computer ?x trainee)))
+	 (query-syntax-process '(can-do-job (computer programmer) (computer programmer ?x assistant))))
+
+    (two-sided-match
+	 (query-syntax-process '(can-do-job (computer programmer) (computer ?x trainee)))
+	 (query-syntax-process '(can-do-job (computer programmer) (computer ?y trainee))))
+
+    (rule-subfeatures-assertions
+	   (rule-inner-rules-and-assertions 
+      '(rule (lives-near ?person-1 ?person-2)
+		      (and (address ?person-1 (?town . ?rest-1))
+			   (address ?person-2 (?town . ?rest-2)))
+		      (assertions ((homefull world) (peopleful world)))
+		      (rules ((same ?x ?x))) )))
+
+  (rule-subfeatures-rules
+	   (rule-inner-rules-and-assertions 
+      '(rule (lives-near ?person-1 ?person-2)
+		      (and (address ?person-1 (?town . ?rest-1))
+			   (address ?person-2 (?town . ?rest-2)))
+		      (assertions ((homefull world) (peopleful world)))
+		      (rules ((same ?x ?x))) )))
+    (lq '(assert! (rule (lives-near ?person-1 ?person-2)
+			(and (address ?person-1 (?town . ?rest-1))
+			     (address ?person-2 (?town . ?rest-2)))
+		      (assertions ((homefull world) (peopleful world)))
+		      (rules ((same ?x ?x))) )))
     (lq '(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
-    (lq '(assert! (job (Hacker Alyssa P) (computer programmer))))
-    (lq '(assert! (salary (Hacker Alyssa P) 40000)))
-    (lq '(assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben))))
-    (lq '(assert! (address (Fect Cy D) (Cambridge (Ames Street) 3))))
-    (lq '(assert! (job (Fect Cy D) (computer programmer))))
-    (lq '(assert! (salary (Fect Cy D) 35000)))
-    (lq '(assert! (supervisor (Fect Cy D) (Bitdiddle Ben))))
+    (lq '(assert! (address (Schemer The Little) (Cambridge (Mass Ave) 78))))
+    (lq '(lives-near ?x ?y))
+    (exit)
+    try-again
+    try-again
+    try-again
+    (exit)
     (lq '(assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22))))
     (lq '(assert! (job (Tweakit Lem E) (computer technician))))
     (lq '(assert! (salary (Tweakit Lem E) 25000)))
@@ -47576,53 +47718,36 @@ value inside the query.
     (lq '(assert! (can-do-job (computer programmer) (computer programmer trainee))))
     (lq '(assert! (can-do-job (administration secretary) (administration big wheel))))
     (lq '(assert! (rule (lives-near ?person-1 ?person-2)
-		 (and (address ?person-1 (?town . ?rest-1))
-		      (address ?person-2 (?town . ?rest-2))
-		      (not (same ?person-1 ?person-2))))))
-    (lq '(assert! (rule (same ?x ?x))))
+		   (and (address ?person-1 (?town . ?rest-1))
+			(address ?person-2 (?town . ?rest-2))
+			(not (same ?person-1 ?person-2))))))
+
     (lq '(assert! (rule (wheel ?person)
-	    (and (supervisor ?middle-manager ?person)
-		 (supervisor ?x ?middle-manager)))))
+	      (and (supervisor ?middle-manager ?person)
+		   (supervisor ?x ?middle-manager)))))
     (lq '(assert! (rule (outranked-by ?staff-person ?boss)
-		    (or (supervisor ?staff-person ?boss)
-			(and (supervisor ?staff-person ?middle-manager)
-			     (outranked-by ?middle-manager ?boss))))))
+		      (or (supervisor ?staff-person ?boss)
+			  (and (supervisor ?staff-person ?middle-manager)
+			       (outranked-by ?middle-manager ?boss))))))
     (lq '(assert! (rule (append-to-form () ?y ?y))))
     (lq '(assert! (rule (append-to-form (?u . ?v) ?y (?u . ?z))
 		   (append-to-form ?v ?y ?z))))
-
-
+ 
     (lq '(job ?x (computer programmer)))
-    (exit)
     try-again
-
-    ;(lq '(same a ?x))
-    ;(lq '(and (job ?x (computer programmer)) (salary ?x 40000)))
-    ;(lq '(or (job ?x (computer programmer)) (salary ?x 18000)))
-    ;(lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
-    ;(lq '(and (job ?x (computer programmer))
-  ;	    (salary ?x ?y) 
-  ;	    ))
-  ;  (lq '(and (salary ?x ?y) (lisp-value < ?y 50000)))
-   ; try-again
-   ; try-again
-   ; try-again
-
-    (lq '(assert! (Odysseus knows TeX)))
-    (lq '(assert! (Odysseus knows Scheme)))
-  ;  (lq '(assert! (rule (computer-literate ?person)
-  ;		   (and (?person knows Scheme)
-  ;			(?person knows TeX)))))
-  (lq '(assert! (rule (computer-literate ?person)
-		     (?person knows Scheme))))
-  (lq '(assert! (rule (prolog-literate ?person)
-		     (?person knows Prolog))))
-  (lq '(computer-literate ?person))
-  (lq '(same x ?x))
-  ;(lq '(prolog-literate Odysseus))
-  ;  (lq '(computer-literate ?person))
-  ;(lq '(computer-literate Odysseus))
+    (lq '(same a ?x))
+    (lq '(and (job ?x (computer programmer)) (salary ?x 40000)))
+    (lq '(or (job ?x (computer programmer)) (salary ?x 18000)))
+    (lq '(and (job ?x (computer programmer)) (not (salary ?x 40000))))
+    (lq '(and (job ?x (computer programmer))
+	      (salary ?x ?y) 
+	      ))
+    (lq '(and (salary ?x ?y) (lisp-value < ?y 50000)))
+    try-again
+    try-again
+    try-again
     (exit)
+  EOF
 #+end_src
 
 
@@ -47723,7 +47848,12 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (lq i) (let ((q (query-syntax-process i))) (cond ((assertion-to-be-added? q) (add-rule-or-assertion! (add-assertion-body q)) (quote added)) (else (instantiate q (try-qeval (qeval q (make-frame-prolog (quote ()) (quote ())))) (lambda (v f) (contract-question-mark v)))))))
+(define (identity-var v f) v)
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (lq i) (let ((q (query-syntax-process i))) (cond ((assertion-to-be-added? q) (add-rule-or-assertion! (add-assertion-body q)) (quote added)) (else (instantiate q (try-qeval (qeval q THE-ASSERTIONS THE-RULES)) (lambda (v f) (contract-question-mark v)))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -47818,6 +47948,31 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
+(define (rule-inner-rules-and-assertions rule2) (if (equal? (quote (always-true)) (rule-body rule2)) (list (quote ()) (quote ())) (cdddr rule2)))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-subfeatures-assertions subfeatures) (assq (quote assertions) subfeatures))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-subfeatures-rules subfeatures) (assq (quote rules) subfeatures))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-subrules r) (cdr (rule-subfeatures-rules (rule-inner-rules-and-assertions r))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (rule-subassertions r) (cdr (rule-subfeatures-assertions (rule-inner-rules-and-assertions r))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
 (define (query-syntax-process exp) (map-over-symbols expand-question-mark exp))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
@@ -47908,50 +48063,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (logical-var? exp) (and (pair? exp) (var? (car exp))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (logical-var-value exp) (cdr exp))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (logical-var-variable exp) (car exp))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (instantiate exp) (define (copy exp) (cond ((logical-var? exp) (logical-var-value exp)) ((pair? exp) (cons (copy (car exp)) (copy (cdr exp)))) (else exp))) (copy exp))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (make-cell contents) (cons (quote cell) contents))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(define (var->logical-var exp) (let ((cell (make-cell (quote *uninitialized*)))) (let ((retval (cons exp cell))) (set-cdr! cell retval) retval)))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-ok
-;;; Amb-Eval input:
-(show #t "\ntest:var->logical-var:" (pretty (var->logical-var (expand-question-mark (quote ?x)))))
-;;; Starting a new problem 
-test:var->logical-var:#0=((? x) cell . #0#)
-
-;;; Amb-Eval value:
-{Show-Env #56 #<Output-Port 140630109691872> 2 0 78 10 #f #\  #f #f #<procedure substring-length> #f #f #<procedure output-default> ()}
-;;; Amb-Eval input:
-(display "var converted\n")
-;;; Starting a new problem var converted
-
-;;; Amb-Eval value:
-#<undef>
-;;; Amb-Eval input:
-(define (make-variables-in-form form) (define (copy exp) (cond ((var? exp) (var->logical-var exp)) ((pair? exp) (cons (copy (car exp)) (copy (cdr exp)))) (else exp))) (copy exp))
+(define (instantiate exp frame unbound-var-handler) (define (copy exp) (cond ((var? exp) (let ((binding (binding-in-frame exp frame))) (if binding (copy (binding-value binding)) (unbound-var-handler exp frame)))) ((pair? exp) (cons (copy (car exp)) (copy (cdr exp)))) (else exp))) (copy exp))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -47996,7 +48108,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (qeval query frame) (amb (processor (let ((qproc (get (type query) (quote qeval)))) (if qproc (qproc (contents query) frame) (simple-query query frame)))) (quote no-more-answers)))
+(define (qeval query assertions-env rules-env) (amb (processor (let ((qproc (get (type query) (quote qeval)))) (if qproc (qproc (contents query) assertions-env rules-env) (simple-query query assertions-env rules-env)))) (quote no-more-answers)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48006,12 +48118,12 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (simple-query query-pattern frame) (amb (find-assertions query-pattern frame) (apply-rules query-pattern frame)))
+(define (simple-query query-pattern assertions-env rules-env) (amb (find-assertions query-pattern assertions-env) (apply-rules query-pattern assertions-env rules-env)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (find-assertions query-pattern frame) (let ((a (an-element-of THE-ASSERTIONS))) (check-an-assertion a query-pattern frame)))
+(define (find-assertions query-pattern assertions-env) (let ((a (an-element-of assertions-env))) (check-an-assertion a query-pattern (make-frame-prolog (quote ()) (quote ())))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48021,27 +48133,62 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (apply-rules pattern frame) (let ((r (an-element-of THE-RULES))) (apply-a-rule r pattern frame)))
+(define (apply-rules pattern assertions-env rules-env) (let ((r (an-element-of rules-env))) (apply-a-rule r pattern assertions-env rules-env)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (apply-a-rule rule query-pattern query-frame) (let ((clean-rule (rename-variables-in rule))) (let ((unify-result (unify-match query-pattern (conclusion clean-rule) query-frame))) (if (eq? unify-result (quote failed)) (amb) (try-qeval (qeval (rule-body clean-rule) unify-result))))))
+(define (prolog-extend-env lst env) (append lst env))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (rename-variables-in rule) (let ((rule-application-id (new-rule-application-id))) (define (tree-walk exp) (cond ((var? exp) (make-new-variable exp rule-application-id)) ((pair? exp) (cons (tree-walk (car exp)) (tree-walk (cdr exp)))) (else exp))) (tree-walk rule)))
+(define (extend-if-unifies var pat1 pat2 frame) (let ((val (unify-match pat1 pat2 frame))) (if (eq? (quote failed) val) (quote failed) (extend var val frame))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (unify-match p1 p2 frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? p1 p2) frame) ((var? p1) (extend-if-possible p1 p2 frame)) ((var? p2) (extend-if-possible p2 p1 frame)) ((and (pair? p1) (pair? p2)) (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame))) (else (quote failed))))
+(define (accumulate op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (extend-if-possible var val frame) (let ((binding (binding-in-frame var frame))) (cond (binding (unify-match (binding-value binding) val frame)) ((var? val) (let ((binding (binding-in-frame val frame))) (if binding (unify-match var (binding-value binding) frame) (extend var val frame)))) ((depends-on? val var frame) (quote failed)) (else (extend var val frame)))))
+(define (map p sequence) (accumulate (lambda (x y) (cons (p x) y)) (quote ()) sequence))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (append seq1 seq2) (accumulate cons seq2 seq1))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (length sequence) (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (union-set set1 set2) (if (null? set2) set1 (if (member (car set2) set1) (union-set set1 (cdr set2)) (union-set (cons (car set2) set1) (cdr set2)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (unify-two-frames f1 f2 iframe) (cond ((eq? (quote failed) f1) (quote failed)) ((eq? (quote failed) f2) (quote failed)) (else (let ((f1-vars (map car (frame-bindings f1))) (f2-vars (map car (frame-bindings f2)))) (let ((ret-vars (union-set f2-vars f2-vars))) (accumulate (lambda (var iframe) (if (eq? (quote failed) iframe) (quote failed) (let ((binding-f1 (binding-in-frame var f1)) (binding-f2 (binding-in-frame var f2))) (cond ((and binding-f1 (not binding-f2)) (extend-if-possible var (binding-value binding-f1) iframe)) ((and binding-f2 (not binding-f1)) (begin (display "running extend-if--f2") (extend-if-possible var (binding-value binding-f2) iframe))) ((and binding-f1 binding-f2) (begin (display "running extend-if-unifies") (extend-if-unifies var (binding-value binding-f1) (binding-value binding-f2) iframe))) (else (error "Impossible case")))))) (make-frame-prolog (quote ()) (quote ())) ret-vars))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (apply-a-rule rule query-pattern assertions-env rules-env) (let ((doubleframe-result (two-sided-match query-pattern (conclusion rule)))) (if (or (eq? (doubleframe-downframe-get doubleframe-result) (quote failed)) (eq? (doubleframe-upframe-get doubleframe-result) (quote failed))) (amb) (let ((retval (unify-two-frames (doubleframe-upframe-get doubleframe-result) (try-qeval (qeval (instantiate (rule-body rule) (doubleframe-downframe-get doubleframe-result) identity-var) (prolog-extend-env (rule-subassertions rule) assertions-env) (prolog-extend-env (rule-subrules rule) rules-env))) (make-frame-prolog (quote ()) (quote ()))))) (if (eq? (quote failed) retval) (amb) retval)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (unify-match p1 p2 frame) (newline) (display "p1=") (display p1) (display "p2=") (display p2) (display "frame=") (display frame) (newline) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? p1 p2) frame) ((var? p1) (extend-if-possible p1 p2 frame)) ((var? p2) (extend-if-possible p2 p1 frame)) ((and (pair? p1) (pair? p2)) (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame))) (else (quote failed))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (extend-if-possible var val frame) (newline) (display "entering extend-if-possible") (newline) (display "var=") (display var) (newline) (display "val=") (display val) (newline) (display "frame=") (display frame) (newline) (let ((binding (binding-in-frame var frame))) (cond (binding (unify-match (binding-value binding) val frame)) ((var? val) (let ((binding (binding-in-frame val frame))) (if binding (unify-match var (binding-value binding) frame) (extend var val frame)))) ((depends-on? val var frame) (quote failed)) (else (extend var val frame)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48066,6 +48213,31 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
+(define (pattern-match-weak pat dat frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? pat dat) frame) ((var? pat) (extend-if-consistent pat dat frame)) ((and (pair? pat) (pair? dat)) (pattern-match-weak (cdr pat) (cdr dat) (pattern-match-weak (car pat) (car dat) frame))) ((var? dat) frame) (else (quote failed))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (two-sided-match p1 p2) (make-doubleframe (pattern-match-weak p1 p2 (make-frame-prolog (quote ()) (quote ()))) (pattern-match-weak p2 p1 (make-frame-prolog (quote ()) (quote ())))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (make-doubleframe upward-frame downward-frame) (list upward-frame downward-frame))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (doubleframe-upframe-get doubleframe) (car doubleframe))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
+(define (doubleframe-downframe-get doubleframe) (cadr doubleframe))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+ok
+;;; Amb-Eval input:
 (define (pattern-match pat dat frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? pat dat) frame) ((var? pat) (extend-if-consistent pat dat frame)) ((and (pair? pat) (pair? dat)) (pattern-match (cdr pat) (cdr dat) (pattern-match (car pat) (car dat) frame))) (else (quote failed))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
@@ -48076,7 +48248,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (always-true ignore frame-stream) frame-stream)
+(define (always-true pat assertions rules) (make-frame-prolog (quote ()) (quote ())))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48086,7 +48258,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (conjoin conjuncts frame) (if (empty-conjunction? conjuncts) frame (conjoin (rest-conjuncts conjuncts) (try-qeval (qeval (first-conjunct conjuncts) frame)))))
+(define (conjoin conjuncts assertions rules) (if (empty-conjunction? conjuncts) (make-frame-prolog (quote ()) (quote ())) (unify-two-frames (conjoin (rest-conjuncts conjuncts) assertions rules) (try-qeval (qeval (first-conjunct conjuncts) assertions rules)) (make-frame-prolog (quote ()) (quote ())))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48096,7 +48268,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (disjoin disjuncts frame) (if (empty-disjunction? disjuncts) (amb) (amb (try-qeval (qeval (first-disjunct disjuncts) frame)) (disjoin (rest-disjuncts disjuncts) frame))))
+(define (disjoin disjuncts assertions rules) (if (empty-disjunction? disjuncts) (amb) (amb (try-qeval (qeval (first-disjunct disjuncts) assertions rules)) (disjoin (rest-disjuncts disjuncts) assertions rules))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48106,7 +48278,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (negate operands frame1) (let ((promise (lambda (frame) (if (has-not-bound? (negated-query operands) frame) (quote has-not-bound) (if (eq? (quote no-more-values) (qeval (negated-query operands) frame)) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
+(define (negate operands assertions rules) (let ((promise (lambda (frame) (if (has-not-bound? (negated-query operands) frame) (quote has-not-bound) (if (eq? (quote no-more-values) (qeval (negated-query operands) assertions rules)) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48121,7 +48293,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (lisp-value call frame1) (let ((promise (lambda (frame) (if (has-not-bound? call frame) (quote has-not-bound) (if (execute (instantiate call frame (lambda (v f) (error "Unknown pat var: LISP-VALUE" v)))) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
+(define (lisp-value call ignore ignore) (let ((promise (lambda (frame) (if (has-not-bound? call frame) (quote has-not-bound) (if (execute (instantiate call frame (lambda (v f) (error "Unknown pat var: LISP-VALUE" v)))) (quote let-it-stay) (quote kill-it)))))) (frame-add-promise frame1 promise)))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48136,17 +48308,85 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(lq (quote (assert! (address (Bitdiddle Ben) (Slumerville (Ridge Road) 10)))))
+(unify-match (query-syntax-process (quote (can-do-job (computer programmer) (computer ?x trainee)))) (query-syntax-process (quote (can-do-job (computer ?x) (computer programmer trainee)))) (make-frame-prolog (quote ()) (quote ())))
+;;; Starting a new problem 
+p1=(can-do-job (computer programmer) (computer (? x) trainee))p2=(can-do-job (computer (? x)) (computer programmer trainee))frame=(() ())
+
+p1=can-do-jobp2=can-do-jobframe=(() ())
+
+p1=((computer programmer) (computer (? x) trainee))p2=((computer (? x)) (computer programmer trainee))frame=(() ())
+
+p1=(computer programmer)p2=(computer (? x))frame=(() ())
+
+p1=computerp2=computerframe=(() ())
+
+p1=(programmer)p2=((? x))frame=(() ())
+
+p1=programmerp2=(? x)frame=(() ())
+
+entering extend-if-possible
+var=(? x)
+val=programmer
+frame=(() ())
+
+p1=()p2=()frame=((((? x) . programmer)) ())
+
+p1=((computer (? x) trainee))p2=((computer programmer trainee))frame=((((? x) . programmer)) ())
+
+p1=(computer (? x) trainee)p2=(computer programmer trainee)frame=((((? x) . programmer)) ())
+
+p1=computerp2=computerframe=((((? x) . programmer)) ())
+
+p1=((? x) trainee)p2=(programmer trainee)frame=((((? x) . programmer)) ())
+
+p1=(? x)p2=programmerframe=((((? x) . programmer)) ())
+
+entering extend-if-possible
+var=(? x)
+val=programmer
+frame=((((? x) . programmer)) ())
+
+p1=programmerp2=programmerframe=((((? x) . programmer)) ())
+
+p1=(trainee)p2=(trainee)frame=((((? x) . programmer)) ())
+
+p1=()p2=()frame=((((? x) . programmer)) ())
+
+;;; Amb-Eval value:
+((((? x) . programmer)) ())
+;;; Amb-Eval input:
+(two-sided-match (query-syntax-process (quote (can-do-job (computer programmer) (computer ?x trainee)))) (query-syntax-process (quote (can-do-job (computer programmer) (computer programmer ?x)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-added
+(((((? x) . programmer)) ()) ((((? x) . trainee)) ()))
 ;;; Amb-Eval input:
-(lq (quote (assert! (job (Bitdiddle Ben) (computer wizard)))))
+(two-sided-match (query-syntax-process (quote (can-do-job (computer programmer) (computer ?x trainee)))) (query-syntax-process (quote (can-do-job (computer programmer) (computer programmer ?x assistant)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
-added
+(failed failed)
 ;;; Amb-Eval input:
-(lq (quote (assert! (salary (Bitdiddle Ben) 60000))))
+(two-sided-match (query-syntax-process (quote (can-do-job (computer programmer) (computer ?x trainee)))) (query-syntax-process (quote (can-do-job (computer programmer) (computer ?y trainee)))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+(((((? x) ? y)) ()) ((((? y) ? x)) ()))
+;;; Amb-Eval input:
+(rule-subfeatures-assertions (rule-inner-rules-and-assertions (quote (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2))) (assertions ((homefull world) (peopleful world))) (rules ((same ?x ?x)))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+(assertions ((homefull world) (peopleful world)))
+;;; Amb-Eval input:
+(rule-subfeatures-rules (rule-inner-rules-and-assertions (qu
+ERROR: Unbound variable -- lookup-variable-value: string-append
+  called from <anonymous> on line 65 of file /tmp/babel-7VS3kk/sh-script-BULiPT
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+ote (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2))) (assertions ((homefull world) (peopleful world))) (rules ((same ?x ?x)))))))
+;;; Starting a new problem 
+;;; Amb-Eval value:
+(rules ((same ?x ?x)))
+;;; Amb-Eval input:
+(lq (quote (assert! (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2))) (assertions ((homefull world) (peopleful world))) (rules ((same ?x ?x)))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
@@ -48156,214 +48396,58 @@ added
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq (quote (assert! (job (Hacker Alyssa P) (computer programmer)))))
+(lq (quote (assert! (address (Schemer The Little) (Cambridge (Mass Ave) 78)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 added
 ;;; Amb-Eval input:
-(lq (quote (assert! (salary (Hacker Alyssa P) 40000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Hacker Alyssa P) (Bitdiddle Ben)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Fect Cy D) (Cambridge (Ames Street) 3)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Fect Cy D) (computer programmer)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Fect Cy D) 35000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Fect Cy D) (Bitdiddle Ben)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Tweakit Lem E) (Boston (Bay State Road) 22)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Tweakit Lem E) (computer technician)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Tweakit Lem E) 25000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Tweakit Lem E) (Bitdiddle Ben)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Reasoner Louis) (Slumerville (Pine Tree Road) 80)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Reasoner Louis) (computer programmer trainee)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Reasoner Louis) 30000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Reasoner Louis) (Hacker Alyssa P)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Bitdiddle Ben) (Warbucks Oliver)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Warbucks Oliver) (Swellesley (Top Heap Road))))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Warbucks Oliver) (administration big wheel)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Warbucks Oliver) 150000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Scrooge Eben) (Weston (Shady Lane) 10)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Scrooge Eben) (accounting chief accountant)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Scrooge Eben) 75000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Scrooge Eben) (Warbucks Oliver)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Cratchet Robert) (Allston (N Harvard Street) 16)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Cratchet Robert) (accounting scrivener)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Cratchet Robert) 18000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Cratchet Robert) (Scrooge Eben)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (address (Aull DeWitt) (Slumerville (Onion Square) 5)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (job (Aull DeWitt) (administration secretary)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (salary (Aull DeWitt) 25000))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (supervisor (Aull DeWitt) (Warbucks Oliver)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (can-do-job (computer wizard) (computer programmer)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (can-do-job (computer wizard) (computer technician)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (can-do-job (computer programmer) (computer programmer trainee)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (can-do-job (administration secretary) (administration big wheel)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2)) (not (same ?person-1 ?person-2)))))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (rule (same ?x ?x)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (rule (wheel ?person) (and (supervisor ?middle-manager ?person) (supervisor ?x ?middle-manager))))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (rule (outranked-by ?staff-person ?boss) (or (supervisor ?staff-person ?boss) (and (supervisor ?staff-person ?middle-manager) (outranked-by ?middle-manager ?boss)))))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (rule (append-to-form () ?y ?y)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(lq (quote (assert! (rule (append-to-form (?u . ?v) ?y (?u . ?z)) (append-to-form ?v ?y ?z)))))
-;;; Starting a new problem 
-;;; Amb-Eval value:
-added
-;;; Amb-Eval input:
-(exit)
-;;; Starting a new problem 
+(lq (quote (lives-near ?x ?y)))
+;;; Starting a new problem running extend-if--f2
+entering extend-if-possible
+var=(? y)
+val=(Schemer The Little)
+frame=(() ())
+running extend-if--f2
+entering extend-if-possible
+var=(? town)
+val=Cambridge
+frame=((((? y) Schemer The Little)) ())
+running extend-if--f2
+entering extend-if-possible
+var=(? rest-2)
+val=((Mass Ave) 78)
+frame=((((? town) . Cambridge) ((? y) Schemer The Little)) ())
+running extend-if--f2
+entering extend-if-possible
+var=(? x)
+val=(Schemer The Little)
+frame=(() ())
+running extend-if-unifies
+p1=Cambridgep2=Cambridgeframe=((((? x) Schemer The Little)) ())
+running extend-if--f2
+entering extend-if-possible
+var=(? rest-1)
+val=((Mass Ave) 78)
+frame=((((? town) (((? x) Schemer The Little)) ()) ((? x) Schemer The Little)) ())
+running extend-if-unifies
+p1=(? person-1)p2=(Schemer The Little)frame=(() ())
+
+entering extend-if-possible
+var=(? person-1)
+val=(Schemer The Little)
+frame=(() ())
+running extend-if--f2
+entering extend-if-possible
+var=(? town)
+val=((((? x) Schemer The Little)) ())
+frame=((((? x) (((? person-1) Schemer The Little)) ())) ())
+running extend-if--f2
+entering extend-if-possible
+var=(? rest-1)
+val=((Mass Ave) 78)
+frame=((((? town) (((? x) Schemer The Little)) ()) ((? x) (((? person-1) Schemer The Little)) ())) ())
 #+end_example
+
 
 ** TODO Chapter 5: Computing with Register Machines [54/54]
 *** 5.1 Designing Register Machinese [8/8]
