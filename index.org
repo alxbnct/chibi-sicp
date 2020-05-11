@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-10 18:00:37 lockywolf>
+# Time-stamp: <2020-05-11 13:11:15 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -90,7 +90,7 @@
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
-** TODO Chapter 1: Building abstractions with procedures [57/61]
+** Chapter 1: Building abstractions with procedures [57/61]
 *** Snippet
  #+BEGIN_SRC scheme :exports both :results value
    (* (+ 2 (* 4 6))
@@ -3034,7 +3034,7 @@ pictures, but I already can say that I have solved _all_ problems of the
 first chapter of SICP. Some macros are wrong, I need to revise them, but that
 will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
 
-** TODO Chapter 2: Building abstractions with data [106/110]
+** Chapter 2: Building abstractions with data [106/110]
 *** DONE Exercise 2.1 make-rat
     CLOSED: [2019-09-06 Fri 13:00]
 
@@ -19346,7 +19346,7 @@ Computer programs.
 
 The main pedagogical conclusion one may infer from this exercise is that it
 is a good idea to read a book on algebra and integer algorithms.
-** TODO Chapter 3: Modularity, Objects and State [88/94]
+** Chapter 3: Modularity, Objects and State [88/94]
 
 *** DONE Exercise 3.1 accumulators
     CLOSED: [2019-10-29 Tue 10:24]
