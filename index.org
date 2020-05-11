@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-09 22:48:04 lockywolf>
+# Time-stamp: <2020-05-10 18:00:37 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -86,7 +86,7 @@
 
 \(E=mc^{2 \)}
 
-* SICP [384/404]
+* SICP [385/404]
 :PROPERTIES:
 :header-args: :noweb yes
 :END:
@@ -24947,7 +24947,7 @@ Well, works. Random numbers are not obtained from a stream, and are a
 little bit not modular in this respect, but hey, they task is done as
 a stream.
 
-** TODO Chapter 4: Metalinguistic Abstraction [79/80]
+** Chapter 4: Metalinguistic Abstraction [80/80]
 This chapter started as a bit of a mess. Because it uses quite a bit
 of input-output, and the standard ob-scheme interface is not very open
 to this, I had to be inventive, that is, I repurposed SRFI-22 and
@@ -25008,6 +25008,7 @@ This took me about 8 working hours to figure out.
 <<s-compound-procedures>>
 <<s-environments>>
 <<s-primitive-procedures>>
+<<s-driver-loop>>
 <<s-glue2>>
 
 (driver-loop)
@@ -25016,12 +25017,10 @@ This took me about 8 working hours to figure out.
 
 #+RESULTS:
 : 
-: 
 : ;;; M-Eval input:
 : (define a (cons (display "left") (display "right")))leftright
 : ;;; M-Eval value:
 : ok
-: 
 : ;;; M-Eval input:
 : (exit)
 
@@ -38749,7 +38748,7 @@ Hmm... seems an easy task.
 
 This is a nice section. I think that the new edition of the book could
 add some exercises about the ~call/cc~ operation in the newer RNRS. 
-*** 4.4 Logic Programming [25/26]
+*** 4.4 Logic Programming [26/26]
 **** Some examples 
 
 #+name: prolog-examples
@@ -42770,7 +42769,7 @@ Assertion added to data base.
 exit
 #+end_example
 
-**** 4.4.4 Implementing the Query System [9/10]
+**** 4.4.4 Implementing the Query System [10/10]
 ***** Common code
 
 The following snippet has ~(display q)~ added to display the input
@@ -46073,6 +46072,7 @@ exit
 (list 'apply-in-underlying-scheme apply-in-underlying-scheme)
 (list 'eval eval)
 (list 'assq assq)
+(list 'string-append string-append)
 (list 'interaction-environment interaction-environment)
 ) primitive-procedures))
 #+end_src
@@ -47123,16 +47123,12 @@ try-again
 ~lisp-value~ is implemented in the "underlying scheme", but in
 principle you can forward it to the ~ambeval~ primitive.
 
-***** TODO Exercise 4.79 prolog environments
+***** DONE Exercise 4.79 prolog environments
+      CLOSED: [2020-05-10 Sun 17:59]
 
 
 I expect this work to require some heavy modifications, so I will
 copy the source.
-
-I spend two days looking into this, and thought that it would make
-sense to understand how Schelog does this. Schelog uses scheme's
-primitives, but at least studying Schelog should give an understanding
-how internal rules are applied. 
 
 Okay, I still don't entirely understand what is going on, but there is
 a hint. I probably should just get rid of ~unify-match~ entirely, and
@@ -47159,6 +47155,10 @@ value inside the query.
  6. Evaluate the body of the rule.
  7. Failures happen by non-matching queries or encountering
     contradictory matches for variables.
+ 8. The important bit that happens at the end is the merge of
+    two frames, which happens if the rule-head and the fule-body give 
+    different (although possible not contradictory) results.
+
 
 #+name: prolog-environments
 #+begin_src shell :exports code :results verbatim output
@@ -47415,10 +47415,14 @@ value inside the query.
        (append lst env))
 
     (define (extend-if-unifies var pat1 pat2 frame)
-      (let ((val (unify-match pat1 pat2 frame)))
-	 (if (eq? 'failed val)
+;        (newline) (display "entering extend-if-unifies")
+;        (newline) (display "var=") (display var)
+;        (newline) (display "pat1=") (display pat1)
+;        (newline) (display "pat2=") (display pat2)
+      (let ((match-frame (unify-match pat1 pat2 frame)))
+	 (if (eq? 'failed match-frame)
 	   'failed
-	   (extend var val frame))))
+	   (extend var (instantiate pat1 match-frame identity-var) frame))))
     <<accumulate>>
     <<map-append-length>>
     (define (union-set set1 set2)
@@ -47433,7 +47437,8 @@ value inside the query.
              ((eq? 'failed f2) 'failed)
              (else   (let ((f1-vars (map car (frame-bindings f1)))
 	                   (f2-vars (map car (frame-bindings f2))))
-                 	  (let ((ret-vars (union-set f2-vars f2-vars)))
+                 	  (let ((ret-vars (union-set f1-vars f2-vars)))
+;(newline) (display "unify-two-frames-variable-list:") (display ret-vars)
 	                     (accumulate  (lambda (var iframe) 
                     (if (eq? 'failed iframe)
                          'failed
@@ -47442,9 +47447,10 @@ value inside the query.
 			   (cond ((and binding-f1 (not binding-f2)) 
                                     (extend-if-possible var (binding-value binding-f1) iframe))
 				 ((and binding-f2 (not binding-f1)) 
-                                    (begin (display "running extend-if--f2") (extend-if-possible var (binding-value binding-f2) iframe)))
+                                    (begin ;(display "running extend-if--f2") 
+                                           (extend-if-possible var (binding-value binding-f2) iframe)))
 				 ((and binding-f1 binding-f2)       
-                                    (begin (display "running extend-if-unifies") 
+                                    (begin ;(newline) (display "running extend-if-unifies")  (newline)
                                            (extend-if-unifies  var 
                                                                (binding-value binding-f1)
                                                                (binding-value binding-f2)
@@ -47455,31 +47461,39 @@ value inside the query.
 )))))
 
     (define (apply-a-rule rule query-pattern assertions-env rules-env)
+;      (newline) (display "entered apply-a-rule")
       (let ((doubleframe-result (two-sided-match query-pattern
-						   (conclusion rule)
-						   )))
+						   (conclusion rule))))
+ ;         (newline) (display "doubleframe-result=") (display doubleframe-result)
 	  (if (or (eq? (doubleframe-downframe-get doubleframe-result) 'failed)
                   (eq? (doubleframe-upframe-get doubleframe-result) 'failed))
 	      (amb)
-	      (let ((retval (unify-two-frames ; fail if conflict
-		                (doubleframe-upframe-get doubleframe-result)
-		                (try-qeval (qeval (instantiate 
-					 (rule-body rule)
-					 (doubleframe-downframe-get doubleframe-result)
-					 identity-var) 
-				(prolog-extend-env (rule-subassertions rule) assertions-env)
-				(prolog-extend-env (rule-subrules rule) rules-env)  ))
-                                (make-frame-prolog '() '()))))
-                  (if (eq? 'failed retval)
-                     (amb)
-                     retval)))))
+	      (let ((df-u (doubleframe-upframe-get doubleframe-result))
+		    (t-q-r (begin (newline) (display "- propagating down") 
+                                  (try-qeval (qeval (instantiate 
+					             (rule-body rule)
+					             (doubleframe-downframe-get doubleframe-result)
+					             identity-var)
+				                  (prolog-extend-env (rule-subassertions rule) assertions-env)
+				                  (prolog-extend-env (rule-subrules rule) rules-env)  )))))
+                     (let ((retval  (begin ;(newline) (display "- propagating up")
+                                           ;(newline) (display "upward frame=") (display df-u)
+                                           ;(newline) (display "rule returns frame=") (display t-q-r)
+                                           
+                                    (unify-two-frames ; fail if conflict
+                                     df-u
+                                     t-q-r
+                                     (make-frame-prolog '() '())))))
+                           (if (eq? 'failed retval)
+                                (amb)
+                                 retval))))))
 
     (define (unify-match p1 p2 frame)
-      (newline)
-      (display "p1=") (display p1)
-      (display "p2=") (display p2)
-      (display "frame=") (display frame)
-      (newline)
+;      (newline)
+;      (display "p1=") (display p1)
+;      (display "p2=") (display p2)
+;      (display "frame=") (display frame)
+;      (newline)
       (cond ((eq? frame 'failed) 'failed)
 	    ((equal? p1 p2) frame)
 	    ((var? p1) (extend-if-possible p1 p2 frame))
@@ -47496,11 +47510,11 @@ value inside the query.
   
 
     (define (extend-if-possible var val frame)
-    (newline) (display "entering extend-if-possible")
-    (newline) (display "var=") (display var)
-    (newline) (display "val=") (display val)
-    (newline) (display "frame=") (display frame)
-    (newline)
+;    (newline) (display "entering extend-if-possible")
+;    (newline) (display "var=") (display var)
+;    (newline) (display "val=") (display val)
+;    (newline) (display "frame=") (display frame)
+;    (newline)
       (let ((binding (binding-in-frame var frame)))
 	(cond (binding
 	       (unify-match (binding-value binding) val frame))
@@ -47586,12 +47600,19 @@ value inside the query.
     (define (always-true pat assertions rules) (make-frame-prolog '() '()))
     (put 'always-true 'qeval always-true)
     (define (conjoin conjuncts assertions rules)
+;      (newline) (display "entered conjoin")
       (if (empty-conjunction? conjuncts)
 	  (make-frame-prolog '() '())
-	  (unify-two-frames 
-	      (conjoin (rest-conjuncts conjuncts) assertions rules)
-	      (try-qeval (qeval (first-conjunct conjuncts) assertions rules))
-              (make-frame-prolog '() '()))))
+          (let ((rest-frame (conjoin (rest-conjuncts conjuncts) assertions rules))
+                (this-frame (try-qeval (qeval (first-conjunct conjuncts) assertions rules))))
+;          (newline) (display "conjoin unifying: rest-frame: ") (display rest-frame) 
+;          (newline) (display "conjoin unifying: this-frame: ") (display this-frame)
+          (let ((retval	  (unify-two-frames 
+                              rest-frame
+                    	      this-frame
+                              (make-frame-prolog '() '()))))
+;            (newline) (display "conjoining two clauses result:") (display retval) 
+retval))))
     (put 'and 'qeval conjoin)
     ;; This place has a subtle bug in case the stream happens to be infinite.
     (define (disjoin disjuncts assertions rules)
@@ -47684,6 +47705,7 @@ value inside the query.
     (lq '(assert! (address (Hacker Alyssa P) (Cambridge (Mass Ave) 78))))
     (lq '(assert! (address (Schemer The Little) (Cambridge (Mass Ave) 78))))
     (lq '(lives-near ?x ?y))
+    try-again
     (exit)
     try-again
     try-again
@@ -48143,7 +48165,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (extend-if-unifies var pat1 pat2 frame) (let ((val (unify-match pat1 pat2 frame))) (if (eq? (quote failed) val) (quote failed) (extend var val frame))))
+(define (extend-if-unifies var pat1 pat2 frame) (let ((match-frame (unify-match pat1 pat2 frame))) (if (eq? (quote failed) match-frame) (quote failed) (extend var (instantiate pat1 match-frame identity-var) frame))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48173,22 +48195,22 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (unify-two-frames f1 f2 iframe) (cond ((eq? (quote failed) f1) (quote failed)) ((eq? (quote failed) f2) (quote failed)) (else (let ((f1-vars (map car (frame-bindings f1))) (f2-vars (map car (frame-bindings f2)))) (let ((ret-vars (union-set f2-vars f2-vars))) (accumulate (lambda (var iframe) (if (eq? (quote failed) iframe) (quote failed) (let ((binding-f1 (binding-in-frame var f1)) (binding-f2 (binding-in-frame var f2))) (cond ((and binding-f1 (not binding-f2)) (extend-if-possible var (binding-value binding-f1) iframe)) ((and binding-f2 (not binding-f1)) (begin (display "running extend-if--f2") (extend-if-possible var (binding-value binding-f2) iframe))) ((and binding-f1 binding-f2) (begin (display "running extend-if-unifies") (extend-if-unifies var (binding-value binding-f1) (binding-value binding-f2) iframe))) (else (error "Impossible case")))))) (make-frame-prolog (quote ()) (quote ())) ret-vars))))))
+(define (unify-two-frames f1 f2 iframe) (cond ((eq? (quote failed) f1) (quote failed)) ((eq? (quote failed) f2) (quote failed)) (else (let ((f1-vars (map car (frame-bindings f1))) (f2-vars (map car (frame-bindings f2)))) (let ((ret-vars (union-set f1-vars f2-vars))) (accumulate (lambda (var iframe) (if (eq? (quote failed) iframe) (quote failed) (let ((binding-f1 (binding-in-frame var f1)) (binding-f2 (binding-in-frame var f2))) (cond ((and binding-f1 (not binding-f2)) (extend-if-possible var (binding-value binding-f1) iframe)) ((and binding-f2 (not binding-f1)) (begin (extend-if-possible var (binding-value binding-f2) iframe))) ((and binding-f1 binding-f2) (begin (extend-if-unifies var (binding-value binding-f1) (binding-value binding-f2) iframe))) (else (error "Impossible case")))))) (make-frame-prolog (quote ()) (quote ())) ret-vars))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (apply-a-rule rule query-pattern assertions-env rules-env) (let ((doubleframe-result (two-sided-match query-pattern (conclusion rule)))) (if (or (eq? (doubleframe-downframe-get doubleframe-result) (quote failed)) (eq? (doubleframe-upframe-get doubleframe-result) (quote failed))) (amb) (let ((retval (unify-two-frames (doubleframe-upframe-get doubleframe-result) (try-qeval (qeval (instantiate (rule-body rule) (doubleframe-downframe-get doubleframe-result) identity-var) (prolog-extend-env (rule-subassertions rule) assertions-env) (prolog-extend-env (rule-subrules rule) rules-env))) (make-frame-prolog (quote ()) (quote ()))))) (if (eq? (quote failed) retval) (amb) retval)))))
+(define (apply-a-rule rule query-pattern assertions-env rules-env) (let ((doubleframe-result (two-sided-match query-pattern (conclusion rule)))) (if (or (eq? (doubleframe-downframe-get doubleframe-result) (quote failed)) (eq? (doubleframe-upframe-get doubleframe-result) (quote failed))) (amb) (let ((df-u (doubleframe-upframe-get doubleframe-result)) (t-q-r (begin (newline) (display "- propagating down") (try-qeval (qeval (instantiate (rule-body rule) (doubleframe-downframe-get doubleframe-result) identity-var) (prolog-extend-env (rule-subassertions rule) assertions-env) (prolog-extend-env (rule-subrules rule) rules-env)))))) (let ((retval (begin (unify-two-frames df-u t-q-r (make-frame-prolog (quote ()) (quote ())))))) (if (eq? (quote failed) retval) (amb) retval))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (unify-match p1 p2 frame) (newline) (display "p1=") (display p1) (display "p2=") (display p2) (display "frame=") (display frame) (newline) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? p1 p2) frame) ((var? p1) (extend-if-possible p1 p2 frame)) ((var? p2) (extend-if-possible p2 p1 frame)) ((and (pair? p1) (pair? p2)) (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame))) (else (quote failed))))
+(define (unify-match p1 p2 frame) (cond ((eq? frame (quote failed)) (quote failed)) ((equal? p1 p2) frame) ((var? p1) (extend-if-possible p1 p2 frame)) ((var? p2) (extend-if-possible p2 p1 frame)) ((and (pair? p1) (pair? p2)) (unify-match (cdr p1) (cdr p2) (unify-match (car p1) (car p2) frame))) (else (quote failed))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (extend-if-possible var val frame) (newline) (display "entering extend-if-possible") (newline) (display "var=") (display var) (newline) (display "val=") (display val) (newline) (display "frame=") (display frame) (newline) (let ((binding (binding-in-frame var frame))) (cond (binding (unify-match (binding-value binding) val frame)) ((var? val) (let ((binding (binding-in-frame val frame))) (if binding (unify-match var (binding-value binding) frame) (extend var val frame)))) ((depends-on? val var frame) (quote failed)) (else (extend var val frame)))))
+(define (extend-if-possible var val frame) (let ((binding (binding-in-frame var frame))) (cond (binding (unify-match (binding-value binding) val frame)) ((var? val) (let ((binding (binding-in-frame val frame))) (if binding (unify-match var (binding-value binding) frame) (extend var val frame)))) ((depends-on? val var frame) (quote failed)) (else (extend var val frame)))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48258,7 +48280,7 @@ ok
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (conjoin conjuncts assertions rules) (if (empty-conjunction? conjuncts) (make-frame-prolog (quote ()) (quote ())) (unify-two-frames (conjoin (rest-conjuncts conjuncts) assertions rules) (try-qeval (qeval (first-conjunct conjuncts) assertions rules)) (make-frame-prolog (quote ()) (quote ())))))
+(define (conjoin conjuncts assertions rules) (if (empty-conjunction? conjuncts) (make-frame-prolog (quote ()) (quote ())) (let ((rest-frame (conjoin (rest-conjuncts conjuncts) assertions rules)) (this-frame (try-qeval (qeval (first-conjunct conjuncts) assertions rules)))) (let ((retval (unify-two-frames rest-frame this-frame (make-frame-prolog (quote ()) (quote ()))))) retval))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
@@ -48310,48 +48332,6 @@ ok
 ;;; Amb-Eval input:
 (unify-match (query-syntax-process (quote (can-do-job (computer programmer) (computer ?x trainee)))) (query-syntax-process (quote (can-do-job (computer ?x) (computer programmer trainee)))) (make-frame-prolog (quote ()) (quote ())))
 ;;; Starting a new problem 
-p1=(can-do-job (computer programmer) (computer (? x) trainee))p2=(can-do-job (computer (? x)) (computer programmer trainee))frame=(() ())
-
-p1=can-do-jobp2=can-do-jobframe=(() ())
-
-p1=((computer programmer) (computer (? x) trainee))p2=((computer (? x)) (computer programmer trainee))frame=(() ())
-
-p1=(computer programmer)p2=(computer (? x))frame=(() ())
-
-p1=computerp2=computerframe=(() ())
-
-p1=(programmer)p2=((? x))frame=(() ())
-
-p1=programmerp2=(? x)frame=(() ())
-
-entering extend-if-possible
-var=(? x)
-val=programmer
-frame=(() ())
-
-p1=()p2=()frame=((((? x) . programmer)) ())
-
-p1=((computer (? x) trainee))p2=((computer programmer trainee))frame=((((? x) . programmer)) ())
-
-p1=(computer (? x) trainee)p2=(computer programmer trainee)frame=((((? x) . programmer)) ())
-
-p1=computerp2=computerframe=((((? x) . programmer)) ())
-
-p1=((? x) trainee)p2=(programmer trainee)frame=((((? x) . programmer)) ())
-
-p1=(? x)p2=programmerframe=((((? x) . programmer)) ())
-
-entering extend-if-possible
-var=(? x)
-val=programmer
-frame=((((? x) . programmer)) ())
-
-p1=programmerp2=programmerframe=((((? x) . programmer)) ())
-
-p1=(trainee)p2=(trainee)frame=((((? x) . programmer)) ())
-
-p1=()p2=()frame=((((? x) . programmer)) ())
-
 ;;; Amb-Eval value:
 ((((? x) . programmer)) ())
 ;;; Amb-Eval input:
@@ -48375,13 +48355,7 @@ p1=()p2=()frame=((((? x) . programmer)) ())
 ;;; Amb-Eval value:
 (assertions ((homefull world) (peopleful world)))
 ;;; Amb-Eval input:
-(rule-subfeatures-rules (rule-inner-rules-and-assertions (qu
-ERROR: Unbound variable -- lookup-variable-value: string-append
-  called from <anonymous> on line 65 of file /tmp/babel-7VS3kk/sh-script-BULiPT
-  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
-ote (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2))) (assertions ((homefull world) (peopleful world))) (rules ((same ?x ?x)))))))
+(rule-subfeatures-rules (rule-inner-rules-and-assertions (quote (rule (lives-near ?person-1 ?person-2) (and (address ?person-1 (?town . ?rest-1)) (address ?person-2 (?town . ?rest-2))) (assertions ((homefull world) (peopleful world))) (rules ((same ?x ?x)))))))
 ;;; Starting a new problem 
 ;;; Amb-Eval value:
 (rules ((same ?x ?x)))
@@ -48402,54 +48376,21 @@ added
 added
 ;;; Amb-Eval input:
 (lq (quote (lives-near ?x ?y)))
-;;; Starting a new problem running extend-if--f2
-entering extend-if-possible
-var=(? y)
-val=(Schemer The Little)
-frame=(() ())
-running extend-if--f2
-entering extend-if-possible
-var=(? town)
-val=Cambridge
-frame=((((? y) Schemer The Little)) ())
-running extend-if--f2
-entering extend-if-possible
-var=(? rest-2)
-val=((Mass Ave) 78)
-frame=((((? town) . Cambridge) ((? y) Schemer The Little)) ())
-running extend-if--f2
-entering extend-if-possible
-var=(? x)
-val=(Schemer The Little)
-frame=(() ())
-running extend-if-unifies
-p1=Cambridgep2=Cambridgeframe=((((? x) Schemer The Little)) ())
-running extend-if--f2
-entering extend-if-possible
-var=(? rest-1)
-val=((Mass Ave) 78)
-frame=((((? town) (((? x) Schemer The Little)) ()) ((? x) Schemer The Little)) ())
-running extend-if-unifies
-p1=(? person-1)p2=(Schemer The Little)frame=(() ())
-
-entering extend-if-possible
-var=(? person-1)
-val=(Schemer The Little)
-frame=(() ())
-running extend-if--f2
-entering extend-if-possible
-var=(? town)
-val=((((? x) Schemer The Little)) ())
-frame=((((? x) (((? person-1) Schemer The Little)) ())) ())
-running extend-if--f2
-entering extend-if-possible
-var=(? rest-1)
-val=((Mass Ave) 78)
-frame=((((? town) (((? x) Schemer The Little)) ()) ((? x) (((? person-1) Schemer The Little)) ())) ())
+;;; Starting a new problem 
+- propagating down
+;;; Amb-Eval value:
+(lives-near (Schemer The Little) (Schemer The Little))
+;;; Amb-Eval input:
+try-again
+;;; Amb-Eval value:
+(lives-near (Hacker Alyssa P) (Schemer The Little))
+;;; Amb-Eval input:
+(exit)
+;;; Starting a new problem 
 #+end_example
 
 
-** TODO Chapter 5: Computing with Register Machines [54/54]
+** Chapter 5: Computing with Register Machines [54/54]
 *** 5.1 Designing Register Machinese [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
