@@ -1,0 +1,22 @@
+# -*- mode: org; -*-
+# Time-stamp: <2020-05-11 21:33:20 lockywolf>
+# Created   : [2020-05-11 Mon 21:01]
+# Author    : lockywolf gmail.com
+#+STARTUP: inlineimages
+#+STARTUP: latexpreview
+#+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
+#+HTML_MATHJAX: cancel.js noErrors.js
+#+OPTIONS: tex:imagemagick
+
+This report is written as a post-mortem of a project which has,
+perhaps been the largest personal project of the author: creating a
+complete and wholesome solution to one of the most famous programming
+problem sets in the modern computer science curricula "Structure and
+Interpretation of Computer Programs" by Abelson, Sussman and Sussman.
+
+ I, the author, wanted to provide a solution that would be not just
+complete, but be a realistic modelling of a solution process as if
+executed by the intended audience of the course -- that is freshman
+university students with little programming experience. I also wanted to
+perform the solution using what I would call a "modern approach", that
+is, at least doing e
