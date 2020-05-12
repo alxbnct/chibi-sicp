@@ -1,12 +1,17 @@
-# -*- mode: org; -*-
-# Time-stamp: <2020-05-11 21:33:20 lockywolf>
-# Created   : [2020-05-11 Mon 21:01]
-# Author    : lockywolf gmail.com
-#+STARTUP: inlineimages
-#+STARTUP: latexpreview
-#+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
-#+HTML_MATHJAX: cancel.js noErrors.js
-#+OPTIONS: tex:imagemagick
+ # -*- mode: org; -*-
+ # Time-stamp: <2020-05-12 13:11:40 lockywolf>
+ # Created   : [2020-05-11 Mon 21:01]
+ # Author    : lockywolf gmail.com
+ #+STARTUP: inlineimages
+ #+STARTUP: latexpreview
+ #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
+ #+HTML_MATHJAX: cancel.js noErrors.js
+ #+OPTIONS: tex:imagemagick
+
+https://github.com/jkitchin/org-ref
+https://jonathanabennett.github.io/blog/2019/05/29/writing-academic-papers-with-org-mode/
+http://web.archive.org/web/20190501044840/http://www.mfasold.net/blog/2009/02/using-emacs-org-mode-to-draft-papers
+https://orgmode.org/worg/org-faq.html#using-reftex-in-org-mode
 
 This report is written as a post-mortem of a project which has,
 perhaps been the largest personal project of the author: creating a
@@ -14,9 +19,225 @@ complete and wholesome solution to one of the most famous programming
 problem sets in the modern computer science curricula "Structure and
 Interpretation of Computer Programs" by Abelson, Sussman and Sussman.
 
- I, the author, wanted to provide a solution that would be not just
-complete, but be a realistic modelling of a solution process as if
+It measures exactly:
+- How much effort SICP requires (739 hours 19 minutes, 8 months, 292 sessions)
+- How many computer languages it involves (6)
+- How many pieces of software are required ()
+- How much communication with peers is needed
+
+It suggests:
+- An applied task management software-backed procedure
+- Improvements on the technical side of any hard skills teaching
+- Improvements on the social side of any kind of teaching
+
+* Introduction
+
+Programming language textbooks are not a frequent object of study, as
+they are expected to convey existing knowledge. However, teaching
+practitioners, when they face the task of designing computer science
+curriculum for their teaching institution, have to base their decision
+on something. An "ad-hoc" teaching method, largely based on studying
+some particular programming language fashionable at the time of
+selection, is still a popular choice. 
+
+However, there have been attempts to approach the design of a course
+with more rigour, and the very famous "Structure and Interpretation of
+Computer Programs" was born as a result of this attempt. SICP was
+revolutionary for its time, and perhaps can be still considered
+revolutionary nowadays. Twenty years later this endeavour was analysed
+by Felleisen in a paper "Structure And Interpretation of Computer
+Science Curriculum" TODO, in which he reflected upon the benefits and
+drawbacks of the ~deliberately designed~ syllabus from the pedagogical
+standpoint, and proposes what he believes to be a pedagogically
+superior successor to the first generation of a ~deliberate~
+curriculum. (How to Design Programs TODO, HTDP)
+
+Leaving aside the pedagogical quality of the textbook (as the author
+is not a practising teacher), this report touches a different (and
+seldom considered!) aspect of a computer science (and in general, any
+other subject's) curriculum. That is, it's how much work exactly is
+required to pass a particular course.
+
+This endeavour was spurned by the author's previous experience of
+learning Partial Differential Equations using a traditional
+paper-and-pen based approach, only mildly augmented with a
+time-tracking software. But even such a tiny augmentation already
+exposed an astonishing disparity between a declared labouriousness of
+a task and the real time required to complete it. TODO (reference to
+my own facebook)
+
+The author therefore decided to build upon the previous experience and
+to try and design an as smooth, manageable (the definition of
+manageable reference TODO), and measurable approach to performing
+university coursework, as possible. A computer science subject
+therefore provided an obvious choice.
+
+The solution was decided, broken down into parts, harnesses with a
+software support system, and executed in a timely and measured manner
+by the author, thus proving that the chosen goal is doable. The
+complete measured data are provided. Teaching professionals may
+benefit from it when planning their own coursework.
+
+More generally, the author wants to propose a comprehensive
+reassessment of university teaching in general, on the basis of
+empiric approach (understanding exactly what and when every party
+involved in the teaching process does), in order to select the most
+efficient (potentially even using a gradient-based optimisation
+algorithm) strategy when selecting a learning approach for every
+particular student.
+
+* Solution approach
+
+ I, the author, wanted to provide a solution that would satisfy the
+following principles:
+
+ 1. Be complete.
+ 2. Be a fairly realistic modelling of a solution process as if
 executed by the intended audience of the course -- that is freshman
-university students with little programming experience. I also wanted to
-perform the solution using what I would call a "modern approach", that
-is, at least doing e
+university students with little programming experience. 
+ 3. Be done in a "fully digital", "digital native" form.
+ 4. Be measurable.
+
+This principles need an explanation. 
+
+** Completeness
+
+*** Just solve all of the exercises
+
+I consider completeness to be the most important property of every
+execution of a teaching syllabus.
+
+In simple words, what does it mean "to pass a course" or "to learn a
+subject" at all? How exactly can one formalise the statement "I know
+calculus"? Or even a simpler "I have learned everything that was
+implied by a university course on calculus". The following are the
+potential answers to this questions as they may be given (TODO it would be
+better to conduct a survey of teachers, students, employers,
+politicians and random members of the community to establish what it
+means _for them_):
+
+- Passing an oral examination
+- Passing a written examination
+- Passing a project defence committee questioning
+- Completing a required number of continuous assessment (time-limited) tasks
+- Completing coursework
+- Attending a prescribed number of teaching sessions (lectures and/or tutorials)
+- Reading a prescribed amount of prescribed reading material
+- (anything else?)
+
+Any combination of those can be also chosen to signify the "mastering"
+of a subject, but the course designer is then met with a typical
+goal-attainment multi-objective optimisation problem, which are usually
+still solved by reducing the multiple goals to a single engineered goal.
+
+Now if we try to look at this with a "martian standpoint" (TODO Eric
+Bern), we will see that all the goals listed above are reducible to
+the "completing coursework" goal, whereas "completing coursework" is
+not in the most general case reducible to any of those, so the
+"engineered goal" may look essentially like a tree-structured
+coursework, with possibly several tasks requiring viewing certain
+video recordings and writing a response.
+
+Moreover, thinking realistically, doing coursework is the only way
+that a working professional can study without completely abandoning
+her job.
+
+Therefore, choosing a computer science textbook that is known for the
+problem set that comes with it more than for the actual text of the
+material was a natural choice.
+
+But that is not enough, because "just solving all of the exercises" may be the most measurable and the most necessary learning outcome, but is it sufficient?
+
+As I wanted to "grasp the skill" rather than just "pass the exercises", I initially decided to consider additional exercises that may be valuable as a process of "engineering a custom problem set".
+
+One of the approaches used to "engineer exercises" is to try an put yourself in the position of a teacher, and ask yourself: "After I finish this book/problem set, will I be able to write my own book on this?".
+Even if the answer is "no", continue asking yourself "Okay then. But can I at least create a book that would be conveying exactly the same now myself?".
+If the answer is "yes", then learning is successful with high likelihood.
+
+From the practical point, in the "reference solution" attached to this report, you can find exercises that are not a part of the original problem set.
+Those were added by me for the very reason "to be able to reproduce the source code of the book from scratch".
+
+*** Meta-cognitive exercises
+
+It is often underestimated how much imbalance there is between a teacher and a pupil, in the sense that the teacher not only knows better the subject of study, that is expected, but is also effectively deciding _now_ and _when_ a student is going to study.
+This is often overlooked by practitioners, how consider themselves as either just sources of knowledge, or, even worse, only the examiners.
+However, it is worth considering _the whole_ effect that a teacher is having on the student's life.
+In particular, a student has no other choice than to trust the teacher on the choice of exercises. 
+
+The main point of the previous paragraph is that the teaching process is not only the process of data transmission.
+It is also the process of metadata transmission, the development of meta-cognitive skills.
+(TODO reference Falikman)
+And therefore, meta-cognitive challenges, although they may very well be valuable contributions to the student's "thinking abilities", deserve their own share of consideration when preparing a course.
+
+The examples of meta-cognitive exercises include:
+
+- Non-sequentiality of material and/or exercises, when earlier ones are impossible to solve without solving later ones.
+- Incompleteness of the treatise.
+- Terseness of the narrative.
+- Lacking of modern software support.
+- Missing difficulty/hardness estimation for tasks.
+- Vastly non-uniform difficulty of problems.
+
+An additional challenge to the learning process is the lack of peer support.
+There has been attempts by learning institutions to encourage peer support among the students, but the successfullness of those attempts is unclear.
+Do students really help each other in those artificially created support groups?
+How does side-communication, generally irrelevant to the subject of study affect the learners?
+
+A support medium is even more important for adult self-learners, who don't get even those artificial support groups created by the school functionaries.
+
+It should be noted that the support medium choice, no matter how irrelevant to the subject itself it may be, is a very important social factor.
+This is not to say that a teacher should create a support group in that particular social medium that is fashionable at the start of the course.
+This is only to say that ~deliberate effort~ should be spent on finding the best support configuration.
+
+From the *personal experience*:
+
+I used the [[irc:irc.freenode.org/#scheme][#scheme freenode channel]] as a place to ask questions in real-time. #emacs was also useful.
+I used stackoverflow.com to ask offline questions.
+I used the scheme community wiki community.schemewiki.org as a reference material.
+I emailed some prominent member of the scheme community with unsolicited questions.
+I was reporting errors in the documents generated by the scheme community process.
+There was also some help from the opendatascience Slack chat.
+There was also some help from the Closed-Circles data science community.
+There was also some help from the rulinux@conference.jabber.ru community.
+There was also some help from the Shanghai Linux User Group.
+There was also some help from the www.dxdy.ru scientific forum.
+There was also some help from the Haskell self-study group in Telegram.
+
+It should be noted that out of those communities, only the OpenDataScience community, and a small Haskell community resides in a "fashionable" communication system.
+
+The summary of the community interaction is under the "meta-cognitive" exercises section, because the skill of finding people who can help you with your problems is one of the most important soft skills ever, and one of the most hard to teach.
+Moreover, naturally, the people who _can_ and _may_ answer questions are in most of the cases not at all obliged to do so, so soliciting an answer from non-deliberately-cooperating people is another cognitive exercise that is worth looking into.
+
+I will repeat the main point of the previous paragraph in another words: human communities consist of rude people. Naturally, in the modern "free" world, no-one can force anyone to bear rudeness, but no-one can just as much force anyone to be polite.
+The meta-cognitive skill of extracting valuable knowledge from willing but rude people is a very important skill.
+
+But returning to the choice of the community, it is important to convey to the students, as well as the teachers, the following idea: it is not the fashion, population, easy availability, promotion, and social acceptability of the support media that matters.
+Unfortunately, it is not even the technological advanceness, technological modernity or convenience that matters. It is the availability of information, and the availability of people who can help.
+
+
+
+
+** Materials
+
+*** Books 
+- Structure and Interpretation of Computer Programs 2nd Ed.
+- Structure and Interpretation of Computer Programs 1st Ed. pre-print
+- Modern Fortran Explained 2018
+- Revised^7 Report on Algorithmic Language Scheme
+- Balbin, I., Lecot, K. (Eds.) Logic Programming: A Classified Bibliography
+- Chibi-scheme manual (improvised)
+- TikZ manual
+- PlantUML manual
+- Thomas A. Pender-UML Weekend Crash Course
+
+*** Software
+- GNU Emacs
+- org-mode for Emacs
+- chibi-scheme
+- MIT/GNU Scheme
+- luaLaTeX/TexLive!
+- TikZ/PGF
+- PlantUML
+- Graphviz
+- Slackware Linux 14.2-current
+
