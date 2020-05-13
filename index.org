@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-13 20:16:58 lockywolf>
+# Time-stamp: <2020-05-14 00:27:39 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -8,7 +8,6 @@
 #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
 #+HTML_MATHJAX: cancel.js noErrors.js
 #+OPTIONS: tex:imagemagick
-
 
 * noweb + common
 ** Existing solutions
@@ -2299,7 +2298,7 @@ interpreter switches to an exact representation, but meh, this result is good.
 
 *** DONE Exercise 1.31 Product
     CLOSED: [2019-09-03 Tue 11:59]
-**** DONE a. Defining product
+**** a. Defining product
      CLOSED: [2019-09-03 Tue 11:56]
  #+begin_src scheme :exports both :results value
    (define (inc x) (+ x 1))
@@ -2331,7 +2330,7 @@ interpreter switches to an exact representation, but meh, this result is good.
  : 3.142818162579486
 
 I can say that it converges very-very slowly.
-**** DONE b. A recursive version
+**** b. A recursive version
      CLOSED: [2019-09-03 Tue 11:59]
 
 #+begin_src scheme :exports both :results value
@@ -2403,7 +2402,7 @@ two implementations, not 4, but that should not be too much of a digression.
 
 *** DONE Exercise 1.33 filtered-accumulate
     CLOSED: [2019-09-03 Tue 14:36]
-**** DONE a. Sum-of-squares-of-primes
+**** a. Sum-of-squares-of-primes
     CLOSED: [2019-09-03 Tue 14:24]
 #+name: filtered-accumulate
 #+begin_src scheme :exports both :results value 
@@ -2426,7 +2425,7 @@ two implementations, not 4, but that should not be too much of a digression.
 
 #+RESULTS:
 : 88
-**** DONE b. Product of positive integers mutually prime with n
+**** b. Product of positive integers mutually prime with n
      CLOSED: [2019-09-03 Tue 14:36]
 
 #+begin_src scheme :exports both :results output
@@ -2644,8 +2643,8 @@ Guesses: 4.555530232469306 4.555539314360711
 Well, the amount of steps is visibly smaller. Works.
 
 *** DONE Exercise 1.37 cont-frac
-    CLOSED: [2019-09-04 Wed 10:34]
-**** DONE a. recursive
+    CLOSED: [2019-09-04 Wed 11:35]
+**** a. recursive
      CLOSED: [2019-09-04 Wed 11:35]
      #+begin_src scheme :exports both :results value :noweb-ref cont-frac-recursive
   (define (cont-frac n d k)
@@ -2677,7 +2676,7 @@ in fact \(k^2 \sqrt{5} = 1000\), and in practice that is
 \(\sqrt{\frac{1000}{2.23}} = 21\). How exactly we managed to do it in 14
 steps, I don't know.
 
-**** DONE b. iterative
+**** b. iterative
      CLOSED: [2019-09-04 Wed 11:35]
 
 We just start computing from the end.
@@ -2986,7 +2985,7 @@ we know that *n* is enough, and I am lazy.
   improver)
 #+end_src
 
-**** DONE a. sqrt
+**** a. sqrt
      CLOSED: [2019-09-04 Wed 22:24]
 
 #+begin_src scheme :exports both :results value
@@ -3007,7 +3006,7 @@ we know that *n* is enough, and I am lazy.
 #+RESULTS:
 : 1.4166666666666665
 
-**** DONE b. fixed-point
+**** b. fixed-point
      CLOSED: [2019-09-04 Wed 22:25]
 
 #+begin_src scheme :exports both :results value
