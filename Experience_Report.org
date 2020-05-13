@@ -1,5 +1,5 @@
  # -*- mode: org; -*-
- # Time-stamp: <2020-05-13 15:25:09 lockywolf>
+ # Time-stamp: <2020-05-13 19:47:14 lockywolf>
  # Created   : [2020-05-11 Mon 21:01]
  # Author    : lockywolf gmail.com
  #+STARTUP: inlineimages
@@ -369,7 +369,39 @@ And while the main benefit of using org-mode for the coursework formatting was t
 (Human performance profiling.)
 Although it originally appeared as a by-product of choosing a specific tool, at the end of the day it is the telemetry collected with the aid of it, that is the main contribution of this report.
 
-** Time analysis, performance profiling and graphs
+The way org-mode particulars were used is described in the next section, along with the statistical summary.
+
+** TODO Time analysis, performance profiling and graphs
+
+The execution was performed in the following way: 
+
+Firstly, the heading outline corresponding to the book subsection tree was created.
+(See Appendix 1 for the outline and completion times.)
+Most leaves are two-state TODO-headings.
+(Some leaves correspond to sections without problems, and thus are not TODO-styled.)
+
+Intermediate levels are not TODO-headings, but they contain the field representing the total ratio of DONE problems.
+
+The top level ratio, obviously, looks like the ratio of the total number of finished problems versus the total number of problems.
+
+This allows for constant monitoring of the "degree of completeness" and provides an important emotion of "getting close to the result with each complete exercise".
+Additional research is needed on how persistent this emotion is in students and how much it depends of the uneven distribution of hardness or time consumption.
+There is, however, empirical evidence that even very imprecise self-measured KPIs do positively affect the chance of reaching the goal.
+(TODO reference "the people who measure their weight more often are more fit") 
+It should be noted though that even if the hypothesis of uneven time consumption affects the positively stimulating emotion, the problems we find in the real world are not evenly hard, and therefore an even distributions of hardness may negatively affect the development of the meta-cognitive still of partitioning a task in smaller ones.
+
+The problems were executed almost sequentially, and the work on the next one was started immediately after the previous one had been finished.
+Deliberate effort was spent on avoiding the cases when a study session ends at the same time as the last problem of the session is done.
+This was done in order to exploit the well-known tricks: 
+
+- When you have something undone, it is easier to make yourself start the next session.
+- Even just reading out the description of a problem makes you start thinking about how to solve it.
+
+Exercise completion time was registered with a standard org-mode completion time mechanism.
+
+Study sessions were registered in a separate org-mode file in the standard org-mode time interval standard BEGIN_TIME -- END_TIME.
+(Appendix 2)
+
 
 
 

@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-11 13:11:15 lockywolf>
+# Time-stamp: <2020-05-13 20:16:58 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -2748,9 +2748,6 @@ second lambda.
 
 *** DONE Exercise 1.40 newtons-method
     CLOSED: [2019-09-04 Wed 17:06]
-    :LOGBOOK:
-    CLOCK: [2019-09-04 Wed 17:21]--[2019-09-04 Wed 17:21] =>  0:00
-    :END:
 
 #+begin_src scheme :exports both :results value :noweb-ref deriv
   (define (deriv g)
