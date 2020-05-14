@@ -272,25 +272,6 @@ whole project.
  #+RESULTS:
  : 13
 
- "Result (exception): {Exception #19 user \"undefined variable\"
-(sort) #<procedure sum-of-two-max> (#f . 6)}\nStack trace:\n called
-from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm\n
-called from <anonymous> on line 280 of file
-/usr/lib64/chibi/init-7.scm\n called from <anonymous> on line 1202 of
-file /usr/lib64/chibi/init-7.scm\n called from <anonymous> on line 813
-of file /usr/lib64/chibi/init-7.scm\n called from sum-of-two-max on
-line 6\n called from <anonymous> on line 813 of file
-/usr/lib64/chibi/init-7.scm\n called from
-call-with-current-continuation on line 840 of file
-/usr/lib64/chibi/init-7.scm\n called from <anonymous> on line 813 of
-file /usr/lib64/chibi/init-7.scm\n called from <anonymous> on line 280
-of file /usr/lib64/chibi/init-7.scm\n called from <anonymous> on line
-280 of file /usr/lib64/chibi/init-7.scm\n called from <anonymous> on
-line 813 of file /usr/lib64/chibi/init-7.scm\n called from
-call-with-current-continuation on line 840 of file
-/usr/lib64/chibi/init-7.scm\n called from geiser:eval on line 25 of
-file /usr/lib64/chibi/scheme/misc-macros.scm\n"
-
 *** DONE Exercise 1.4 Compound expressions
     CLOSED: [2019-08-20 Tue 14:39]
  #+begin_src scheme :exports both :results output :session
