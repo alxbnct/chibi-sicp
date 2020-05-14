@@ -99,21 +99,36 @@
 			 (next-time-stamp
 			  (org-time-string-to-seconds
 			   (org-element-property :raw-value (cadr next-elem)))))
+		     ;; loop body
+		     (let ((spans-sessions (seq-reduce
+					    (lambda (acc next-session)
+					      (let ((session-start (car next-session))
+						    (session-end (cadr next-session)))
+						;; We need to TODO  check that every closure date is within a study session
+						(cond ((<= session-end perv-time-stamp) acc)
+						      ((<= next-time-stamp session-start ) acc)
+						      (t (+ acc 1)))))
+					    study-sessions
+					    0)))
 		     (list next-time-stamp
-			   (cons (list next-elem ':spent-time-days
-				       (/ (-
-					   next-time-stamp
-					   perv-time-stamp)
-					  (* 60 60 24)))
-				 retval))))
+			   (cons (list next-elem
+				       :spent-time-days (/ (-
+							     next-time-stamp
+							     perv-time-stamp)
+							    (* 60 60 24))
+				       :spans-sessions (if (not (= 0 spans-sessions))
+							   spans-sessions
+							   (error "Fix time: %s" next-elem))
+				       :spent-time 'todo)
+				 retval)))))
 		 sorted-task-seq
 		 (list (org-time-string-to-seconds "2019-08-19 Mon 09:19") ()))))
 	 )
 
      (seq-concatenate 'string
-		      (pp "Amount of the out-of-order-problems:")
+		      (pp "Amount of the out-of-order-problems: ")
 		      (pp (number-to-string (car res)))
-		      (pp (char-to-string ?\n))
+		      (char-to-string ?\n)
 		      ;(char-to-string ?\n)
 		      ;(pp "Out-of-order problems :")
 		      ;(char-to-string ?\n)
@@ -125,6 +140,7 @@
      
      ;;(seq-reverse (caddr res))
      )))
+
 
 
 
