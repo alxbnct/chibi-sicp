@@ -1,5 +1,5 @@
  # -*- mode: org; -*-
- # Time-stamp: <2020-05-13 22:33:44 lockywolf>
+ # Time-stamp: <2020-05-14 10:45:01 lockywolf>
  # Created   : [2020-05-11 Mon 21:01]
  # Author    : lockywolf gmail.com
  #+STARTUP: inlineimages
@@ -429,15 +429,755 @@ Study sessions were registered in a separate org-mode file in the standard org-m
 - Graphviz
 - Slackware Linux 14.2-current
 
-*** Appendix 1
+
+** Appendix 1
 
 Full data on the exercise completion times.
 
+#+begin_example
+Snippet, First Scheme Expression
+[2019-08-19 Mon 09:19]
+Figure 1.1 Tree representation, showing the value of each subcombination
+[2019-08-20 Tue 14:35]
+Exercise 1.1 Interpreter result
+[2019-08-20 Tue 14:23]
+Exercise 1.2 Prefix form
+[2019-08-20 Tue 14:25]
+Exercise 1.3 Sum of squares
+[2020-02-28 Fri 12:01]
+Exercise 1.4 Compound expressions
+[2019-08-20 Tue 14:39]
+Exercise 1.5 Ben's test
+[2019-08-20 Tue 14:50]
+Exercise 1.6 If is a special form
+[2019-08-21 Wed 14:05]
+Exercise 1.7 Good enough?
+[2019-08-22 Thu 12:52]
+Exercise 1.8 Newton's method
+[2019-08-22 Thu 17:36]
+Exercise 1.9 Iterative or recursive?
+[2019-08-29 Thu 15:14]
+Exercise 1.10 Ackermann's function
+[2019-08-25 Sun 18:31]
+Exercise 1.11 Recursive vs iterative
+[2019-08-25 Sun 19:25]
+Exercise 1.12 Recursive Pascal's triangle
+[2019-08-25 Sun 19:42]
+Exercise 1.13 Fibonacci
+[2019-08-25 Sun 23:04]
+Exercise 1.14 count-change
+[2019-08-30 Fri 16:09]
+Exercise 1.15 sine
+[2019-08-30 Fri 22:34]
+Exercise 1.16 Iterative exponentiation
+[2019-08-30 Fri 23:20]
+Exercise 1.17 Fast multiplication
+[2019-08-30 Fri 23:48]
+Exercise 1.18 Iterative multiplication
+[2019-08-31 Sat 11:43]
+Exercise 1.19 Logarithmic Fibonacci
+[2019-09-01 Sun 20:42]
+Exercise 1.20 GCD applicative vs normal
+[2019-09-01 Sun 23:04]
+Exercise 1.21 smallest-divisor
+[2019-09-01 Sun 23:43]
+Exercise 1.22 timed-prime-test
+[2019-09-02 Mon 00:44]
+Exercise 1.23 (next test-divisor)
+[2019-09-02 Mon 09:56]
+Exercise 1.24 Fermat method
+[2019-09-02 Mon 11:32]
+Exercise 1.25 expmod
+[2019-09-02 Mon 12:46]
+Exercise 1.26 square vs mul
+[2019-09-02 Mon 12:50]
+Exercise 1.27 Carmichael numbers
+[2019-09-02 Mon 20:50]
+Exercise 1.28 Miller-Rabin
+[2019-09-02 Mon 23:28]
+Exercise 1.29 Simpson's integral
+[2019-09-03 Tue 10:36]
+Exercise 1.30 Iterative sum
+[2019-09-03 Tue 11:19]
+Exercise 1.31 Product
+[2019-09-03 Tue 11:59]
+Exercise 1.32 Accumulator
+[2019-09-03 Tue 12:23]
+Implement ~sum~ in terms of an iterative accumulator
+[2019-09-03 Tue 12:23]
+Implement ~product~ in terms of a recursive process
+[2019-09-03 Tue 12:22]
+Exercise 1.33 filtered-accumulate
+[2019-09-03 Tue 14:36]
+Exercise 1.34 lambda
+[2019-09-03 Tue 14:44]
+Exercise 1.35 fixed-point
+[2019-09-03 Tue 21:05]
+Exercise 1.36 fixed-point-with-dampening
+[2019-09-03 Tue 21:55]
+Exercise 1.37 cont-frac
+[2019-09-04 Wed 11:35]
+Exercise 1.38 euler constant
+[2019-09-04 Wed 11:35]
+Exercise 1.39 tan-cf
+[2019-09-04 Wed 12:11]
+Exercise 1.40 newtons-method
+[2019-09-04 Wed 17:06]
+Exercise 1.41 double-double
+[2019-09-04 Wed 17:21]
+Exercise 1.42 compose
+[2019-09-04 Wed 17:27]
+Exercise 1.43 repeated
+[2019-09-04 Wed 17:54]
+Exercise 1.44 smoothing
+[2019-09-04 Wed 20:17]
+Exercise 1.45 nth-root
+[2019-09-04 Wed 21:37]
+Exercise 1.46 iterative-improve
+[2019-09-04 Wed 22:25]
+Exercise 2.1 make-rat
+[2019-09-06 Fri 13:00]
+Exercise 2.2 make-segment
+[2019-09-06 Fri 13:34]
+Exercise 2.3 make-rectangle
+[2019-09-08 Sun 17:58]
+Exercise 2.4 cons-lambda
+[2019-09-08 Sun 18:08]
+Exercise 2.5 cons-pow
+[2019-09-08 Sun 19:07]
+Exercise 2.6 Church Numerals
+[2019-09-08 Sun 19:41]
+Exercise 2.7 make-interval
+[2019-09-08 Sun 20:09]
+Exercise 2.8 sub-interval
+[2019-09-08 Sun 23:07]
+Exercise 2.9 interval-width
+[2019-09-08 Sun 23:15]
+Exercise 2.10 div-interval-better
+[2019-09-08 Sun 23:30]
+Exercise 2.11 mul-interval-nine-cases
+[2019-09-09 Mon 00:45]
+Exercise 2.12 make-center-percent
+[2019-09-09 Mon 10:11]
+Exercise 2.13 formula for tolerance
+[2019-09-09 Mon 10:16]
+Exercise 2.14 parallel-resistors
+[2019-09-09 Mon 11:24]
+Exercise 2.15 better-intervals
+[2019-09-09 Mon 11:34]
+Exercise 2.16 interval-arithmetic
+[2019-09-09 Mon 11:37]
+Exercise 2.17 last-pair
+[2019-09-10 Tue 10:48]
+Exercise 2.18 reverse
+[2019-09-10 Tue 10:57]
+Exercise 2.19 coin-values
+[2019-09-10 Tue 11:27]
+Exercise 2.20 dotted-tail notation
+[2019-09-10 Tue 18:55]
+Exercise 2.21 map-square-list
+[2019-09-10 Tue 19:14]
+Exercise 2.22 wrong list order
+[2019-09-10 Tue 19:24]
+Exercise 2.23 for-each
+[2019-09-10 Tue 19:33]
+Exercise 2.24 list-plot-result
+[2019-09-10 Tue 22:13]
+Exercise 2.25 caddr
+[2019-09-10 Tue 23:07]
+Exercise 2.26 append cons list
+[2019-09-10 Tue 23:23]
+Exercise 2.27 deep-reverse
+[2019-09-11 Wed 09:47]
+Exercise 2.28 fringe
+[2019-09-11 Wed 10:24]
+Exercise 2.29 mobile
+[2019-09-11 Wed 11:47]
+Exercise 2.30 square-tree
+[2019-09-11 Wed 14:11]
+Exercise 2.31 tree-map square tree
+[2019-09-11 Wed 14:38]
+Exercise 2.32 subsets
+[2019-09-11 Wed 14:53]
+Exercise 2.33 map-append-length
+[2019-09-11 Wed 23:53]
+Exercise 2.34 horners-rule
+[2019-09-12 Thu 00:01]
+Exercise 2.35 count-leaves-accumulate
+[2019-09-12 Thu 00:17]
+Exercise 2.36 accumulate-n
+[2019-09-12 Thu 00:26]
+Exercise 2.37 matrix-*-vector
+[2019-09-12 Thu 00:50]
+Exercise 2.38 fold-left
+[2019-09-12 Thu 09:45]
+Exercise 2.39 reverse fold-right fold-left
+[2019-09-12 Thu 09:52]
+Exercise 2.40 unique-pairs
+[2019-09-12 Thu 10:34]
+Exercise 2.41 triple-sum
+[2019-09-14 Sat 15:15]
+Figure 2.8 A solution to the eight-queens puzzle.
+[2019-09-14 Sat 15:17]
+Exercise 2.42 k-queens
+[2019-09-17 Tue 22:27]
+Exercise 2.43 slow k-queens
+[2019-09-17 Tue 22:55]
+Exercise 2.44 up-split
+[2019-09-23 Mon 22:54]
+Exercise 2.45 split
+[2019-09-24 Tue 01:37]
+Exercise 2.46 make-vect
+[2019-09-20 Fri 12:48]
+Exercise 2.47 make-frame
+[2019-09-20 Fri 14:48]
+Exercise 2.48 make-segment
+[2019-09-20 Fri 16:06]
+Exercise 2.49 segments->painter applications
+[2019-09-20 Fri 23:10]
+Exercise 2.50 flip-horiz and rotate270 and rotate180
+[2019-09-20 Fri 23:37]
+Exercise 2.51 below
+[2019-09-22 Sun 18:50]
+Exercise 2.52 modify square-limit
+[2019-09-24 Tue 12:25]
+Exercise 2.53 quote introduction
+[2019-09-24 Tue 12:36]
+Exercise 2.54 equal? implementation
+[2019-09-24 Tue 13:48]
+Exercise 2.55 quote quote
+[2019-09-24 Tue 13:48]
+Exercise 2.56 differentiation-exponentiation
+[2019-09-24 Tue 23:14]
+Exercise 2.57 differentiate-three-sum
+[2019-09-25 Wed 12:40]
+Exercise 2.58 infix-notation
+[2019-09-25 Wed 15:21]
+Exercise 2.59 union-set
+[2019-09-25 Wed 22:00]
+Exercise 2.60 duplicate-set
+[2019-09-25 Wed 22:17]
+Exercise 2.61 sets as ordered lists
+[2019-09-26 Thu 21:44]
+Exercise 2.62 ordered-union-set (ordered list)
+[2019-09-26 Thu 21:38]
+Exercise 2.63 tree->list (binary search tree)
+[2019-09-26 Thu 23:37]
+Exercise 2.64 balanced-tree
+[2019-09-29 Sun 17:22]
+Exercise 2.65 tree-union-set
+[2019-10-09 Wed 12:13]
+Exercise 2.66 tree-lookup
+[2019-10-09 Wed 13:03]
+Exercise 2.67 Huffman decode a simple message
+[2019-10-09 Wed 20:20]
+Exercise 2.68 Huffman encode a simple message
+[2019-10-09 Wed 20:53]
+Exercise 2.69 Generate Huffman tree
+[2019-10-10 Thu 11:28]
+Exercise 2.70 Generate a tree and encode a song
+[2019-10-10 Thu 13:11]
+Exercise 2.71 Huffman tree for frequencies 5 and 10
+[2019-10-10 Thu 19:22]
+Exercise 2.72 Huffman order of growth
+[2019-10-10 Thu 20:34]
+Exercise 2.73 data-driven-deriv
+[2019-10-11 Fri 11:05]
+Exercise 2.74 Insatiable Enterprises
+[2019-10-11 Fri 20:56]
+Exercise 2.75 make-from-mag-ang message passing
+[2019-10-11 Fri 21:24]
+Exercise 2.76 types or functions?
+[2019-10-11 Fri 21:29]
+Exercise 2.77 generic-algebra-magnitude
+[2019-10-12 Sat 16:01]
+Exercise 2.78 Ordinary numbers for scheme
+[2019-10-12 Sat 21:06]
+Exercise 2.79 generic-equality
+[2019-10-14 Mon 15:58]
+Exercise 2.80 Generic arithmetic zero?
+[2019-10-14 Mon 17:18]
+Exercise 2.81 coercion to-itself
+[2019-10-15 Tue 11:16]
+Exercise 2.82 three-argument-coercion
+[2019-10-15 Tue 21:40]
+Exercise 2.83 Numeric Tower and (raise)
+[2019-10-16 Wed 14:53]
+Exercise 2.84 Using ~raise~ (~raise-type~) in ~apply-generic~
+[2019-10-17 Thu 11:39]
+Exercise 2.85 Dropping a type
+[2019-10-20 Sun 13:47]
+Exercise 2.86 Compound complex numbers
+[2019-10-20 Sun 20:22]
+Exercise 2.87 Generalized zero?
+[2019-10-21 Mon 18:25]
+Exercise 2.88 Subtraction of polynomials
+[2019-10-22 Tue 09:55]
+Exercise 2.89 Dense term-lists
+[2019-10-22 Tue 11:55]
+Exercise 2.90 Implementing dense polynomials as a separate package
+[2019-10-22 Tue 21:31]
+Exercise 2.91 Division of polynomials
+[2019-10-23 Wed 00:11]
+Exercise 2.92 Ordering of variables so that addition and multiplication work for different variables
+[2019-10-27 Sun 13:32]
+Exercise 2.93 Rational polynomials
+[2019-10-27 Sun 22:36]
+Exercise 2.94 Greatest-common-divisor for polynomials
+[2019-10-28 Mon 00:47]
+Exercise 2.95 Illustrate the non-integer problem
+[2019-10-28 Mon 11:35]
+Exercise 2.96 Integerizing factor
+[2019-10-28 Mon 19:23]
+Exercise 2.97 Reduction of polynomials
+[2019-10-29 Tue 00:12]
+Exercise 3.1 accumulators
+[2019-10-29 Tue 10:24]
+Exercise 3.2 make-monitored
+[2019-10-29 Tue 11:03]
+Exercise 3.3 password protection
+[2019-10-29 Tue 11:17]
+Exercise 3.4 call-the-cops
+[2019-10-29 Tue 11:32]
+Exercise 3.5 Monte-Carlo
+[2019-10-30 Wed 00:12]
+Exercise 3.6 reset a prng
+[2019-10-30 Wed 11:42]
+Exercise 3.7 Joint accounts
+[2019-10-30 Wed 13:07]
+Exercise 3.8 Right-to-left vs Left-to-right
+[2019-10-30 Wed 13:45]
+Exercise 3.9 Environment structures
+[2019-11-20 Wed 14:28]
+Exercise 3.10 Using ~let~ to create state variables
+[2019-11-25 Mon 12:52]
+Exercise 3.11 Internal definitions
+[2019-11-26 Tue 12:44]
+Exercise 3.12 Drawing ~append!~
+[2019-11-29 Fri 11:55]
+Exercise 3.13 ~make-cycle~
+[2019-11-29 Fri 12:09]
+Exercise 3.14 ~mystery~
+[2019-11-29 Fri 21:23]
+Exercise 3.15 ~set-to-wow!~
+[2019-12-01 Sun 19:59]
+Exercise 3.16 ~count-pairs~
+[2019-12-02 Mon 00:05]
+Exercise 3.17 Real ~count-pairs~
+[2019-12-02 Mon 00:47]
+Exercise 3.18 Finding cycles
+[2019-12-02 Mon 01:04]
+Exercise 3.19 Efficient finding cycles
+[2019-12-02 Mon 23:29]
+Exercise 3.20 Procedural ~set-car!~
+[2019-12-03 Tue 14:40]
+Exercise 3.21 queues
+[2019-12-03 Tue 15:10]
+Exercise 3.22 procedural queue
+[2019-12-03 Tue 22:13]
+Exercise 3.23 dequeue
+[2019-12-03 Tue 23:24]
+Exercise 3.24 tolerant tables
+[2019-12-04 Wed 18:07]
+Exercise 3.25 multilevel tables
+[2019-12-06 Fri 20:35]
+Exercise 3.26 binary tree table
+[2019-12-06 Fri 20:53]
+Exercise 3.27 memoization
+[2019-12-07 Sat 16:08]
+Exercise 3.28 primitive or-gate
+[2019-12-08 Sun 23:43]
+Exercise 3.29 Compound or-gate
+[2019-12-08 Sun 23:45]
+Exercise 3.30 ripple-carry adder
+[2019-12-08 Sun 23:58]
+Exercise 3.31 Initial propagation
+[2019-12-09 Mon 00:16]
+Exercise 3.32 Order matters
+[2019-12-09 Mon 00:26]
+Exercise 3.33 averager constraint
+[2019-12-18 Wed 11:29]
+Exercise 3.34 Wrong squarer
+[2019-12-18 Wed 12:30]
+Exercise 3.35 Correct squarer
+[2019-12-18 Wed 12:47]
+Exercise 3.36 Connector environment diagram
+[2019-12-21 Sat 20:27]
+Exercise 3.37 Expression-based constraints
+[2019-12-21 Sat 21:20]
+Exercise 3.38 Timing
+[2019-12-21 Sat 22:48]
+Exercise 3.39 Serializer
+[2019-12-23 Mon 05:11]
+Exercise 3.40 Three parallel multiplications
+[2019-12-29 Sun 04:32]
+Exercise 3.41 Better protected account
+[2020-01-02 Thu 10:02]
+Exercise 3.42 Saving on serializers
+[2020-01-02 Thu 10:35]
+Exercise 3.43 Multiple serializations
+[2020-01-02 Thu 11:33]
+Exercise 3.44 Transfer money
+[2020-01-02 Thu 11:40]
+Exercise 3.45 new plus old serializers
+[2020-01-02 Thu 11:46]
+Exercise 3.46 broken test-and-set!
+[2020-01-02 Thu 11:56]
+Exercise 3.47 semaphores
+[2020-01-03 Fri 12:59]
+Exercise 3.48 serialized-exchange deadlock
+[2020-01-03 Fri 13:30]
+Exercise 3.49 When numbering accounts doesn't work
+[2020-01-03 Fri 13:41]
+Exercise 3.50 stream-map multiple arguments
+[2020-01-03 Fri 21:18]
+Exercise 3.51 stream-show
+[2020-01-03 Fri 21:28]
+Exercise 3.52 streams with mind-boggling
+[2020-01-03 Fri 22:17]
+Exercise 3.53 stream power of two
+[2020-01-03 Fri 22:40]
+Exercise 3.54 mul-streams
+[2020-01-03 Fri 22:47]
+Exercise 3.55 streams partial-sums
+[2020-01-03 Fri 23:05]
+Exercise 3.56 Hamming's streams-merge
+[2020-01-03 Fri 23:26]
+Exercise 3.57 exponential additions fibs
+[2020-01-03 Fri 23:36]
+Exercise 3.58 Cryptic stream
+[2020-01-03 Fri 23:50]
+Exercise 3.59 power series
+[2020-01-04 Sat 09:58]
+integrate series
+[2020-01-04 Sat 09:49]
+exponential series
+[2020-01-04 Sat 09:58]
+Exercise 3.60 mul-series
+[2020-01-04 Sat 11:07]
+Exercise 3.61 power-series-inversion
+[2020-01-04 Sat 13:13]
+Exercise 3.62 div-series
+[2020-01-04 Sat 13:21]
+Exercise 3.63 sqrt-stream
+[2020-01-04 Sat 20:32]
+Exercise 3.64 stream-limit
+[2020-01-06 Mon 09:38]
+Exercise 3.65 approximating logarithm
+[2020-01-06 Mon 10:34]
+Exercise 3.66 lazy pairs
+[2020-01-06 Mon 22:55]
+Exercise 3.67 all possible pairs
+[2020-01-06 Mon 23:09]
+Exercise 3.68 pairs-louis
+[2020-01-06 Mon 23:26]
+Exercise 3.69 triples
+[2020-02-17 Mon 20:10]
+Exercise 3.70 merge-weighted
+[2020-01-07 Tue 11:58]
+Exercise 3.71 Ramanujan numbers
+[2020-01-07 Tue 12:49]
+Exercise 3.72 Ramanujan 3-numbers
+[2020-01-08 Wed 10:27]
+Figure 3.32
+[2020-01-08 Wed 10:59]
+Exercise 3.73 RC-circuit
+[2020-01-08 Wed 13:09]
+Exercise 3.74 zero-crossings
+[2020-01-08 Wed 16:50]
+Exercise 3.75 filtering signals
+[2020-01-08 Wed 18:11]
+Exercise 3.76 stream-smooth
+[2020-01-08 Wed 19:56]
+Exercise 3.77
+[2020-01-08 Wed 20:51]
+Exercise 3.78 second order differential equation
+[2020-01-08 Wed 21:47]
+Exercise 3.79 general second-order ode
+[2020-01-08 Wed 21:57]
+Figure 3.36
+[2020-01-08 Wed 23:21]
+Exercise 3.80 RLC circuit
+[2020-01-08 Wed 23:40]
+Exercise 3.81  renerator-in-streams
+[2020-01-09 Thu 00:37]
+Exercise 3.82 streams Monte-Carlo
+[2020-01-09 Thu 09:42]
+Exercise 4.1 list-of-values ordered
+[2020-01-09 Thu 20:11]
+Exercise 4.2 application before assignments
+[2020-01-09 Thu 20:41]
+Exercise 4.3 data-directed eval
+[2020-01-09 Thu 21:24]
+Exercise 4.4 eval-and and eval-or
+[2020-01-09 Thu 22:14]
+Exercise 4.5 cond with arrow
+[2020-01-22 Wed 16:36]
+Exercise 4.6 Implementing let
+[2020-01-22 Wed 17:03]
+Exercise 4.7 Implementing let*
+[2020-01-22 Wed 18:09]
+Exercise 4.8 Implementing named let
+[2020-01-22 Wed 19:50]
+Exercise 4.9 Implementing until
+[2020-01-23 Thu 18:06]
+Exercise 4.10 Modifying syntax
+[2020-02-06 Thu 22:08]
+Exercise 4.11 Environment as a list of bindings
+[2020-02-11 Tue 06:58]
+Exercise 4.12 Better abstractions for setting a value
+[2020-02-11 Tue 19:40]
+Exercise 4.13 Implementing ~make-unbound!~
+[2020-02-12 Wed 08:52]
+Exercise 4.14 meta map versus built-in map
+[2020-02-12 Wed 08:58]
+Exercise 4.15 The ~halts?~ predicate
+[2020-02-12 Wed 09:24]
+Exercise 4.16 Simultaneous internal definitions
+[2020-02-12 Wed 13:17]
+Exercise 4.17 Environment with simultaneous definitions
+[2020-02-12 Wed 14:09]
+Exercise 4.18 Alternative scanning
+[2020-02-12 Wed 14:35]
+Exercise 4.19 Mutual simultaneous definitions
+[2020-02-12 Wed 19:52]
+Exercise 4.20 letrec
+[2020-02-13 Thu 00:49]
+Exercise 4.21 Y-combinator
+[2020-02-13 Thu 01:07]
+Exercise 4.22 Extending evaluator to support ~let~
+[2020-02-14 Fri 19:33]
+Exercise 4.23 Analysing sequences
+[2020-02-14 Fri 19:40]
+Exercise 4.24 Analysis time test
+[2020-02-14 Fri 20:12]
+Exercise 4.25 lazy factorial
+[2020-02-14 Fri 21:01]
+Exercise 4.26 unless as a special form
+[2020-02-15 Sat 04:32]
+Exercise 4.27 Working with mutation in lazy interpreters
+[2020-02-15 Sat 16:54]
+Exercise 4.28 Eval before applying
+[2020-02-15 Sat 17:01]
+Exercise 4.29 Lazy evaluation is slow without memoization
+[2020-02-15 Sat 17:51]
+Exercise 4.30 Lazy sequences
+[2020-02-15 Sat 21:32]
+Exercise 4.31 Lazy arguments with syntax extension
+[2020-02-15 Sat 23:44]
+Exercise 4.32 streams versus lazy lists
+[2020-02-16 Sun 11:49]
+Exercise 4.33 quoted lazy lists
+[2020-02-16 Sun 14:09]
+Exercise 4.34 printing lazy lists
+[2020-02-16 Sun 19:25]
+Exercise 4.35 ~an-integer-between~ and Pythagorean triples
+[2020-02-17 Mon 17:25]
+Exercise 4.36 infinite search for Pythagorean triples
+[2020-02-17 Mon 20:26]
+Exercise 4.37 another method for triples
+[2020-02-17 Mon 21:17]
+Exercise 4.38 Logical puzzle - Not same floor
+[2020-02-17 Mon 21:56]
+Exercise 4.39 Order of restrictions
+[2020-02-17 Mon 22:01]
+Exercise 4.40 People to floor assignment
+[2020-02-17 Mon 22:29]
+Exercise 4.41 Ordinary scheme to solve the problem
+[2020-02-18 Tue 00:12]
+Exercise 4.42 The liars puzzle
+[2020-02-18 Tue 12:16]
+Exercise 4.43 Problematical Recreations
+[2020-02-18 Tue 13:31]
+Exercise 4.44 Nondeterministic eight queens
+[2020-02-18 Tue 15:17]
+Exercise 4.45 Five parses
+[2020-02-18 Tue 19:45]
+Exercise 4.46 Order of parsing
+[2020-02-18 Tue 19:55]
+Exercise 4.47 Parse verb phrase by Louis
+[2020-02-18 Tue 20:13]
+Exercise 4.48 Extending the grammar
+[2020-02-18 Tue 21:06]
+Exercise 4.49 Alyssa's generator
+[2020-02-18 Tue 21:51]
+Exercise 4.50 The ~ramb~ operator
+[2020-02-17 Mon 14:56]
+Exercise 4.51 Implementing ~permanent-set!~
+[2020-02-18 Tue 22:34]
+Exercise 4.52 ~if-fail~
+[2020-02-19 Wed 00:05]
+Exercise 4.53 test evaluation
+[2020-02-19 Wed 00:12]
+Exercise 4.54 ~analyze-require~
+[2020-02-19 Wed 11:26]
+Exercise 4.55 Simple queries
+[2020-02-19 Wed 17:38]
+Exercise 4.56 Compound queries
+[2020-02-19 Wed 18:04]
+Exercise 4.57 custom rules
+[2020-02-19 Wed 21:36]
+Exercise 4.58 big shot
+[2020-02-19 Wed 22:12]
+Exercise 4.59 meetings
+[2020-02-19 Wed 22:57]
+Exercise 4.60 pairs live near
+[2020-02-19 Wed 23:20]
+Exercise 4.61 next-to relation
+[2020-02-19 Wed 23:31]
+Exercise 4.62 last-pair
+[2020-02-20 Thu 00:19]
+Exercise 4.63 Genesis
+[2020-02-20 Thu 10:28]
+Figure 4.6 How the system works
+[2020-02-20 Thu 10:59]
+Exercise 4.64 broken outranked-by
+[2020-02-20 Thu 12:33]
+Exercise 4.65 second-degree subordinates
+[2020-02-20 Thu 12:50]
+Exercise 4.66 Ben's accumulation
+[2020-02-20 Thu 13:08]
+Exercise 4.67 loop detector
+[2020-02-20 Thu 23:20]
+Exercise 4.68 reverse rule
+[2020-02-21 Fri 15:48]
+Exercise 4.69 great grandchildren
+[2020-02-21 Fri 17:43]
+Exercise 4.70 Cons-stream delays its second argument
+[2020-02-20 Thu 17:08]
+Exercise 4.71 Louis' simple queries
+[2020-02-21 Fri 20:56]
+Exercise 4.72 interleave-stream
+[2020-02-20 Thu 17:11]
+Exercise 4.73 flatten-stream delays
+[2020-02-20 Thu 17:19]
+Exercise 4.74 Alyssa's streams
+[2020-02-21 Fri 22:00]
+Exercise 4.75 ~unique~ special form
+[2020-02-21 Fri 23:19]
+Exercise 4.76 improving ~and~
+[2020-02-22 Sat 18:27]
+Exercise 4.77 lazy queries
+[2020-03-14 Sat 15:42]
+Exercise 4.78 non-deterministic queries
+[2020-03-15 Sun 12:40]
+Exercise 4.79 prolog environments
+[2020-05-10 Sun 17:59]
+Figure 5.1 Data paths for a Register Machine
+[2020-02-23 Sun 13:18]
+Figure 5.2 Controller for a GCD Machine
+[2020-02-22 Sat 22:27]
+Exercise 5.1 Register machine plot
+[2020-02-22 Sat 22:56]
+Exercise 5.2 Register machine language description of Exercise 5.1
+[2020-02-23 Sun 13:26]
+Exercise 5.3 Machine for ~sqrt~ using Newton Method
+[2020-02-23 Sun 20:47]
+Exercise 5.4 Recursive register machines
+[2020-02-24 Mon 20:49]
+Exercise 5.5 Hand simulation for factorial and Fibonacci
+[2020-02-24 Mon 23:27]
+Exercise 5.6 Fibonacci machine extra instructions
+[2020-02-24 Mon 23:43]
+Exercise 5.7 Test the 5.4 machine on a simulator
+[2020-02-25 Tue 10:42]
+Exercise 5.8 Ambiguous labels
+[2020-02-25 Tue 21:58]
+Exercise 5.9 Prohibit (op)s on labels
+[2020-02-25 Tue 22:23]
+Exercise 5.10 Changing syntax
+[2020-02-25 Tue 22:39]
+Exercise 5.11 Save and restore
+[2020-02-26 Wed 13:30]
+Exercise 5.12 Data paths from controller
+[2020-02-26 Wed 23:40]
+Exercise 5.13 Registers from controller
+[2020-02-27 Thu 10:57]
+Exercise 5.14 Profiling
+[2020-02-28 Fri 20:21]
+Exercise 5.15 Instruction counting
+[2020-02-28 Fri 21:36]
+Exercise 5.16 Tracing execution
+[2020-02-28 Fri 22:59]
+Exercise 5.17 Printing labels
+[2020-02-29 Sat 17:43]
+Exercise 5.18 Register tracing
+[2020-02-29 Sat 14:07]
+Exercise 5.19 Breakpoints
+[2020-02-29 Sat 17:42]
+Exercise 5.20 Drawing a list ~(#1=(1 . 2) #1)~
+[2020-02-29 Sat 22:15]
+Exercise 5.21 Register machines for list operations
+[2020-03-01 Sun 13:03]
+Exercise 5.22 ~append~ and ~append!~ as register machines
+[2020-03-01 Sun 14:11]
+Exercise 5.23 Extending EC-evaluator with ~let~ and ~cond~
+[2020-03-02 Mon 10:52]
+Exercise 5.24 Making ~cond~ a primitive
+[2020-03-02 Mon 14:42]
+Exercise 5.25 Normal-order (lazy) evaluation
+[2020-03-03 Tue 14:57]
+Exercise 5.26 Explore tail recursion with ~factorial~
+[2020-03-03 Tue 19:38]
+Exercise 5.27 Stack depth for a recursive factorial
+[2020-03-03 Tue 19:49]
+Exercise 5.28 Interpreters without tail recursion
+[2020-03-03 Tue 20:29]
+Exercise 5.29 Stack in tree-recursive Fibonacci
+[2020-03-03 Tue 20:50]
+Exercise 5.30 Errors
+[2020-03-04 Wed 11:35]
+Exercise 5.31 a ~preserving~ mechanism
+[2020-03-04 Wed 21:36]
+Exercise 5.32 symbol-lookup optimization
+[2020-03-04 Wed 22:51]
+Exercise 5.33 compiling ~factorial-alt~
+[2020-03-05 Thu 16:55]
+Exercise 5.34 compiling iterative factorial
+[2020-03-05 Thu 20:58]
+Exercise 5.35 Decompilation
+[2020-03-05 Thu 21:30]
+Exercise 5.36 Order of evaluation
+[2020-03-06 Fri 17:47]
+Exercise 5.37 ~preserving~
+[2020-03-06 Fri 21:01]
+Exercise 5.38 open code primitives
+[2020-03-07 Sat 18:57]
+Exercise 5.39 ~lexical-address-lookup~
+[2020-03-07 Sat 20:41]
+Exercise 5.40 maintaining a compile-time environment
+[2020-03-08 Sun 15:02]
+Exercise 5.41 ~find-variable~
+[2020-03-07 Sat 19:37]
+Exercise 5.42 Rewrite ~compile-variable~ and ~compile-assignment~
+[2020-03-08 Sun 12:59]
+Exercise 5.43 Scanning out defines
+[2020-03-08 Sun 21:00]
+Exercise 5.44 open code with compile-time environment
+[2020-03-08 Sun 21:29]
+Exercise 5.45 stack usage analysis for a ~factorial~
+[2020-03-09 Mon 10:09]
+Exercise 5.46 stack usage analysis for ~fibonacci~
+[2020-03-09 Mon 10:34]
+Exercise 5.47 calling interpreted procedures
+[2020-03-09 Mon 11:45]
+Exercise 5.48 ~compile-and-run~
+[2020-03-10 Tue 12:14]
+Exercise 5.49 ~read-compile-execute-print~ loop
+[2020-03-10 Tue 12:36]
+Exercise 5.50 Compiling the metacircular evaluator
+[2020-03-14 Sat 15:52]
+Exercise 5.51 Translating the EC-evaluator into a low-level language
+[2020-04-13 Mon 11:45]
+Exercise 5.52 Making a compiler for scheme
+[2020-05-06 Wed 11:09]
+#+end_example
 
-*** Appendix 2
+** Appendix 2
 
 Full data on the study sessions.
 
+#+begin_example
     CLOCK: [2020-05-10 Sun 14:39]--[2020-05-10 Sun 18:00] =>  3:21
     CLOCK: [2020-05-09 Sat 19:13]--[2020-05-09 Sat 22:13] =>  3:00
     CLOCK: [2020-05-09 Sat 09:34]--[2020-05-09 Sat 14:34] =>  5:00
@@ -732,3 +1472,4 @@ Full data on the study sessions.
     CLOCK: [2019-08-20 Tue 10:57]--[2019-08-20 Tue 15:04] =>  4:07
     CLOCK: [2019-08-19 Mon 09:19]--[2019-08-19 Mon 13:32] =>  4:13
 
+#+end_example

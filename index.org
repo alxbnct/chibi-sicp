@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-14 09:56:02 lockywolf>
+# Time-stamp: <2020-05-14 10:36:57 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -90,7 +90,10 @@
 :header-args: :noweb yes
 :END:
 ** Chapter 1: Building abstractions with procedures [57/61]
-*** Snippet
+*** DONE Snippet, First Scheme Expression
+CLOSED: [2019-08-19 Mon 09:19]
+The clock value here is fake, it serves as a "zero moment" for the
+whole project.
  #+BEGIN_SRC scheme :exports both :results value
    (* (+ 2 (* 4 6))
       (+ 3 5 7))
@@ -7097,14 +7100,14 @@ sure to include it first.
           (define (operands exp) (cdr exp))
 #+end_src
 
-**** DONE a
+**** a
      CLOSED: [2019-10-11 Fri 10:29]
  We replaced the fixed ~product?~ and ~sum?~ predicate functions with the
 ones dispatched on the table. Both of these predicates require their tested
 variable to be a ~cons~. This is why ~number?~ and ~variable?~ cannot be
 replaced with a dispatched version − they are not a pair.
 
-**** DONE b
+**** b
 Surprise-surprise, the prototype of the two ~deriv~ functions we are
 supposed to write is incompatible with the derivatives we had to write in the Exercise-2.56.
 
@@ -7134,7 +7137,7 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
 #+RESULTS:
 : Test:(+ 1 b)
 
-**** DONE c
+**** c
      CLOSED: [2019-10-11 Fri 11:03]
 
 #+begin_src scheme :exports both :results output :noweb-ref data-driven-exponentiation
@@ -7172,7 +7175,7 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
 #+RESULTS:
 : Test:(+ 1 (* b (* c (** a (+ c -1)))))
 
-**** DONE d
+**** d
      CLOSED: [2019-10-11 Fri 11:05]
 
 The only change needed is to change the order of parameters in ~put~ just as
@@ -7249,7 +7252,7 @@ assume that the company only has two divisions.
 : Division-1: 200
 : Division-2: 100
 
-**** DONE a
+**** a
      CLOSED: [2019-10-11 Fri 18:39]
 
 The key thing in our implementation of the two datasets is that we have a
@@ -7274,7 +7277,7 @@ data.
 : (Jill (salary 200) (address #t))
 : (placeholder ZhangEr salary 200 address this-world)
 
-**** DONE b
+**** b
      CLOSED: [2019-10-11 Fri 20:22]
 
 #+begin_src scheme :exports both :results output :noweb-ref insatiable-b
@@ -7304,7 +7307,7 @@ data.
 Because all the dispatch is organized on a tag in the file records, there is
 no specific requirements to the record structure.
 
-**** DONE c
+**** c
      CLOSED: [2019-10-11 Fri 20:54]
 
 #+begin_src scheme :exports both :results output :noweb-ref insatiable-find-employee-record
@@ -7329,7 +7332,7 @@ no specific requirements to the record structure.
 #+RESULTS:
 : Result: (Jill (salary . 200) (address #t))
 
-**** DONE d
+**** d
      CLOSED: [2019-10-11 Fri 20:56]
 The new company would need to prepend their files with ~('companyname)~, and
 their functions ~get-record~ and ~get-salary~ need to be registered with the
@@ -23061,7 +23064,7 @@ rnote over p2: acquired
 
 *** DONE Exercise 3.47 semaphores
     CLOSED: [2020-01-03 Fri 12:59]
-**** DONE a: In terms of mutexes
+**** a: In terms of mutexes
      CLOSED: [2020-01-03 Fri 12:38]
 
 #+begin_src scheme :exports both :results output
@@ -23114,7 +23117,7 @@ On my machine, the output from threads 1 and 2 is interleaved, while
 the output from thread 3 is separate. I consider this to be a proof of
 the fact that my code works as expected.
 
-**** DONE b: In terms of test-and-set! operations
+**** b: In terms of test-and-set! operations
      CLOSED: [2020-01-03 Fri 12:59]
 
 #+begin_src scheme :exports both :results output
