@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-14 00:27:39 lockywolf>
+# Time-stamp: <2020-05-14 09:56:02 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -4714,6 +4714,8 @@ results of 12 other problems.
 | 12 | 2 | 1 |
 
 *** DONE Figure 2.8 A solution to the eight-queens puzzle.
+    CLOSED: [2019-09-14 Sat 15:17]
+# 2019-09-14 15:17:06.618032485 +0800
 
 #+begin_src plantuml :exports both :file figure-2-8.png
 @startditaa
