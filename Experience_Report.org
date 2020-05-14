@@ -1,5 +1,5 @@
  # -*- mode: org; -*-
- # Time-stamp: <2020-05-14 10:45:01 lockywolf>
+ # Time-stamp: <2020-05-14 22:48:44 lockywolf>
  # Created   : [2020-05-11 Mon 21:01]
  # Author    : lockywolf gmail.com
  #+STARTUP: inlineimages
@@ -392,7 +392,7 @@ It should be noted though that even if the hypothesis of uneven time consumption
 
 The problems were executed almost sequentially, and the work on the next one was started immediately after the previous one had been finished.
 Deliberate effort was spent on avoiding the cases when a study session ends at the same time as the last problem of the session is done.
-This was done in order to exploit the well-known tricks: 
+This was done in order to exploit the well-known tricks (TODO: reference): 
 
 - When you have something undone, it is easier to make yourself start the next session.
 - Even just reading out the description of a problem makes you start thinking about how to solve it.
@@ -402,6 +402,65 @@ Exercise completion time was registered with a standard org-mode completion time
 Study sessions were registered in a separate org-mode file in the standard org-mode time interval standard BEGIN_TIME -- END_TIME.
 (Appendix 2)
 
+*** Out of order problems
+
+15 problems were solved out-of-order.
+This means that either the problem may have been the trickiest.
+(Although not necessarily the hardest.)
+
+#+begin_src emacs-lisp
+(let ((res (seq-reduce (lambda (acc next-elem)
+			    (if (org-time< (org-element-property :raw-value
+								 (cadr next-elem))
+					   (cadr acc))
+				(list (+ 1 (car acc))
+				      (org-element-property :raw-value (cadr next-elem))
+				      (cons (cadddr acc) (caddr acc)))
+			      (list (car acc)
+				    (org-element-property :raw-value (cadr next-elem))
+				    (caddr acc) next-elem)))
+			  task-seq
+			  (list 0 "2010-01-01 MON 09:00" (list) (list)))))
+     (pp (car res))
+     (pp (char-to-string ?\n))
+     (pp (seq-reverse (caddr res))))
+#+end_src
+
+#+RESULT
+15
+
+#+begin_export 
+(("Figure 1.1 Tree representation, showing the value of each subcombination"
+  "[2019-08-20 Tue 14:35]")
+ ("Exercise 1.3 Sum of squares"
+  "[2020-02-28 Fri 12:01]")
+ ("Exercise 1.9 Iterative or recursive?"
+  "[2019-08-29 Thu 15:14]")
+ ("Implement ~sum~ in terms of an iterative accumulator"
+  "[2019-09-03 Tue 12:23]")
+ ("Exercise 2.45 split"
+  "[2019-09-24 Tue 01:37]")
+ ("Exercise 2.61 sets as ordered lists"
+  "[2019-09-26 Thu 21:44]")
+ ("Exercise 3.59 power series"
+  "[2020-01-04 Sat 09:58]")
+ ("Exercise 3.69 triples"
+  "[2020-02-17 Mon 20:10]")
+ ("Exercise 4.49 Alyssa's generator"
+  "[2020-02-18 Tue 21:51]")
+ ("Exercise 4.69 great grandchildren"
+  "[2020-02-21 Fri 17:43]")
+ ("Exercise 4.71 Louis' simple queries"
+  "[2020-02-21 Fri 20:56]")
+ ("Exercise 4.79 prolog environments"
+  "[2020-05-10 Sun 17:59]")
+ ("Exercise 5.17 Printing labels"
+  "[2020-02-29 Sat 17:43]")
+ ("Exercise 5.40 maintaining a compile-time environment"
+  "[2020-03-08 Sun 15:02]"))
+#+end_export
+
+*** Calendar length distribution of the solutions
 
 
 
