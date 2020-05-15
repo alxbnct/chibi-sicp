@@ -1,5 +1,5 @@
  # -*- mode: org; -*-
- # Time-stamp: <2020-05-14 22:48:44 lockywolf>
+ # Time-stamp: <2020-05-15 11:27:30 lockywolf>
  # Created   : [2020-05-11 Mon 21:01]
  # Author    : lockywolf gmail.com
  #+STARTUP: inlineimages
@@ -464,7 +464,7 @@ This means that either the problem may have been the trickiest.
 
 
 
-** Materials
+* Materials
 
 *** Books 
 - Structure and Interpretation of Computer Programs 2nd Ed.
@@ -489,7 +489,7 @@ This means that either the problem may have been the trickiest.
 - Slackware Linux 14.2-current
 
 
-** Appendix 1
+* Appendix 1
 
 Full data on the exercise completion times.
 
@@ -1232,7 +1232,7 @@ Exercise 5.52 Making a compiler for scheme
 [2020-05-06 Wed 11:09]
 #+end_example
 
-** Appendix 2
+* Appendix 2
 
 Full data on the study sessions.
 

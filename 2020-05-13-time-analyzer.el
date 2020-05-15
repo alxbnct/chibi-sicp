@@ -105,20 +105,26 @@
 					      (let ((session-start (car next-session))
 						    (session-end (cadr next-session)))
 						;; We need to TODO  check that every closure date is within a study session
-						(cond ((<= session-end perv-time-stamp) acc)
-						      ((<= next-time-stamp session-start ) acc)
-						      (t (+ acc 1)))))
+						;; (cond ((<= session-end perv-time-stamp) acc)
+						;;       ((<= next-time-stamp session-start ) acc)
+						;;       (t (+ acc 1)))
+						(if (and
+						     (<= session-start next-time-stamp)
+						     (<= next-time-stamp session-end))
+						    t
+						  acc)
+						))
 					    study-sessions
-					    0)))
+					    nil)))
 		     (list next-time-stamp
 			   (cons (list next-elem
 				       :spent-time-days (/ (-
 							     next-time-stamp
 							     perv-time-stamp)
 							    (* 60 60 24))
-				       :spans-sessions (if (not (= 0 spans-sessions))
+				       :spans-sessions (if (eq t spans-sessions)
 							   spans-sessions
-							   (error "Fix time: %s" next-elem))
+							   (error "Fix time: %s, spans-sessions=%s" next-elem spans-sessions))
 				       :spent-time 'todo)
 				 retval)))))
 		 sorted-task-seq
