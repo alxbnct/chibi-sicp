@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-15 11:32:51 lockywolf>
+# Time-stamp: <2020-05-15 13:09:09 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -611,7 +611,7 @@ them `plus' and `minus'.
      (lambda (form rename compare?)
        (let ((a (cadr form))
 	     (b (caddr form)))
-n	 (if (= a 0) b `(inc (plusF ,(dec a) ,b)))))))
+	 (if (= a 0) b `(inc (plusF ,(dec a) ,b)))))))
   (macroexpand '(plusF 4 5))
 #+end_src
 
@@ -774,7 +774,7 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
 : 6
 
 *** DONE Exercise 1.13 Fibonacci
-    CLOSED: [2019-08-25 Sun 23:04]
+    CLOSED: [2019-08-25 Sun 21:54]
 
 \begin{equation}
 \label{eq:6}
