@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-15 13:09:09 lockywolf>
+# Time-stamp: <2020-05-15 22:56:57 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -2345,7 +2345,7 @@ two implementations, not 4, but that should not be too much of a digression.
    (define (identity x) x)
 #+end_src
 
-**** DONE Implement ~sum~ in terms of an iterative accumulator
+**** Implement ~sum~ in terms of an iterative accumulator
      CLOSED: [2019-09-03 Tue 12:23]
 #+begin_src scheme :exports both :results value
 <<accumulator-common>>
@@ -2363,7 +2363,7 @@ two implementations, not 4, but that should not be too much of a digression.
 #+RESULTS:
 : 55
 
-**** DONE Implement ~product~ in terms of a recursive process
+**** Implement ~product~ in terms of a recursive process
      CLOSED: [2019-09-03 Tue 12:22]
 
 #+begin_src scheme :exports both :results value
@@ -23676,7 +23676,7 @@ This cryptic stream approximates a rational fraction by a decimal
 
 *** DONE Exercise 3.59 power series
     CLOSED: [2020-01-04 Sat 09:58]
-**** DONE integrate series
+**** integrate series
      CLOSED: [2020-01-04 Sat 09:49]
 #+name: streams-integrate-series
 #+begin_src scheme :exports both :results output
@@ -23705,7 +23705,7 @@ This cryptic stream approximates a rational fraction by a decimal
 #+RESULTS:
 : 1 1/2 1/3 1/4 1/5 
 
-**** DONE exponential series
+**** exponential series
      CLOSED: [2020-01-04 Sat 09:58]
 #+name: streams-sin-cos
 #+begin_src scheme :exports both :results output 
@@ -47115,7 +47115,7 @@ Okay, I still don't entirely understand what is going on, but there is
 a hint. I probably should just get rid of ~unify-match~ entirely, and
 deal with ~pattern-match~ to create one-sided bindings in rule application.
 
-<2020-03-21 Sat>
+ 2020-03-21 Sat:
 Frames should only have values for "external" variables. 
 Logical variables should originally contain references to themselves. 
 After applying, a rule is getting values in the value cells. 
@@ -52456,7 +52456,7 @@ Heh. Without ~call/cc~ all this would have been a lot of pain. But
 with ~call/cc~ and ~(scheme list)~ works like charm.
 
 *** 5.3 Storage Allocation and Garbage Collection [3/3]
-**** DONE Exercise 5.20 Drawing a list ~(#1=(1 . 2) #1)~
+**** DONE Exercise 5.20 Drawing a list "~(#1=(1 . 2) #1)~"
      CLOSED: [2020-02-29 Sat 22:15]
 
 

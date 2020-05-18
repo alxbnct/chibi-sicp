@@ -31,7 +31,33 @@
 (require 'org-element)
 
 
-
+(cl-labels
+    ((decorate-orgtable (tbl)
+			(seq-concatenate 'string
+					 "("
+					 "| Exercise Name | Days Spent | Spans Sessions | Minutes Spent |"
+					 (char-to-string ?\n)
+					 "|- + - + - + - |"
+					 (format-orgtable tbl)
+					 ")"))
+     (format-orgtable (list-of-lists)
+		      ;(error "Type of l-o-l=%s" (type-of list-of-lists))
+		      (apply #'seq-concatenate (cons 'string (seq-map (lambda (x) (format-table-line x))
+			       list-of-lists))))
+     (format-table-line (line)
+			(seq-concatenate 'string
+					 (char-to-string ?\n)
+					 "|"
+					 ;"debug: seq-length="
+					 ;(format "%d" (seq-length line))
+					 (substring (car line) 0 (min 60 (seq-length (car line))))
+					 "|"
+					 (format "%3.3f"(caddr line))
+					 "|"
+					 (format "%3d" (nth 4 line))
+					 "|"
+					 (format "%3.3f" (nth 6 line))
+					 "|")))
 
 (let* ((study-sessions (apply 'append (with-current-buffer "only_study.org"
 		 (org-element-map (org-element-parse-buffer)
@@ -50,11 +76,12 @@
 		     	  25
 		     	  45))))
 		     ))))))
-       (task-seq (apply 'append
-	    (with-current-buffer "index.org"
+       (task-seq (apply 'seq-concatenate ;'seq-concatenate ;'append
+	    (cons 'list (with-current-buffer "index.org"
 	      (org-element-map (org-element-parse-buffer)
 		  (list 'headline)
 		(lambda (x)
+		  (assert x)
 		  ;;(plist-get (cadr (org-element-at-point)) :raw-value)
 		  (if (and (eq 'done (org-element-property :todo-type x))
 			   ;;(string-match "Exercise" (org-element-property :raw-value x))
@@ -67,10 +94,12 @@
 			;; 				 (org-element-property :closed x))
 			;; 	   (get-buffer "*scratch*"))
 			;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
+			(assert (org-element-property :raw-value x) t "error: x=%s" x)
+			(assert (org-element-property :closed x) t "error: x=%s" x)
 			
 			(list (list (org-element-property :raw-value x)
 				    (org-element-property :closed x))))
-		    (list)))))))
+		    (list))))))))
        (sorted-task-seq (seq-sort
 			 (lambda (x y)
 			  (if (org-time< (org-element-property :raw-value (cadr x))
@@ -80,12 +109,15 @@
 			 task-seq)))
   (insert
    (let ((res (seq-reduce (lambda (acc next-elem)
+			    (assert next-elem t "next-elem=%s" next-elem)
 			    (if (org-time< (org-element-property :raw-value
 								 (cadr next-elem))
 					   (cadr acc))
 				(list (+ 1 (car acc))
 				      (org-element-property :raw-value (cadr next-elem))
-				      (cons (cadddr acc) (caddr acc)))
+				      (progn (assert (cadddr acc) "wrong append=%s" acc)
+					     (cons (cadddr acc) (caddr acc)))
+				      next-elem)
 			      (list (car acc)
 				    (org-element-property :raw-value (cadr next-elem))
 				    (caddr acc) next-elem)))
@@ -104,49 +136,93 @@
 					    (lambda (acc next-session)
 					      (let ((session-start (car next-session))
 						    (session-end (cadr next-session)))
-						;; We need to TODO  check that every closure date is within a study session
-						;; (cond ((<= session-end perv-time-stamp) acc)
-						;;       ((<= next-time-stamp session-start ) acc)
-						;;       (t (+ acc 1)))
-						(if (and
-						     (<= session-start next-time-stamp)
-						     (<= next-time-stamp session-end))
-						    t
-						  acc)
+						(cond ((<= session-end perv-time-stamp) acc)
+						      ((<= next-time-stamp session-start ) acc)
+						      (t (list (+ (car acc) 1)
+							       (+ (cadr acc)
+								  (cond ((and (<= perv-time-stamp session-start)
+									      (<= session-end next-time-stamp))
+									 (- session-end session-start))
+									((and (<= session-start perv-time-stamp)
+									      (<= perv-time-stamp session-end)
+									      (<= session-end next-time-stamp))
+									 (- session-end perv-time-stamp))
+									((and (<= perv-time-stamp session-start)
+									      (<= session-start next-time-stamp)
+									      (<= next-time-stamp session-end))
+									 (- next-time-stamp session-start))
+									((and (<= session-start perv-time-stamp)
+									      (<= next-time-stamp session-end))
+									 (- next-time-stamp perv-time-stamp))
+									(t 0))))))
+						
+						;; (if (and
+						;;      (<= session-start next-time-stamp)
+						;;      (<= next-time-stamp session-end))
+						;;     t
+						;;   acc)
 						))
 					    study-sessions
-					    nil)))
+					    (list 0 0))))
 		     (list next-time-stamp
-			   (cons (list next-elem
-				       :spent-time-days (/ (-
+			   (cons (list (car next-elem)  ;; next-elem
+				       :spent-time-calendar-days (/ (-
 							     next-time-stamp
 							     perv-time-stamp)
 							    (* 60 60 24))
-				       :spans-sessions (if (eq t spans-sessions)
-							   spans-sessions
+				       :spans-sessions (if (not (eq 0 (car spans-sessions)))
+							   (car spans-sessions)
 							   (error "Fix time: %s, spans-sessions=%s" next-elem spans-sessions))
-				       :spent-time 'todo)
+				       :spent-time-net-minutes (/ (cadr spans-sessions) 60))
 				 retval)))))
 		 sorted-task-seq
 		 (list (org-time-string-to-seconds "2019-08-19 Mon 09:19") ()))))
 	 )
 
      (seq-concatenate 'string
+		      (char-to-string ?\()
 		      (pp "Amount of the out-of-order-problems: ")
 		      (pp (number-to-string (car res)))
 		      (char-to-string ?\n)
 		      ;(char-to-string ?\n)
-		      ;(pp "Out-of-order problems :")
-		      ;(char-to-string ?\n)
-		      ;(pp (seq-reverse (caddr res)))
-		      ;(char-to-string ?\n)
-		      (pp "Astronomical time for tasks")
+		      (pp "Out-of-order problems :")
 		      (char-to-string ?\n)
-		      (pp (seq-subseq astrotime-list 0 5)))
-     
+		      ;;(pp (caddr res))
+		      ;; (pp (seq-reverse (seq-map (lambda (x) (list (car x))
+		      ;; 			      )
+		      ;; 			    (caddr res))))
+		      (char-to-string ?\n)
+		      (pp "Task summary:")
+		      (char-to-string ?\n)
+		      ;(pp (seq-reverse (seq-subseq astrotime-list 0 2)))
+		      ;;(decorate-orgtable (seq-reverse (seq-subseq astrotime-list 0)))
+		      ;;(decorate-orgtable (seq-reverse (seq-subseq astrotime-list 0)))
+		      (pp (let* ((numbins (ceiling (log (+ 1.0 (seq-reduce #'max
+						    (seq-map (lambda (x) (nth 6 x))
+							     (seq-reverse (seq-subseq astrotime-list 0)))
+						    0))
+					       2))))
+			    
+			(seq-reduce (lambda (acc elem)
+				      (let* ((hardness (nth 6 elem))
+					    (nbin (floor (log (+ 1.0 hardness) 2))))
+					(aset acc
+					      nbin
+					      (+ 1 (aref acc nbin)))
+					acc))
+			 (seq-reverse (seq-subseq astrotime-list 0))
+			 (make-vector numbins 0))
+			))
+		      (char-to-string ?\))
      ;;(seq-reverse (caddr res))
-     )))
+     )))))
 
+("Amount of the out-of-order-problems: ""13"
+"Out-of-order problems :"
+
+"Task summary:"
+[2 6 15 41 55 67 85 52 29 6 3 1 1]
+)
 
 
 
