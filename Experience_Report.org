@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-18 22:56:22 lockywolf>
+# Time-stamp: <2020-05-20 15:43:39 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -27,7 +27,7 @@ Interpretation of Computer Programs" by Abelson, Sussman and Sussman ([[bib:Abel
 It measures exactly:
 - How much effort SICP requires (739 hours 19 minutes, 8 months, 292 sessions)
 - How many computer languages it involves (6)
-- How many pieces of software are required (TODO)
+- How many pieces of software are required (9)
 - How much communication with peers is needed
 
 It suggests:
@@ -51,11 +51,11 @@ Computer Programs" was born as a result of this attempt. SICP was
 revolutionary for its time, and perhaps can be still considered
 revolutionary nowadays. Twenty years later this endeavour was analysed
 by Felleisen in a paper "Structure And Interpretation of Computer
-Science Curriculum" ([[bib:sicsc][sicsc-bib]]), in which he reflected upon the benefits and
+Science Curriculum" ([[bib:sicsc]]), in which he reflected upon the benefits and
 drawbacks of the ~deliberately designed~ syllabus from the pedagogical
 standpoint, and proposes what he believes to be a pedagogically
 superior successor to the first generation of a ~deliberate~
-curriculum. (How to Design Programs TODO-ref, HTDP)
+curriculum. (See: How to Design Programs (HTDP) [[bib:felleisen2018how]])
 
 Leaving aside the pedagogical quality of the textbook (as the author
 is not a practising teacher), this report touches a different (and
@@ -71,7 +71,7 @@ exposed an astonishing disparity between a declared labouriousness of
 a task and the real time required to complete it. 
 
 The author therefore decided to build upon the previous experience and
-to try and design an as smooth, manageable , and measurable approach to performing
+to try and design an as smooth, manageable, and measurable approach to performing
 university coursework, as possible. A computer science subject
 therefore provided an obvious choice.
 
@@ -110,14 +110,13 @@ This principles need an explanation.
 I consider completeness to be the most important property of every
 execution of a teaching syllabus.
 
-In simple words, what does it mean "to pass a course" or "to learn a
-subject" at all? How exactly can one formalise the statement "I know
-calculus"? Or even a simpler "I have learned everything that was
-implied by a university course on calculus". The following are the
-potential answers to this questions as they may be given (TODO it would be
-better to conduct a survey of teachers, students, employers,
-politicians and random members of the community to establish what it
-means _for them_):
+In simple words, what does it mean "to pass a course" or "to learn a subject" at all?
+How exactly can one formalise the statement "I know calculus"?
+Or even a simpler "I have learned everything that was implied by a university course on calculus". 
+
+I would be a good ides to conduct a survey of teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
+
+So far, however, following are the potential answers to this questions as they may be given:
 
 - Passing an oral examination
 - Passing a written examination
@@ -126,27 +125,19 @@ means _for them_):
 - Completing coursework
 - Attending a prescribed number of teaching sessions (lectures and/or tutorials)
 - Reading a prescribed amount of prescribed reading material
-- (anything else?)
 
 Any combination of those can be also chosen to signify the "mastering"
 of a subject, but the course designer is then met with a typical
-goal-attainment multi-objective optimisation problem (TODO-ref), which are usually
-still solved by reducing the multiple goals to a single engineered goal.
+goal-attainment multi-objective optimisation problem ([[bib:Gembicki_1975]]), which are usually still solved by reducing the multiple goals to a single engineered goal.
 
-Now if we try to look at this with a "martian standpoint" (TODO-ref Eric
-Bern, Games People Play), we will see that all the goals listed above are reducible to
-the "completing coursework" goal, whereas "completing coursework" is
-not in the most general case reducible to any of those, so the
-"engineered goal" may look essentially like a tree-structured
-coursework, with possibly several tasks requiring viewing certain
-video recordings and writing a response.
+Now if we try to look at this with a "martian standpoint" ([[bib:berne1964games]]), we will see that all the goals listed above are reducible to the "completing coursework" goal, whereas "completing coursework" is not in the most general case reducible to any of those, so the "engineered goal" may look essentially like a tree-structured coursework, with possibly several tasks requiring viewing certain video recordings and writing a response.
 
 Moreover, thinking realistically, doing coursework is the only way
 that a working professional can study without completely abandoning
 her job.
 
 Therefore, it was natural to choose a computer science textbook that is known for the
-problem set that comes with it more than for the actual text of the
+problem set that comes with it even more than for the actual text of the
 material was a natural choice.
 
 But that is not enough, because "just solving all of the exercises" may be the most measurable and the most necessary learning outcome, but is it sufficient?
@@ -169,7 +160,7 @@ In particular, a student has no other choice than to trust the teacher on the ch
 
 The main point of the previous paragraph is that the teaching process is not only the process of data transmission.
 It is also the process of metadata transmission, the development of meta-cognitive skills.
-(TODO-ref "Not just fun, but serious strategies: Using meta-cognitive strategies in game-based learning")
+(See [[bib:Ku2010]])
 And therefore, meta-cognitive challenges, although they may very well be valuable contributions to the student's "thinking abilities", deserve their own share of consideration when preparing a course.
 
 The examples of meta-cognitive exercises include:
@@ -330,8 +321,6 @@ But already here I can list some *data*:
 Just reading the Emacs Lisp manual required *10* study sessions of total length 32 hours 40 minutes.
 Additional learning of Emacs *without* reading the manual required 59 hours 14 minutes.
 
-This data will be also presented in a table later. TODO
-
 *org-mode*
 Imagine a case when a student needs to send his work to the teacher for examination.
 Every additional file that a student sends along with the code is a source of confusion.
@@ -361,11 +350,11 @@ So ideally the solutions (after being examined by a teacher) should be printable
 Additionally, the comparatively (to the full size of SICP) small amount of work required to turn a solution that is "just enough to pass" into a readable report would be an important emotional incentive for the students to carefully post-process their work.
 Naturally, "plain paper" is not a very manageable medium nowadays.
 But the closes, and quite manageable approximation is PDF.
-So the actual "source code" of a solution should be logically and consistently exportable into PDF.
+So the actual "source code" of a solution should be logically and consistently exportable into a PDF file.
 
 This leads us to the idea first proposed by Donald Knuth with his WEB system and its web2c implementation.
 The implementation of WEB for Emacs is called org-mode, in particular with its org-babel module.
-Another commonly used WEB implementation is called Jupyter.
+Another commonly used WEB-like system is Jupyter Notebook (See [[bib:software_jupyter]]).
 
 Org-mode has an almost unimaginable number of use cases.
 (In particular, this report has been written in org-mode.)
@@ -377,48 +366,81 @@ The way org-mode particulars were used is described in the next section, along w
 
 ** Time analysis, performance profiling and graphs
 
+In this section I will start by explaining exactly how the working process was organised, and later show some aggregated statistics that has been collected.
+
+*** Workflow details
+
 The execution was performed in the following way: 
 
-Firstly, the heading outline corresponding to the book subsection tree was created.
-(See Appendix 1 for the outline and completion times.)
-Most leaves are two-state TODO-headings.
-(Some leaves correspond to sections without problems, and thus are not TODO-styled.)
+Firstly, the heading outline-tree corresponding to the book subsection tree was created.
+Most leaves are two-state *TODO*-headings.
+(Some outline leaves correspond to sections without problems, and thus are not *TODO*-styled.)
 
-Intermediate levels are not TODO-headings, but they contain the field representing the total ratio of DONE problems.
+Intermediate levels are not *TODO*-headings, but they contain the field representing the total ratio of *DONE* problems.
 
 The top level ratio, obviously, looks like the ratio of the total number of finished problems versus the total number of problems.
+
+An example of the outline look in the following way:
+
+#+begin_export latex
+\begin{figure}
+#+end_export
+
+#+begin_example
+ * SICP [385/404]
+ ** Chapter 1: Building abstractions with procedures [57/61]
+ *** DONE Exercise 1.1 Interpreter result
+     CLOSED: [2019-08-20 Tue 14:23]...
+ *** DONE Exercise 1.2 Prefix form
+     CLOSED: [2019-08-20 Tue 14:25]
+  #+begin_src scheme :exports both :results value :session
+   (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5))))) (* 3 (- 6 2) (- 2 7)))
+  #+end_src
+
+  #+RESULTS:
+  : -37/150
+ ...
+#+end_example
+#+begin_export latex
+\caption{Execution file example}
+\end{figure}
+#+end_export
+
 
 This allows for constant monitoring of the "degree of completeness" and provides an important emotion of "getting close to the result with each complete exercise".
 Additional research is needed on how persistent this emotion is in students and how much it depends of the uneven distribution of hardness or time consumption.
 There is, however, empirical evidence that even very imprecise self-measured KPIs do positively affect the chance of reaching the goal.
-(TODO reference "the people who measure their weight more often are more fit") 
+(See: [[bib:VanWormer2008]]) 
 It should be noted though that even if the hypothesis of uneven time consumption affects the positively stimulating emotion, the problems we find in the real world are not evenly hard, and therefore an even distributions of hardness may negatively affect the development of the meta-cognitive still of partitioning a task in smaller ones.
 
 The problems were executed almost sequentially, and the work on the next one was started immediately after the previous one had been finished.
 Deliberate effort was spent on avoiding the cases when a study session ends at the same time as the last problem of the session is done.
-This was done in order to exploit the well-known tricks (1938 TODO-ref): 
+This was done in order to exploit the well-known tricks (See: [[bib:adler_factors_1939]]): 
 
 - When you have something undone, it is easier to make yourself start the next session.
 - Even just reading out the description of a problem makes you start thinking about how to solve it.
 
-Exercise completion time was registered with a standard org-mode completion time mechanism.
+Exercise completion time was registered with a standard org-mode completion time mechanism. (See [[*Appendix 1: Full data on the exercise completion times.][Appendix 1: Full data on the exercise completion times.]])
 
-Study sessions were registered in a separate org-mode file in the standard org-mode time interval standard BEGIN_TIME -- END_TIME.
-(Appendix 2)
+Study sessions were registered in a separate org-mode file in the standard org-mode time interval standard: 
+#+begin_example
+"BEGIN_TIME -- END_TIME".
+#+end_example
+(See [[*Appendix 2: Full data on the study sessions.][Appendix 2: Full data on the study sessions.]])
 
 *** Out of order problems and other statistics
 
-15 problems were solved out-of-order.
+13 problems were solved out-of-order.
 This means that either the problem may have been the trickiest.
 (Although not necessarily the hardest.)
 
 - *792* hours of total workload
-- *2.184* hours per problem on average
+- *2.184* hours mean time per problem
+- *0.96* hours median time
 - *94.73* hours for the hardest problem: writing a scheme interpreter in a low-level language
-- TODO Add median
 - *652* study sessions
 - *1.79* study sessions on average
-- TODO Add median
+- *1* median study session
 - *13* problems were solved out of order. 
   - "Figure 1.1 Tree representation, showing the value of each subcombination"
   - "Exercise 1.3 Sum of squares"
@@ -473,9 +495,9 @@ This means that either the problem may have been the trickiest.
 
 *** Software
 - GNU Emacs
-- org-mode for Emacs
+- org-mode for Emacs (TODO cite)
 - chibi-scheme
-- MIT/GNU Scheme
+- MIT/GNU Scheme (For running schelog and for portability checks)
 - GNU Debugger (GDB)
 - luaLaTeX/TexLive!
 - TikZ/PGF
@@ -486,20 +508,7 @@ This means that either the problem may have been the trickiest.
 *** Papers
 - Revised Report on the Propagator Model
 
-
-* Literature (improvized)
-
-- Structure And Interpretation of Computer Science Curriculum
-- How to Design Programs
-- The impact of regular self-weighing on weight management: a systematic literature review.
-  - https://www.ncbi.nlm.nih.gov/pubmed/18983667/
-- Some Factors Operating at the Moment of Resumption of Interrupted Tasks\cite{adler_factors_1939}
-  - https://www.tandfonline.com/doi/abs/10.1080/00223980.1939.9917632?journalCode=vjrl20
-- Games People Play, Eric Bern
-- “Vector Optimization for Control with Performance and Parameter Sensitivity Indices", Gembicki, F.W.
-- Not just fun, but serious strategies: Using meta-cognitive strategies in game-based learning
-
-* Biblatex Literature
+* Bibliography
 
 \printbibliography
 
@@ -1560,7 +1569,8 @@ Exercise 5.52 Making a compiler for scheme
 * Appendix 3: Analysed data on problem difficulty
 
 *** Time analysed time consumption
-# +PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png"
+
+#+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem order'" set:"ylabel 'Study sessions (number)'"
 #+ATTR_LATEX: :center
 #+ATTR_LATEX: :environment longtable :align l|p{7cm}|p{1cm}|p{1cm}|p{1cm}
 |  No | Exercise Name                                                | Days Spent | Spans Sessions | Minutes Spent |
@@ -1932,7 +1942,7 @@ Exercise 5.52 Making a compiler for scheme
 
 *** Time consumption histogram linear
 
-#+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png"
+#+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"xlabel 'Problems in a bin'" set:"ylabel 'Hardness [hours]'"
 #+ATTR_LATEX: :environment longtable
 | Bin Lower Bound | N. tasks |
 |-----------------+----------|
@@ -1970,7 +1980,7 @@ Exercise 5.52 Making a compiler for scheme
 
 *** Time consumption histogram logarithmic
 
-#+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png"
+#+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"xlabel 'Problems in a bin'" set:"ylabel 'Hardness [log(hours)]'"
 #+ATTR_LATEX: :environment longtable
 | Bin Lower Bound | N. tasks |
 |-----------------+----------|

@@ -59,7 +59,7 @@
 					 (format "%3.3f" (nth 6 line))
 					 "|")))
 
-(let* ((study-sessions (apply 'append (with-current-buffer "only_study.org"
+  (let* ((study-sessions (apply 'append (with-current-buffer (find-file-noselect "only_study.org")
 		 (org-element-map (org-element-parse-buffer)
 		     (list 'clock)
 		   (lambda (x)
@@ -76,30 +76,31 @@
 		     	  25
 		     	  45))))
 		     ))))))
-       (task-seq (apply 'seq-concatenate ;'seq-concatenate ;'append
-	    (cons 'list (with-current-buffer "index.org"
-	      (org-element-map (org-element-parse-buffer)
-		  (list 'headline)
-		(lambda (x)
-		  (assert x)
-		  ;;(plist-get (cadr (org-element-at-point)) :raw-value)
-		  (if (and (eq 'done (org-element-property :todo-type x))
-			   ;;(string-match "Exercise" (org-element-property :raw-value x))
-			   )
-		      (progn
-			;; (princ (org-element-property :raw-value x)
-			;; 	   (get-buffer "*scratch*"))
-			;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
-			;; (princ (org-element-property :raw-value
-			;; 				 (org-element-property :closed x))
-			;; 	   (get-buffer "*scratch*"))
-			;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
-			(assert (org-element-property :raw-value x) t "error: x=%s" x)
-			(assert (org-element-property :closed x) t "error: x=%s" x)
-			
-			(list (list (org-element-property :raw-value x)
-				    (org-element-property :closed x))))
-		    (list))))))))
+	 (task-seq (apply 'seq-concatenate ;'seq-concatenate ;'append
+			  (cons 'list (with-current-buffer (find-file-noselect "index.org")
+					;(with-temp-buffer (insert-file-contents "index.org")
+					(org-element-map (org-element-parse-buffer)
+					    (list 'headline)
+					  (lambda (x)
+					    (assert x)
+					    ;;(plist-get (cadr (org-element-at-point)) :raw-value)
+					    (if (and (eq 'done (org-element-property :todo-type x))
+						     ;;(string-match "Exercise" (org-element-property :raw-value x))
+						     )
+						(progn
+						  ;; (princ (org-element-property :raw-value x)
+						  ;; 	   (get-buffer "*scratch*"))
+						  ;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
+						  ;; (princ (org-element-property :raw-value
+						  ;; 				 (org-element-property :closed x))
+						  ;; 	   (get-buffer "*scratch*"))
+						  ;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
+						  (assert (org-element-property :raw-value x) t "error: x=%s" x)
+						  (assert (org-element-property :closed x) t "error: x=%s" x)
+						  
+						  (list (list (org-element-property :raw-value x)
+							      (org-element-property :closed x))))
+					      (list))))))))
        (sorted-task-seq (seq-sort
 			 (lambda (x y)
 			  (if (org-time< (org-element-property :raw-value (cadr x))
@@ -197,6 +198,7 @@
 		      ;(pp (seq-reverse (seq-subseq astrotime-list 0 2)))
 		      ;;(decorate-orgtable (seq-reverse (seq-subseq astrotime-list 0)))
 		      ;;(decorate-orgtable (seq-reverse (seq-subseq astrotime-list 0)))
+		      ;; Make a histogram
 		      (pp (let* ((numbins (ceiling (log (+ 1.0 (seq-reduce #'max
 						    (seq-map (lambda (x) (nth 6 x))
 							     (seq-reverse (seq-subseq astrotime-list 0)))
@@ -213,17 +215,60 @@
 			 (seq-reverse (seq-subseq astrotime-list 0))
 			 (make-vector numbins 0))
 			))
+		      (char-to-string ?\n)
+		      (pp "Median hardness:")
+		      (char-to-string ?\n)
+		      
+		      (pp (let* (;; (numbins (ceiling (log (+ 1.0 (seq-reduce #'max
+				 ;; 		    (seq-map (lambda (x) (nth 6 x))
+				 ;; 			     (seq-reverse (seq-subseq astrotime-list 0)))
+				 ;; 		    0))
+				 ;; 	       2)))
+				 (by-hardness (seq-sort (lambda (x y)
+							  (let* ((hardness-x (nth 6 x))
+								 (hardness-y (nth 6 y)))
+							    (if (< hardness-x hardness-y)
+								t
+							      nil)))
+							astrotime-list)))
+			    
+			(nth (floor (/ (seq-length by-hardness) 2)) by-hardness)
+			))
+
+		      (pp "Median n-sessions:")
+		      (char-to-string ?\n)
+		      
+		      (pp (let* (;; (numbins (ceiling (log (+ 1.0 (seq-reduce #'max
+				 ;; 		    (seq-map (lambda (x) (nth 6 x))
+				 ;; 			     (seq-reverse (seq-subseq astrotime-list 0)))
+				 ;; 		    0))
+				 ;; 	       2)))
+				 (by-hardness (seq-sort (lambda (x y)
+							  (let* ((hardness-x (nth 4 x))
+								 (hardness-y (nth 4 y)))
+							    (if (< hardness-x hardness-y)
+								t
+							      nil)))
+							astrotime-list)))
+			    
+			(nth (floor (/ (seq-length by-hardness) 2)) by-hardness)
+			))
 		      (char-to-string ?\))
      ;;(seq-reverse (caddr res))
      )))))
+
 
 ("Amount of the out-of-order-problems: ""13"
 "Out-of-order problems :"
 
 "Task summary:"
 [2 6 15 41 55 67 85 52 29 6 3 1 1]
-)
 
+"Median hardness:"
+("Exercise 2.8 sub-interval" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0)
+"Median n-sessions:"
+("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0)
+)
 
 
 (provide '2020-05-13-time-analyzer)
