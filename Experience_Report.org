@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-20 15:43:39 lockywolf>
+# Time-stamp: <2020-05-20 23:30:09 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -13,9 +13,89 @@
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
 #+LATEX_HEADER: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear]{biblatex}
 #+LATEX_HEADER: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
-#+BIBLIOGRAPHY: bibliography
+
+\title{Solving SICP}
+\title{An Experience Report on Solving the World's Most Famous Programming Problem Set}
 
 \acmConference{Scheme Workshop 2020}{2020-09}{Online}
+
+\author{Vladimir Nikishkin}
+\affiliation{Unaffiliated}
+\email{wladimir.nikishkin@gmail.com}
+\keywords{scheme, r7rs, teaching, programming, literate programming, fortran}
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10003456.10003457.10003527.10003531</concept_id>
+       <concept_desc>Social and professional topics~Computing education programs</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003456.10003457.10003527.10003531.10003533.10011595</concept_id>
+       <concept_desc>Social and professional topics~CS1</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003456.10003457.10003527.10003531.10003533</concept_id>
+       <concept_desc>Social and professional topics~Computer science education</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003456.10003457.10003527.10003531.10003751</concept_id>
+       <concept_desc>Social and professional topics~Software engineering education</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003456.10003457.10003527.10003531.10003537</concept_id>
+       <concept_desc>Social and professional topics~Computational science and engineering education</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10010147.10010148</concept_id>
+       <concept_desc>Computing methodologies~Symbolic and algebraic manipulation</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10010147.10010178.10010216</concept_id>
+       <concept_desc>Computing methodologies~Philosophical/theoretical foundations of artificial intelligence</concept_desc>
+       <concept_significance>300</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10011007.10010940</concept_id>
+       <concept_desc>Software and its engineering~Software organization and properties</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10011007.10010940.10010971</concept_id>
+       <concept_desc>Software and its engineering~Software system structures</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10011007.10010940.10010971.10011682</concept_id>
+       <concept_desc>Software and its engineering~Abstraction, modeling and modularity</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10011007.10010940.10010971.10010972</concept_id>
+       <concept_desc>Software and its engineering~Software architectures</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Social and professional topics~Computing education programs}
+\ccsdesc[500]{Social and professional topics~CS1}
+\ccsdesc[500]{Social and professional topics~Computer science education}
+\ccsdesc[500]{Social and professional topics~Software engineering education}
+\ccsdesc[500]{Social and professional topics~Computational science and engineering education}
+\ccsdesc[500]{Computing methodologies~Symbolic and algebraic manipulation}
+\ccsdesc[300]{Computing methodologies~Philosophical/theoretical foundations of artificial intelligence}
+\ccsdesc[500]{Software and its engineering~Software organization and properties}
+\ccsdesc[500]{Software and its engineering~Software system structures}
+\ccsdesc[500]{Software and its engineering~Abstraction, modeling and modularity}
+\ccsdesc[500]{Software and its engineering~Software architectures}
+
+\maketitle
 
 This report is written as a post-mortem of a project which has,
 perhaps been the largest personal project of the author: creating a
@@ -383,7 +463,7 @@ The top level ratio, obviously, looks like the ratio of the total number of fini
 An example of the outline look in the following way:
 
 #+begin_export latex
-\begin{figure}
+\begin{figure}[H]
 #+end_export
 
 #+begin_example
@@ -430,9 +510,11 @@ Study sessions were registered in a separate org-mode file in the standard org-m
 
 *** Out of order problems and other statistics
 
-13 problems were solved out-of-order.
-This means that either the problem may have been the trickiest.
-(Although not necessarily the hardest.)
+The following figure presents some of the aggregated statistic on the solution of the problem set.
+
+#+begin_export latex
+\begin{figure}[H]
+#+end_export
 
 - *792* hours of total workload
 - *2.184* hours mean time per problem
@@ -456,26 +538,41 @@ This means that either the problem may have been the trickiest.
   - "Exercise 5.17 Printing labels"
   - "Exercise 5.40 maintaining a compile-time environment"
 
+#+begin_export latex
+\caption{Aggregated statistic on the problem set execution}
+\end{figure}
+#+end_export
+
+13 problems were solved out-of-order.
+This means that those problems may have been the trickiest.
+(Although not necessarily the hardest.)
+
+
 *** Time spend on solving the exercises
 
-[[file:experience-report-hardness.png]]
-
-
-*** Calendar length distribution of the solutions
-
+#+ATTR_LATEX: :width 8cm :float nil
+#+caption: "Days spent per problem"
 [[file:experience-report-days.png]]
 
 *** Study sessions per problem
 
+#+ATTR_LATEX: :width 10cm :float nil
+#+caption: "Study sessions per problem"
 [[file:experience-report-study-sessions.png]]
 
 *** Hardness histogram (linear)
 
+#+ATTR_LATEX: :width 10cm
+#+caption: "Hardness distribution (linear)"
 [[file:experience-report-hardness-histogram-linear.png]]
 
 *** Hardness histogram (logarithmic)
 
+#+ATTR_LATEX: :width 10cm
+#+caption: "Hardness distribution (logarithmic)"
 [[file:experience-report-hardness-histogram-logarithmic.png]]
+
+It is very interesting to observe that the distribution shape resembles one of a Poissonian distribution.
 
 * Materials
 
@@ -506,11 +603,12 @@ This means that either the problem may have been the trickiest.
 - Slackware Linux 14.2-current
 
 *** Papers
+
 - Revised Report on the Propagator Model
 
-* Bibliography
 
 \printbibliography
+
 
 * Appendix 1: Full data on the exercise completion times.
 
@@ -1256,6 +1354,7 @@ Exercise 5.52 Making a compiler for scheme
 
 * Appendix 2: Full data on the study sessions.
 
+#+attr_latex: :center
 #+begin_example
     CLOCK: [2020-05-10 Sun 14:39]--[2020-05-10 Sun 18:00] =>  3:21
     CLOCK: [2020-05-09 Sat 19:13]--[2020-05-09 Sat 22:13] =>  3:00
@@ -1570,7 +1669,7 @@ Exercise 5.52 Making a compiler for scheme
 
 *** Time analysed time consumption
 
-#+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem order'" set:"ylabel 'Study sessions (number)'"
+#+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem #'" set:"ylabel 'Study sessions (number)'"
 #+ATTR_LATEX: :center
 #+ATTR_LATEX: :environment longtable :align l|p{7cm}|p{1cm}|p{1cm}|p{1cm}
 |  No | Exercise Name                                                | Days Spent | Spans Sessions | Minutes Spent |
