@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-20 23:30:09 lockywolf>
+# Time-stamp: <2020-05-20 23:56:45 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -11,6 +11,7 @@
 #+LATEX_CLASS: acmart
 # +LATEX_CLASS_OPTIONS: [a4paper]
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage{supertabular}
 #+LATEX_HEADER: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear]{biblatex}
 #+LATEX_HEADER: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
 
@@ -1669,9 +1670,10 @@ Exercise 5.52 Making a compiler for scheme
 
 *** Time analysed time consumption
 
+
+
 #+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem #'" set:"ylabel 'Study sessions (number)'"
-#+ATTR_LATEX: :center
-#+ATTR_LATEX: :environment longtable :align l|p{7cm}|p{1cm}|p{1cm}|p{1cm}
+#+ATTR_LATEX: :center :environment supertabular :align l|p{4cm}|p{0.5cm}|p{1cm}|p{1cm}
 |  No | Exercise Name                                                | Days Spent | Spans Sessions | Minutes Spent |
 |-----+--------------------------------------------------------------+------------+----------------+---------------|
 |   1 | Exercise 1.1 Interpreter result                              |      1.211 |              2 |       459.000 |
@@ -2042,7 +2044,6 @@ Exercise 5.52 Making a compiler for scheme
 *** Time consumption histogram linear
 
 #+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"xlabel 'Problems in a bin'" set:"ylabel 'Hardness [hours]'"
-#+ATTR_LATEX: :environment longtable
 | Bin Lower Bound | N. tasks |
 |-----------------+----------|
 |              0. |      301 |
@@ -2080,7 +2081,6 @@ Exercise 5.52 Making a compiler for scheme
 *** Time consumption histogram logarithmic
 
 #+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"xlabel 'Problems in a bin'" set:"ylabel 'Hardness [log(hours)]'"
-#+ATTR_LATEX: :environment longtable
 | Bin Lower Bound | N. tasks |
 |-----------------+----------|
 |               1 |        2 |
