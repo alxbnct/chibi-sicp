@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-21 00:13:40 lockywolf>
+# Time-stamp: <2020-05-22 13:33:25 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -98,12 +98,12 @@
 
 \maketitle
 
+#+begin_abstract
 This report is written as a post-mortem of a project which has,
 perhaps been the largest personal project of the author: creating a
 complete and wholesome solution to one of the most famous programming
 problem sets in the modern computer science curricula Structure and
-Interpretation of Computer Programs" by Abelson, Sussman and Sussman ([[bib:Abelson1996]]).
-
+"Interpretation of Computer Programs" by Abelson, Sussman and Sussman ([[bib:Abelson1996]]).
 
 It measures exactly:
 - How much effort SICP requires (739 hours 19 minutes, 8 months, 292 sessions)
@@ -115,6 +115,8 @@ It suggests:
 - An applied task management software-backed procedure
 - Improvements on the technical side of any hard skills teaching
 - Improvements on the social side of any kind of teaching
+
+#+end_abstract
 
 * Introduction
 
@@ -169,7 +171,6 @@ involved in the teaching process does), in order to select the most
 efficient (potentially even using a gradient-based optimisation
 algorithm) strategy when selecting a learning approach for every
 particular student.
-
 
 * Solution approach
 
@@ -400,9 +401,10 @@ Later I will elaborate on how I collected it, however I can already say that I u
 
 But already here I can list some *data*:
 Just reading the Emacs Lisp manual required *10* study sessions of total length 32 hours 40 minutes.
-Additional learning of Emacs *without* reading the manual required 59 hours 14 minutes.
+Additional learning of Emacs *without* reading the manual required 59 hours 14 minutes in my case.
 
-*org-mode*
+** *Org-mode* as a universal medium for reproducible research
+
 Imagine a case when a student needs to send his work to the teacher for examination.
 Every additional file that a student sends along with the code is a source of confusion.
 Even proper file naming, though increases readability, is hard to enforce, and demands that the teacher dig into the peculiarities that will become irrelevant the very moment after he signs the work off.
@@ -445,11 +447,55 @@ Although it originally appeared as a by-product of choosing a specific tool, at 
 
 The way org-mode particulars were used is described in the next section, along with the statistical summary.
 
-** Time analysis, performance profiling and graphs
+** Different problem types
+
+SICP's problems can be roughly classified into the following classes:
+
+- Programming problems in Scheme without input
+- Programming problems in Scheme with input (possibly running other programs)
+- Programming problems in Scheme with graphical output
+- Programming problems in a "low lever language of your choice"
+- Mathematical problems
+- Standard-fitting drawing exercises
+- Non-standard drawing exercises
+- Essays
+
+Wonderfully absent are the problems of the data analysis kind.
+
+In this section, I will explain how these problems can be solved in a "single document mode". 
+
+*Essays* are the easiest case. The student can just write the answer to the question below the headline corresponding to a problem.
+org-mode provides several minimal formatting capabilities, that are enough to cover all the use cases required.
+
+*Mathematical problems* require that a \TeX system be present on the student machine, and employ org-mode's ability to embed \TeX' mathematics, along with previews, right into the text. I ended up using almost zero pen-and-paper calculations while doing SICP's mathematical exercises.
+
+*Programming exercises in Scheme* are mostly easily formatted as org-mode "babel-blocks", with the output being pasted right into the document body, and updated as needed.
+
+*Programming exercises in Scheme with input* require a little bit of work on making them right, because of not being entirely obvious when exactly the input should be interpreted as verbatim text versus executable code. 
+At the end of the day, it turned out to be possible to format all the input data as either "example" or "code" blocks and therefore present all test cases (different inputs) in the same document.
+
+*Programming exercises in a low level language* required wrapping the low language code into "babel" blocks, and the result of combining those into a "shell" block. 
+this adds an operating system dependency, however, GNU Unix Utilities are widespread enough to not consider this a limitation.
+
+*Programming exercises with graphical output* turned out to be the trickiest part from the software suite perspective.
+Eventually I ended up writing a scheme-system (chibi) dependent wrapper around the ImageMagick graphics manipulation tool. 
+org-mode has a special syntax for the inclusion of graphic files, so the exercise solutions had to be make to generate those files.
+
+*Standard drawing exercises* illustrate a problem that is extremely widespread, but seldom well understood, perhaps because people aiming to solve it usually do not come from the programming community.
+Indeed, there are several standard on industrial illustrations and diagramming, including UML, ArchiMate, SDL, and various others.
+So wherever possible, I tried to use a standard diagram to express the answer to the problem.
+The PlantUML language satisfied almost all of the requirements, and via an org-plantuml bridge, it was possible to solve these problems in the manner similar to the coding problems -- as "org-babel" blocks.
+
+*Non-standard drawing exercises*, the most prominent of those requiring drawing environment diagrams (debugging interfaces), were significantly more challenging.
+When a prepared mental model (i.e. an established diagramming standard) was absent, that standard had to be implemented from scratch in an improvised way.
+The TikZ language proved to be having enough features to cover the requirements of the book where PlantUML was not enough.
+
+
+* Time analysis, performance profiling and graphs
 
 In this section I will start by explaining exactly how the working process was organised, and later show some aggregated statistics that has been collected.
 
-*** Workflow details
+** Workflow details
 
 The execution was performed in the following way: 
 
@@ -501,15 +547,30 @@ This was done in order to exploit the well-known tricks (See: [[bib:adler_factor
 - When you have something undone, it is easier to make yourself start the next session.
 - Even just reading out the description of a problem makes you start thinking about how to solve it.
 
-Exercise completion time was registered with a standard org-mode completion time mechanism. (See [[*Appendix 1: Full data on the exercise completion times.][Appendix 1: Full data on the exercise completion times.]])
+Exercise completion time was registered with a standard org-mode completion time mechanism. (See [[*Appendix: Full data on the exercise completion times.][Appendix: Full data on the exercise completion times.]])
 
 Study sessions were registered in a separate org-mode file in the standard org-mode time interval standard: 
 #+begin_example
 "BEGIN_TIME -- END_TIME".
 #+end_example
-(See [[*Appendix 2: Full data on the study sessions.][Appendix 2: Full data on the study sessions.]])
+(See [[*Appendix: Full data on the study sessions.][Appendix: Full data on the study sessions.]])
 
-*** Out of order problems and other statistics
+Several software problems were discovered in the process of making this solution.
+These problems were reported to the software authors.
+Several of those were fixed after a short time, thus allowing to continue the solution.
+For several of those workarounds were found.
+None of the problems eventually prevented the completion of the problem set.
+
+As has been mentioned above, SICP's problems make heavy use of one another.
+It was therefore critical to find a way of code reuse within a single org-mode document.
+Indeed org's WEB-like capabilities (<<noweb>>-links) proved to be sufficient.
+Noweb-links is a method of verbatim inclusion of a code block into another code blocks.
+In particular, Exercise 5.48 required inclusion of *58* other code blocks into the final solution block.
+Pure copying would not suffice, because as SICP exercises often involve the evaluation of the code written before by the code written during the execution of an exercise, thus later exercises are likely to expose errors in the earlier exercises solutions.
+
+*** 
+
+** Out of order problems and other statistics
 
 The following figure presents some of the aggregated statistic on the solution of the problem set.
 
@@ -548,52 +609,128 @@ The following figure presents some of the aggregated statistic on the solution o
 This means that those problems may have been the trickiest.
 (Although not necessarily the hardest.)
 
+** Time spend on solving the exercises
 
-*** Time spend on solving the exercises
-
-#+ATTR_LATEX: :width 8cm :float nil
+#+ATTR_LATEX: :width 9cm :float nil
 #+caption: "Days spent per problem"
 [[file:experience-report-days.png]]
 
-*** Study sessions per problem
+** Study sessions per problem
 
-#+ATTR_LATEX: :width 10cm :float nil
+#+ATTR_LATEX: :width 9cm :float nil
 #+caption: "Study sessions per problem"
 [[file:experience-report-study-sessions.png]]
 
-*** Hardness histogram (linear)
+** Hardness histogram (linear)
 
-#+ATTR_LATEX: :width 10cm
+#+ATTR_LATEX: :width 9cm
 #+caption: "Hardness distribution (linear)"
 [[file:experience-report-hardness-histogram-linear.png]]
 
-*** Hardness histogram (logarithmic)
+** Hardness histogram (logarithmic)
 
-#+ATTR_LATEX: :width 10cm
+#+ATTR_LATEX: :width 9cm
 #+caption: "Hardness distribution (logarithmic)"
 [[file:experience-report-hardness-histogram-logarithmic.png]]
 
-It is very interesting to observe that the distribution shape resembles one of a Poissonian distribution.
+It is very interesting to observe that the histogram shape resembles a uni-modal distribution.
+It is hard to think of a theoretical foundation on which to base assumptions on the distribution law.
+Prior research, however, may imply that the distribution is log-normal. 
+(See [[bib:crow2018lognormal]])
+
+* Conclusion and Further Work
+** Conclusion
+
+As follows immediately from the introduction to this report, it is essentially a single-point estimate of the hardness distribution of a university-level problem set.
+
+As far as the author knows, this is the first such a complete hardness breakdown of a university-level problem set in existence.
+
+As has been mentioned in the Section [[*Out of order problems and other statistics]], the complete execution of the problem set required 729 hours.
+In simple words, this is a very long time.
+If a standard working day is assumed to have the length of 8 hours, the complete solution would require 91 day or 14 weeks, or 3.5 months.
+
+In the "Preface to the Second Edition", the authors claim that the redacted version of the course can be covered in one semester.
+This statement does not contradict the numbers presented in this Report.
+However, potential teachers should still consider the available time budget of their students and adjust the credit-awarding task accordingly.
+
+Another important consideration is the amount of time required to verify the solution and to write feedback to be given back to the student.
+Although hardly requiring the same amount of time, it is reasonable to expect feedback writing to require the same order of magnitude of time needed per an instance of a task.
+This number shall be multiplied by an expected number of students per group, which may vary from an institution to an institution, but can be lower-bounded by 5.
+Therefore the rough estimate would be \(c \cdot 72 \cdot 5 \approx 360\) hours, or 45 full working days (2 months).
+This number should also be considered when designing a graded coursework, and considering the quality of the feedback.
+
+** Further work
+
+The field of hardness assessment of the university courses is vast and open.
+As far as the author of this Report knows, no such work had been done previously up to such scale.
+(This is not to say that SICP has not been successfully solved before.
+Various solutions can be found on many popular Software Forges.)
+However, detailed hardness breakdowns are not very popular.
+The first natural direction of research would then be expanding the same effort towards other problem sets and other subjects.
+
+Another research direction could possibly be towards the search of the optimal curriculum design beyond the areas covered by SICP. 
+It should not be unexpected if the students decide not to advance further in the course as long as their personal hardness assessment exceeds certain threshold.
+It would be interesting to measure such a threshold, and to suggest curriculum design strategies that aim to minimise course drop-out.
+Potentially such strategies may include course breakdown into smaller modules, increasing the penalties associated with dropping out, or providing an external willpower source to the students.
+
+** Informal review
+
+This section contains the author's personal view on the problem set and the questions it raises.
+
+I (Vladimir Nikishkin), enjoyed doing it.
+On the other hand, I find it hard to believe that teaching this course to first-year undergraduate students can be successful.
+I don't believe that a real-world student can dedicate seven hundred hours to a single subject.
+(The more so recalling that 25 years has passed since the Second Edition was released, and the world of programming has expanded enormously.)
+Even if such a student is found, he would probably have other subjects in the semester, as well as the necessity to attend classes and demonstrations.
+
+I have to admit, out of almost four hundred exercises, I cannot find a single superfluous one.
+Every exercise teaches some important concept.
+
+The course could have been improved in the area of garbage collection and other memory management topics.
+Indeed, the main ~cons~-memory garbage collector is explained with the level of detail sufficient to implement it, but several other parts of the interpreter memory are left without explanation. 
+
+There is not very much information on a rational process of software development.
+Indeed, this is not a fundamental knowledge, but it would be helpful to undergraduates.
+
+The last two exercises amount to one fifth of the whole work. 
+It was quite unexpected to see a task to be completed in a language other then Scheme after having already done most of the exercises.
+
+Probably the biggest drawback of the book is the absence of any conclusion.
+Indeed, the book point the reader attention into various direction by the means of an extensive bibliography.
+However, I, as a willing student, would like to see some overview of the possible future directions done informally.
+
+** Informal recommendations
+
+If I may, by the virtue of personally experiencing this transformative experience, give a few suggestions to the university curriculum designers, they would be the following:
+
+ - Deliberately teach your students to use TeX, and especially well technically harnessed TeX. This is often considered to be a meta-cognitive exercise to be solved by the students themselves, but my experience is not reassuring in this aspect. Very few students, and even professionals, end up using TeX efficiently. It took me more than *50* hours to just refresh the skill of using \TeX that I had already learnt before in order to write a thesis.
+ - Deliberately teach your student to touch-type. This may not be necessary in the regions where tough-typing is included into the basic high school curriculum, but is still a major problem in most parts of the world.
+ - Deliberately teach your students to read software manuals. Indeed, much of the modern software has manuals built-in piece-wise right into the software itself. Often reading the whole manual is not required to perform the task. But doing it at least once (reading ~some~ manual from the first page to the last), is a very broadening experience, and additionally useful in teaching how to assess the time needed to grasp the skill of using ~a~ piece off software.
+ - Teach your student to use a timer when doing homework, even if it is not an org-mode timer. Realistic assessment of how much effort things actually take is a perspective-shifting experience.
 
 * Materials
 
-*** Books 
-- Structure and Interpretation of Computer Programs 2nd Ed.
-- Structure and Interpretation of Computer Programs 1st Ed. pre-print
-- Modern Fortran Explained 2018
-- Revised^7 Report on Algorithmic Language Scheme
-- Balbin, I., Lecot, K. (Eds.) Logic Programming: A Classified Bibliography
-- Chibi-scheme manual (improvised)
-- TikZ manual
-- PlantUML manual
+This section attempts to provide a complete list of materials used in the process of the problem set solution. It is not to be confused with the list of materials used in the preparation of this Experience Report.
+
+*** Books
+
+- Structure and Interpretation of Computer Programs 2nd Ed. ([[bib:Abelson1996]])
+- Structure and Interpretation of Computer Programs 1st Ed. ([[bib:DBLP:books/mit/AbelsonS85]])
+- Modern Fortran Explained 2018 ([[bib:Metcalf_2018_fortran]])
+- Revised^7 Report on Algorithmic Language Scheme ([[bib:shinn2013revised]])
+- Logic Programming: A Classified Bibliography ([[bib:Balbin_1985_logic_programming_bibliography]])
+- Chibi-Scheme Manual ([[bib:chibi_manual]])
+- TikZ Manual ([[bib:tikz_manual]])
+- PlantUML Manual 
 - Thomas A. Pender-UML Weekend Crash Course
 - GNU Emacs Manual
 - GNU Emacs org-mode Manual
 - Debugging With GDB
+- Implementations of Prolog ([[bib:DBLP:books/eh/campbell84/C1984]])
 
 *** Software
 - GNU Emacs
-- org-mode for Emacs (TODO cite)
+- org-mode for Emacs ([[bib:Schulte:Davison:Dye:Dominik:2011:JSSOBK:v46i03]])
 - chibi-scheme
 - MIT/GNU Scheme (For running schelog and for portability checks)
 - GNU Debugger (GDB)
@@ -605,14 +742,14 @@ It is very interesting to observe that the distribution shape resembles one of a
 
 *** Papers
 
-- Revised Report on the Propagator Model
+- Revised Report on the Propagator Model ([[bib:radul2011propagator]])
+- On Implementing Prolog In Functional Programming ([[bib:DBLP:journals/ngc/Carlsson84]])
+- eu-Prolog, Reference Manual and Report ([[bib:kohlbecker1984eu]])
 
 
 \printbibliography
 
-
-* Appendix 1: Full data on the exercise completion times.
-
+* Appendix: Full data on the exercise completion times.
 
 #+begin_example
 Snippet, First Scheme Expression
@@ -1353,7 +1490,7 @@ Exercise 5.52 Making a compiler for scheme
 [2020-05-06 Wed 11:09]
 #+end_example
 
-* Appendix 2: Full data on the study sessions.
+* Appendix: Full data on the study sessions.
 
 #+attr_latex: :left
 #+begin_example
@@ -1666,14 +1803,12 @@ Exercise 5.52 Making a compiler for scheme
   [2019-08-19 Mon 09:19]-[2019-08-19 Mon 13:32] >  4:13
 
 #+end_example
-* Appendix 3: Analysed data on problem difficulty
+* Appendix: Analysed data on problem difficulty
 
-*** Time analysed time consumption
-
-
+*** Analysed time consumption
 
 #+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem #'" set:"ylabel 'Study sessions (number)'"
-#+ATTR_LATEX: :center :environment supertabular :align l|p{4cm}|p{1cm}|p{0.5cm}|p{0.5cm}
+#+ATTR_LATEX: :center :environment supertabular :align l|p{4cm}|p{1cm}|p{0.9cm}|p{0.9cm}
 |  No | Exercise Name                                                | Days Spent | Spans Sessions | Minutes Spent |
 |-----+--------------------------------------------------------------+------------+----------------+---------------|
 |   1 | Exercise 1.1 Interpreter result                              |      1.211 |              2 |           459 |
