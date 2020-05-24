@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-24 18:20:22 lockywolf>
+# Time-stamp: <2020-05-24 23:10:57 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -46,8 +46,8 @@
   (setq geiser-connection-timeout (* 2 geiser-connection-timeout))
 #+end_src
 
-#+RESULTS:
-: 120000
+#+RESULTS[4b09abc1e048c56020004a5a0ac6b595766a9d38]: 
+[[file:figure-1-2-tree.png]]
 
 #+name: common
 #+begin_src scheme :results output :exports none
@@ -553,27 +553,25 @@ This exercise is not very hard. The only difference is that the
 `improve' function is not derived from a derivative of a square but
 rather from a derivative of a cube.
 
+#+name: cube
+#+begin_src scheme :exports code :results none
+(define (cube x) (* x x x))
+#+end_src
 
 #+name: cube-improve
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
 (define (cube-improve guess x)
     (/ (+ (/ x (* guess guess)) (* 2 guess)) 3))
 #+end_src
 
-#+RESULTS: cube-improve
-: #<undef>
-
 #+name: cube-good-enough
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
 (define (cube-good-enough? guess x)
   (< (abs (- (cube guess) x)) 0.001))
 #+end_src
 
-#+RESULTS: cube-good-enough
-: #<undef>
-
 #+name: cube-root-iter
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (cube-root-iter guess x)
     (let ((better-guess (cube-improve guess x)))
       (disp better-guess)
@@ -582,31 +580,51 @@ rather from a derivative of a cube.
 	  (cube-root-iter better-guess x))))
 #+end_src
 
-#+RESULTS: cube-root-iter
-: #<undef>
-
 #+name: cube-simple
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code 
 <<common>>
 <<cube>>
 <<cube-improve>>
 <<cube-good-enough>>
 <<cube-root-iter>>
-(cube-root-iter 1.0 27.0)
+(display (cube-root-iter 1.0 27.0))
 #+end_src
 
-#+RESULTS: cube-simple
-: 9.666666666666666
-: 6.540758356453956
-: 4.570876778578707
-: 3.4780192333867963
-: 3.0626891086275365
-: 3.001274406506175
-: 3.0000005410641766
-: 3.0000000000000977
+#+RESULTS[4807ba1e3d85c14b6766d978cb8ab81e0f638e86]: cube-simple
+#+begin_src scheme
+9.666666666666666
+6.540758356453956
+4.570876778578707
+3.4780192333867963
+3.0626891086275365
+3.001274406506175
+3.0000005410641766
+3.0000000000000977
+3.0000000000000977
+#+end_src
 
-*** TODO Figure 1.2 Procedural decomposition of the sqrt program
-TODO
+*** Figure 1.2 Procedural decomposition of the sqrt program
+#+name: figure-1-2
+#+header: :imagemagick yes :iminoptions -density 600 :imoutoptions -geometry 300
+#+header: :fit yes :headers '("\\usepackage{tikz}")
+#+header: :buffer on
+#+begin_src latex :results value graphics file :exports both :file figure-1-2-tree.png
+  \usetikzlibrary{trees}
+  \begin{tikzpicture}[color=white]
+\node {sqrt} % root
+child { node {sqrt-iter}
+                  child[sibling distance=5cm] { node{ good-enough }
+                          child[sibling distance=2cm] { node { square } }
+                          child[sibling distance=2cm] { node { abs } } }
+                  child { node{ improve }
+                          child { node { average } } } };
+  \end{tikzpicture}
+#+end_src
+
+#+RESULTS[9a0ef4b0679397da408cb42966f7352732024951]: figure-1-2
+[[file:figure-1-2-tree.png]]
+
+
 *** TODO Figure 1.3 A linear recursive process for computing \(6!\).
 TODO
 *** TODO Figure 1.4 A linear iterative process for computing \(6!\).
@@ -3678,8 +3696,9 @@ turned out to be less fit for this problem.
   \end{tikzpicture}
 #+end_src
 
-#+RESULTS: tikztest
+#+RESULTS[9a78c4d3a9081c52c812cdcd72b2e631488e511e]: tikztest
 [[file:test.png]]
+
 
 
 #+begin_src plantuml :exports both :file ditaa.png
