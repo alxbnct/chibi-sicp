@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-20 12:49:09 lockywolf>
+# Time-stamp: <2020-05-24 18:20:22 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -87,18 +87,17 @@
 
 * SICP [385/404]
 :PROPERTIES:
-:header-args: :noweb yes
+:header-args: :noweb yes :cache yes
 :END:
 ** Chapter 1: Building abstractions with procedures [57/61]
 *** Snippet
-The clock value here is fake, it serves as a "zero moment" for the
-whole project.
- #+BEGIN_SRC scheme :exports both :results value
+#+attr_latex: :options caption=Snippet
+#+BEGIN_SRC scheme :exports both :results value
    (* (+ 2 (* 4 6))
       (+ 3 5 7))
- #+END_SRC
+#+END_SRC
 
- #+RESULTS:
+#+RESULTS[d6ae410a43e8778057209aad61d9b32fb0379457]:
  : 390
 
 *** Thought
@@ -107,7 +106,9 @@ whole project.
 *** DONE Figure 1.1 Tree representation, showing the value of each subcombination :graphviz:plantuml:
     CLOSED: [2019-08-20 Tue 14:35]
  For the sake of pedagogical clarity, I have formatted it as a picture.
- #+BEGIN_SRC plantuml :exports both :file figure-1-1-mm.png
+
+#+attr_latex: :options caption=Code
+ #+BEGIN_SRC plantuml :exports both :results value file graphics :file figure-1-1-mm.png
  @startmindmap
  skinparam monochrome true
  +_ 390
@@ -127,12 +128,12 @@ whole project.
  @endmindmap
  #+END_SRC
 
- #+RESULTS:
+ #+RESULTS[daebeccd2a0fb2b4ae204e435919505948585f63]:
  [[file:figure-1-1-mm.png]]
 
 
  # Then next line is the same diagram verbose, using DOT.
- #+begin_src plantuml :exports both :file figure-1-1-dot.png
+ #+begin_src plantuml :exports both :results value file graphics :file figure-1-1-dot.png
  @startdot
  graph g {
 	 node [shape=plaintext];
@@ -184,24 +185,26 @@ whole project.
  @enddot
  #+end_src 
 
- #+RESULTS:
+ #+RESULTS[ff174954e7313f9f57b9b535f4798662e493e661]:
  [[file:figure-1-1-dot.png]]
 
 *** Snippet
 #+name: square
-#+begin_src scheme :exports both :results value :session
+#+begin_src scheme :exports both :results value scalar code 
   (define (square x) (* x x))
   (define (sum-of-squares x y)
     (+ (square x) (square y)))
   (sum-of-squares 3 4)
 #+end_src
 
-#+RESULTS:
-: 25
+#+RESULTS[48037817c7c08d7879a79d5f71d8119c9b7f4eb0]: square
+#+begin_src scheme
+25
+#+end_src
 
 *** DONE Exercise 1.1 Interpreter result
     CLOSED: [2019-08-20 Tue 14:23]
- #+begin_src scheme :exports both :results output
+ #+begin_src scheme :exports both :results output scalar code 
    (define (disp sexp)
      (display sexp)
      (newline))
@@ -229,8 +232,8 @@ whole project.
 
  #+end_src
 
- #+RESULTS:
- #+begin_example
+ #+RESULTS[20a4e1d7ff2772afc03b0ee16e1dbf4ddc9fde44]:
+ #+begin_src scheme
  10
  9
  8
@@ -242,21 +245,23 @@ whole project.
  16
  5
  16
- #+end_example
+ #+end_src
 
 *** DONE Exercise 1.2 Prefix form
     CLOSED: [2019-08-20 Tue 14:25]
- #+begin_src scheme :exports both :results value :session
+ #+begin_src scheme :exports both :results value scalar code 
  (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5))))) (* 3 (- 6 2) (- 2 7)))
  #+end_src
 
- #+RESULTS:
- : -37/150
+ #+RESULTS[11833097e5774b13769f311f83e11a513ac7de4e]:
+ #+begin_src scheme
+ -37/150
+ #+end_src
 
 *** DONE Exercise 1.3 Sum of squares
     CLOSED: [2020-02-28 Fri 12:01]
 
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output scalar code 
  (import (scheme small))
  (import (srfi 95))
  (import (srfi 159))
@@ -268,29 +273,38 @@ whole project.
  (show #t (pretty (sum-of-two-max 1 2 3)))
 #+end_src
 
- #+RESULTS:
- : 13
+#+RESULTS[019cf497f55c3234fbeb5e2d5d203b3c95c17755]:
+#+begin_src shell
+13
+#+end_src
 
 *** DONE Exercise 1.4 Compound expressions
     CLOSED: [2019-08-20 Tue 14:39]
- #+begin_src scheme :exports both :results output :session
+ #+begin_src scheme :exports both :results output scalar code 
  (define (a-plus-abs-b a b)
    ((if (> b 0) + -) a b))
- (disp (a-plus-abs-b  3 4))
- (disp (a-plus-abs-b  3 -4))
+ (display (a-plus-abs-b  3 4))
+ (newline)
+ (display (a-plus-abs-b  3 -4))
  #+end_src
 
- #+RESULTS:
- : 7
- : 7
+ #+RESULTS[b23ad005436ed485ad7c3a5e81e39801a6166e39]:
+ #+begin_src scheme
+ 7
+ 7
+ #+end_src
 
 *** DONE Exercise 1.5 Ben's test
     CLOSED: [2019-08-20 Tue 14:50]
- #+begin_src scheme :exports both :results value
+ #+begin_src scheme :exports both :results value scalar code 
  (define (p) (p))
  (define (test x y)
    (if (= x 0) 0 y))
  (test 0 (p))
+ #+end_src
+
+ #+RESULTS[546cc337f12386737bd973dbb01f5309cf3bcbb6]:
+ #+begin_src scheme
  #+end_src
 
  On my interpreter this code goes into an infinite recursion, which
@@ -307,7 +321,7 @@ not working at all in the case when one of the arguments is
 infeasible.
 Consider:
 
-#+begin_src scheme :exports both :results output :session
+#+begin_src scheme :exports both :results output scalar code 
 <<common>>
 (define (new-if predicate then-clause else-clause)
   (cond (predicate then-clause)
@@ -318,30 +332,30 @@ Consider:
 (new-if (not (= b 0)) (/ a b) a)
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[0608c5bc3f65fca59764bb0435b3ae86e2aadd24]:
+#+begin_src scheme
 1
 
 Output (exception): {Exception #19 user "divide by zero" () #<procedure #f> (#f . 13)} 
 Stack trace:
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 1202 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1206 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 394 of file /usr/lib64/chibi/meta-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
   called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
-#+end_example
+#+end_src
 
 However, this issue can be solved using scheme macros.
 
-#+begin_src scheme :exports both :results output :session
+#+begin_src scheme :exports both :results output scalar code 
   <<common>>
   (define-syntax new-if
     (syntax-rules ()
@@ -358,9 +372,11 @@ However, this issue can be solved using scheme macros.
 
 #+end_src
 
-#+RESULTS:
-: 1
-: 1
+#+RESULTS[ea2f6600b8331e543a394082bde53ba4260367dc]:
+#+begin_src scheme
+1
+1
+#+end_src
 
 The code above works as expected, because the macro does not evaluate
 its arguments, and (cond) is a special form.
@@ -428,24 +444,21 @@ The code below is copied from SICP verbatim and implements the
 algorithm above.
 
 #+name: simple-sqrt-iter
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (sqrt-iter guess x)
     (if (good-enough? guess x)
 	guess
 	(sqrt-iter (improve guess x) x)))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
 #+name: square-improve
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (improve guess x)
     (average guess (/ x guess)))
 #+end_src
 
 #+name: simple-newton-recursion
-#+begin_src scheme :exports both :results value :session
+#+begin_src scheme :exports code :results none
   (define (good-enough? guess x)
     (< (abs (- (square guess) x)) 0.001))
   <<square-improve>>
@@ -457,7 +470,7 @@ algorithm above.
 #+end_src
 
 #+name: simple-newton
-#+begin_src scheme :exports both :results value :session
+#+begin_src scheme :exports both :results value  scalar code 
   <<common>>
   <<square>>
   <<simple-sqrt-iter>>
@@ -465,29 +478,35 @@ algorithm above.
   (sqrt 9)
 #+end_src
 
-#+RESULTS:
-: 3.00009155413138
+#+RESULTS[44c9c2222e2b50417e70e33392eddc3bd418a649]: simple-newton
+#+begin_src scheme
+3.00009155413138
+#+end_src
 
 An example of how this fails on small numbers:
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code 
 <<simple-newton>>
 (square (sqrt 0.0004))
 #+end_src
 
-#+RESULTS:
-: 0.0012532224857331766
+#+RESULTS[cc25737b90376e66b04710560a977f11e7087a57]:
+#+begin_src scheme
+0.0012532224857331766
+#+end_src
 
 An example of why this fails on big numbers I didn't manage to
 craft. Perhaps chibi-scheme has some clever way to deal with rounding?
 Anyway — here is the code:
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code 
   <<simple-newton>>
   (square (sqrt 9999999999.0))
 #+end_src
 
-#+RESULTS:
-: 9999999999.0
+#+RESULTS[3d14721febeca74f7e71fc1427b6d61df1adcc42]:
+#+begin_src scheme
+9999999998.999998
+#+end_src
 
 Why exactly this is not very good algorithms is a good question. The
 derivative of the square is well-defined near the 0, although the
@@ -498,7 +517,7 @@ in my scheme implementation.
 Let us write a better sqrt-iter?.
 
 #+name: better-sqrt-iter
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results none
   (define (sqrt-iter guess x)
    (let ((better-guess (improve guess x)))
     (if (good-enough? guess (square better-guess))
@@ -507,23 +526,23 @@ Let us write a better sqrt-iter?.
 #+end_src
 
 #+name: better-newton
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results none
 <<common>>
 <<square>>
 <<better-sqrt-iter>>
 <<simple-newton-recursion>>
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code 
 <<better-newton>>
 (square (sqrt 0.0004))
 #+end_src
 
-#+RESULTS:
-: 0.0005452233379244715
+#+RESULTS[6585fff2006aa0d1751c8d8adce94c92969259a5]:
+#+begin_src scheme
+0.0005452233379244715
+#+end_src
+
 
 Works faster and gives a better result. Seemingly. QED[fn:1].
 
@@ -653,7 +672,7 @@ so this macro is expanded until it's just a number.
     CLOSED: [2019-08-25 Sun 18:31]
 Let's run the demos first:
 #+name: ackerman
-#+begin_src scheme :exports both :results output :session
+#+begin_src scheme :exports both :results
   <<common>>
   (define (A x y)
     (cond ((= y 0.0) 0.0)
@@ -672,7 +691,7 @@ Let's run the demos first:
 
 The values of these expressions are listed above.
 
-#+begin_src scheme :exports both :results value :session
+#+begin_src scheme :exports both :results
   (define (f n) (A 0 n))
   (define (g n) (A 1 n))
   (define (h n) (A 2 n))
@@ -716,7 +735,7 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
 \end{array}\right.
 \end{equation}
 
-#+begin_src scheme :exports both :results value :session
+#+begin_src scheme :exports both :results value
     (define (f-recursive n)
       (cond ((< n 3) n)
 	    (else
@@ -730,7 +749,7 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
 #+RESULTS:
 : 142
 
-#+begin_src scheme :exports both :results value :session
+#+begin_src scheme :exports both :results value
   (define (f-iter m n fn-1 fn-2 fn-3)
     (let ((fn (+ fn-1 (* 2 fn-2) (* 3 fn-3))))
       (cond ((= m n) fn)

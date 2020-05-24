@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-22 13:33:25 lockywolf>
+# Time-stamp: <2020-05-24 16:45:28 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -10,17 +10,19 @@
 #+OPTIONS: tex:imagemagick
 #+LATEX_CLASS: acmart
 # +LATEX_CLASS_OPTIONS: [a4paper]
+#+latex_header: \usepackage[utf8]{inputenc}
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
 #+LATEX_HEADER: \usepackage{supertabular}
-#+LATEX_HEADER: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear]{biblatex}
+# the safeinputenc option to biblatex seems to be dangerous, but I had to use it for (R) to be displayed. 
+# be careful
+#+LATEX_HEADER: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear,safeinputenc]{biblatex}
 #+LATEX_HEADER: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
 
 \title{Solving SICP}
-\title{An Experience Report on Solving the World's Most Famous Programming Problem Set}
+\subtitle{An Experience Report on Solving the World's Most Famous Programming Problem Set}
 
 \acmConference{Scheme Workshop 2020}{2020-09}{Online}
 
-\author{Vladimir Nikishkin}
 \affiliation{Unaffiliated}
 \email{wladimir.nikishkin@gmail.com}
 \keywords{scheme, r7rs, teaching, programming, literate programming, fortran}
@@ -178,9 +180,7 @@ particular student.
 following principles:
 
  1. Be complete.
- 2. Be a fairly realistic modelling of a solution process as if
-executed by the intended audience of the course -- that is freshman
-university students with little programming experience. 
+ 2. Be a fairly realistic modelling of a solution process as if executed by the intended audience of the course -- that is freshman university students with little programming experience.
  3. Be done in a "fully digital", "digital native" form.
  4. Be measurable.
 
@@ -196,7 +196,7 @@ In simple words, what does it mean "to pass a course" or "to learn a subject" at
 How exactly can one formalise the statement "I know calculus"?
 Or even a simpler "I have learned everything that was implied by a university course on calculus". 
 
-I would be a good ides to conduct a survey of teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
+I would be a good idea to conduct a survey of teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
 
 So far, however, following are the potential answers to this questions as they may be given:
 
@@ -489,6 +489,7 @@ The PlantUML language satisfied almost all of the requirements, and via an org-p
 *Non-standard drawing exercises*, the most prominent of those requiring drawing environment diagrams (debugging interfaces), were significantly more challenging.
 When a prepared mental model (i.e. an established diagramming standard) was absent, that standard had to be implemented from scratch in an improvised way.
 The TikZ language proved to be having enough features to cover the requirements of the book where PlantUML was not enough.
+It required a lot of reading of the manual though and a fair level of familiarity with \TeX.
 
 
 * Time analysis, performance profiling and graphs
@@ -515,13 +516,14 @@ An example of the outline look in the following way:
 
 #+begin_example
  * SICP [385/404]
- ** Chapter 1: Building abstractions with procedures [57/61]
+ ** Chapter 1: Building abstractions with ... [57/61]
  *** DONE Exercise 1.1 Interpreter result
      CLOSED: [2019-08-20 Tue 14:23]...
  *** DONE Exercise 1.2 Prefix form
      CLOSED: [2019-08-20 Tue 14:25]
-  #+begin_src scheme :exports both :results value :session
-   (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5))))) (* 3 (- 6 2) (- 2 7)))
+  #+begin_src scheme :exports both :results value
+   (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5))))) 
+      (* 3 (- 6 2) (- 2 7)))
   #+end_src
 
   #+RESULTS:
@@ -568,8 +570,6 @@ Noweb-links is a method of verbatim inclusion of a code block into another code 
 In particular, Exercise 5.48 required inclusion of *58* other code blocks into the final solution block.
 Pure copying would not suffice, because as SICP exercises often involve the evaluation of the code written before by the code written during the execution of an exercise, thus later exercises are likely to expose errors in the earlier exercises solutions.
 
-*** 
-
 ** Out of order problems and other statistics
 
 The following figure presents some of the aggregated statistic on the solution of the problem set.
@@ -586,7 +586,7 @@ The following figure presents some of the aggregated statistic on the solution o
 - *1.79* study sessions on average
 - *1* median study session
 - *13* problems were solved out of order. 
-  - "Figure 1.1 Tree representation, showing the value of each subcombination"
+  - "Figure 1.1 Tree representation, ..."
   - "Exercise 1.3 Sum of squares"
   - "Exercise 1.9 Iterative or recursive?"
   - "Exercise 2.45 split"
@@ -609,23 +609,30 @@ The following figure presents some of the aggregated statistic on the solution o
 This means that those problems may have been the trickiest.
 (Although not necessarily the hardest.)
 
-** Time spend on solving the exercises
+** Time spent on solving the exercises
 
 #+ATTR_LATEX: :width 9cm :float nil
 #+caption: "Days spent per problem"
 [[file:experience-report-days.png]]
 
+The second spike in the distribution can be attributed to the general tiredness of solving such as huge problem set and a need of a break. 
+This spike is less prominent on the graph of the study sessions.
+
 ** Study sessions per problem
 
 #+ATTR_LATEX: :width 9cm :float nil
 #+caption: "Study sessions per problem"
+ 
 [[file:experience-report-study-sessions.png]]
 
 ** Hardness histogram (linear)
 
 #+ATTR_LATEX: :width 9cm
 #+caption: "Hardness distribution (linear)"
+
 [[file:experience-report-hardness-histogram-linear.png]]
+
+The linearly-scaled hardness histogram 
 
 ** Hardness histogram (logarithmic)
 
@@ -673,6 +680,8 @@ It should not be unexpected if the students decide not to advance further in the
 It would be interesting to measure such a threshold, and to suggest curriculum design strategies that aim to minimise course drop-out.
 Potentially such strategies may include course breakdown into smaller modules, increasing the penalties associated with dropping out, or providing an external willpower source to the students.
 
+Another important direction may be the development and formalisation of coursework submission formats, in order to facilitate further collection of similar data on this or other problem sets.
+
 ** Informal review
 
 This section contains the author's personal view on the problem set and the questions it raises.
@@ -706,7 +715,7 @@ If I may, by the virtue of personally experiencing this transformative experienc
  - Deliberately teach your students to use TeX, and especially well technically harnessed TeX. This is often considered to be a meta-cognitive exercise to be solved by the students themselves, but my experience is not reassuring in this aspect. Very few students, and even professionals, end up using TeX efficiently. It took me more than *50* hours to just refresh the skill of using \TeX that I had already learnt before in order to write a thesis.
  - Deliberately teach your student to touch-type. This may not be necessary in the regions where tough-typing is included into the basic high school curriculum, but is still a major problem in most parts of the world.
  - Deliberately teach your students to read software manuals. Indeed, much of the modern software has manuals built-in piece-wise right into the software itself. Often reading the whole manual is not required to perform the task. But doing it at least once (reading ~some~ manual from the first page to the last), is a very broadening experience, and additionally useful in teaching how to assess the time needed to grasp the skill of using ~a~ piece off software.
- - Teach your student to use a timer when doing homework, even if it is not an org-mode timer. Realistic assessment of how much effort things actually take is a perspective-shifting experience.
+ - Teach your student to use a timer when doing homework, even if it is not an org-mode timer. Realistic assessment of how much effort things actually take is a paradigm-shifting experience.
 
 * Materials
 
@@ -721,28 +730,34 @@ This section attempts to provide a complete list of materials used in the proces
 - Logic Programming: A Classified Bibliography ([[bib:Balbin_1985_logic_programming_bibliography]])
 - Chibi-Scheme Manual ([[bib:chibi_manual]])
 - TikZ Manual ([[bib:tikz_manual]])
-- PlantUML Manual 
-- Thomas A. Pender-UML Weekend Crash Course
-- GNU Emacs Manual
-- GNU Emacs org-mode Manual
-- Debugging With GDB
+- PlantUML Manual ([[bib:plantuml_manual]])
+- UML Weekend Crash Course ([[bib:pender2002uml]])
+- GNU Emacs Manual ([[bib:stallman_emacs_manual]])
+- GNU Emacs Lisp Reference Manual ([[bib:emacs_lisp_manual]])
+- GNU Emacs Org-Mode Manual ([[bib:Dominik2010orgmode]])
+- Debugging With GDB ([[bib:debugging_with_gdb]])
 - Implementations of Prolog ([[bib:DBLP:books/eh/campbell84/C1984]])
 
 *** Software
-- GNU Emacs
-- org-mode for Emacs ([[bib:Schulte:Davison:Dye:Dominik:2011:JSSOBK:v46i03]])
-- chibi-scheme
-- MIT/GNU Scheme (For running schelog and for portability checks)
-- GNU Debugger (GDB)
-- luaLaTeX/TexLive!
-- TikZ/PGF
-- PlantUML
-- Graphviz
-- Slackware Linux 14.2-current
+- GNU Emacs ([[bib:software_gnu_emacs]])
+- org-mode for Emacs ([[bib:software_org_mode]])
+- chibi-scheme ([[bib:software_chibi_scheme]])
+- MIT/GNU Scheme [For running schelog and for portability checks] ([[bib:software_mit_scheme]])
+- geiser ([[bib:software_geiser]])
+- GNU Debugger (GDB) ([[bib:software_gnu_gdb]])
+- luaLaTeX/TeX Live ([[bib:software_tex_texlive]])
+- TikZ/PGF ([[bib:software_tex_tikz]])
+- PlantUML ([[bib:software_plantuml]])
+- Graphviz ([[bib:software_graphviz]])
+- Slackware Linux 14.2-current ([[bib:software_slackware_linux]])
+
+#+begin_export latex
+\nocite{Schulte:Davison:Dye:Dominik:2011:JSSOBK:v46i03}
+#+end_export
 
 *** Papers
 
-- Revised Report on the Propagator Model ([[bib:radul2011propagator]])
+- Revised Report on the Propagator Model ([[bib:radul_2011_propagator]])
 - On Implementing Prolog In Functional Programming ([[bib:DBLP:journals/ngc/Carlsson84]])
 - eu-Prolog, Reference Manual and Report ([[bib:kohlbecker1984eu]])
 
@@ -2178,7 +2193,7 @@ Exercise 5.52 Making a compiler for scheme
 
 *** Time consumption histogram linear
 
-#+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"xlabel 'Problems in a bin'" set:"ylabel 'Hardness [hours]'"
+#+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [hours]'"
 | Bin Lower Bound | N. tasks |
 |-----------------+----------|
 |              0. |      301 |
@@ -2215,7 +2230,7 @@ Exercise 5.52 Making a compiler for scheme
 
 *** Time consumption histogram logarithmic
 
-#+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"xlabel 'Problems in a bin'" set:"ylabel 'Hardness [log(hours)]'"
+#+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [log(hours)]'"
 | Bin Lower Bound | N. tasks |
 |-----------------+----------|
 |               1 |        2 |
