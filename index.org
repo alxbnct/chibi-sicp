@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-25 21:49:35 lockywolf>
+# Time-stamp: <2020-05-25 23:22:03 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -5059,30 +5059,6 @@ turned out to be less fit for this problem.
 [[file:figure-2-2.png]]
 
 
-
-#+name: tikztest
-#+header: :imagemagick yes :iminoptions -density 600 :imoutoptions -geometry 200
-#+header: :fit yes :headers '("\\usepackage{tikz}")
-#+header: :buffer on
-#+begin_src latex :results raw file :exports code :file test.png
-  \usetikzlibrary{trees}
-  \begin{tikzpicture}[color=white]
-    \node [circle, draw, fill=red!70] at (0,0) {1}
-      child {
-             node [circle, draw, fill=blue!70] {2}
-             child {
-                   node [circle, draw, fill=green!70]  {3} }
-             child {
-                   node [circle, draw, fill=yellow!70] {4} }
-            };
-  \end{tikzpicture}
-#+end_src
-
-#+RESULTS[9a78c4d3a9081c52c812cdcd72b2e631488e511e]: tikztest
-[[file:test.png]]
-
-
-
 #+begin_src plantuml :exports both :file ditaa.png
 @startditaa
                +---+---+     +---+---+         +---+---+     +---+
@@ -5109,24 +5085,29 @@ turned out to be less fit for this problem.
     CLOSED: [2019-09-10 Tue 10:48]
 0:20:51
 
-#+begin_src scheme :exports both :results value :noweb-ref last-pair
+#+name: last-pair
+#+begin_src scheme :exports code :results none
   (define (last-pair lst)
     (list-tail lst (- (length lst) 1)))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<last-pair>>
 (let ((tmp (last-pair '(1 1))))
 (show #t " " (car tmp) " " (cdr tmp)))
 #+end_src
 
-#+RESULTS:
-:  1 ()
+#+RESULTS[00a6b99bfff216305143af13a9d14981b3e08317]:
+#+begin_src scheme
+ 1 ()
+#+end_src
 
 *** DONE Exercise 2.18 reverse
     CLOSED: [2019-09-10 Tue 10:57]
 0:03:56
-#+begin_src scheme :exports both :results value :noweb-ref reverse-list
+
+#+name: reverse-list
+#+begin_src scheme :exports code :results none
   (define (reverse lst)
     (define (lst-iter x y)
        (if (null? y)
@@ -5135,18 +5116,21 @@ turned out to be less fit for this problem.
     (lst-iter '() lst))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<reverse-list>>
 (show #t " " (reverse '(1 2 3)))
 #+end_src
 
-#+RESULTS:
-:  (3 2 1)
+#+RESULTS[0a0e4b4d4a3500fa8c96accee2d22a19ffa1322f]:
+#+begin_src scheme
+ (3 2 1)
+#+end_src
 
 *** DONE Exercise 2.19 coin-values                                   :unsure:
     CLOSED: [2019-09-10 Tue 11:27]
 
-#+begin_src scheme :exports both :results value :noweb-ref coin-values
+#+name: coin-values
+#+begin_src scheme :exports code :results none
   (define us-coins (list 50 25 10 5 1))
   (define uk-coins (list 100 50 20 10 5 2 1 0.5))
   (define uk-coins-damaged (list 0.50 100 50 20 10 5 2 1))
@@ -5164,7 +5148,8 @@ turned out to be less fit for this problem.
 		  coin-values)))))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref first-denomination
+#+name: first-denomination
+#+begin_src scheme :exports code :results none
   (define (first-denomination coin-values)
     (car coin-values))
   (define (except-first-denomination coin-values)
@@ -5175,7 +5160,7 @@ turned out to be less fit for this problem.
 
 *Warning:* the next code is a bit slow (~1 minute).
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar none
 <<first-denomination>>
 <<coin-values>>
 (show #t " " (cc 137 us-coins) "\n")
@@ -5186,14 +5171,16 @@ turned out to be less fit for this problem.
 :  704
 :  443166
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<first-denomination>>
 <<coin-values>>
 (show #t " " (cc 137 uk-coins-damaged) "\n")
 #+end_src
 
-#+RESULTS:
-:  443166
+#+RESULTS[b0f8c86b64320798c63a6ffdf5307d35a2f24c20]:
+#+begin_src scheme
+ 443166
+#+end_src
 
 I don't see why the result would depend on the order of the coins. We
 don't seem to be using the order anywhere.
@@ -5201,7 +5188,9 @@ don't seem to be using the order anywhere.
 *** DONE Exercise 2.20 dotted-tail notation
     CLOSED: [2019-09-10 Tue 18:55]
 1:45:10
-#+begin_src scheme :exports both :results value :noweb-ref same-parity
+
+#+name: same-parity
+#+begin_src scheme :exports code :results none
   (define (same-parity . lst)
     (define (iter-parity lst bit accumulator)
       (cond ((null? lst)
@@ -5213,23 +5202,24 @@ don't seem to be using the order anywhere.
    (reverse (iter-parity lst (remainder (car lst) 2) '())))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<same-parity>>
 (show #t " " (same-parity 2 3 4) "\n")
 (show #t " " (same-parity 1 2 3 4) "\n")
 #+end_src
 
-#+RESULTS:
-:  (2 4)
-:  (1 3)
+#+RESULTS[00a8905e20acd8e4af1509c939e8b30610c8eff5]:
+#+begin_src scheme
+ (2 4)
+ (1 3)
+#+end_src
 
 *** DONE Exercise 2.21 map-square-list
     CLOSED: [2019-09-10 Tue 19:14]
 0:13:23
-#+begin_src scheme :exports both :results output
+
+
+#+begin_src scheme :exports both :results output scalar code
   (define nil #f)
   (define (square-list items)
 
@@ -5239,8 +5229,10 @@ don't seem to be using the order anywhere.
   (show #t " " (square-list '(1 2 3 4 5)))
 #+end_src
 
-#+RESULTS:
-:  (1 4 9 16 25)
+#+RESULTS[e67285e74c27bc54511ecacfe79afe04d574c35e]:
+#+begin_src scheme
+ (1 4 9 16 25)
+#+end_src
 
 #+begin_src scheme :exports both :results output
   (define (square-list items)
@@ -5273,7 +5265,8 @@ only possible to prepend elements to lists, not really append.
 *** DONE Exercise 2.23 for-each
     CLOSED: [2019-09-10 Tue 19:33]
 0:04:56
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
   (define (for-each fun items)
    (unless (null? items)
     (fun (car items))
@@ -5285,22 +5278,27 @@ only possible to prepend elements to lists, not really append.
 	    (list 57 321 88))
 #+end_src
 
-#+RESULTS:
-:
-: 57
-: 321
-: 88
+#+RESULTS[d8d0451b604302ab38ca4a00c254b2138b32f7aa]:
+#+begin_src scheme
 
-*** DONE Exercise 2.24 list-plot-result                            :graphviz:
+57
+321
+88
+#+end_src
+
+*** DONE Exercise 2.24 list-plot-result                   :graphviz:plantuml:
     CLOSED: [2019-09-10 Tue 22:13]
 0:48:39
 The result of the interpreter:
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 (show #t " " (list 1 (list 2 (list 3 4))))
 #+end_src
 
-#+RESULTS:
-:  (1 (2 (3 4)))
+#+RESULTS[96a5e8b9e1320fc90637b5613c96674c6872928b]:
+#+begin_src scheme
+ (1 (2 (3 4)))
+#+end_src
 
 The box-and-pointer structure:
 
@@ -5374,7 +5372,7 @@ The box-and-pointer structure:
 
 Tree interpretation:
 
- #+begin_src plantuml :exports both :file figure-1-1-dot.png
+#+begin_src plantuml :exports both :file exercise-2-24-plant.png
  @startdot
  graph g {
 	 node [shape=plaintext];
@@ -5405,41 +5403,58 @@ Tree interpretation:
 	 { rank=same; C1 C2 }
 	 { rank=same; D1 D2 }
  }
- @enddot
- #+end_src
+@enddot
+#+end_src
 
- #+RESULTS:
- [[file:figure-1-1-dot.png]]
+#+RESULTS[2b00e5b02b5b88f765783e9d071ed95a20ec5001]:
+[[file:exercise-2-24-plant.png]]
 
 *** DONE Exercise 2.25 caddr
     CLOSED: [2019-09-10 Tue 23:07]
-#+begin_src scheme :exports both :results value
+
+#+begin_src scheme :exports both :results value scalar code
 (car (cdr (car (cdr (cdr '(1 3 (5 7) 9))))))
 #+end_src
 
-#+RESULTS:
-: 7
+#+RESULTS[821d7f7419f77f6ce12a85a9824a6839290a2aa2]:
+#+begin_src scheme
+7
+#+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 (caar '((7)))
 #+end_src
 
-#+RESULTS:
-: 7
-
-#+begin_src scheme :exports both :results output
-(show #t " " (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr '(1 (2 (3 (4 (5 (6 7)))))))))))))))))))
+#+RESULTS[206130fea50422913a8ff6a562ad2aaba3b9a7a0]:
+#+begin_src scheme
+7
 #+end_src
 
-#+RESULTS:
-:  7
+#+begin_src scheme :exports both :results output scalar code
+  (show #t " " (car
+	       (cdr
+		(car
+		 (cdr
+		  (car
+		   (cdr
+		    (car
+		     (cdr
+		      (car
+		       (cdr
+			(car (cdr '(1 (2 (3 (4 (5 (6 7)))))))))))))))))))
+#+end_src
+
+#+RESULTS[d27117176b491f52724a77c668af34be69c184e5]:
+#+begin_src scheme
+ 7
+#+end_src
 
 The task was funny.
 
 *** DONE Exercise 2.26 append cons list
     CLOSED: [2019-09-10 Tue 23:23]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define x (list 1 2 3))
 (define y (list 4 5 6))
 (show #t " " (append x y) "\n")
@@ -5447,15 +5462,18 @@ The task was funny.
 (show #t " " (list x y) "\n")
 #+end_src
 
-#+RESULTS:
-:  (1 2 3 4 5 6)
-:  ((1 2 3) 4 5 6)
-:  ((1 2 3) (4 5 6))
+#+RESULTS[e1fd1e7397e82ad67d79f5016d17209afcca8152]:
+#+begin_src scheme
+ (1 2 3 4 5 6)
+ ((1 2 3) 4 5 6)
+ ((1 2 3) (4 5 6))
+#+end_src
 
 *** DONE Exercise 2.27 deep-reverse
     CLOSED: [2019-09-11 Wed 09:47]
 0:14:46
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
   (define (deep-reverse lst)
     (define (iter-reverse lst1 accumulator)
       (if (null? lst1)
@@ -5470,14 +5488,17 @@ The task was funny.
   (show #t " " (deep-reverse x))
 #+end_src
 
-#+RESULTS:
-:  ((3 4) (1 2))
-:  ((4 3) (2 1))
+#+RESULTS[c0618c5a78638a1c33872699cf3a4af1df9745ca]:
+#+begin_src scheme
+ ((3 4) (1 2))
+ ((4 3) (2 1))
+#+end_src
 
 *** DONE Exercise 2.28 fringe
     CLOSED: [2019-09-11 Wed 10:24]
 0:37:00
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
       (define (fringe tree)
 	(define (fringe-iter tree accumulator)
 	  (cond  ((null? tree) '())
@@ -5493,14 +5514,18 @@ The task was funny.
 
 #+end_src
 
-#+RESULTS:
-:  (1 2 3 4)
-:  (1 2 3 4 1 2 3 4)
+#+RESULTS[88a37a8301bd0c54250f7796c61db9b63ef2b559]:
+#+begin_src scheme
+ (1 2 3 4)
+ (1 2 3 4 1 2 3 4)
+#+end_src
 
 *** DONE Exercise 2.29 mobile
     CLOSED: [2019-09-11 Wed 11:47]
 1:23:0
-#+begin_src scheme :exports both :results value :noweb-ref mobile
+
+#+name: mobile
+#+begin_src scheme :exports code :results none
   (define (make-mobile left right)
     (list left right))
 
@@ -5520,7 +5545,8 @@ The task was funny.
     (cadr branch))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref mobile-total-weight
+#+name: mobile-total-weight
+#+begin_src scheme :exports code :results none
   (define (total-weight mobile)
     (if (pair? mobile)
     (+ (if (pair? (branch-structure (left-branch mobile)))
@@ -5532,7 +5558,7 @@ The task was funny.
     mobile))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
   <<mobile>>
   <<mobile-total-weight>>
   (total-weight
@@ -5545,10 +5571,12 @@ The task was funny.
     (make-branch 7 2)))
 #+end_src
 
-#+RESULTS:
-: 5
-
-#+begin_src scheme :exports both :results value :noweb-ref mobile-balanced
+#+RESULTS[71c4d67ec359f55b422d2e5714affbd1b746ae8e]:
+#+begin_src scheme
+5
+#+end_src
+#+name: mobile-balanced
+#+begin_src scheme :exports code :results none
     (define (balanced? mobile)
       (and
        (=
@@ -5568,10 +5596,7 @@ The task was funny.
 
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<mobile-balanced>>
 <<mobile-total-weight>>
 <<mobile>>
@@ -5584,12 +5609,13 @@ The task was funny.
       (make-branch 2 2)))
     (make-branch 7 2))) "\n")
   (show #t " " (balanced? (make-mobile (make-branch 5 5) (make-branch 5 5))) "\n")
-
 #+end_src
 
-#+RESULTS:
-:  #f
-:  #t
+#+RESULTS[9bb4e5ed41d59cb8c1cc4d47ee13fe872ffef645]:
+#+begin_src scheme
+ #f
+ #t
+#+end_src
 
 If we replace lists with ~cons~, the only thing that needs to be
 changed is that ~cadr~ should be replaced with ~car~.
@@ -5597,7 +5623,9 @@ changed is that ~cadr~ should be replaced with ~car~.
 *** DONE Exercise 2.30 square-tree
     CLOSED: [2019-09-11 Wed 14:11]
  1. A no-high-level version
-#+begin_src scheme :exports both :results value :noweb-ref  square-tree
+
+#+name: square-tree
+#+begin_src scheme :exports code :results none
   (define (square-tree tree)
     (cond ((null? tree) '())
 	  ((not (pair? tree)) (square tree))
@@ -5605,10 +5633,8 @@ changed is that ~cadr~ should be replaced with ~car~.
 		      (square-tree (cdr tree))))))
 #+end_src
 
-#+RESULTS:
-: #<undef>
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<square-tree>>
   (show #t " " (square-tree
    (list 1
@@ -5616,22 +5642,25 @@ changed is that ~cadr~ should be replaced with ~car~.
 	 (list 6 7))))
 #+end_src
 
-#+RESULTS:
-:  (1 (4 (9 16) 25) (36 49))
- 2. High-level version
-#+begin_src scheme :exports both :results output :noweb-ref square-subtree-map
+#+RESULTS[d1c774f198c62b14f5dd3b86b843b0bc4433470f]:
+#+begin_src scheme
+ (1 (4 (9 16) 25) (36 49))
+#+end_src
+
+
+2. High-level version
+
+#+name: square-subtree-map
+#+begin_src scheme :exports code :results none
     (define (square-tree tree)
       (map (lambda (sub-tree)
 	     (if (pair? sub-tree)
 		 (square-tree sub-tree)
 		 (square sub-tree)))
 	   tree))
-
 #+end_src
 
-#+RESULTS:
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<square-subtree-map>>
   (show #t " " (square-tree
    (list 1
@@ -5639,15 +5668,18 @@ changed is that ~cadr~ should be replaced with ~car~.
 	 (list 6 7))))
 #+end_src
 
-#+RESULTS:
-:  (1 (4 (9 16) 25) (36 49))
+#+RESULTS[c6eb92db9a1754a50eec1a1e20ba078d29bba342]:
+#+begin_src scheme
+ (1 (4 (9 16) 25) (36 49))
+#+end_src
 
 Not a very hard problem.
 
 *** DONE Exercise 2.31 tree-map square tree
     CLOSED: [2019-09-11 Wed 14:38]
 Not a very hard problem.
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
   (define (square-tree tree) (tree-map square tree))
 
   (define (tree-map square tree)
@@ -5664,13 +5696,16 @@ Not a very hard problem.
 
 #+end_src
 
-#+RESULTS:
-:  (1 (4 (9 16) 25) (36 49))
+#+RESULTS[55001b9092227eab3a36634e3ea834fd82da8950]:
+#+begin_src scheme
+ (1 (4 (9 16) 25) (36 49))
+#+end_src
 
 *** DONE Exercise 2.32 subsets
     CLOSED: [2019-09-11 Wed 14:53]
 
-#+begin_src scheme :exports both :results value :noweb-ref subsets
+#+name: subsets
+#+begin_src scheme :exports both :results value scalar code
   (define (subsets s)
     (if (null? s)
 	(list '())
@@ -5679,15 +5714,10 @@ Not a very hard problem.
   (subsets '(1 2 3))
 #+end_src
 
-#+RESULTS:
-|---+---+---|
-| 3 |   |   |
-| 2 |   |   |
-| 2 | 3 |   |
-| 1 |   |   |
-| 1 | 3 |   |
-| 1 | 2 |   |
-| 1 | 2 | 3 |
+#+RESULTS[8c1561821916ca51a7d5755b897c9124da8ca2b4]: subsets
+#+begin_src scheme
+(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))
+#+end_src
 
 The explanation is easy. The subsets can be constructed by taking any
 element, say, the first, and appending it to every subset of the rest
@@ -5699,7 +5729,7 @@ every subset of the enlarged set *S+a*.
     CLOSED: [2019-09-11 Wed 23:53]
 
 #+name: filter
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (filter predicate sequence)
     (cond ((null? sequence) '())
 	  ((predicate (car sequence))
@@ -5709,7 +5739,7 @@ every subset of the enlarged set *S+a*.
 #+end_src
 
 #+name: accumulate
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
@@ -5718,7 +5748,7 @@ every subset of the enlarged set *S+a*.
 #+end_src
 
 #+name: enumerate-interval
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (enumerate-interval low high)
     (if (> low high)
 	'()
@@ -5726,7 +5756,7 @@ every subset of the enlarged set *S+a*.
 #+end_src
 
 #+name: enumerate-tree
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (enumerate-tree tree)
     (cond ((null? tree) '())
 	   ((not (pair? tree)) (list tree))
@@ -5735,7 +5765,7 @@ every subset of the enlarged set *S+a*.
 #+end_src
 
 #+name: map-append-length
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (map p sequence)
     (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
   (define (append seq1 seq2)
@@ -5744,7 +5774,7 @@ every subset of the enlarged set *S+a*.
     (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
 #+end_src
 
-#+begin_src scheme :exports both :results value :results output
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
 <<map-append-length>>
 
@@ -5753,30 +5783,34 @@ every subset of the enlarged set *S+a*.
 (display (map (lambda (x) x) '(1 2 3 4)))
 #+end_src
 
-#+RESULTS:
-: 100
-: (1 2 3 4 5 6 7 8)
-: (1 2 3 4)
+#+RESULTS[9beabbb51bc972a2385a9e7851a35f3487ac2383]:
+#+begin_src scheme
+100
+(1 2 3 4 5 6 7 8)
+(1 2 3 4)
+#+end_src
 
 
 *** DONE Exercise 2.34 horners-rule
     CLOSED: [2019-09-12 Thu 00:01]
-#+begin_src scheme :exports both :results value
+
+#+begin_src scheme :exports both :results value scalar code
 <<accumulate>>
   (define (horner-eval x coefficient-sequence)
     (accumulate (lambda (this-coeff higher-terms) (+ this-coeff (* x higher-terms)))
 		0
 		coefficient-sequence))
   (horner-eval 2 (list 1 3 0 5 0 1))
-
 #+end_src
 
-#+RESULTS:
-: 79
+#+RESULTS[b92dbc0b679b0fdfc34e91e759ea9f7e27ae82dc]:
+#+begin_src scheme
+79
+#+end_src
 
 *** DONE Exercise 2.35 count-leaves-accumulate
     CLOSED: [2019-09-12 Thu 00:17]
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<accumulate>>
   (define (count-leaves t)
     (accumulate + 0 (map (lambda (x) (if (pair? x)
@@ -5785,12 +5819,16 @@ every subset of the enlarged set *S+a*.
   (count-leaves (list 1 2 3))
 #+end_src
 
-#+RESULTS:
-: 3
+#+RESULTS[0eeaeb452b550a82e5f1789c4de71bf5a59e6d7e]:
+#+begin_src scheme
+3
+#+end_src
 
 *** DONE Exercise 2.36 accumulate-n
     CLOSED: [2019-09-12 Thu 00:26]
-#+begin_src scheme :exports both :results value :noweb-ref accumulate-n
+
+#+name: accumulate-n
+#+begin_src scheme :exports code :results none
 <<accumulate>>
   (define (accumulate-n op init seqs)
     (if (null? (car seqs))
@@ -5799,23 +5837,27 @@ every subset of the enlarged set *S+a*.
               (accumulate-n op init (map cdr seqs)))))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<accumulate-n>>
   (accumulate-n + 0 '((1 2 3) (4 5 6) (7 8 9) (10 11 12)))
 #+end_src
 
-#+RESULTS:
-| 22 | 26 | 30 |
+#+RESULTS[1cc1e24633ce4bb6138cdc950281db4217e1f84e]:
+#+begin_src scheme
+(22 26 30)
+#+end_src
 
 *** DONE Exercise 2.37 matrix-*-vector
     CLOSED: [2019-09-12 Thu 00:50]
 
-#+begin_src scheme :exports both :results value :noweb-ref dot-product
+#+name: dot-product
+#+begin_src scheme :exports code :results none
   (define (dot-product v w)
     (accumulate + 0 (map * v w)))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref matrix-operations
+#+name: matrix-operations
+#+begin_src scheme :exports code :results none
   (define (matrix-*-vector m v)
     (map (lambda (x) (dot-product v x)) m))
   (define (transpose mat)
@@ -5825,10 +5867,7 @@ every subset of the enlarged set *S+a*.
       (map (lambda (x) (matrix-*-vector m x)) n)))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
 <<accumulate-n>>
 <<dot-product>>
@@ -5840,14 +5879,18 @@ every subset of the enlarged set *S+a*.
                '((1 2 3 4) (4 5 6 6) (6 7 8 9)) ) "\n")
 #+end_src
 
-#+RESULTS:
-:  (30 56 80)
-:  ((1 4 6) (2 5 7) (3 6 8) (4 6 9))
-:  ((30 56 80) (56 113 161) (80 161 230))
+#+RESULTS[bf5aabf436bdab0be11bddd92614fcd2f78f7e3f]:
+#+begin_src scheme
+ (30 56 80)
+ ((1 4 6) (2 5 7) (3 6 8) (4 6 9))
+ ((30 56 80) (56 113 161) (80 161 230))
+#+end_src
 
 *** DONE Exercise 2.38 fold-left
     CLOSED: [2019-09-12 Thu 09:45]
-#+begin_src scheme :exports both :results value :noweb-ref fold-left
+
+#+name: fold-left
+#+begin_src scheme :exports code :results none
   (define (fold-left op initial sequence)
     (define (iter result rest)
       (if (null? rest)
@@ -5857,7 +5900,7 @@ every subset of the enlarged set *S+a*.
     (iter initial sequence))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
 <<fold-left>>
 (show #t " " (accumulate / 1 (list 1 2 3)) "\n")
@@ -5868,13 +5911,15 @@ every subset of the enlarged set *S+a*.
 (show #t " " (accumulate + 0 (list 1 2 3)) "\n")
 #+end_src
 
-#+RESULTS:
-:  3/2
-:  1/6
-:  (1 (2 (3 ())))
-:  (((() 1) 2) 3)
-:  6
-:  6
+#+RESULTS[ebdadc478ac489f34601de0d121b94d8e358364a]:
+#+begin_src scheme
+ 3/2
+ 1/6
+ (1 (2 (3 ())))
+ (((() 1) 2) 3)
+ 6
+ 6
+#+end_src
 
 Well, it seems that commutative operations, that is the ones for which
 \(a+b = b+a\).
@@ -5882,7 +5927,7 @@ Well, it seems that commutative operations, that is the ones for which
 *** DONE Exercise 2.39 reverse fold-right fold-left
     CLOSED: [2019-09-12 Thu 09:52]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
 <<fold-left>>
   (define (reverse sequence)
@@ -5891,37 +5936,38 @@ Well, it seems that commutative operations, that is the ones for which
   (define (reverse sequence)
     (fold-left  (lambda (x y) (cons y x)) '() sequence))
   (show #t " " (reverse (list 1 2 3)))
-
 #+end_src
 
-#+RESULTS:
-:  (1 2 3)
-:  (3 2 1)
+#+RESULTS[5a7002bef41ae8f766c529d43004cfe05e38d50d]:
+#+begin_src scheme
+ (1 2 3)
+ (3 2 1)
+#+end_src
 
 *** DONE Exercise 2.40 unique-pairs
     CLOSED: [2019-09-12 Thu 10:34]
 0:42:00
 
 #+name: flatmap
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (flatmap proc seq)
     (accumulate append '() (map proc seq)))
 #+end_src
 
 #+name: prime-sum
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (prime-sum? pair)
     (prime? (+ (car pair) (cadr pair))))
 #+end_src
 
 #+name: make-pair-sum
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
 (define (make-pair-sum pair)
     (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
 #+end_src
 
 #+name: prime-sum-pairs
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (prime-sum-pairs n)
     (map make-pair-sum
 	  (filter prime-sum? (flatmap
@@ -5931,7 +5977,7 @@ Well, it seems that commutative operations, that is the ones for which
 			      (enumerate-interval 1 n)))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<prime-sum-pairs>>
 <<enumerate-interval>>
 <<flatmap>>
@@ -5946,8 +5992,8 @@ Well, it seems that commutative operations, that is the ones for which
 (show #t " " (pretty (prime-sum-pairs 30)))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[d6d098d55654fa45d8173de5db045c36a2484f90]:
+#+begin_src scheme
  ((2 1 3)    (3 2 5)    (4 1 5)    (4 3 7)    (5 2 7)    (6 1 7)    (6 5 11)
   (7 4 11)   (7 6 13)   (8 3 11)   (8 5 13)   (9 2 11)   (9 4 13)   (9 8 17)
   (10 1 11)  (10 3 13)  (10 7 17)  (10 9 19)  (11 2 13)  (11 6 17)  (11 8 19)
@@ -5965,9 +6011,10 @@ Well, it seems that commutative operations, that is the ones for which
   (28 3 31)  (28 9 37)  (28 13 41) (28 15 43) (28 19 47) (28 25 53) (29 2 31)
   (29 8 37)  (29 12 41) (29 14 43) (29 18 47) (29 24 53) (30 1 31)  (30 7 37)
   (30 11 41) (30 13 43) (30 17 47) (30 23 53) (30 29 59))
-#+end_example
+#+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref unique-pairs
+#+name: unique-pairs
+#+begin_src scheme :exports code :results none
   (define (unique-pairs n)
     (flatmap
      (lambda (i)
@@ -5976,7 +6023,7 @@ Well, it seems that commutative operations, that is the ones for which
      (enumerate-interval 1 n)))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
   <<unique-pairs>>
   <<flatmap>>
   <<enumerate-interval>>
@@ -5984,19 +6031,19 @@ Well, it seems that commutative operations, that is the ones for which
   (unique-pairs 3)
 #+end_src
 
-#+RESULTS:
-| 2 | 1 |
-| 3 | 1 |
-| 3 | 2 |
+#+RESULTS[dc0a921aeb52d4154d0dd9c0280c302776d6a05d]:
+#+begin_src scheme
+((2 1) (3 1) (3 2))
+#+end_src
 
 #+name: prime-sum-pairs-unique-pairs
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (prime-sum-pairs n)
     (map make-pair-sum
 	  (filter prime-sum? (unique-pairs n))))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<unique-pairs>>
 <<prime-sum-pairs-unique-pairs>>
 <<enumerate-interval>>
@@ -6012,25 +6059,10 @@ Well, it seems that commutative operations, that is the ones for which
 (prime-sum-pairs 10)
 #+end_src
 
-#+RESULTS:
-|  2 | 1 |  3 |
-|  3 | 2 |  5 |
-|  4 | 1 |  5 |
-|  4 | 3 |  7 |
-|  5 | 2 |  7 |
-|  6 | 1 |  7 |
-|  6 | 5 | 11 |
-|  7 | 4 | 11 |
-|  7 | 6 | 13 |
-|  8 | 3 | 11 |
-|  8 | 5 | 13 |
-|  9 | 2 | 11 |
-|  9 | 4 | 13 |
-|  9 | 8 | 17 |
-| 10 | 1 | 11 |
-| 10 | 3 | 13 |
-| 10 | 7 | 17 |
-| 10 | 9 | 19 |
+#+RESULTS[1034a5a78ff02012ba0389c36dc076a0d1e59d65]:
+#+begin_src scheme
+((2 1 3) (3 2 5) (4 1 5) (4 3 7) (5 2 7) (6 1 7) (6 5 11) (7 4 11) (7 6 13) (8 3 11) (8 5 13) (9 2 11) (9 4 13) (9 8 17) (10 1 11) (10 3 13) (10 7 17) (10 9 19))
+#+end_src
 
 I have to note that this deceiptively simple task involves reusing
 results of 12 other problems.
@@ -6042,7 +6074,7 @@ results of 12 other problems.
      given integer n that sum to a given integer s.
 
 #+name: unique-triples
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
     (define (unique-triples n)
       (flatmap
        (lambda (i)
@@ -6054,7 +6086,7 @@ results of 12 other problems.
 
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
 <<enumerate-interval>>
 <<flatmap>>
@@ -6062,34 +6094,38 @@ results of 12 other problems.
 (show #t " " (unique-triples 5) "\n")
 #+end_src
 
-#+RESULTS:
-:  ((3 2 1) (4 2 1) (4 3 1) (4 3 2) (5 2 1) (5 3 1) (5 3 2) (5 4 1) (5 4 2) (5 4 3))
+#+RESULTS[b52989df4ca42ec42c46545ebd1639544c42f1f7]:
+#+begin_src scheme
+ ((3 2 1) (4 2 1) (4 3 1) (4 3 2) (5 2 1) (5 3 1) (5 3 2) (5 4 1) (5 4 2) (5 4 3))
+#+end_src
 
 
 #+name: sum-equal-s
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (sum-equal-s? s tuple)
     (if (= s  (accumulate + 0 tuple))
 	#t
 	#f))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<sum-equal-s>>
 <<accumulate>>
 (and (sum-equal-s? 30 (list 10 5 5 9 1)) (not (sum-equal-s? 10 (list 3 3 3))))
 #+end_src
 
-#+RESULTS:
-: #t
+#+RESULTS[46e4d795cfbc72bbf203d16b8ceff400c3e83943]:
+#+begin_src scheme
+#t
+#+end_src
 
 #+name: sum-equal-s-triples
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (sum-equal-s-triples s n)
     (filter (lambda (x) (sum-equal-s? s x)) (unique-triples n)))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<enumerate-interval>>
 <<flatmap>>
 <<sum-equal-s-triples>>
@@ -6100,19 +6136,10 @@ results of 12 other problems.
 (sum-equal-s-triples 15 30)
 #+end_src
 
-#+RESULTS:
-|  6 | 5 | 4 |
-|  7 | 5 | 3 |
-|  7 | 6 | 2 |
-|  8 | 4 | 3 |
-|  8 | 5 | 2 |
-|  8 | 6 | 1 |
-|  9 | 4 | 2 |
-|  9 | 5 | 1 |
-| 10 | 3 | 2 |
-| 10 | 4 | 1 |
-| 11 | 3 | 1 |
-| 12 | 2 | 1 |
+#+RESULTS[98a71e0924c776a97bbbc34eed4ce1a6730f542f]:
+#+begin_src scheme
+((6 5 4) (7 5 3) (7 6 2) (8 4 3) (8 5 2) (8 6 1) (9 4 2) (9 5 1) (10 3 2) (10 4 1) (11 3 1) (12 2 1))
+#+end_src
 
 *** DONE Figure 2.8 A solution to the eight-queens puzzle.
     CLOSED: [2019-09-14 Sat 15:17]
@@ -6178,7 +6205,7 @@ list. This is why we have *k* supplied as an argument to the ~safe?~
 procedure.
 
 #+name: k-queens
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (queens board-size)
     (define (queen-cols k)
       (if (= k 0)
@@ -6194,8 +6221,9 @@ procedure.
     (queen-cols board-size))
 
 #+end_src
+
 #+name: empty-board-adjoin-position-safe
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define empty-board '())
   (define (adjoin-position new-row k rest-of-queens)
     (cons (cons k new-row) rest-of-queens))
@@ -6207,7 +6235,7 @@ procedure.
 	  (else (safe? k (cons (car positions) (cddr positions))))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<k-queens>>
 <<flatmap>>
 <<enumerate-interval>>
@@ -6217,8 +6245,8 @@ procedure.
 (map (lambda (x) (show #t " " x "\n")) (queens 8))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[2a2f6f5000977d52d8be789fa244708a4ecb5e43]:
+#+begin_src scheme
  ((8 . 4) (7 . 2) (6 . 7) (5 . 3) (4 . 6) (3 . 8) (2 . 5) (1 . 1))
  ((8 . 5) (7 . 2) (6 . 4) (5 . 7) (4 . 3) (3 . 8) (2 . 6) (1 . 1))
  ((8 . 3) (7 . 5) (6 . 2) (5 . 8) (4 . 6) (3 . 4) (2 . 7) (1 . 1))
@@ -6311,7 +6339,7 @@ procedure.
  ((8 . 6) (7 . 4) (6 . 7) (5 . 1) (4 . 3) (3 . 5) (2 . 2) (1 . 8))
  ((8 . 4) (7 . 7) (6 . 5) (5 . 2) (4 . 6) (3 . 1) (2 . 3) (1 . 8))
  ((8 . 5) (7 . 7) (6 . 2) (5 . 6) (4 . 3) (3 . 1) (2 . 4) (1 . 8))
-#+end_example
+#+end_src
 
 Because of really terrible introduction, this exercise took me 6 times
 more than it's worth.
@@ -6342,7 +6370,8 @@ Racket. In this subsection I will implement the required subroutines.
 SICP is incredibly confusing in this chapter.
 
 The following is one of the most prominent examples:
-#+begin_src scheme :exports both :results value
+
+#+begin_src scheme :exports code :results none
 (define (segments->painter segment-list)
        (lambda (frame)
          (for-each
@@ -6353,7 +6382,8 @@ The following is one of the most prominent examples:
           segment-list)))
 #+end_src
 
-#+begin_src scheme :exports both :results output :noweb-ref draw-line
+#+name: draw-line
+#+begin_src scheme :exports code :results none
   (define canvas-size
     (make-parameter
      200
@@ -6395,19 +6425,17 @@ The following is one of the most prominent examples:
     (string-append "[[" (canvas-file-name) "]]"))
 #+end_src
 
-#+RESULTS:
-
-
 #+begin_src scheme :exports both :results raw value
   <<draw-line>>
   (draw-line (list 0 0) (list 1 1))
   (draw-line (list 0 1) (list 1 0))
 #+end_src
 
-#+RESULTS:
-[[./d890f987-3ba1-41f4-a2b2-c427aa7c2858.gif]]
+#+RESULTS[58e8f3db651ba35bfae8622038f7da35dcea9667]:
+"[[./4fa2a366-f75c-40b2-ad02-5df855a77c92.png]]"
 
-#+begin_src scheme :exports both :results value :noweb-ref pict-frame
+#+name: pict-frame
+#+begin_src scheme :exports code :results none
   (define (frame-coord-map frame)
     (lambda (v)
      (add-vect
@@ -6416,10 +6444,7 @@ The following is one of the most prominent examples:
 		 (scale-vect (ycor-vect v) (edge2-frame frame))))))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
   <<make-frame>>
   <<pict-frame>>
   <<pict-vect>>
@@ -6430,10 +6455,13 @@ The following is one of the most prominent examples:
 	    (make-vect 1.0 1.0))) (make-vect 0 0))
 #+end_src
 
-#+RESULTS:
-| 0.1 | 0.2 |
+#+RESULTS[0de43669bdb0125295eb64d5b1a56f3fb7e10054]:
+#+begin_src scheme
+(0.1 0.2)
+#+end_src
 
-#+begin_src scheme :exports both :results raw value :noweb-ref segments-painter
+#+name: segments-painter
+#+begin_src scheme :exports code :results none
   (define (segments->painter segment-list)
     (lambda (frame)
       (for-each
@@ -6452,8 +6480,8 @@ Took me 3 hours. (3:00:00)
 
 Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.php?f=1&t=36770
 
-
-#+begin_src scheme :exports both :results value :noweb-ref magick-vect
+#+name: magick-vect
+#+begin_src scheme :exports code :results none
     (define (pict-vect->magick-vect vector separator)
       (string-append
        (number->string (+ 1 (* (canvas-size) (xcor-vect vector))))
@@ -6461,7 +6489,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
        (number->string (+ 1 (* (canvas-size) (ycor-vect vector))))))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref rogers
+#+name: rogers
+#+begin_src scheme :exports code :results none
   (define (rogers frame)
     (system "convert"
              (canvas-file-name)
@@ -6479,10 +6508,7 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
              (canvas-file-name)))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports code :results raw value
 <<pict-vect>>
 <<pict-frame>>
 <<make-frame>>
@@ -6493,10 +6519,12 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./755096f1-280f-4e39-bd9f-c17dada9ed69.png]]
+#+RESULTS[6fb88d5be0447ac0898ff2a253b096706fa082fc]:
+"[[./dbec2aad-a826-48a9-8983-d77c340b2774.png]]"
 
-#+begin_src scheme :exports both :results value :noweb-ref wave-bitmap
+
+#+name: wave-bitmap
+#+begin_src scheme :exports code :results none
   (define (wave frame)
     (system "convert"
 	     (canvas-file-name)
@@ -6517,13 +6545,12 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 	     (canvas-file-name)))
 #+end_src
 
-#+RESULTS:
-: #<undef>
 
 *** DONE Exercise 2.44 up-split
     CLOSED: [2019-09-23 Mon 22:54]
 
-#+begin_src scheme :exports both :results value :noweb-ref up-split
+#+name: up-split
+#+begin_src scheme :exports code :results none
   (define (up-split painter n)
     (if (= n 0)
 	painter
@@ -6531,10 +6558,7 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 	  (below painter (beside smaller smaller)))))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports both :results raw value code
 <<pict-vect>>
 <<make-frame>>
 <<pict-segment>>
@@ -6558,7 +6582,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 *** DONE Exercise 2.45 split
     CLOSED: [2019-09-24 Tue 01:37]
 
-#+begin_src scheme :exports both :results value :noweb-ref split
+#+name: split
+#+begin_src scheme :exports code :results none
   (define (split op1 op2)
     (define (split-inner painter n)
       (if (= n 0)
@@ -6615,7 +6640,9 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 
 *** DONE Exercise 2.46 make-vect
     CLOSED: [2019-09-20 Fri 12:48]
-#+begin_src scheme :exports both :results value :noweb-ref pict-vect
+
+#+name: pict-vect
+#+begin_src scheme :exports code :results none
   (define (make-vect xcor ycor . o)
     (append (list xcor) (list ycor) o))
   (define (xcor-vect vect)
@@ -6630,10 +6657,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
     (map (lambda (cor1 cor2) (- cor1 cor2)) vec1 vec2))
 #+end_src
 
-#+RESULTS:
-: #<undef>
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<pict-vect>>
 (show #t (make-vect 1 2 3) "\n")
 (show #t (xcor-vect (make-vect 1 2 3)) "\n")
@@ -6643,17 +6668,21 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (show #t (sub-vect (make-vect 1 2 3) (make-vect 1 2 3)) "\n")
 #+end_src
 
-#+RESULTS:
-: (1 2 3)
-: 1
-: 2
-: (2 4 6)
-: (2 4 6)
-: (0 0 0)
+#+RESULTS[5c83c786c5d0b9466d7164c0041429bcbcbcf93d]:
+#+begin_src scheme
+(1 2 3)
+1
+2
+(2 4 6)
+(2 4 6)
+(0 0 0)
+#+end_src
 
 *** DONE Exercise 2.47 make-frame
     CLOSED: [2019-09-20 Fri 14:48]
-#+begin_src scheme :exports both :results value :noweb-ref make-frame
+
+#+name: make-frame
+#+begin_src scheme :exports code :results none
 (define (make-frame origin edge1 edge2)
   (list origin edge1 edge2))
 (define (origin-frame frame)
@@ -6663,7 +6692,9 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (define (edge2-frame frame)
   (caddr frame))
 #+end_src
-#+begin_src scheme :exports both :results output
+
+
+#+begin_src scheme :exports both :results output scalar code
 <<make-frame>>
 <<pict-vect>>
 (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))
@@ -6672,7 +6703,9 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (edge2-frame  (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
 #+end_src
 
-#+RESULTS:
+#+RESULTS[dfb34e2090058c7a5338d7c375c6640b5be426d8]:
+#+begin_src scheme
+#+end_src
 
 #+begin_src scheme :exports both :results output
 <<pict-vect>>
@@ -6696,7 +6729,9 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 
 *** DONE Exercise 2.48 make-segment
     CLOSED: [2019-09-20 Fri 16:06]
-#+begin_src scheme :exports both :results value :noweb-ref pict-segment
+
+#+name: pict-segment
+#+begin_src scheme :exports code :results none
   (define (make-segment start-vector end-vector)
     (list start-vector end-vector))
   (define (start-segment segment)
@@ -6726,7 +6761,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 *** DONE Exercise 2.49 segments->painter applications
     CLOSED: [2019-09-20 Fri 23:10]
 
-#+begin_src scheme :exports both :results value :noweb-ref x-painter
+#+name: x-painter
+#+begin_src scheme :exports code :results none
 (define x-painter
   (segments->painter
     (list
@@ -6754,7 +6790,8 @@ This painter is not entirely accurate, because my background is black,
 so the lines would coalesce with it. I therefore just moved the lines
 a little bit inside.
 
-#+begin_src scheme :exports both :results value :noweb-ref frame-boundary-painter
+#+name: frame-boundary-painter
+#+begin_src scheme :exports code :results none
 (define frame-boundary-painter
   (segments->painter
     (list
@@ -6781,7 +6818,8 @@ a little bit inside.
 #+RESULTS:
 [[./c03f59fb-c473-4cc1-bb80-20c97e7e7594.gif]]
 
-#+begin_src scheme :exports both :results value :noweb-ref diamond-painter
+#+name: diamond-painter
+#+begin_src scheme :exports code :results none
 (define diamond-painter
   (segments->painter
     (list
@@ -6814,7 +6852,8 @@ version the waving figurine is drawn with segments, whereas the UTF uses a
 bitmap.
 This is the rough solution to the "segment-based" version.
 
-#+begin_src scheme :exports both :results value :noweb-ref wave-segment
+#+name: wave-segment
+#+begin_src scheme :exports code :results none
 (define wave
    (segments->painter
         (list
@@ -6865,7 +6904,9 @@ This is the rough solution to the "segment-based" version.
 *** DONE Exercise 2.50 flip-horiz and rotate270 and rotate180
     CLOSED: [2019-09-20 Fri 23:37]
 0:27:00
-#+begin_src scheme :exports both :results value :noweb-ref transform-painter
+
+#+name: transform-painter
+#+begin_src scheme :exports code :results none
   (define (transform-painter painter origin corner1 corner2)
     (lambda (frame)
       (let ((m (frame-coord-map frame)))
@@ -6876,7 +6917,8 @@ This is the rough solution to the "segment-based" version.
 		    (sub-vect (m corner2) new-origin)))))))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref flip-horiz
+#+name: flip-horiz
+#+begin_src scheme :exports code :results none
   (define (flip-horiz painter)
     (transform-painter painter
 		       (make-vect 1.0 0.0)
@@ -6905,7 +6947,8 @@ This is the rough solution to the "segment-based" version.
 #+RESULTS:
 [[./869de2d3-55f5-429a-ad9d-4941405a8d73.png]]
 
-#+begin_src scheme :exports both :results value :noweb-ref rotate180
+#+name: rotate180
+#+begin_src scheme :exports code :results none
   (define (rotate180 painter)
     (transform-painter painter
 		       (make-vect 1.0 1.0)
@@ -6937,7 +6980,8 @@ This is the rough solution to the "segment-based" version.
 #+RESULTS:
 [[./51986072-473e-425b-959a-1bd81f471447.png]]
 
-#+begin_src scheme :exports both :results value :noweb-ref rotate270
+#+name: rotate270
+#+begin_src scheme :exports code :results none
   (define (rotate270 painter)
     (transform-painter painter
 		       (make-vect 0.0 1.0)
@@ -6970,7 +7014,8 @@ This is the rough solution to the "segment-based" version.
 *** DONE Exercise 2.51 below
     CLOSED: [2019-09-22 Sun 18:50]
 
-#+begin_src scheme :exports both :results value :noweb-ref beside
+#+name: beside
+#+begin_src scheme :exports code :results none
   (define (beside painter1 painter2)
     (let ((split-point (make-vect 0.5 0.0)))
       (let ((paint-left
@@ -6990,10 +7035,8 @@ This is the rough solution to the "segment-based" version.
 	  (paint-right frame)))))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results value :noweb-ref below
+#+name: below
+#+begin_src scheme :exports both :results value
   (define (below painter1 painter2)
     (let ((split-point (make-vect 0.0 0.5)))
       (let ((paint-bottom
@@ -7014,9 +7057,6 @@ This is the rough solution to the "segment-based" version.
 
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
 #+begin_src scheme :exports both :results raw value
 <<pict-vect>>
 <<make-frame>>
@@ -7033,25 +7073,20 @@ This is the rough solution to the "segment-based" version.
 #+RESULTS:
 [[./24869881-98d4-4a72-87e8-8b3c095f408c.png]]
 
-#+begin_src scheme :exports both :results value :noweb-ref below-beside
+#+name: below-beside
+#+begin_src scheme :exports code :results none
   (define (below painter1 painter2)
     (rotate90 (beside (rotate270 painter1) (rotate270 painter2))))
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results value :noweb-ref rotate90
+#+name: rotate90
+#+begin_src scheme :exports code :results none
   (define (rotate90 painter)
     (transform-painter painter
 		       (make-vect 1.0 0.0)
 		       (make-vect 1.0 1.0)
 		       (make-vect 0.0 0.0)))
-
 #+end_src
-
-#+RESULTS:
-: #<undef>
 
 #+begin_src scheme :exports both :results raw value
 <<pict-vect>>
@@ -7084,7 +7119,8 @@ nothing better.
 
 To complete this exercise, we would first need to implement the square limit.
 
-#+begin_src scheme :exports both :results value :noweb-ref square-limit
+#+name: square-limit
+#+begin_src scheme :exports code :results none
     (define (square-limit painter n)
       (let ((combine4 (square-of-four flip-horiz identity
 				      rotate180 flip-vert)))
@@ -7353,7 +7389,9 @@ though.
 
 *** DONE Exercise 2.54 equal? implementation
     CLOSED: [2019-09-24 Tue 13:48]
-#+begin_src scheme :exports both :results output :noweb-ref equal-implementation
+
+#+name: equal-implementation
+#+begin_src scheme :exports code :results none
   (define (equal? o1 o2)
     (cond ((eq? o1 o2) #t)
 	  ((and (list? o1) (list? o2))     (accumulate (lambda (x y) (and x y)) #t (map equal? o1 o2)))
@@ -7384,7 +7422,9 @@ This is really easy.
 second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 *** DONE Exercise 2.56 differentiation-exponentiation
     CLOSED: [2019-09-24 Tue 23:14]
-#+begin_src scheme :exports both :results value :noweb-ref deriv-basic
+
+#+name: deriv-basic
+#+begin_src scheme :exports code :results none
   (define (deriv exp var)
     (cond ((number? exp) 0)
 	  ((variable? exp) (if (same-variable? exp var) 1 0))
@@ -7400,7 +7440,8 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 	   (error "unknown expression type: DERIV" exp))))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref deriv-components
+#+name: deriv-components
+#+begin_src scheme :exports code :results none
   (define (variable? x) (symbol? x))
   (define (same-variable? v1 v2)
     (and (variable? v1) (variable? v2) (eq? v1 v2)))
@@ -7408,7 +7449,8 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
     (and (number? exp) (= exp num)))
 #+end_src
 
-#+begin_src scheme :exports both :results value :noweb-ref deriv-operations
+#+name: deriv-operations
+#+begin_src scheme :exports code :results none
   (define (make-sum a1 a2 . rest)
     (cond ((=number? a1 0) a2)
 	  ((=number? a2 0) a1)
@@ -7444,8 +7486,8 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 : y
 : (+ (* x y) (* y (+ x 3)))
 
-#+begin_src scheme :exports both :results value :noweb-ref deriv-and-exponent
-
+#+name: deriv-and-exponent
+#+begin_src scheme :exports code :results none
   (define (deriv exp var)
     (cond ((number? exp) 0)
 	  ((variable? exp) (if (same-variable? exp var) 1 0))
@@ -7485,8 +7527,6 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 
 #+end_src
 
-#+RESULTS:
-: #<undef>
 
 #+begin_src scheme :exports both :results output
 <<deriv-and-exponent>>
@@ -7502,7 +7542,9 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 
 *** DONE Exercise 2.57 differentiate-three-sum
     CLOSED: [2019-09-25 Wed 12:40]
-#+begin_src scheme :exports both :results value :noweb-ref deriv-operations-three
+
+#+name: deriv-operations-three
+#+begin_src scheme :exports both :results value
   (define (make-sum a1 a2 . rest)
     (if (null? rest)
 	(cond ((=number? a1 0) a2)
@@ -7822,7 +7864,8 @@ Let me copy the two code pieces here, I will need them later.
 		      (tree->list-1 (right-branch tree))))))
 #+end_src
 
-#+begin_src scheme :exports both :results raw value :noweb-ref tree-list
+#+name: tree-list
+#+begin_src scheme :exports both :results raw value
   (define (tree->list-2 tree)
     (define (copy-to-list tree result-list)
       (if (null? tree)
@@ -7947,8 +7990,8 @@ set implementations, which both work in O(n). The solution then seems
 straightforward.
 
 
-
-#+begin_src scheme :exports both :results raw value :noweb-ref set-tree
+#+name: set-tree
+#+begin_src scheme :exports both :results none
   (define (union-set-tree set1 set2)
     (list->tree (union-set (tree->list-2 set1) (tree->list-2 set2))))
 
@@ -8487,7 +8530,8 @@ sure to include it first.
 *** DONE Exercise 2.73 data-driven-deriv
     CLOSED: [2019-10-11 Fri 11:05]
 
-#+begin_src scheme :exports both :results output :noweb-ref data-driven-deriv
+#+name: data-driven-deriv
+#+begin_src scheme :exports code :results none
           (define (deriv exp var)
              (cond ((number? exp) 0)
                    ((variable? exp) (if (same-variable? exp var) 1 0))
@@ -8508,7 +8552,8 @@ replaced with a dispatched version − they are not a pair.
 Surprise-surprise, the prototype of the two ~deriv~ functions we are
 supposed to write is incompatible with the derivatives we had to write in the Exercise-2.56.
 
-#+begin_src scheme :exports both :results output :noweb-ref data-driven-sum-mul
+#+name: data-driven-sum-mul
+#+begin_src scheme :exports code :results none
   (define (differentiate-sum operands var)
     (make-sum (deriv (car  operands) var)
 	      (deriv (cadr operands) var)))
@@ -8537,7 +8582,8 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
 **** c
      CLOSED: [2019-10-11 Fri 11:03]
 
-#+begin_src scheme :exports both :results output :noweb-ref data-driven-exponentiation
+#+name: data-driven-exponentiation
+#+begin_src scheme :exports code :results none
 (define (make-exponentiation base power)
     (cond ((=number? power 0) 1)
 	  ((=number? power 1) base)
@@ -8584,7 +8630,8 @@ it is changed in ~get~. The rest should be absolutely the same.
 This task is a bit weird and too vaguely formulated. For the start, let's
 assume that the company only has two divisions.
 
-#+begin_src scheme :exports both :results output :noweb-ref insatiable-enterprises-data
+#+name: insatiable-enterprises-data
+#+begin_src scheme :exports code :results none
   (define division-1-set-of-records
      (cons 'division-1 (list (list 'Jack (cons 'salary 100) (cons 'address #f)) (list 'Jill (cons 'salary 200) '(address #t)))))
   (define (division-1-get-record record-set key)
@@ -8656,7 +8703,8 @@ The key thing in our implementation of the two datasets is that we have a
 department tag at the beginning. This lets us dispatch on the origin of the
 data.
 
-#+begin_src scheme :exports both :results output :noweb-ref insatiable-a
+#+name: insatiable-a
+#+begin_src scheme :exports code :results none
 (define (get-record dataset key)
    ((get 'get-record (car dataset)) dataset key))
 #+end_src
@@ -8677,7 +8725,8 @@ data.
 **** b
      CLOSED: [2019-10-11 Fri 20:22]
 
-#+begin_src scheme :exports both :results output :noweb-ref insatiable-b
+#+name: insatiable-b
+#+begin_src scheme :exports code :results none
   (define (get-salary records key)
     (let ((record (get-record records key)))
       (if record
@@ -8707,7 +8756,8 @@ no specific requirements to the record structure.
 **** c
      CLOSED: [2019-10-11 Fri 20:54]
 
-#+begin_src scheme :exports both :results output :noweb-ref insatiable-find-employee-record
+#+name: insatiable-find-employee-record
+#+begin_src scheme :exports code :results none
     <<accumulate>>
       (define (find-employee-record key . record-files)
 	(car (accumulate
@@ -8738,7 +8788,8 @@ new the function table.
 *** DONE Exercise 2.75 make-from-mag-ang message passing
     CLOSED: [2019-10-11 Fri 21:24]
 
-#+begin_src scheme :exports both :results output :noweb-ref message-mag-angle
+#+name: message-mag-angle
+#+begin_src scheme :exports code :results none
      (define (make-from-mag-angle mag angle)
        (define (dispatch op)
          (cond ((eq? op 'real-part) (* mag (cos angle)))
@@ -8776,7 +8827,9 @@ new operations are relatively rare, but new types appear often. Existing
 operations would work with the new types, if the types satisfy some contract.
 
 *** Remark Three arithmetic packages
-#+begin_src scheme :exports both :results output :noweb-ref generic-arithmetic-packages
+
+#+name: generic-arithmetic-packages
+#+begin_src scheme :exports code :results none
      (define (add x y) (apply-generic 'add x y))
      (define (sub x y) (apply-generic 'sub x y))
      (define (mul x y) (apply-generic 'mul x y))
@@ -8930,7 +8983,8 @@ operations would work with the new types, if the types satisfy some contract.
 #+RESULTS:
 
 
-#+begin_src scheme :exports both :results output :noweb-ref apply-generic
+#+name: apply-generic
+#+begin_src scheme :exports code :results none
      (define (attach-tag type-tag contents)
        (cons type-tag contents))
 
@@ -8972,7 +9026,8 @@ Yeah, great, Dr. Abelson. You're casually referring to the ~apply-generic~,
 not really specifying which one to use. Also, I never had to use the
 ~type-tag~ and ~contents~, which suddenly appear here.
 
-#+begin_src scheme :exports both :results output :noweb-ref alyssa-complex-suggestion
+#+name: alyssa-complex-suggestion
+#+begin_src scheme :exports code :results none
           (put 'real-part '(complex) real-part)
           (put 'imag-part '(complex) imag-part)
           (put 'magnitude '(complex) magnitude)
@@ -9012,7 +9067,8 @@ Remark: this "easy" exercise took more than 4 hours to debug and consists of
 *** DONE Exercise 2.78 Ordinary numbers for scheme
     CLOSED: [2019-10-12 Sat 21:06]
 
-#+begin_src scheme :exports both :results output :noweb-ref simplified-scheme-number
+#+name: simplified-scheme-number
+#+begin_src scheme :exports code :results none
      (define (add x y) (apply-generic 'add x y))
      (define (sub x y) (apply-generic 'sub x y))
      (define (mul x y) (apply-generic 'mul x y))
@@ -9590,7 +9646,8 @@ We are modifying ~apply-generic~ in this snippet, which means that we may
 need to do a lot of copying of the old code in order to make it work with the
 new code.
 
-#+begin_src scheme :exports both :results output :noweb-ref coercion-procedures-apply-generic
+#+name: coercion-procedures-apply-generic
+#+begin_src scheme :exports code :results none
   (define (scheme-number->complex n)
     (make-complex-from-real-imag (contents n) 0))
   (put-coercion 'scheme-number
@@ -10485,7 +10542,8 @@ doesn't try that.
 I am copying the whole "algebra" mess, because I already lost track of which
 functions are needed for the tests to work. Bad practice, don't do so.
 
-#+begin_src scheme :exports both :results output :noweb-ref generic-arithmetic-packages-multidispatch
+#+name: generic-arithmetic-packages-multidispatch
+#+begin_src scheme :exports code :results none
   (define false #f)
   (define true  #t)
   (define (make-table)
@@ -10731,7 +10789,8 @@ functions are needed for the tests to work. Bad practice, don't do so.
 #+RESULTS:
 :  (scheme-number . 4)
 
-#+begin_src scheme :exports both :results output :noweb-ref apply-generic-many-args
+#+name: apply-generic-many-args
+#+begin_src scheme :exports code :results none
   (define (apply-generic op . args)
     (define (all-argtypes-same? . args)
       (let ((type (type-tag (car args))))
@@ -16244,7 +16303,8 @@ because extending the system with a GCD subroutine would require adding
 functions to the polynomial package, which cannot be done with a mere
 include.
 
-#+begin_src scheme :exports both :results output :noweb-ref cas-with-rational-polynomials
+#+name: cas-with-rational-polynomials
+#+begin_src scheme :exports code :results none
     (define (thingy-source thingy)
       (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 	    ((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -25794,7 +25854,8 @@ fake -> integral
 *** DONE Exercise 3.73 RC-circuit
     CLOSED: [2020-01-08 Wed 13:09]
 
-#+begin_src scheme :exports both :results output :noweb-ref streams-integral
+#+name: streams-integral
+#+begin_src scheme :exports code :results none
 (define (integral integrand initial-value dt)
  (define int
    (cons-stream initial-value
@@ -25930,7 +25991,8 @@ Well, seems to be working.
 *** DONE Exercise 3.76 stream-smooth
     CLOSED: [2020-01-08 Wed 19:56]
 
-#+begin_src scheme :exports both :results output :noweb-ref streams-smooth
+#+name: streams-smooth
+#+begin_src scheme :exports code :results none
 (define (smooth s smoothener)
  (cons-stream (smoothener (stream-car s) (stream-car (stream-cdr s)))
     (smooth (stream-cdr s) smoothener)))
