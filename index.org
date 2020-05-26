@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-25 23:22:03 lockywolf>
+# Time-stamp: <2020-05-26 12:03:47 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -186,7 +186,7 @@
  @enddot
  #+end_src
 
- #+RESULTS[ff174954e7313f9f57b9b535f4798662e493e661]:
+ #+RESULTS[e830837ee299db94d775c05223b85630f9fdacbb]:
  [[file:figure-1-1-dot.png]]
 
 *** Snippet
@@ -5021,9 +5021,12 @@ build a distribution on every step of the computation and track every
 quantity occurrence in every distribution.
 
 *** Figure 2.2 Box-and-pointer representation of ~(cons 1 2)~. :graphviz:plantuml:tikz:
-https://gitlab.com/graphviz/graphviz/issues/1588
-https://gitlab.com/graphviz/graphviz/issues/1589
+
+- https://gitlab.com/graphviz/graphviz/issues/1588
+- https://gitlab.com/graphviz/graphviz/issues/1589
+
 10:00:00
+
 [2019-09-10 Tue 10:24] I managed to make pgf work with org-mode, but
 didn't manage to  make a picture yet. So far this problem happened to
 generalize to the case of drawing arbitrary vector graphics. Graphviz
@@ -6558,7 +6561,7 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 	  (below painter (beside smaller smaller)))))
 #+end_src
 
-#+begin_src scheme :exports both :results raw value code
+#+begin_src scheme :exports both :results raw value
 <<pict-vect>>
 <<make-frame>>
 <<pict-segment>>
@@ -6576,8 +6579,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./47ef240d-2a8b-4886-8431-c7aade49fb09.png]]
+#+RESULTS[37bd0ae6e97f7b7021e3023f30ffeb5621bf0734]:
+"[[./dcf8fa6e-0eac-4a3e-85bf-173d87362489.png]]"
 
 *** DONE Exercise 2.45 split
     CLOSED: [2019-09-24 Tue 01:37]
@@ -6614,8 +6617,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./43404b14-9224-4b64-b304-7beebed2c3c8.png]]
+#+RESULTS[13ca098e543bfafd40c109ff39561cbbba7212e3]:
+"[[./76d387ef-4d82-4e48-a57f-1fdddb5ef64d.png]]"
 
 #+begin_src scheme :exports both :results raw value
 <<pict-vect>>
@@ -6635,8 +6638,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./b96c593e-a711-4824-a79c-4b4e911d1374.png]]
+#+RESULTS[8b3a1eebed3612f9d92a263f6d24cf040d2fe64a]:
+"[[./b46f3717-7716-40ea-b88b-7dbdb1a258aa.png]]"
 
 *** DONE Exercise 2.46 make-vect
     CLOSED: [2019-09-20 Fri 12:48]
@@ -6697,17 +6700,31 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
 #+begin_src scheme :exports both :results output scalar code
 <<make-frame>>
 <<pict-vect>>
-(make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))
-(origin-frame (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
-(edge1-frame  (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
-(edge2-frame  (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3)))
+(make-frame (make-vect 0.1 0.2) 
+            (make-vect 0.1 0.2)
+            (make-vect 0.0 0.3))
+(display (origin-frame 
+           (make-frame (make-vect 0.1 0.2) 
+                       (make-vect 0.1 0.2)
+                       (make-vect 0.0 0.3))))
+(display (edge1-frame  
+           (make-frame (make-vect 0.1 0.2)
+                       (make-vect 0.1 0.2)
+                       (make-vect 0.0 0.3))))
+(display (edge2-frame  
+           (make-frame
+                       (make-vect 0.1 0.2)
+                       (make-vect 0.1 0.2)
+                       (make-vect 0.0 0.3))))
 #+end_src
 
-#+RESULTS[dfb34e2090058c7a5338d7c375c6640b5be426d8]:
+#+RESULTS[b08f68cf9b03d619928cae5c2266a7b215401bab]:
 #+begin_src scheme
+(0.1 0.2)(0.1 0.2)(0.0 0.3)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 <<pict-vect>>
   (define (make-frame origin edge1 edge2)
     (cons origin (cons edge1 edge2)))
@@ -6722,10 +6739,12 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
   (show #t (edge2-frame (make-frame (make-vect 0.1 0.2) (make-vect 0.1 0.2) (make-vect 0.0 0.3))) "\n")
 #+end_src
 
-#+RESULTS:
-: (0.1 0.2)
-: (0.1 0.2)
-: (0.0 0.3)
+#+RESULTS[ba0cf6ab7a080e30b63b9ca5affce02dee81eba9]:
+#+begin_src scheme
+(0.1 0.2)
+(0.1 0.2)
+(0.0 0.3)
+#+end_src
 
 *** DONE Exercise 2.48 make-segment
     CLOSED: [2019-09-20 Fri 16:06]
@@ -6755,8 +6774,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
   (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[/tmp/scheme-temp.gif]]
+#+RESULTS[c795dea74854efbd6932b070a3763fa13516e927]:
+"[[./c39f243e-97f7-4346-9f09-2beb35c48ace.png]]"
 
 *** DONE Exercise 2.49 segments->painter applications
     CLOSED: [2019-09-20 Fri 23:10]
@@ -6783,8 +6802,8 @@ Asked a question here: https://www.imagemagick.org/discourse-server/viewtopic.ph
   (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./a58f8946-42b6-43c4-89a5-59e892599394.gif]]
+#+RESULTS[a9a26a6b1223b8fb25b751290ab6e52285db5a37]:
+"[[./0d165d33-0c97-42b1-832d-a8068a3e081d.png]]"
 
 This painter is not entirely accurate, because my background is black,
 so the lines would coalesce with it. I therefore just moved the lines
@@ -6815,8 +6834,8 @@ a little bit inside.
   (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./c03f59fb-c473-4cc1-bb80-20c97e7e7594.gif]]
+#+RESULTS[f4a8838ec1734baa9c267f973f6292381ea534d5]:
+"[[./b1d124ff-ff14-4093-b121-450a6011b4a8.png]]"
 
 #+name: diamond-painter
 #+begin_src scheme :exports code :results none
@@ -6843,8 +6862,8 @@ a little bit inside.
   (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./90918df1-a802-4df6-a10d-afc50547bc72.gif]]
+#+RESULTS[d2ea4f98530fd963e20566c9c9a58152f86eb63c]:
+"[[./41a12375-a844-455d-a3d5-f25c4cff9f4c.png]]"
 
 Remark: the exercise 2.49d is ambiguous. The "Unofficial Texinfo Version"
 differs with the official paper version in this respect, since in the paper
@@ -6898,8 +6917,8 @@ This is the rough solution to the "segment-based" version.
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./d9f0731a-a257-49cf-a71d-f8d3ab9e33ed.png]]
+#+RESULTS[8fd65c9991a3563f07f0fc6d5b381adfa2f0e456]:
+"[[./e1a0a51a-e4d2-4301-a917-d1b33a9d4417.png]]"
 
 *** DONE Exercise 2.50 flip-horiz and rotate270 and rotate180
     CLOSED: [2019-09-20 Fri 23:37]
@@ -6944,8 +6963,8 @@ This is the rough solution to the "segment-based" version.
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./869de2d3-55f5-429a-ad9d-4941405a8d73.png]]
+#+RESULTS[ac22c61a03f3e87e4d9be787920a771c91fa9564]:
+"[[./7c14f125-1bd3-415c-8bbd-5d81ada396d3.png]]"
 
 #+name: rotate180
 #+begin_src scheme :exports code :results none
@@ -6977,8 +6996,8 @@ This is the rough solution to the "segment-based" version.
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./51986072-473e-425b-959a-1bd81f471447.png]]
+#+RESULTS[a3facbd9c060dbb4529efe2afff9a3e92caf86d7]:
+"[[./99cf81ef-1871-4a4c-9aeb-6939f1e4d7f1.png]]"
 
 #+name: rotate270
 #+begin_src scheme :exports code :results none
@@ -7008,8 +7027,8 @@ This is the rough solution to the "segment-based" version.
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./33a0bb01-aa51-420c-964d-73d089388c6c.png]]
+#+RESULTS[6ca6c9efedc498c76c27a790b7a66ae130804eec]:
+"[[./e5dd0e8c-280b-4e3e-9240-e0f904679b7d.png]]"
 
 *** DONE Exercise 2.51 below
     CLOSED: [2019-09-22 Sun 18:50]
@@ -7036,7 +7055,7 @@ This is the rough solution to the "segment-based" version.
 #+end_src
 
 #+name: below
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (below painter1 painter2)
     (let ((split-point (make-vect 0.0 0.5)))
       (let ((paint-bottom
@@ -7059,6 +7078,8 @@ This is the rough solution to the "segment-based" version.
 
 #+begin_src scheme :exports both :results raw value
 <<pict-vect>>
+<<pict-segment>>
+<<segments-painter>>
 <<make-frame>>
 <<wave-segment>>
 <<rogers>>
@@ -7070,8 +7091,8 @@ This is the rough solution to the "segment-based" version.
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./24869881-98d4-4a72-87e8-8b3c095f408c.png]]
+#+RESULTS[0047e845455c69fa2bda52e5334fa7655fe9dfdc]:
+"[[./188e073a-ffd6-4eee-b7e1-a53891c16326.png]]"
 
 #+name: below-beside
 #+begin_src scheme :exports code :results none
@@ -7107,8 +7128,8 @@ This is the rough solution to the "segment-based" version.
 (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./13aec801-0171-4497-841c-5fa9c603c73b.png]]
+#+RESULTS[597493a3c23c5be3ed29dc0959f427994d2bf44a]:
+"[[./422bb814-5765-4dc1-a9d9-592f15fcf8fc.png]]"
 
 
 Remark: imagemagick is a horrible piece of software, even though we have
@@ -7355,8 +7376,8 @@ don't want to advise them), I'd just splice all the source code into one block.
   (canvas-refresh)
 #+end_src
 
-#+RESULTS:
-[[./f2d16f96-de16-45f7-9f7f-1e31397e4d61.png]]
+#+RESULTS[71941c22252179af16f14f225e7e2ee92636a1e6]:
+"[[./ec49df07-4440-4509-9275-f50dbb2d5d55.png]]"
 
  a. I added a check-mark at the segments->painter level.
  b. Replaced the last ~beside~ with ~below~ at the lowest level.
@@ -7368,7 +7389,8 @@ will not probably be able to replicate the full ~square-limit~. You can try
 though.
 *** DONE Exercise 2.53 quote introduction
     CLOSED: [2019-09-24 Tue 12:36]
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 (show #t (list 'a 'b 'c) "\n")
 (show #t (list (list 'george)) "\n")
 (show #t (cdr '((x1 x2) (y1 y2))) "\n")
@@ -7378,14 +7400,16 @@ though.
 (show #t (memq 'red '(red shoes blue socks)) "\n")
 #+end_src
 
-#+RESULTS:
-: (a b c)
-: ((george))
-: ((y1 y2))
-: (y1 y2)
-: #f
-: #f
-: (red shoes blue socks)
+#+RESULTS[825e4f2c4c1226d589f639bed9e88c80795d1c1d]:
+#+begin_src scheme
+(a b c)
+((george))
+((y1 y2))
+(y1 y2)
+#f
+#f
+(red shoes blue socks)
+#+end_src
 
 *** DONE Exercise 2.54 equal? implementation
     CLOSED: [2019-09-24 Tue 13:48]
@@ -7402,18 +7426,19 @@ though.
 #+RESULTS:
 
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
-
 <<equal-implementation>>
 
 (show #t (equal? '(this is a list) '(this is a list)) "\n")
 (show #t (equal? '(this is a list) '(this (is a) list)) "\n")
 #+end_src
 
-#+RESULTS:
-: #t
-: #f
+#+RESULTS[a406fdc7069f361155db8e54c6d5af4bb831454d]:
+#+begin_src scheme
+#t
+#f
+#+end_src
 
 *** DONE Exercise 2.55 quote quote
     CLOSED: [2019-09-24 Tue 13:48]
@@ -7472,7 +7497,7 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<deriv-basic>>
 <<deriv-components>>
 <<deriv-operations>>
@@ -7481,10 +7506,12 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 (show #t (deriv '(* (* x y) (+ x 3)) 'x) "\n")
 #+end_src
 
-#+RESULTS:
-: 1
-: y
-: (+ (* x y) (* y (+ x 3)))
+#+RESULTS[c0e5986458fa582196dfdeda864767bf880b0857]:
+#+begin_src scheme
+1
+y
+(+ (* x y) (* y (+ x 3)))
+#+end_src
 
 #+name: deriv-and-exponent
 #+begin_src scheme :exports code :results none
@@ -7528,7 +7555,7 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 #+end_src
 
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<deriv-and-exponent>>
 <<deriv-components>>
 <<deriv-operations>>
@@ -7536,15 +7563,17 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 (show #t (deriv '(** (* (* x y) (+ x 3)) 5) 'x) "\n")
 #+end_src
 
-#+RESULTS:
-: (* 3 (** x 2))
-: (* 5 (* (** (* (* x y) (+ x 3)) 4) (+ (* x y) (* y (+ x 3)))))
+#+RESULTS[c8bbc768ee41fd073f0ce4a845bffdada5342a5b]:
+#+begin_src scheme
+(* 3 (** x 2))
+(* 5 (* (** (* (* x y) (+ x 3)) 4) (+ (* x y) (* y (+ x 3)))))
+#+end_src
 
 *** DONE Exercise 2.57 differentiate-three-sum
     CLOSED: [2019-09-25 Wed 12:40]
 
 #+name: deriv-operations-three
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (make-sum a1 a2 . rest)
     (if (null? rest)
 	(cond ((=number? a1 0) a2)
@@ -7576,10 +7605,7 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<deriv-and-exponent>>
 <<deriv-components>>
 <<deriv-operations-three>>
@@ -7588,18 +7614,25 @@ second ~'~ gets automatically translated into a ~quote~ and is not interpreted.
 (show #t (deriv '(** (* (* x y z) (+ x 3)) 5) 'x) "\n")
 #+end_src
 
-#+RESULTS:
-: (* 3 (** x 2))
-: (* x z)
-: (* 5 (* (** (* (* x y z) (+ x 3)) 4) (+ (* x y z) (* (* y z) (+ x 3)))))
+#+RESULTS[00ba3ae80473417b0d87363359eed5139c4f2252]:
+#+begin_src scheme
+(* 3 (** x 2))
+(* x z)
+(* 5 (* (** (* (* x y z) (+ x 3)) 4) (+ (* x y z) (* (* y z) (+ x 3)))))
+#+end_src
 
 *** DONE Exercise 2.58 infix-notation
     CLOSED: [2019-09-25 Wed 15:21]
 
-This solution is copied from http://community.schemewiki.org/?sicp-ex2.58
+This solution is copied from http://community.schemewiki.org/?sicp-ex-2.58
 almost verbatim. Courtesy of sgm.
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
+<<deriv-components>>
+<<deriv-and-exponent>>
+<<accumulate>>
+
 (define (singleton? lst)
   (= 1 (length lst)))
 (define (sum? expr)
@@ -7608,7 +7641,7 @@ almost verbatim. Courtesy of sgm.
  (define (product? expr)
    (eq? '* (smallest-op expr)))
 (define (smallest-op expr)
-   (accumulate (lambda (a b)
+   (accumulate (lambda (b a)
                  (if (operator? b)
                      (min-precedence a b)
                      a))
@@ -7682,11 +7715,14 @@ almost verbatim. Courtesy of sgm.
          ((and (number? m1) (number? m2))
           (* m1 m2))
          (else (list m1 '* m2))))
-<<deriv-components>>
-<<deriv-and-exponent>>
-<<accumulate>>
 
-(show #t (smallest-op '(t + k)) "\n")
+
+(show #t "Smallest-op:" (smallest-op '(t + 3)) "\n")
+(show #t "Singleton" (singleton? '(3)) "\n")
+(show #t "Operator?" (operator? '(3))  "\n")
+(show #t "Operator?" (operator? 3)  "\n")
+(show #t "Sum?" (sum? '(x + 3)) "\n" )
+(show #t "Smalles-op" (smallest-op '(x + 3)) "\n" )
 (show #t (deriv '(x + 3) 'x) "\n")
 (show #t (deriv '(x * y * (x + 3)) 'x) "\n")
 (show #t (deriv '((x * y) * (x + 3)) 'x) "\n")
@@ -7694,12 +7730,19 @@ almost verbatim. Courtesy of sgm.
 
 #+end_src
 
-#+RESULTS:
-: +
-: 1
-: ((x * y) + (y * (x + 3)))
-: ((x * y) + (y * (x + 3)))
-: ((x * y) + (y * (x + 3)))
+#+RESULTS[9a12cc4a2c9e5f427bfdc9727d887f65eae7378b]:
+#+begin_src scheme
+Smallest-op:+
+Singleton#t
+Operator?#f
+Operator?#f
+Sum?#t
+Smalles-op+
+1
+((x * y) + (y * (x + 3)))
+((x * y) + (y * (x + 3)))
+((x * y) + (y * (x + 3)))
+#+end_src
 
 
 As a side-note: sometimes people say that copying other people's code
@@ -7710,8 +7753,7 @@ find a serious bug in my implementation of "accumulate".
     CLOSED: [2019-09-25 Wed 22:00]
 
 #+name: element-of-set
-#+begin_src scheme :exports both :results value
-
+#+begin_src scheme :exports code :results none
   (define (element-of-set? x set)
     (cond ((null? set) false)
 	  ((equal? x (car set)) true)
@@ -7719,7 +7761,7 @@ find a serious bug in my implementation of "accumulate".
 #+end_src
 
 #+name: union-set
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
 <<element-of-set>>
   (define (union-set set1 set2)
     (append set1 (filter (lambda (x) (not (element-of-set? x set1))) set2)))
@@ -7728,22 +7770,22 @@ find a serious bug in my implementation of "accumulate".
   (define false #f)
 #+end_src
 
-#+RESULTS:
-: #<undef>
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<union-set>>
 <<filter>>
 (show #t " " (union-set '(1 2 3 4) '(3 4 5 6)))
 #+end_src
 
-#+RESULTS:
-:  (1 2 3 4 5 6)
+#+RESULTS[91848fcc6d00324b5378419ab2929329866fd475]:
+#+begin_src scheme
+ (1 2 3 4 5 6)
+#+end_src
 
 *** DONE Exercise 2.60 duplicate-set
     CLOSED: [2019-09-25 Wed 22:17]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define (element-of-set? x set)
     (cond ((null? set) false)
 	  ((equal? x (car set)) true)
@@ -7771,11 +7813,13 @@ find a serious bug in my implementation of "accumulate".
   (show #t " " (union-set '(1 2 3 4 5) '(1 2 2 2 2 3 4)) "\n")
 #+end_src
 
-#+RESULTS:
-:  #t
-:  (2 1 2)
-:  (2)
-:  (1 2 3 4 5 1 2 2 2 2 3 4)
+#+RESULTS[2b5443123f0acffa871c4541e9f452202288eddf]:
+#+begin_src scheme
+ #t
+ (2 1 2)
+ (2)
+ (1 2 3 4 5 1 2 2 2 2 3 4)
+#+end_src
 
 The efficiency of ~element-of-set?~ is still O(n), although on average sets
 would be larger. ~adjoin~ takes O(1), instead of O(n). ~intersection-set~
@@ -7788,7 +7832,7 @@ that this representation would be good enough, or even faster.
 *** DONE Exercise 2.61 sets as ordered lists
     CLOSED: [2019-09-26 Thu 21:44]
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
   (define (adjoin-set x set)
     (cond ((null? set) x)
 	  ((= x (car set)) set)
@@ -7797,14 +7841,16 @@ that this representation would be good enough, or even faster.
   (adjoin-set 3 '(1 2 4 5))
 #+end_src
 
-#+RESULTS:
-| 1 | 2 | 3 | 4 | 5 |
+#+RESULTS[f73284bb5f60f130ba94560aa4779945407129f6]:
+#+begin_src scheme
+(1 2 3 4 5)
+#+end_src
 
 *** DONE Exercise 2.62 ordered-union-set (ordered list)
     CLOSED: [2019-09-26 Thu 21:38]
 
 #+name: ordered-set
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports code :results none
   (define (element-of-set? x set)
     (cond ((null? set) false)
 	  ((= x (car set)) true)
@@ -7841,21 +7887,23 @@ that this representation would be good enough, or even faster.
     (remove-duplicates-set (union-iter set1 set2 '())))
 #+end_src
 
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports both :results value scalar code
 <<ordered-set>>
 (cons (union-set '(1 3 10) '(1 2 4 5))
 (intersection-set '(1 3 10) '(1 2 4 5)))
 #+end_src
 
-#+RESULTS:
+#+RESULTS[c60bbd2727a01611a6d2b6410d4b73a2908fdcf0]:
+#+begin_src scheme
 ((1 2 3 4 5 10) 1)
+#+end_src
 
 *** DONE Exercise 2.63 tree->list (binary search tree)
     CLOSED: [2019-09-26 Thu 23:37]
 
 Let me copy the two code pieces here, I will need them later.
 
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports code :results none
   (define (tree->list-1 tree)
     (if (null? tree)
 	'()
@@ -7865,7 +7913,7 @@ Let me copy the two code pieces here, I will need them later.
 #+end_src
 
 #+name: tree-list
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports code :results none
   (define (tree->list-2 tree)
     (define (copy-to-list tree result-list)
       (if (null? tree)
@@ -7875,7 +7923,6 @@ Let me copy the two code pieces here, I will need them later.
 			      (copy-to-list (right-branch tree)
 					    result-list)))))
     (copy-to-list tree '()))
-
 #+end_src
 
 
@@ -7894,7 +7941,7 @@ Let me copy the two code pieces here, I will need them later.
 Firstly, I want to see what it is exactly that the function outputs.
 
 #+name: list-tree
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (entry tree) (car tree))
 
      (define (left-branch tree) (cadr tree))
@@ -7925,19 +7972,21 @@ Firstly, I want to see what it is exactly that the function outputs.
 			remaining-elts))))))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<list-tree>>
 (show #t " " (pretty (list->tree '(1 3 5 7 9 11))))
 #+end_src
 
-#+RESULTS:
-:  (5 (1 () (3 () ())) (9 (7 () ()) (11 () ())))
+#+RESULTS[c8c97f9af2f66620678be5db952a975b3afbb867]:
+#+begin_src scheme
+ (5 (1 () (3 () ())) (9 (7 () ()) (11 () ())))
+#+end_src
 
 Since I already got the result, I will just draw it.
 
- #+begin_src plantuml :exports both :file figure-1-1-dot.png
- @startdot
- graph g {
+#+begin_src plantuml :exports both :file exercise-2-63-dot.png
+@startdot
+graph g {
 	 node [shape=plaintext];
 	 A1 [label="5"];
 
@@ -7948,7 +7997,7 @@ Since I already got the result, I will just draw it.
 	 C1 [label="7"];
 	 C2 [label="11"];
          C0 [label="'()"];
-         C3 [label="3"]
+         C3 [label="3 "]
 
  // edges
 	 A1 -- B1;
@@ -7964,12 +8013,12 @@ Since I already got the result, I will just draw it.
 	 { rank=same; A1 }
 	 { rank=same; B1 B3 }
 	 { rank=same; C1 C2 C3 }
- }
- @enddot
- #+end_src
-
- #+RESULTS:
- [[file:figure-1-1-dot.png]]
+ } 
+@enddot
+#+end_src
+#+attr_latex: :width 224pt
+#+RESULTS[d70d1d487c7a52b9bdc27bbc93b474e58e67aa61]:
+[[file:exercise-2-63-dot.png]]
 
    a. How exactly did this tree appear? The algorithm given by Abelson
 and Sussman is actually quite straightforward: divide a list into two
