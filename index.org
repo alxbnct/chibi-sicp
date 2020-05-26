@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-26 12:03:47 lockywolf>
+# Time-stamp: <2020-05-26 12:46:36 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -25872,7 +25872,7 @@ Refer to [[Setting chibi arguments. DANGEROUS]] for more information.
 #+RESULTS:
 :  (167 436)
 
-*** DONE Figure 3.32                                               :plantuml:
+*** DONE Figure 3.32 The integral procedure viewed as a signal-processing system :plantuml:
     CLOSED: [2020-01-08 Wed 10:59]
 
 #+begin_src plantuml :exports both :file figure-3-32.png
@@ -25899,7 +25899,6 @@ fake -> integral
 #+RESULTS:
 [[file:figure-3-32.png]]
 
-*** TODO Figure 3.33 RC-circuit with circuit                           :tikz:
 *** DONE Exercise 3.73 RC-circuit
     CLOSED: [2020-01-08 Wed 13:09]
 
@@ -26192,7 +26191,7 @@ Seems to be working.
 
 Cool. As long as ~f~ is implemented in terms of streams, it works.
 
-*** DONE Figure 3.36
+*** DONE Figure 3.36 A series RLC circuit
     CLOSED: [2020-01-08 Wed 23:21]
 
 #+name: figure-3-36
@@ -42332,7 +42331,7 @@ exit
 Seems right.
 
 **** 4.4.2 How the Query System Works [1/1]
-***** DONE Figure 4.6 How the system works
+***** DONE Figure 4.6 The ~or~ combination of two queries
       CLOSED: [2020-02-20 Thu 10:59]
 #+begin_src plantuml :exports both :file figure-4-6.png
 @startuml

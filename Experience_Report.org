@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-24 16:45:28 lockywolf>
+# Time-stamp: <2020-05-26 12:54:57 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -303,6 +303,22 @@ Support communication statistics is the following:
 
 Statistics from other means is hard to collect.
 
+*** The figures to re-typeset
+
+Several figures were re-drawn using a textual representation.
+The choice of those was driven by the idea that someone who successfully passed the book should also be able to re-create the book from using his own skills.
+Therefore, those were chosen to be representative of the kinds of figures _not_ required to be drawn by any exercise.
+
+This ended up being figures:
+- 1.1 Tree representation, showing the value of each sub-combination
+- 1.2 Procedural decomposition of the sqrt program
+- 1.3 A linear recursive process for computing
+- 2.2 Box-and-pointer representation of ~(cons 1 2)~
+- 2.8 A solution to the eight-queens puzzle
+- 3.32 The integral procedure viewed as a signal-processing system
+- 3.36 A series RLC circuit
+- 5.1 Data paths for a Register Machine
+- 5.2 Controller for a GCD Machine
 ** Behaviour modelling, reenactment and the choice of tools
 
 When I started this project, I already had a Ph.D. in Informatics, although not an engineering one.
@@ -403,6 +419,8 @@ But already here I can list some *data*:
 Just reading the Emacs Lisp manual required *10* study sessions of total length 32 hours 40 minutes.
 Additional learning of Emacs *without* reading the manual required 59 hours 14 minutes in my case.
 
+
+
 ** *Org-mode* as a universal medium for reproducible research
 
 Imagine a case when a student needs to send his work to the teacher for examination.
@@ -446,6 +464,7 @@ And while the main benefit of using org-mode for the coursework formatting was t
 Although it originally appeared as a by-product of choosing a specific tool, at the end of the day it is the telemetry collected with the aid of it, that is the main contribution of this report.
 
 The way org-mode particulars were used is described in the next section, along with the statistical summary.
+
 
 ** Different problem types
 
@@ -611,7 +630,7 @@ This means that those problems may have been the trickiest.
 
 ** Time spent on solving the exercises
 
-#+ATTR_LATEX: :width 9cm :float nil
+#+ATTR_LATEX: :width 252pt :float nil
 #+caption: "Days spent per problem"
 [[file:experience-report-days.png]]
 
@@ -620,23 +639,23 @@ This spike is less prominent on the graph of the study sessions.
 
 ** Study sessions per problem
 
-#+ATTR_LATEX: :width 9cm :float nil
+#+ATTR_LATEX: :width 252pt :float nil
 #+caption: "Study sessions per problem"
- 
 [[file:experience-report-study-sessions.png]]
+
+The study sessions graph allows to differentiate between those exercises that took many days because of their hardness from those that took a long time because there was a vacation at that time.
 
 ** Hardness histogram (linear)
 
-#+ATTR_LATEX: :width 9cm
+#+ATTR_LATEX: :width 252pt :float nil
 #+caption: "Hardness distribution (linear)"
-
 [[file:experience-report-hardness-histogram-linear.png]]
 
-The linearly-scaled hardness histogram 
+The linearly-scaled hardness histogram shows that most of the exercises are solvable within one to three hours.
 
 ** Hardness histogram (logarithmic)
 
-#+ATTR_LATEX: :width 9cm
+#+ATTR_LATEX: :width 252pt :float nil
 #+caption: "Hardness distribution (logarithmic)"
 [[file:experience-report-hardness-histogram-logarithmic.png]]
 
