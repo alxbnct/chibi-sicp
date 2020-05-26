@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-26 12:46:36 lockywolf>
+# Time-stamp: <2020-05-26 16:40:22 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -8048,7 +8048,8 @@ straightforward.
     (list->tree (intersection-set (tree->list-2 set1) (tree->list-2 set2))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 <<list-tree>>
 <<tree-list>>
 <<ordered-set>>
@@ -8059,9 +8060,11 @@ straightforward.
 
 #+end_src
 
-#+RESULTS:
-: (3 (1 () (2 () ())) (5 (4 () ()) (10 () ())))
-: (1 () ())
+#+RESULTS[9c18ce471819d2789b5d5f43e9b760196837c339]:
+#+begin_src scheme
+(3 (1 () (2 () ())) (5 (4 () ()) (10 () ())))
+(1 () ())
+#+end_src
 
 *** DONE Exercise 2.66 tree-lookup
     CLOSED: [2019-10-09 Wed 13:03]
@@ -8071,7 +8074,7 @@ the list given as an argument is already sorted in some way appropriate for
 this represented data. Therefore we can use the function verbatim.
 
 #+name: tree-lookup
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports code :results none
   (define-record-type dict-entry-type
   (dict-entry x y)
   dict-entry?
@@ -8087,7 +8090,8 @@ this represented data. Therefore we can use the function verbatim.
 
 #+end_src
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 <<list-tree>>
 <<tree-lookup>>
 (show #t " " (pretty (list->tree (list (dict-entry 1 'John)
@@ -8102,13 +8106,15 @@ this represented data. Therefore we can use the function verbatim.
                                           (dict-entry 4 'Carry))))) "\n")
 #+end_src
 
-#+RESULTS:
-:  ({dict-entry-type #65 2 James}
-:   ({dict-entry-type #65 1 John} () ())
-:   ({dict-entry-type #65 3 Baloo} () ({dict-entry-type #65 4 Carry} () ())))
-:
-:  {dict-entry-type #65 3 Baloo}
-:
+#+RESULTS[e5eedf2173844414dd06c1f837137e52efa915ee]:
+#+begin_src scheme
+ ({dict-entry-type #65 2 James}
+  ({dict-entry-type #65 1 John} () ())
+  ({dict-entry-type #65 3 Baloo} () ({dict-entry-type #65 4 Carry} () ())))
+
+ {dict-entry-type #65 3 Baloo}
+
+#+end_src
 
 This exercise used the r7rs ~define-record-type~. It is not strictly
 necessary here, but I used it do add more "encapsulation" to the data base.
@@ -8116,7 +8122,7 @@ necessary here, but I used it do add more "encapsulation" to the data base.
     CLOSED: [2019-10-09 Wed 20:20]
 
 #+name: huffman-base
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (make-leaf symbol weight)
        (list 'leaf symbol weight))
 
@@ -8176,11 +8182,8 @@ necessary here, but I used it do add more "encapsulation" to the data base.
 
 #+end_src
 
-#+RESULTS:
-: #<undef>
-
 #+name:  huffman-sample-tree
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define sample-tree
     (make-code-tree (make-leaf 'A 4)
 		    (make-code-tree
@@ -8191,15 +8194,17 @@ necessary here, but I used it do add more "encapsulation" to the data base.
 
 #+end_src
 
-#+begin_src scheme :exports both :results value
 
+#+begin_src scheme :exports both :results value scalar code
 <<huffman-base>>
 <<huffman-sample-tree>>
   (decode sample-message sample-tree)
 #+end_src
 
-#+RESULTS:
-| A | D | A | B | B | C | A |
+#+RESULTS[849bd8493d964748ad37dea74baa891ec51626a3]:
+#+begin_src scheme
+(A D A B B C A)
+#+end_src
 
 This is a rather easy exercise, who's main goal is to make us test that the
 chapter code is actually working.
@@ -8208,7 +8213,7 @@ chapter code is actually working.
     CLOSED: [2019-10-09 Wed 20:53]
 
 #+name: huffman-encode
-#+begin_src scheme :exports both :results raw value
+#+begin_src scheme :exports code :results none
 	(define (encode message tree)
 	  (if (null? message)
 	      '()
@@ -8223,7 +8228,7 @@ chapter code is actually working.
 
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 (define true #t)
 (define false #f)
 <<huffman-base>>
@@ -8233,8 +8238,10 @@ chapter code is actually working.
 (encode (list 'A  'D  'A  'B  'B  'C  'A) sample-tree)
 #+end_src
 
-#+RESULTS:
-| 0 | 1 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0 |
+#+RESULTS[da7daba534a43a35838696c66de769599deb4228]:
+#+begin_src scheme
+(0 1 1 0 0 1 0 1 0 1 1 1 0)
+#+end_src
 
 My implementation of encode-symbol is not iterative, but for educational
 purposes it should be enough.
@@ -8247,7 +8254,7 @@ that although Abelson and Sussman use the word "pair" for the (symbol,
 weight) tuples, they are actually lists.
 
 #+name: huffman-generate-tree
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (generate-huffman-tree pairs)
        (successive-merge (make-leaf-set pairs)))
      #;(leaf-set is sorted by weight)
@@ -8261,7 +8268,8 @@ weight) tuples, they are actually lists.
 				      (cddr leaf-set))))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code scalar code
 (define true #t)
 (define false #f)
 <<huffman-base>>
@@ -8270,14 +8278,14 @@ weight) tuples, they are actually lists.
 <<huffman-sample-tree>>
 <<huffman-generate-tree>>
 (define pairs (list (list 'A 4) (list 'B 2) (list 'C 1) (list 'D 1)))
-n#;(generate-huffman-tree (list (cons 'A 4) (cons 'B 2) (cons 'C 1) (cons 'D 1)))
-#n;(make-leaf-set pairs)
+#;(generate-huffman-tree (list (cons 'A 4) (cons 'B 2) (cons 'C 1) (cons 'D 1)))
+#;(make-leaf-set pairs)
 (show #t  "Sample-tree:" (pretty (generate-huffman-tree pairs)) "\n")
 (show #t  "Our tree   :" (pretty sample-tree) "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[999f217e2b38c63406af6e403dda90a365e998cf]:
+#+begin_src scheme
 Sample-tree:((leaf A 4)
              ((leaf B 2) ((leaf D 1) (leaf C 1) (D C) 2) (B D C) 4)
              (A B D C)
@@ -8288,7 +8296,7 @@ Our tree   :((leaf A 4)
              (A B D C)
              8)
 
-#+end_example
+#+end_src
 
 *** DONE Exercise 2.70 Generate a tree and encode a song
     CLOSED: [2019-10-10 Thu 13:11]
@@ -8301,7 +8309,7 @@ thing needed is to correct the case in the dictionary.
 
 Let's generate a tree first:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define true #t)
   (define false #f)
   <<huffman-base>>
@@ -8328,8 +8336,8 @@ Let's generate a tree first:
   (show #t (pretty (decode encoded-song coding-tree)) "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[3b03980b00fdec47fdc592aa0b5e52387e0f4679]:
+#+begin_src scheme
 Tree:((leaf na 16)
       ((leaf yip 9)
        (((leaf Get 2) ((leaf boom 1) (leaf Wah 1) (boom Wah) 2)
@@ -8383,12 +8391,12 @@ Tree:((leaf na 16)
      Sha
      boom)
 
-#+end_example
+#+end_src
 
 *** DONE Exercise 2.71 Huffman tree for frequencies 5 and 10
     CLOSED: [2019-10-10 Thu 19:22]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define true #t)
   (define false #f)
   <<huffman-base>>
@@ -8404,13 +8412,15 @@ Tree:((leaf na 16)
 
 #+end_src
 
-#+RESULTS:
-: Tree:((((leaf a 1) (leaf b 2) (a b) 3) (leaf c 4) (a b c) 7) (leaf d 8)
-:                                                              (a b c d)
-:                                                              15)
-:
+#+RESULTS[3015285bdbefc6dc224a164f6e0c08f3f41a2845]:
+#+begin_src scheme
+Tree:((((leaf a 1) (leaf b 2) (a b) 3) (leaf c 4) (a b c) 7) (leaf d 8)
+                                                             (a b c d)
+                                                             15)
 
-#+begin_src plantuml :exports both :file Exercise-2.71.png
+#+end_src
+
+#+begin_src plantuml :exports both :file Exercise-2.71-1.png
 @startmindmap
 skinparam monochrome true
 +_ ((((leaf a 1)\n (leaf b 2) (a b) 3)\n (leaf c 4) (a b c) 7)\n (leaf d 8) (a b c d) 15)
@@ -8423,10 +8433,12 @@ skinparam monochrome true
 @endmindmap
 #+end_src
 
-#+RESULTS:
+#+RESULTS[83bd7586691968a1c36152f709b55729d04bb749]:
 [[file:Exercise-2.71.png]]
 
-#+begin_src scheme :exports both :results output
+
+
+#+begin_src scheme :exports both :results output scalar code
   (define true #t)
   (define false #f)
   <<huffman-base>>
@@ -8443,8 +8455,8 @@ skinparam monochrome true
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[d328a170b305040a56bf70a219f839160283319f]:
+#+begin_src scheme
 Tree:(((((((((leaf a 1) (leaf b 2) (a b) 3) (leaf c 4) (a b c) 7) (leaf d 8)
                                                                   (a b c d)
                                                                   15)
@@ -8460,9 +8472,9 @@ Tree:(((((((((leaf a 1) (leaf b 2) (a b) 3) (leaf c 4) (a b c) 7) (leaf d 8)
                             (a b c d e f g h j)
                             511)
 
-#+end_example
+#+end_src
 
-#+begin_src plantuml :exports both :file Exercise-2.71.png
+#+begin_src plantuml :exports both :file Exercise-2.71-2.png
 @startmindmap
 skinparam monochrome true
 +_ (a b c d e f g h j) 511
@@ -8485,8 +8497,8 @@ skinparam monochrome true
 @endmindmap
 #+end_src
 
-#+RESULTS:
-[[file:Exercise-2.71.png]]
+#+RESULTS[0d1af02ba31ebcebc41d6c80b6dec913a04734ce]:
+[[file:Exercise-2.71-2.png]]
 
 We can clearly see that if the probabilities decrease exponentially, the
 length of the tree is n. So to encode the most frequent symbol we would need
@@ -8513,7 +8525,7 @@ loosely.
 In this subsection I will copy the source of the two complex packages given
 as examples.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (install-rectangular-package)
        ;; internal procedures
        (define (real-part z) (car z))
@@ -8541,9 +8553,8 @@ as examples.
 
 #+end_src
 
-#+RESULTS:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (install-polar-package)
        ;; internal procedures
        (define (magnitude z) (car z))
@@ -8570,12 +8581,12 @@ as examples.
        'done)
 #+end_src
 
-#+RESULTS:
 
 *** Remark Reference to the put and get functions
 ~put~ and ~get~ functions are defined later, however, you can use them if
 tangling in the block called: <<put-and-get>>. It is a stateful block, so be
 sure to include it first.
+
 *** DONE Exercise 2.73 data-driven-deriv
     CLOSED: [2019-10-11 Fri 11:05]
 
@@ -8616,7 +8627,7 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
   (put 'deriv '* differentiate-multiplication)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<put-and-get>>
 <<deriv-components>>
 <<deriv-operations>>
@@ -8625,8 +8636,10 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
 (show #t "Test:" (deriv '(+ a (* b a)) 'a) "\n")
 #+end_src
 
-#+RESULTS:
-: Test:(+ 1 b)
+#+RESULTS[d0ebb2eecdef37ee4aba4564d9211d8b5db089f1]:
+#+begin_src scheme
+Test:(+ 1 b)
+#+end_src
 
 **** c
      CLOSED: [2019-10-11 Fri 11:03]
@@ -8651,7 +8664,8 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
 (put 'deriv '** differentiate-exponentiation)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 (define false #f)
 <<put-and-get>>
 <<deriv-components>>
@@ -8664,8 +8678,10 @@ supposed to write is incompatible with the derivatives we had to write in the Ex
 #;(show #t "Test:" (deriv '(** a b) 'a) "\n")
 #+end_src
 
-#+RESULTS:
-: Test:(+ 1 (* b (* c (** a (+ c -1)))))
+#+RESULTS[cd95541f6c370504e4b37bd2a38569a2a37e751f]:
+#+begin_src scheme
+Test:(+ 1 (* b (* c (** a (+ c -1)))))
+#+end_src
 
 **** d
      CLOSED: [2019-10-11 Fri 11:05]
@@ -8715,10 +8731,8 @@ assume that the company only has two divisions.
 
 #+end_src
 
-#+RESULTS:
 
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<put-and-get>>
 <<insatiable-enterprises-data>>
 
@@ -8734,16 +8748,18 @@ assume that the company only has two divisions.
 
 #+end_src
 
-#+RESULTS:
-: Division-1: (Jack (salary . 100) (address . #f))
-: Division-2: (placeholder WangYi salary 100 address neverland)
-: Division-2: (placeholder ZhangEr salary 200 address this-world)
-: Salary-1:   200
-: Salary-2:   100
-: Division-1: (Jack (salary . 100) (address . #f))
-: Division-2: (placeholder WangYi salary 100 address neverland)
-: Division-1: 200
-: Division-2: 100
+#+RESULTS[f074813acd0f661729d42da7a193da04d52995c9]:
+#+begin_src scheme
+Division-1: (Jack (salary . 100) (address . #f))
+Division-2: (placeholder WangYi salary 100 address neverland)
+Division-2: (placeholder ZhangEr salary 200 address this-world)
+Salary-1:   200
+Salary-2:   100
+Division-1: (Jack (salary . 100) (address . #f))
+Division-2: (placeholder WangYi salary 100 address neverland)
+Division-1: 200
+Division-2: 100
+#+end_src
 
 **** a
      CLOSED: [2019-10-11 Fri 18:39]
@@ -8758,7 +8774,7 @@ data.
    ((get 'get-record (car dataset)) dataset key))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<put-and-get>>
 <<insatiable-enterprises-data>>
 <<insatiable-a>>
@@ -8767,9 +8783,11 @@ data.
 (show #t (get-record division-2-set-of-records 'ZhangEr) "\n")
 #+end_src
 
-#+RESULTS:
-: (Jill (salary 200) (address #t))
-: (placeholder ZhangEr salary 200 address this-world)
+#+RESULTS[a0d592196770691163980786e59ee8a81146c861]:
+#+begin_src scheme
+(Jill (salary . 200) (address #t))
+(placeholder ZhangEr salary 200 address this-world)
+#+end_src
 
 **** b
      CLOSED: [2019-10-11 Fri 20:22]
@@ -8783,21 +8801,23 @@ data.
 	  #f)))
 #+end_src
 
-#+RESULTS:
 
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<put-and-get>>
 <<insatiable-enterprises-data>>
 <<insatiable-a>>
 <<insatiable-b>>
-(show #t "Salary wrong  : " (get-salary division-2-set-of-records 'Jill) "\n")
+(guard (err 
+          (else (begin (display "Expected exception") (newline))))
+(show #t "Salary wrong  : " (get-salary division-2-set-of-records 'Jill) "\n"))
 (show #t "Salary correct: " (get-salary division-1-set-of-records 'Jill) "\n")
 #+end_src
 
-#+RESULTS:
-: Salary wrong  : #f
-: Salary correct: 200
+#+RESULTS[120cdc198fccad32ef4bc50ebd8514b2d418e5f4]:
+#+begin_src scheme
+Expected exception
+Salary correct: 200
+#+end_src
 
 Because all the dispatch is organized on a tag in the file records, there is
 no specific requirements to the record structure.
@@ -8816,7 +8836,7 @@ no specific requirements to the record structure.
 		     (list (get-record x key))) record-files))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<put-and-get>>
 <<insatiable-enterprises-data>>
 <<insatiable-a>>
@@ -8825,8 +8845,10 @@ no specific requirements to the record structure.
 (show #t "Result: " (find-employee-record 'Jill division-1-set-of-records division-2-set-of-records) "\n")
 #+end_src
 
-#+RESULTS:
-: Result: (Jill (salary . 200) (address #t))
+#+RESULTS[ea334781cc9d86acea23af0bc32d3ba31eb94db8]:
+#+begin_src scheme
+Result: (Jill (salary . 200) (address #t))
+#+end_src
 
 **** d
      CLOSED: [2019-10-11 Fri 20:56]
@@ -8850,7 +8872,7 @@ new the function table.
        dispatch)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<message-mag-angle>>
 (show #t "Magnitude: " ((make-from-mag-angle 1 1) 'magnitude) "\n")
 (show #t "Angle    : " ((make-from-mag-angle 1 1) 'angle    ) "\n")
@@ -8858,11 +8880,13 @@ new the function table.
 (show #t "Imag-part: " ((make-from-mag-angle 1 1) 'imag-part) "\n")
 #+end_src
 
-#+RESULTS:
-: Magnitude: 1
-: Angle    : 1
-: Real-part: 0.5403023058681398
-: Imag-part: 0.8414709848078965
+#+RESULTS[65d3682b63c4e1ca9d57aabb53130baa4ce56000]:
+#+begin_src scheme
+Magnitude: 1
+Angle    : 1
+Real-part: 0.5403023058681398
+Imag-part: 0.8414709848078965
+#+end_src
 
 *** DONE Exercise 2.76 types or functions?
     CLOSED: [2019-10-11 Fri 21:29]
@@ -9029,8 +9053,6 @@ operations would work with the new types, if the types satisfy some contract.
 
 #+end_src
 
-#+RESULTS:
-
 
 #+name: apply-generic
 #+begin_src scheme :exports code :results none
@@ -9083,24 +9105,20 @@ not really specifying which one to use. Also, I never had to use the
           (put 'angle '(complex) angle)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar coden
 (define false #f)
 (define true  #t)
 <<put-and-get>>
 <<apply-generic>>
-
 <<generic-arithmetic-packages>>
-
 (install-rectangular-package)
 (install-complex-package)
-
 <<alyssa-complex-suggestion>>
-
 (show #t "Louis's result: " (magnitude (make-complex-from-real-imag 3 4)) "\n")
 
 #+end_src
 
-#+RESULTS:
+#+RESULTS[cba9603f04d7d5745b4df2819a1496f536732fdf]:
 : Louis's result: 5
 
 This example illustrates what can, perhaps, be called "double
@@ -9165,15 +9183,17 @@ Remark: this "easy" exercise took more than 4 hours to debug and consists of
        ((get 'make 'scheme-number) n))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<put-and-get>>
 <<simplified-scheme-number>>
 (install-scheme-number-package)
 (show #t "Adding: (+ 1 2) : " (add (make-scheme-number 1) (make-scheme-number 2)) "\n")
 #+end_src
 
-#+RESULTS:
-: Adding: (+ 1 2) : 3
+#+RESULTS[ad26c29e1ee12969e992ff4055dae2e4f2e68f9e]:
+#+begin_src scheme
+Adding: (+ 1 2) : 3
+#+end_src
 
 The task is to "Modify the definitions of `type-tag', `contents', and
 `attach-tag'", therefore (as this doesn't seem really useful), I am only
@@ -9185,7 +9205,7 @@ copying those functions for modification in this particular exercise.
 In this exercise I am copying the whole package again, as due to the poor
 architecture of the algebra system, adding such a tiny feature is not additive.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 
   (define false #f)
   (define true  #t)
@@ -9425,15 +9445,17 @@ architecture of the algebra system, adding such a tiny feature is not additive.
                              (make-complex-from-real-imag 1 0)) "\n")
 #+end_src
 
-#+RESULTS:
-: Scheme-number: #f
-: Rational: #t
-: Complex: #t
+#+RESULTS[da543803cedad76c1b3c74ecec5f979fc8a167aa]:
+#+begin_src scheme
+Scheme-number: #f
+Rational: #t
+Complex: #t
+#+end_src
 
 *** DONE Exercise 2.80 Generic arithmetic zero?
     CLOSED: [2019-10-14 Mon 17:18]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 
   (define false #f)
   (define true  #t)
@@ -9680,10 +9702,12 @@ architecture of the algebra system, adding such a tiny feature is not additive.
   (show #t "Complex: " (zero? (make-complex-from-mag-ang 0 0)) "\n")
 #+end_src
 
-#+RESULTS:
-: Scheme-number: #t
-: Rational: #t
-: Complex: #t
+#+RESULTS[7b84d93ee2ba1f0f448832f1adef564f55ddb141]:
+#+begin_src scheme
+Scheme-number: #t
+Rational: #t
+Complex: #t
+#+end_src
 
 *** Snippet put-coercion
 I added the ~put-coercion~ and ~get-coercion~ procedures to the
@@ -9728,8 +9752,6 @@ new code.
 
 #+end_src
 
-#+RESULTS:
-: Exception: {Exception #19 user "undefined variable" (put-coercion) #<procedure #f> (#f . 4)}
 
 *** DONE Exercise 2.81 coercion to-itself
     CLOSED: [2019-10-15 Tue 11:16]
@@ -9742,7 +9764,7 @@ to tangle to solve it letter by letter.
 I will tangle in the version of the algebra package from the Exercise-2.80,
 but I will replace the ~apply-generic~ with a coercing version.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define false #f)
   (define true  #t)
   (define (make-table)
@@ -10017,10 +10039,9 @@ but I will replace the ~apply-generic~ with a coercing version.
 
 #+end_src
 
-#+RESULTS:
-: Geiser-eval--retort-output returned nil.
-: The interpreter produced no output
-: or there is a bug in geiser (likely!)
+#+RESULTS[59c726db117f5910df5818034548bd1e5bc2316a]:
+#+begin_src scheme
+#+end_src
 
 We can see that this code doesn't work as expected. Why?
 The answer is because the new version of ~apply-generic~ only checks if the
@@ -10033,7 +10054,7 @@ itself over and over. So the strategy proposed by Louis is not very good.
 
 **** b
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define false #f)
   (define true  #t)
   (define (make-table)
@@ -10303,9 +10324,27 @@ itself over and over. So the strategy proposed by Louis is not very good.
                              (make-complex-from-mag-ang 2 0))))
 #+end_src
 
-#+RESULTS:
-:  (scheme-number . 4)
-: Exception: {Exception #19 user "No method for these types" ((exp (complex complex))) #f #f}
+#+RESULTS[9fe0a3a9728841583ab88e8ad406524315e4263b]:
+#+begin_src scheme
+ (scheme-number . 4)
+
+Output (exception): {Exception #19 user "No method for these types" ((exp (complex complex))) #f #f} 
+Stack trace:
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1206 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from error on line 100 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 4
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
+#+end_src
 
 This seems correct. There may be a problem when the function is actually
 defined for some types that the given ones are coerce-able to, but the system
@@ -10313,7 +10352,7 @@ doesn't try that.
 
 **** c
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define false #f)
   (define true  #t)
   (define (make-table)
@@ -10583,8 +10622,10 @@ doesn't try that.
 
 #+end_src
 
-#+RESULTS:
-:  (scheme-number . 4)
+#+RESULTS[f8960cb4e8727a1706c70164ba61f36c1699b9ff]:
+#+begin_src scheme
+ (scheme-number . 4)
+#+end_src
 
 *** DONE Exercise 2.82 three-argument-coercion
     CLOSED: [2019-10-15 Tue 21:40]
