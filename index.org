@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-27 15:33:09 lockywolf>
+# Time-stamp: <2020-05-27 16:07:58 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -26595,7 +26595,7 @@ This took me about 8 working hours to figure out.
 #+end_quote
 
 #+header: :stdin s-input-test4
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-apply>>
 <<s-eval>>
@@ -26619,7 +26619,7 @@ This took me about 8 working hours to figure out.
 
 #+end_src
 
-#+RESULTS[c3d97df110388cfad2fbb891d525f819df207baa]:
+#+RESULTS[b53f0666e4b1f9be3b5c49c16d634897585f6fc8]:
 #+begin_src shell
 
 ;;; M-Eval input:
@@ -26631,7 +26631,7 @@ ok
 #+end_src
 
 #+header: :stdin s-input-test4
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-apply>>
 <<s-eval>>
@@ -26655,7 +26655,7 @@ ok
 
 #+end_src
 
-#+RESULTS[ad555a7d780e7640a58a1d62c49bd3d094463b28]:
+#+RESULTS[6219dac3cf87c871a2583afe02372d7c2dec1090]:
 #+begin_src shell
 
 ;;; M-Eval input:
@@ -26881,7 +26881,7 @@ ok
 Some tests.
 
 #+header: :stdin s-input-test5
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -26905,7 +26905,7 @@ Some tests.
 
 #+end_src
 
-#+RESULTS[18e859a0c1eb7a4d33ecd0cbc0e020aad27142bb]:
+#+RESULTS[2bf9ff8f57232deab34dcba3c3bb130db239821d]:
 #+begin_src shell
 
 ;;; M-Eval input:
@@ -27065,7 +27065,7 @@ a
 #+end_quote
 
 #+header: :stdin s-input-test5
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27089,7 +27089,7 @@ a
 
 #+end_src
 
-#+RESULTS[2ea2b06cfa9cc8cd1cb59f8047e546156f9b10ed]:
+#+RESULTS[14c0c99b7fa7993e3b2301d7f0f79b414837ceb0]:
 #+begin_src shell
 
 ;;; M-Eval input:
@@ -27232,7 +27232,7 @@ clause"))
 
 
 #+header: :stdin s-input-test-and-or
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27257,7 +27257,7 @@ clause"))
 
 #+end_src
 
-#+RESULTS[fe161dbf3b801cc20199cfe39d1cc2c77602819a]:
+#+RESULTS[6ce1a0f93d2bcd3ccb5a1288c58a48462f57038c]:
 #+begin_src shell
 
 ;;; M-Eval input:
@@ -27437,7 +27437,7 @@ clause"))
 
 
 #+header: :stdin s-input-test-cond-arrow
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27462,7 +27462,7 @@ clause"))
 
 #+end_src
 
-#+RESULTS[76d1c30ea27d0934dab9f79012590b8f8bb216a1]:
+#+RESULTS[d4ca62fe54494bbba15a3e7c4a1945505081bc22]:
 #+begin_src shell
 
 ;;; M-Eval input:
@@ -33046,10 +33046,6 @@ Seems to be working like charm. I feel myself immensely proud.
 
 The next code requires a fully lazy evaluator.
 
-#+name: s-lazy-streams
-#+begin_src scheme :exports both :results output
-#+end_src
-
 #+name: s-lazy-input-streams-test
 #+begin_quote
   (define (cons x y) (lambda (m) (m x y)))
@@ -33089,7 +33085,7 @@ y)
 #+end_quote
 
 #+header: :stdin s-lazy-input-streams-test
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33116,8 +33112,8 @@ y)
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[6a968516b5ae13b966708e1b568127b04df45d95]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (cons x y) (lambda (m) (m x y)))
 ;;; L-Eval value:
@@ -33184,7 +33180,7 @@ ok
 2.716923932235896
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Seems to work.
 
@@ -33234,7 +33230,7 @@ Seems to work.
 #+end_quote
 
 #+header: :stdin s-lazy-input-streams-trees
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33261,54 +33257,34 @@ Seems to work.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[56671219584ba1f4f26c26e2e455b0d9e217654c]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (cons x y) (lambda (m) (m x y)))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (car z) (z (lambda (p q) p)))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (cdr z) (z (lambda (p q) q)))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (list-ref items n)
   (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (map proc items)
   (if (null? items) '() (cons (proc (car items)) (map proc (cdr items)))))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (scale-list items factor) (map (lambda (x) (* x factor)) items))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (add-lists list1 list2)
   (cond ((null? list1) list2)
@@ -33316,39 +33292,24 @@ ok
         (else
          (cons (+ (car list1) (car list2))
                (add-lists (cdr list1) (cdr list2))))))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define ones (cons 1 ones))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define integers (cons 1 (add-lists ones integers)))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define node (cons 1 p))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define p (cons 1 (cons p p)))
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (define (print-tree tree depth rightmost)
   (if (= depth 0)
@@ -33358,11 +33319,8 @@ ok
              (if rightmost (newline))
              (print-tree (cdr (cdr tree)) (- depth 1) (if rightmost #t #f))))
   'ok)
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (begin (newline) (print-tree p 5 #t))
 
@@ -33371,14 +33329,11 @@ ok
 1111
 11
 1
-
 ;;; L-Eval value:
 ok
-
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Yay, a tree. You can't do it with simple "streams".
 
@@ -33386,14 +33341,14 @@ Yay, a tree. You can't do it with simple "streams".
       CLOSED: [2020-02-16 Sun 14:09]
 
 #+name: s-lazy-quote-to-lazy-list
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   #;(put 'eval 'quote (lambda (exp env) (text-of-quotation exp)))
   (put 'eval 'quote (lambda (exp env)
-           (let ((text (text-of-quotation exp)))
-              (if (or (null? text) (not (list? text)))
-               text
-               (eval (list 'cons  (list 'quote (car text))
-                                  (list 'quote (cdr text)))  env)))))
+		      (let ((text (text-of-quotation exp)))
+			(if (or (null? text) (not (list? text)))
+			    text
+			    (eval (list 'cons  (list 'quote (car text))
+					(list 'quote (cdr text)))  env)))))
 
 #+end_src
 
@@ -33430,7 +33385,7 @@ Yay, a tree. You can't do it with simple "streams".
 
 
 #+header: :stdin s-lazy-input-lazy-quote
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33458,8 +33413,8 @@ Yay, a tree. You can't do it with simple "streams".
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[755fb7dac9701068cfaa8a28e8d139a23658496d]:
+#+begin_src shell
 ;;; L-Eval input:
 (define test1 '(test input1 input2))
 ;;; L-Eval value:
@@ -33525,7 +33480,7 @@ a
 (compound-procedure (m) ((m x y)) <procedure-env>)
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 I kind of like this solution, because it allows you to redefine
 ~cons~, ~car~ and ~cdr~, and you are automatically getting the quote
@@ -33537,7 +33492,7 @@ redefined the way you want.
 I will set the default depth of printing to 10 just because it seems reasonable.
 
 #+name: s-lazy-driver-loop-with-lazy-pairs
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define input-prompt ";;; L-Eval input:")
   (define output-prompt ";;; L-Eval value:")
   (define (driver-loop)
@@ -33636,7 +33591,7 @@ I will set the default depth of printing to 10 just because it seems reasonable.
 
 
 #+header: :stdin s-lazy-input-lazy-list-print
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 
 <<s-glue1>>
 <<put-and-get>>
@@ -33666,8 +33621,8 @@ I will set the default depth of printing to 10 just because it seems reasonable.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[09a02f6ed6e773e7a5a5155d16ed8849fa53ce70]:
+#+begin_src shell
 
 
 ;;; L-Eval input:
@@ -33834,7 +33789,7 @@ a
 
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Well, this may be not the best, but still a meaningful solution. It
 avoids infinite lists, is rather careful at printing cycles, prints
@@ -33857,12 +33812,12 @@ Implementing the ~amb~ Evaluator]], before doing this exercises.
 The code below tests the interpreter with the examples from the book.
 
 #+name: s-amb-input-require
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (require p) (if (not p) (amb)))
 #+end_src
 
 #+name: s-amb-input-an-element-of
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (an-element-of items)
     (require (not (null? items)))
     (amb (car items) (an-element-of (cdr items))))
@@ -33871,7 +33826,7 @@ The code below tests the interpreter with the examples from the book.
 #+end_src
 
 #+name: s-amb-input-prime-sum-pair
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (prime-sum-pair list1 list2)
     (let ((a (an-element-of list1))
 	  (b (an-element-of list2)))
@@ -33880,7 +33835,7 @@ The code below tests the interpreter with the examples from the book.
 #+end_src
 
 #+name: s-input-prime-sum-pair-test
-#+begin_src shell
+#+begin_src shell :exports code :results output
 cat << EOF
 <<expmod>>
 <<fermat-primetest>>
@@ -33900,7 +33855,7 @@ EOF
 #+end_src
 
 #+header: :stdin s-input-prime-sum-pair-test
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
 <<s-glue1>>
 <<s-amb-amb-implementation>>
 <<s-amb-analyze-eval-with-let-amb-ramb>>
@@ -33930,126 +33885,97 @@ EOF
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-;;; Amb-Eval input:
-(define (expmod base exp m)
-  (cond ((= exp 0) 1)
-        ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m))
-        (else (remainder (* base (expmod base (- exp 1) m)) m))))
+#+RESULTS[a76961703744621453b6cbb18caf81fa1f6683ca]:
+#+begin_src shell
 
-;;; Starting a new problem
+;;; Amb-Eval input:
+(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m))))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (random x) (random-integer x))
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (fermat-test n)
-  (define (try-it a) (= (expmod a n n) a))
-  (try-it (+ 1 (random (- n 1)))))
-
-;;; Starting a new problem
+(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define prime-test fermat-test)
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (fast-prime? n times)
-  (cond ((= times 0) true)
-        ((prime-test n) (fast-prime? n (- times 1)))
-        (else false)))
-
-;;; Starting a new problem
+(define (fast-prime? n times) (cond ((= times 0) true) ((prime-test n) (fast-prime? n (- times 1))) (else false)))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define true #t)
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define false #f)
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (define (prime? x) (fast-prime? x 10))
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
 (prime? 7)
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 #t
 ;;; Amb-Eval input:
 (define (require p) (if (not p) (amb)))
-
-;;; Starting a new problem
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (an-element-of items)
-  (require (not (null? items)))
-  (amb (car items) (an-element-of (cdr items))))
-
-;;; Starting a new problem
+(define (an-element-of items) (require (not (null? items))) (amb (car items) (an-element-of (cdr items))))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (an-integer-starting-from n)
-  (amb n (an-integer-starting-from (+ n 1))))
-
-;;; Starting a new problem
+(define (an-integer-starting-from n) (amb n (an-integer-starting-from (+ n 1))))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(define (prime-sum-pair list1 list2)
-  (let ((a (an-element-of list1)) (b (an-element-of list2)))
-    (require (prime? (+ a b)))
-    (list a b)))
-
-;;; Starting a new problem
+(define (prime-sum-pair list1 list2) (let ((a (an-element-of list1)) (b (an-element-of list2))) (require (prime? (+ a b))) (list a b)))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 ok
 ;;; Amb-Eval input:
-(prime-sum-pair '(1 3 5 8) '(20 35 110))
-
-;;; Starting a new problem
+(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
+;;; Starting a new problem 
 ;;; Amb-Eval value:
 (3 20)
 ;;; Amb-Eval input:
 try-again
-
 ;;; Amb-Eval value:
 (3 110)
 ;;; Amb-Eval input:
 try-again
-
 ;;; Amb-Eval value:
 (8 35)
 ;;; Amb-Eval input:
 try-again
-
 ;;; There are no more values of
-(prime-sum-pair '(1 3 5 8) '(20 35 110))
+
+(prime-sum-pair (quote (1 3 5 8)) (quote (20 35 110)))
 ;;; Amb-Eval input:
 (exit)
+;;; Starting a new problem 
+#+end_src
 
-;;; Starting a new problem
-#+end_example
 
 ***** DONE Exercise 4.35 ~an-integer-between~ and Pythagorean triples
       CLOSED: [2020-02-17 Mon 17:25]
