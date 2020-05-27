@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-27 14:28:38 lockywolf>
+# Time-stamp: <2020-05-27 15:33:09 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -26569,7 +26569,7 @@ This took me about 8 working hours to figure out.
      CLOSED: [2020-01-09 Thu 20:11]
 
 #+name: s-list-of-values-left-to-right
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (list-of-values exps env)
        (if (no-operands? exps)
            '()
@@ -26579,7 +26579,7 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-list-of-values-right-to-left
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (list-of-values exps env)
        (if (no-operands? exps)
            '()
@@ -26589,14 +26589,13 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-input-test4
+#+begin_quote
 (define a (cons (display "left") (display "right")))
 (exit)
-#+begin_quote
-
 #+end_quote
 
 #+header: :stdin s-input-test4
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<s-eval>>
@@ -26620,17 +26619,19 @@ This took me about 8 working hours to figure out.
 
 #+end_src
 
-#+RESULTS:
-:
-: ;;; M-Eval input:
-: (define a (cons (display "left") (display "right")))leftright
-: ;;; M-Eval value:
-: ok
-: ;;; M-Eval input:
-: (exit)
+#+RESULTS[c3d97df110388cfad2fbb891d525f819df207baa]:
+#+begin_src shell
+
+;;; M-Eval input:
+(define a (cons (display "left") (display "right")))leftright
+;;; M-Eval value:
+ok
+;;; M-Eval input:
+(exit)
+#+end_src
 
 #+header: :stdin s-input-test4
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<s-eval>>
@@ -26647,26 +26648,28 @@ This took me about 8 working hours to figure out.
 <<s-compound-procedures>>
 <<s-environments>>
 <<s-primitive-procedures>>
+<<s-driver-loop>>
 <<s-glue2>>
 
 (driver-loop)
 
 #+end_src
 
-#+RESULTS:
-:
-:
-: ;;; M-Eval input:
-: (define a (cons (display "left") (display "right")))rightleft
-: ;;; M-Eval value:
-: ok
-:
-: ;;; M-Eval input:
-: (exit)
+#+RESULTS[ad555a7d780e7640a58a1d62c49bd3d094463b28]:
+#+begin_src shell
+
+;;; M-Eval input:
+(define a (cons (display "left") (display "right")))rightleft
+;;; M-Eval value:
+ok
+;;; M-Eval input:
+(exit)
+#+end_src
 
 **** Common code of the evaluator
+
 #+name: s-eval
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
    (define (eval exp env)
        (cond ((self-evaluating? exp) exp)
              ((variable? exp) (lookup-variable-value exp env))
@@ -26688,11 +26691,9 @@ This took me about 8 working hours to figure out.
               (error "Unknown expression type -- EVAL" exp))))
 #+end_src
 
-#+RESULTS: s-eval
-: #<undef>
 
 #+name: s-apply
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (apply procedure arguments)
        (cond ((primitive-procedure? procedure)
               (apply-primitive-procedure procedure arguments))
@@ -26708,11 +26709,9 @@ This took me about 8 working hours to figure out.
                "Unknown procedure type -- APPLY" procedure))))
 #+end_src
 
-#+RESULTS: s-apply
-: #<undef>
 
 #+name: s-list-of-values
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (list-of-values exps env)
        (if (no-operands? exps)
            '()
@@ -26721,7 +26720,7 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-standard-if
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (eval-if exp env)
     (if (true? (eval (if-predicate exp) env))
 	(eval (if-consequent exp) env)
@@ -26729,7 +26728,7 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-sequences
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (eval-sequence exps env)
        (cond ((last-exp? exps) (eval (first-exp exps) env))
              (else (eval (first-exp exps) env)
@@ -26737,7 +26736,7 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-assignment
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (eval-assignment exp env)
        (set-variable-value! (assignment-variable exp)
                             (eval (assignment-value exp) env)
@@ -26746,7 +26745,7 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-define
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (eval-definition exp env)
        (define-variable! (definition-variable exp)
                          (eval (definition-value exp) env)
@@ -26756,7 +26755,7 @@ This took me about 8 working hours to figure out.
 **** 4.1.2 Representing Expressions
 ***** Common code for expressions
 #+name: s-syntax
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
 (define false #f)
 (define true  #t)
           (define (self-evaluating? exp)
@@ -26828,8 +26827,9 @@ This took me about 8 working hours to figure out.
 
           (define (make-begin seq) (cons 'begin seq))
 #+end_src
+
 #+name: s-application
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
           (define (application? exp) (pair? exp))
 
           (define (operator exp) (car exp))
@@ -26844,7 +26844,7 @@ This took me about 8 working hours to figure out.
 #+end_src
 
 #+name: s-cond
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
 
      (define (cond? exp) (tagged-list? exp 'cond))
 
@@ -26881,7 +26881,7 @@ This took me about 8 working hours to figure out.
 Some tests.
 
 #+header: :stdin s-input-test5
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -26898,104 +26898,87 @@ Some tests.
 <<s-compound-procedures>>
 <<s-environments>>
 <<s-primitive-procedures>>
+<<s-driver-loop>>
 <<s-glue2>>
 
 (driver-loop)
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[18e859a0c1eb7a4d33ecd0cbc0e020aad27142bb]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else clause"))
 ;;; M-Eval value:
-else clause
-
+"else clause"
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.2 application before assignments
       CLOSED: [2020-01-09 Thu 20:41]
@@ -27007,7 +26990,7 @@ So far we haven't cared about the disjointness of types, therefore, since
 If we define an application as:
 
 #+name: s-application-with-call
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
           (define (application? exp) (tagged-list? exp 'call))
 
           (define (operator exp) (cadr exp))
@@ -27028,7 +27011,7 @@ This should work. But this example is not practical, so we won't test it.
       CLOSED: [2020-01-09 Thu 21:24]
 
 #+name: s-data-driven-eval
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (eval . o) (display "in the wrong eval"))
   (define (special-form-maybe exp) (if (and (pair? exp) (symbol? (car exp)))
                               (get 'eval (car exp))
@@ -27082,7 +27065,7 @@ a
 #+end_quote
 
 #+header: :stdin s-input-test5
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27106,98 +27089,80 @@ a
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[2ea2b06cfa9cc8cd1cb59f8047e546156f9b10ed]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else clause"))
 ;;; M-Eval value:
-else clause
-
+"else clause"
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 Well, put and get work, so this should work in general. Let's see if we can
@@ -27207,7 +27172,7 @@ test it later.
       CLOSED: [2020-01-09 Thu 22:14]
 
 #+name: s-eval-and
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (logical-actions exp) (cdr exp))
 (define (eval-and-sequence exps env)
        (if (null? exps)
@@ -27267,7 +27232,7 @@ clause"))
 
 
 #+header: :stdin s-input-test-and-or
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27292,119 +27257,96 @@ clause"))
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[fe161dbf3b801cc20199cfe39d1cc2c77602819a]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\nclause"))
 ;;; M-Eval value:
-else
-clause
-
+"else\nclause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.5 cond with arrow
       CLOSED: [2020-01-22 Wed 16:36]
@@ -27416,7 +27358,7 @@ correct. I will do the chapter parsing in two passes. And this
 exercise will have forward references.
 
 #+name: s-cond-with-arrow
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (cond? exp) (tagged-list? exp 'cond))
 
      (define (cond-clauses exp) (cdr exp))
@@ -27460,9 +27402,6 @@ exercise will have forward references.
 
 #+end_src
 
-#+RESULTS: s-cond-with-arrow
-: #<undef>
-
 #+name: s-input-test-cond-arrow
 #+begin_quote
 "hello"
@@ -27498,7 +27437,7 @@ clause"))
 
 
 #+header: :stdin s-input-test-cond-arrow
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27523,140 +27462,114 @@ clause"))
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[76d1c30ea27d0934dab9f79012590b8f8bb216a1]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\nclause"))
 ;;; M-Eval value:
-else
-clause
-
+"else\nclause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.6 Implementing let
       CLOSED: [2020-01-22 Wed 17:03]
 
 #+name: s-let-implementation
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (let? exp) (tagged-list? exp 'let))
 
 (define (let-bindings exp)
@@ -27676,12 +27589,12 @@ ok
 #+end_src
 
 #+name: s-let-installation
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (put 'eval 'let (lambda (exp env) (eval (let->combination exp) env)))
 #+end_src
 
 #+name: s-let
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 <<s-let-implementation>>
 <<s-let-installation>>
 #+end_src
@@ -27727,7 +27640,7 @@ clause"))
 
 
 #+header: :stdin s-input-test-let
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -27753,164 +27666,132 @@ clause"))
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[85c75b758fbb619f72c5252254f3bdf1137cc39f]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\nclause"))
 ;;; M-Eval value:
-else
-clause
-
+"else\nclause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.7 Implementing let*
       CLOSED: [2020-01-22 Wed 18:09]
@@ -27918,7 +27799,7 @@ let test3
 I assume that plain ~let~ is already implemented in Exercise 4.6.
 
 #+name: s-let-star-implementation
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 
   (define (let-bindings-first b)
     (car b))
@@ -27939,17 +27820,15 @@ I assume that plain ~let~ is already implemented in Exercise 4.6.
 #+end_src
 
 #+name: s-let-star-installation
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (put 'eval 'let* (lambda (exp env) (eval (let*->nested-lets exp) env)))
 #+end_src
 
 #+name: s-let-star
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 <<s-let-star-implementation>>
 <<s-let-star-installation>>
 #+end_src
-
-
 
 #+name: s-input-test-let-star
 #+begin_quote
@@ -27992,7 +27871,7 @@ clause"))
 #+end_quote
 
 #+header: :stdin s-input-test-let-star
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -28021,177 +27900,145 @@ clause"))
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[982bd0e1a7816623dfdbe1ae9a74fba281a52764]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\nclause"))
 ;;; M-Eval value:
-else
-clause
-
+"else\nclause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Huh. Seems to be working. Why the question then? It seems that
 implementing it as a derived expression is okay...
 
 ***** DONE Exercise 4.8 Implementing named let
       CLOSED: [2020-01-22 Wed 19:50]
+
 #+name: s-let-named
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (is-named-let? exp)
   (if (symbol? (cadr exp))
       #t
@@ -28270,7 +28117,7 @@ clause"))
 #+end_quote
 
 #+header: :stdin s-input-test-let-named
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -28298,179 +28145,144 @@ clause"))
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[be45fde86757541dab13cca8fb1f48c71983afeb]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\nclause"))
 ;;; M-Eval value:
-else
-clause
-
+"else\nclause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.9 Implementing until
       CLOSED: [2020-01-23 Thu 18:06]
@@ -28485,7 +28297,7 @@ procedure is evaluated and if it evaluates to a true (in the sense of
 ~(true?)~) value, the loop is exited.
 
 #+name: s-until
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 
   (define (make-named-let name bindings body)
     (cons 'let (cons name (cons bindings body))))
@@ -28564,10 +28376,10 @@ a
 x
 (exit)
 #+end_quote
-v
+
 
 #+header: :stdin s-input-until
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -28598,199 +28410,164 @@ v
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[b344cc64204b9392ec0da094df5a326204f3a961]:
+#+begin_src shell
 (let loop () (set! x (+ x 1)) (if (not ((lambda () (= x 5)))) (loop) #t))
-
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
-(cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\nclause"))
+(cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
+;;; M-Eval input:
+"fibonacci test"
+;;; M-Eval value:
+"fibonacci test"
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (until (loop (lambda () (= x 5))) (set! x (+ x 1)))
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
 5
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.10 Modifying syntax
       CLOSED: [2020-02-06 Thu 22:08]
@@ -28810,6 +28587,7 @@ quickly modify ~if~ to work like ~unless~.
 (if #t "true" "false")
 (if #f "true" "false")
 (if '() "true" "false")
+;(exit)
 '()
 'test-symbol
 (define a '())
@@ -28852,14 +28630,12 @@ a
 (fib 10)
 (define x 100)
 (define x 0)
-(until (loop (lambda () (= x 5)))
-  (set! x (+ x 1)))
 x
 (exit)
 #+end_quote
 
 #+name: s-input-modifying-syntax-conditionals
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (eval-if exp env)
     (if (true? (eval (if-predicate exp) env))
 	(eval (if-alternative exp) env)
@@ -28867,7 +28643,7 @@ x
 #+end_src
 
 #+header: :stdin s-input-modifying-syntax
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -28890,7 +28666,6 @@ x
 <<s-let-star>>
 <<s-let-named>>
 <<s-until>>
-<<s-modifying-syntax>>
 <<s-glue2>>
 
 
@@ -28898,209 +28673,169 @@ x
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[1e8ccf64b510314b57e08a2d48dac2d927f5c5e3]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 1
-
+"clause 1"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-clause 1
-
+"clause 1"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 0
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
-;;; M-Eval input:
-(until (loop (lambda () (= x 5))) (set! x (+ x 1)))
-;;; M-Eval value:
-#t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
-1
-
+0
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
+
+
 
 **** 4.1.3 Evaluator Data Structures
 ***** Common code for the Evaluator
 #+name: s-truefalse
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (true? v)  (not (false? v)))
   (define (false? v)      (eq? v #f))
 #+end_src
 
 #+name: s-compound-procedures
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (make-procedure parameters body env)
     (list 'procedure parameters body env))
   (define (compound-procedure? p)
@@ -29111,7 +28846,7 @@ x
 #+end_src
 
 #+name: s-environments
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (enclosing-environment env) (cdr env))
      (define (first-frame env) (car env))
      (define the-empty-environment '())
@@ -29239,7 +28974,7 @@ x
 
 
 #+name: s-environments-list-of-bindings
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (enclosing-environment env) (cdr env))
      (define (first-frame env) (car env))
      (define the-empty-environment '())
@@ -29304,7 +29039,7 @@ Note that the :stdin header is the same as in the Exercise [[Exercise 4.9
 Implementing until]].
 
 #+header: :stdin s-input-list-of-bindings
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -29333,199 +29068,160 @@ Implementing until]].
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[1a4e83d176ea8ffa2844a1556cf0cc77bae94cdd]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (until (loop (lambda () (= x 5))) (set! x (+ x 1)))
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
 5
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.12 Better abstractions for setting a value
       CLOSED: [2020-02-11 Tue 19:40]
@@ -29594,7 +29290,7 @@ x
 
 
 #+name: s-environments-list-of-bindings-better-abstractions
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define (enclosing-environment env) (cdr env))
      (define (first-frame env) (car env))
      (define the-empty-environment '())
@@ -29660,7 +29356,7 @@ x
 #+end_src
 
 #+header: :stdin s-input-list-of-bindings-better-abstractions
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -29689,199 +29385,160 @@ x
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[827876439edd639aab088cf0b4d71ed8233dbc3f]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (until (loop (lambda () (= x 5))) (set! x (+ x 1)))
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
 5
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 You can see that in practice we have implemented two abstractions over
 the environment data structure: the function to go through all frames,
@@ -29963,7 +29620,7 @@ y
 #+end_quote
 
 #+name: s-make-unbound
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
     (define (make-unbound-var exp)
       (cadr exp))
     (define (make-unbound! exp env)
@@ -29988,7 +29645,7 @@ y
 
 
 #+header: :stdin s-input-make-unbound
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -30018,220 +29675,178 @@ y
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[06c117a413337c5fe163523b976246f24f8957dc]:
+#+begin_src shell
 ERROR: Unbound variable -- lookup-variable-value: y
-  called from <anonymous> on line 354 of file /tmp/babel-l7AM9d/sh-script-e46Nyr
-  called from driver-loop on line 352 of file /tmp/babel-l7AM9d/sh-script-e46Nyr
-  called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 382 of file /tmp/babel-CuVd5j/sh-script-rnSTfN
+  called from driver-loop on line 380 of file /tmp/babel-CuVd5j/sh-script-rnSTfN
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (until (loop (lambda () (= x 5))) (set! x (+ x 1)))
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
 5
-
 ;;; M-Eval input:
 (make-unbound! x)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define y 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (let ((z 5)) (make-unbound! y))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 y
-#+end_example
+#+end_src
 
 Seems to be working fine.
 
@@ -30260,7 +29875,7 @@ does it for us, and it doesn't echo the characters, so I added a line
 to do it manually.
 
 #+name: s-primitive-procedures
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
      (define primitive-procedures
        (list (list 'car car)
              (list 'cdr cdr)
@@ -30344,7 +29959,7 @@ this in a "literate style", so input is not entered from the keyboard
 it myself.
 
 #+name: s-driver-loop
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define input-prompt ";;; M-Eval input:")
   (define output-prompt ";;; M-Eval value:")
   (define (driver-loop)
@@ -30359,7 +29974,7 @@ it myself.
 #+end_src
 
 #+name: s-user-prompt-print
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (prompt-for-input string)
     (newline) #;(newline) (display string) (newline))
   (define (announce-output string)
@@ -30379,9 +29994,6 @@ it myself.
 
 #+end_src
 
-#+RESULTS: s-primitive-procedures
-: #<undef>
-
 #+name: s-input-test1
 #+begin_quote
 "test
@@ -30389,14 +30001,16 @@ it myself.
 #+end_quote
 
 #+header: :stdin s-input-test1
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme"
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 (import (scheme small))
 (define a (read))
 (display a)
 #+end_src
 
-#+RESULTS:
-: test
+#+RESULTS[67adfd5374eb8532a1ab98c09277a14a50e96d67]:
+#+begin_src shell
+test
+#+end_src
 
 #+NAME: s-input-test2
 #+BEGIN_QUOTE
@@ -30405,18 +30019,20 @@ it myself.
 
 
 #+header: :stdin s-input-test2
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme"
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 (import (scheme small))
 (display "Try evaluate\n")
 (define a (read))
 (eval a)
 #+end_src
 
-#+RESULTS:
-: Try evaluate
+#+RESULTS[9d0c907acbd78eb492b4ded662ca0e4c76ac4253]:
+#+begin_src shell
+Try evaluate
+#+end_src
 
 #+name: s-glue1
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (import (scheme small))
   (import (srfi 159))
   (import (srfi 27))
@@ -30425,7 +30041,7 @@ it myself.
 #+end_src
 
 #+name: s-glue2
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define the-global-environment (setup-environment))
 #+end_src
 
@@ -30440,7 +30056,7 @@ it myself.
 #+END_QUOTE
 
 #+header: :stdin s-input-test3
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<s-eval>>
@@ -30463,19 +30079,21 @@ it myself.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[94984baddeaea353776c4452f8b1ca6b3c8cb98a]:
+#+begin_src shell
+
 ;;; M-Eval input:
 (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
-(append '(a b c) '(d e f))
+(append (quote (a b c)) (quote (d e f)))
 ;;; M-Eval value:
 (a b c d e f)
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
+
 **** 4.1.5 Data as Programs
 ***** DONE Exercise 4.15 The ~halts?~ predicate
       CLOSED: [2020-02-12 Wed 09:24]
@@ -30500,7 +30118,7 @@ constructions in one of the functions written. This is one of the
 features not available during the writing of the SICP.
 
 #+name: s-internal-definitions
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (lookup-variable-value var env)
     (go-through-environment
      env
@@ -30623,7 +30241,7 @@ x
 #+end_quote
 
 #+header: :stdin s-input-internal-definitions
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -30654,229 +30272,184 @@ x
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[5b4285cb5d904f54db0ecbab3c0ff79003bb824e]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (until (loop (lambda () (= x 5))) (set! x (+ x 1)))
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
 5
-
 ;;; M-Eval input:
 (make-unbound! x)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define y 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (let ((z 5)) (make-unbound! y))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (let () (let ((x (quote test))) (quote another-let-test)))
 ;;; M-Eval value:
 another-let-test
-
 ;;; M-Eval input:
 (define (test1) (define (test2) (display "test2") (quote ok2)) (define (test3) (display "test3") (quote ok3)) (test2) (test3))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (test1)test2test3
 ;;; M-Eval value:
 ok3
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Seems to be working. Note that we need to wrap the result of
 ~scan-out-defines~ into a list. (But I don't remember why.)
@@ -30890,7 +30463,7 @@ Without scanning, the bindings are created in the same frame as <vars>.
 #+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
 #+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,matrix,quotes}")
 #+header: :buffer on
-#+begin_src latex :results raw file :exports both :file exercise-3-36.png
+#+begin_src latex :results raw file :exports both :file exercise-4-17-1.png
 \begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=blue!99,
        every node/.style={font=\sffamily,align=left},
        font=\sffamily,pics/two dots/.style={code={
@@ -30911,7 +30484,7 @@ Without scanning, the bindings are created in the same frame as <vars>.
       node distance=4mm]
 
     \node (a-global)  {a:};
-    \node (fake1) [right=50mm of a] {};
+    \node (fake1) [right=50mm of a-global] {};
     \node (g-env) [box, fit=(a-global) (fake1),
     pin={[text width=1cm,pin distance=10mm]left:global env}]
     { };
@@ -30933,8 +30506,8 @@ Without scanning, the bindings are created in the same frame as <vars>.
 \end{tikzpicture}
 #+end_src
 
-#+RESULTS: exercise-4-17-noscan
-[[file:exercise-3-36.png]]
+#+RESULTS[410dc9ad8e24daa633c523f20fc597eec754bc67]: exercise-4-17-noscan
+[[file:exercise-4-17-1.png]]
 
 
 Since scanning expands ~define~'s into a let, and ~let~ expands to a
@@ -30944,7 +30517,7 @@ Since scanning expands ~define~'s into a let, and ~let~ expands to a
 #+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1000
 #+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,matrix,quotes}")
 #+header: :buffer on
-#+begin_src latex :results raw file :exports both :file exercise-4-17.png
+#+begin_src latex :results raw file :exports both :file exercise-4-17-2.png
 \begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=blue!99,
        every node/.style={font=\sffamily,align=left},
        font=\sffamily,pics/two dots/.style={code={
@@ -30965,7 +30538,7 @@ Since scanning expands ~define~'s into a let, and ~let~ expands to a
       node distance=4mm]
 
     \node (a-global)  {a:};
-    \node (fake1) [right=50mm of a] {};
+    \node (fake1) [right=50mm of a-global] {};
     \node (g-env) [box, fit=(a-global) (fake1),
     pin={[text width=1cm,pin distance=10mm]left:global env}]
     { };
@@ -30992,8 +30565,8 @@ Since scanning expands ~define~'s into a let, and ~let~ expands to a
 \end{tikzpicture}
 #+end_src
 
-#+RESULTS: exercise-4-17-scan
-[[file:exercise-3-36.png]]
+#+RESULTS[f390a812cf0a9a255f2c8446cd1e7408a80f9203]: exercise-4-17-scan
+[[file:exercise-4-17-2.png]]
 
 This additional frame shouldn't make a difference because... well, the only
 case when a difference can appear is when a the variables in the two frames
@@ -31015,7 +30588,7 @@ frame in advance.
 Let us write down the rewritten code explicitly.
 
 The text case:
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (lambda (f y0 dt)
   (let ((y '*unassigned*) (dy '*unassigned*))
     (set! y (integral (delay dy) y0 dt))
@@ -31024,7 +30597,7 @@ The text case:
 #+end_src
 
 The exercise case:
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (lambda (f y0 dt)
   (let ((y '*unassigned*) (dy '*unassigned*))
     (let ((a (integral (delay dy) y0 dt)) (b (stream-map f y)))
@@ -31045,7 +30618,7 @@ initialised to a correct value before ~stream-map~ is executed.
 
 Let's first check what the scheme used for this document does.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (let ((a 1))
     (define (f x)
       (define b (+ a x))
@@ -31054,25 +30627,25 @@ Let's first check what the scheme used for this document does.
     (f 10))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[c1d34683d09485a06ed7de92355d5e19f931818c]:
+#+begin_src scheme
 
-Output (exception): {Exception #19 type "invalid type, expected Number" (#<undef>) #<procedure f> (#f . 4)}
+Output (exception): {Exception #19 type "invalid type, expected Number" (#<undef>) #<procedure f> (#f . 4)} 
 Stack trace:
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 1202 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 1206 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
   called from f on line 4
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-  called from call-with-current-continuation on line 840 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+  called from call-with-current-continuation on line 844 of file /usr/lib64/chibi/init-7.scm
   called from geiser:eval on line 25 of file /usr/lib64/chibi/scheme/misc-macros.scm
-#+end_example
+#+end_src
 
 So in this example we see that the scheme behaves the way MIT scheme behaves.
 
@@ -31092,8 +30665,9 @@ have not defines left, or until the set of defines stops decreasing.
 ***** DONE Exercise 4.20 letrec
       CLOSED: [2020-02-13 Thu 00:49]
 ****** a Implementation
+
 #+name: s-letrec
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (letrec-bindings exp)
     (cadr exp))
   (define (letrec-names exp)
@@ -31192,7 +30766,7 @@ x
 #+end_quote
 
 #+header: :stdin s-input-letrec
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-apply>>
 <<put-and-get>>
@@ -31224,239 +30798,193 @@ x
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[1e5e9f3377ba0c47857eec02d636d87334733d7e]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (and #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (or #t #f)
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 (or #f #f)
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
-testing cond with arrow
+"testing cond with arrow"
 ;;; M-Eval value:
-testing cond with arrow
-
+"testing cond with arrow"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (cond ((assoc (quote b) (quote ((a 1) (b 2)))) => cadr) (else false))
 ;;; M-Eval value:
 2
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
 (let* ((a 1) (b (cons a 1))) b)
 ;;; M-Eval value:
 (1 . 1)
-
 ;;; M-Eval input:
 (define (fib n) (let fib-iter ((a 1) (b 0) (count n)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (fib 10)
 ;;; M-Eval value:
 55
-
 ;;; M-Eval input:
 (define x 100)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define x 0)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (until (loop (lambda () (= x 5))) (set! x (+ x 1)))
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 x
 ;;; M-Eval value:
 5
-
 ;;; M-Eval input:
 (make-unbound! x)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (define y 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (let ((z 5)) (make-unbound! y))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (let () (let ((x (quote test))) (quote another-let-test)))
 ;;; M-Eval value:
 another-let-test
-
 ;;; M-Eval input:
 (define (test1) (define (test2) (display "test2") (quote ok2)) (define (test3) (display "test3") (quote ok3)) (test2) (test3))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (test1)test2test3
 ;;; M-Eval value:
 ok3
-
 ;;; M-Eval input:
 (letrec ((fact (lambda (n) (if (= n 1) 1 (* n (fact (- n 1))))))) (fact 10))
 ;;; M-Eval value:
 3628800
-
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 ****** b Environment
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define (f x)
     (let ((even?
 	      (lambda (n)
@@ -31472,8 +31000,10 @@ ok3
   (display (f 5))
 #+end_src
 
-#+RESULTS:
-: #t
+#+RESULTS[0c0fd224cffa4a1f02b6a2a0bba844325713f41a]:
+#+begin_src scheme
+#t
+#+end_src
 
 This actually shouldn't be working. Perhaps, it works because ~let~ in the
 underlying scheme is not implemented as straightforwardly as we did.
@@ -31503,7 +31033,7 @@ underlying scheme is not implemented as straightforwardly as we did.
       node distance=4mm]
 
     \node (f-global)  {f:};
-    \node (fake1) [right=150mm of f] {};
+    \node (fake1) [right=150mm of f-global] {};
     \node (g-env) [box, fit=(f-global) (fake1),
     pin={[text width=1cm,pin distance=10mm]left:global env}]
     { };
@@ -31545,10 +31075,8 @@ underlying scheme is not implemented as straightforwardly as we did.
 \end{tikzpicture}
 #+end_src
 
-#+RESULTS: exercise-4-20-letrec
-[[file:exercise-4-20.png]]
-The two procedures ~even?~ and ~odd?~ are created while evaluating ~set!~,
-and therefore have access to the frame with each other's bindings.
+#+RESULTS[1d1c1bf46670f7c206884252f091c729761d1fe4]: exercise-4-20-letrec
+[[file:exercise-4-20-letrec.png]]
 
 
 #+name: exercise-4-20-let
@@ -31576,7 +31104,7 @@ and therefore have access to the frame with each other's bindings.
       node distance=4mm]
 
     \node (f-global)  {f:};
-    \node (fake1) [right=150mm of f] {};
+    \node (fake1) [right=150mm of f-global] {};
     \node (g-env) [box, fit=(f-global) (fake1),
     pin={[text width=1cm,pin distance=10mm]left:global env}]{ };
 
@@ -31622,11 +31150,10 @@ and therefore have access to the frame with each other's bindings.
                           ($ (odd-c.center) + (5mm,0) $)
       (odd-right.center) edge[->] (call-to-f.south -| odd-right.center);
 
-
 \end{tikzpicture}
 #+end_src
 
-#+RESULTS: exercise-4-20-let
+#+RESULTS[6f0e73a47c4c29bf1a2bbf9b1035187cd8e50e31]: exercise-4-20-let
 [[file:exercise-4-20-let.png]]
 
 ~even?~ and ~odd?~ are created outside of the let's lambda expression, and
@@ -31636,21 +31163,23 @@ that is why they cannot access each other's bindings.
       CLOSED: [2020-02-13 Thu 01:07]
 ****** a Evaluating the Y combinator
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
   ((lambda (n)
      ((lambda (fact) (fact fact n))
       (lambda (ft k) (if (= k 1) 1 (* k (ft ft (- k 1)))))))
    10)
 #+end_src
 
-#+RESULTS:
-: 3628800
+#+RESULTS[c166d51829357dd1c9381a0db2902da6045d3526]:
+#+begin_src scheme
+3628800
+#+end_src
 
 Seems to be working indeed.
 
 ****** b Implementing ~even?~ and ~odd?~
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 (define true #t)
 (define false #f)
   (define (f x)
@@ -31662,8 +31191,10 @@ Seems to be working indeed.
   (f 6)
 #+end_src
 
-#+RESULTS:
-: #t
+#+RESULTS[867a7180c1c5356758922bca2484201ff32133ef]:
+#+begin_src scheme
+#t
+#+end_src
 
 This task is very easy. Since we don't have the actual frame to put our
 bindings, we need to throw them down with every call.
@@ -31672,7 +31203,7 @@ bindings, we need to throw them down with every call.
 ***** Common analysis code
 
 #+name: s-analyze-eval
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (eval exp env) ((analyze exp) env))
   (define (analyze exp)
     (cond ((self-evaluating? exp) (analyze-self-evaluating exp))
@@ -31690,7 +31221,7 @@ bindings, we need to throw them down with every call.
 #+end_src
 
 #+name: s-analyze-expressions
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (analyze-self-evaluating exp)
     (lambda (env) exp))
   (define (analyze-quoted exp)
@@ -31729,7 +31260,7 @@ function. However, it may be an interesting exercise to implement a
 right-to-left analysis of the arguments.
 
 #+name: s-analyze-sequence
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (analyze-sequence exps)
     (define (sequentially proc1 proc2)
       (lambda (env) (proc1 env) (proc2 env)))
@@ -31744,7 +31275,7 @@ right-to-left analysis of the arguments.
 #+end_src
 
 #+name: s-analyze-execute
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (analyze-application exp)
     (let ((fproc (analyze (operator exp)))
 	  (aprocs (map analyze (operands exp))))
@@ -31849,7 +31380,7 @@ x
 
 
 #+header: :stdin s-input-analyze
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-list-of-values-left-to-right>>
 <<s-analyze-eval>>
@@ -31871,106 +31402,87 @@ x
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[a0c54f205dc8509ba55bc9809d05aec240167b9b]:
+#+begin_src shell
 ERROR: Unbound variable -- lookup-variable-value: and
-  called from <anonymous> on line 73 of file /tmp/babel-l7AM9d/sh-script-ZV0H1j
-  called from <anonymous> on line 335 of file /tmp/babel-l7AM9d/sh-script-ZV0H1j
-  called from driver-loop on line 333 of file /tmp/babel-l7AM9d/sh-script-ZV0H1j
-  called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 73 of file /tmp/babel-CuVd5j/sh-script-ZdUOxr
+  called from <anonymous> on line 362 of file /tmp/babel-CuVd5j/sh-script-ZdUOxr
+  called from driver-loop on line 360 of file /tmp/babel-CuVd5j/sh-script-ZdUOxr
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (and #t #f)
-#+end_example
+#+end_src
 
 This seems to be good enough. We will only need the analyzing
 evaluator for the next three exercises, since the lazy part uses the
@@ -31984,7 +31496,7 @@ Since the analysis is not data-driven, and we don't need to implement
 a lot of special forms, let us just modify the ~analyze~ a little.
 
 #+name: s-analyze-eval-with-let
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (eval exp env) ((analyze exp) env))
   (define (analyze exp)
     (cond ((self-evaluating? exp) (analyze-self-evaluating exp))
@@ -32001,8 +31513,6 @@ a lot of special forms, let us just modify the ~analyze~ a little.
 	  (else (error "Unknown expression type: ANALYZE" exp))))
 
 #+end_src
-
-
 
 #+name: s-input-analyze-let
 #+begin_quote
@@ -32055,7 +31565,7 @@ a
 
 
 #+header: :stdin s-input-analyze-let
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<s-list-of-values-left-to-right>>
 <<s-analyze-eval-with-let>>
@@ -32078,139 +31588,112 @@ a
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[fe2b4658eb0873b63c2ef05da1f82c9338903850]:
+#+begin_src shell
 
 ;;; M-Eval input:
-hello
+"hello"
 ;;; M-Eval value:
-hello
-
+"hello"
 ;;; M-Eval input:
 1
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 #t
 ;;; M-Eval value:
 #t
-
 ;;; M-Eval input:
 #f
 ;;; M-Eval value:
 #f
-
 ;;; M-Eval input:
 (if #t "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (if #f "true" "false")
 ;;; M-Eval value:
-false
-
+"false"
 ;;; M-Eval input:
 (if (quote ()) "true" "false")
 ;;; M-Eval value:
-true
-
+"true"
 ;;; M-Eval input:
 (quote ())
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (quote test-symbol)
 ;;; M-Eval value:
 test-symbol
-
 ;;; M-Eval input:
 (define a (quote ()))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 ()
-
 ;;; M-Eval input:
 (set! a 1)
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 a
 ;;; M-Eval value:
 1
-
 ;;; M-Eval input:
 (define b (lambda (x) (display "test-lambda\n")))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
 (begin "One" (if "" "two" (quote ())) "end begin")
 ;;; M-Eval value:
-end begin
-
+"end begin"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#t "clause 3") (else "else clause"))
 ;;; M-Eval value:
-clause 3
-
+"clause 3"
 ;;; M-Eval input:
 (cond (#f "clause 1") (#f (quote clause2)) (#f "clause 3") (else "else\n      clause"))
 ;;; M-Eval value:
-else
-      clause
-
+"else\n      clause"
 ;;; M-Eval input:
 (define cadr (lambda (x) (car (cdr x))))
 ;;; M-Eval value:
 ok
-
 ;;; M-Eval input:
-let test1
+"let test1"
 ;;; M-Eval value:
-let test1
-
+"let test1"
 ;;; M-Eval input:
 (let () "Let1")
 ;;; M-Eval value:
-Let1
-
+"Let1"
 ;;; M-Eval input:
-let test2
+"let test2"
 ;;; M-Eval value:
-let test2
-
+"let test2"
 ;;; M-Eval input:
 (let ((a "Let2")) a)
 ;;; M-Eval value:
-Let2
-
+"Let2"
 ;;; M-Eval input:
-let test3
+"let test3"
 ;;; M-Eval value:
-let test3
-
+"let test3"
 ;;; M-Eval input:
 (let ((a "Let2") (b "Let3")) a (cons a b))
 ;;; M-Eval value:
 ("Let2" . "Let3")
-
 ;;; M-Eval input:
-(let) testing finished
+"(let) testing finished"
 ;;; M-Eval value:
-(let) testing finished
-
+"(let) testing finished"
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** DONE Exercise 4.23 Analysing sequences
       CLOSED: [2020-02-14 Fri 19:40]
@@ -32220,7 +31703,7 @@ procedure body.
 
 Let's have a look at the following procedure:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (a) (display "hello\n") (a))
 #+end_src
 
@@ -32260,7 +31743,7 @@ different interpreters.
 
 #+header: :stdin s-input-analyze-time
 #+name: analyzing-speed-test
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
   <<s-glue1>>
   <<s-list-of-values-left-to-right>>
   <<s-analyze-eval-with-let>>
@@ -32283,60 +31766,52 @@ different interpreters.
 
 #+end_src
 
-#+RESULTS: analyzing-speed-test
-#+begin_example
+#+RESULTS[98a045c41aab846bcec8e911a35b47241a660500]: analyzing-speed-test
+#+begin_src shell
+
 ;;; M-Eval input:
 "starting testing"
-
 ;;; M-Eval value:
 "starting testing"
 ;;; M-Eval input:
 (define (fact a b) (if (= a 1) b (fact (- a 1) (* a b))))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (define starttime (current-second))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (define useless (fact 100 1))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (- (current-second) starttime)
-
 ;;; M-Eval value:
-0.017518043518066406
+0.01746201515197754
 ;;; M-Eval input:
-(define (simple-rec ntimes) (if (= ntimes 1) 'ok (simple-rec (- ntimes 1))))
-
+(define (simple-rec ntimes) (if (= ntimes 1) (quote ok) (simple-rec (- ntimes 1))))
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (define starttime (current-second))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (simple-rec 100000)
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (- (current-second) starttime)
-
 ;;; M-Eval value:
-3.294917106628418
+6.798648118972778
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 #+header: :stdin s-input-analyze-time
 #+name: original-speed-test
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
   <<s-glue1>>
   <<s-apply>>
   <<put-and-get>>
@@ -32368,56 +31843,48 @@ ok
 
 #+end_src
 
-#+RESULTS: original-speed-test
-#+begin_example
+#+RESULTS[9e165c9448854eb6d5d5396abcd52c35376c221c]: original-speed-test
+#+begin_src shell
+
 ;;; M-Eval input:
 "starting testing"
-
 ;;; M-Eval value:
 "starting testing"
 ;;; M-Eval input:
 (define (fact a b) (if (= a 1) b (fact (- a 1) (* a b))))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (define starttime (current-second))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (define useless (fact 100 1))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (- (current-second) starttime)
-
 ;;; M-Eval value:
-0.021461009979248047
+0.009572029113769531
 ;;; M-Eval input:
-(define (simple-rec ntimes) (if (= ntimes 1) 'ok (simple-rec (- ntimes 1))))
-
+(define (simple-rec ntimes) (if (= ntimes 1) (quote ok) (simple-rec (- ntimes 1))))
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (define starttime (current-second))
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (simple-rec 100000)
-
 ;;; M-Eval value:
 ok
 ;;; M-Eval input:
 (- (current-second) starttime)
-
 ;;; M-Eval value:
-7.133991956710815
+9.47352409362793
 ;;; M-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 
@@ -32431,7 +31898,7 @@ check and one subtraction.
 ***** DONE Exercise 4.25 lazy factorial
       CLOSED: [2020-02-14 Fri 21:01]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define (unless condition usual-value exceptional-value)
   (if condition exceptional-value usual-value))
 
@@ -32442,14 +31909,16 @@ check and one subtraction.
 (show #t (factorial 10) "\n")
 #+end_src
 
-#+RESULTS:
-: ERROR: out of stack space
-: >
+#+RESULTS[67d3ebfdc06cdb9e0a91b3e23de2b6e193f25dd0]:
+#+begin_src scheme
+ERROR: out of stack space
+> 
+#+end_src
 
 This is logical, since ~factorial~ is entered indefinitely with
 decreasing ~n~, and has no chance to stop.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define (unless condition usual-value exceptional-value)
   (if (force condition) (force exceptional-value) (force usual-value)))
 
@@ -32460,8 +31929,10 @@ decreasing ~n~, and has no chance to stop.
 (show #t (factorial 10) "\n")
 #+end_src
 
-#+RESULTS:
-: 3628800
+#+RESULTS[6c5fdead1ae6af2526bdb31dd83d4a767b9b38e0]:
+#+begin_src scheme
+3628800
+#+end_src
 
 Seems to be working.
 
@@ -32480,7 +31951,7 @@ special form, indeed. And in this case, instead of deconstructing the
 form myself and feeding it into an ~eval~, I will implement ~unless~
 as a macro.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define-syntax unless
   (syntax-rules ()
     ((unless cond unexpected expected) (if cond expected unexpected))))
@@ -32490,15 +31961,17 @@ as a macro.
 
 #+end_src
 
-#+RESULTS:
-: if works
-: unless works
+#+RESULTS[ff44fe26d4029d1a828ec3a57f156461b071a335]:
+#+begin_src scheme
+if works
+unless works
+#+end_src
 
 **** 4.2.2 An Interpreter with Lazy Evaluation
 ***** Common code
 
 #+name: s-lazy-eval-implementation
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (eval . o) (display "in the wrong eval"))
   (define (special-form-maybe exp) (if (and (pair? exp) (symbol? (car exp)))
 			      (get 'eval (car exp))
@@ -32516,7 +31989,7 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-eval-installation
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (put 'eval 'quote (lambda (exp env) (text-of-quotation exp)))
   (put 'eval 'set! (lambda (exp env) (eval-assignment exp env)))
   (put 'eval 'define (lambda (exp env) (eval-definition exp env)))
@@ -32531,20 +32004,20 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-eval
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 <<s-lazy-eval-implementation>>
 <<s-lazy-eval-installation>>
 #+end_src
 
 #+name: s-lazy-actual-value
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (actual-value exp env)
     (force-it (eval exp env)))
 
 #+end_src
 
 #+name: s-lazy-apply
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (apply procedure arguments env)
     (cond ((primitive-procedure? procedure)
 	   (apply-primitive-procedure
@@ -32576,7 +32049,7 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-if
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (eval-if exp env)
     (if (true? (actual-value (if-predicate exp) env))
 	(eval (if-consequent exp) env)
@@ -32584,7 +32057,7 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-driver-loop
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define input-prompt ";;; L-Eval input:")
   (define output-prompt ";;; L-Eval value:")
   (define (driver-loop)
@@ -32610,7 +32083,7 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-thunks
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 
   (define (delay-it exp env)
     (list 'thunk exp env))
@@ -32626,7 +32099,7 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-force-it-memoizing
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (force-it obj)
     (cond ((thunk? obj)
 	   (let ((result (actual-value (thunk-exp obj)
@@ -32642,7 +32115,7 @@ as a macro.
 #+end_src
 
 #+name: s-lazy-force-it-nonmemoizing
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (force-it obj)
     (cond ((thunk? obj)
 	   (let ((result (actual-value (thunk-exp obj)
@@ -32665,7 +32138,7 @@ this doesn't fit our purpose.
 #+end_quote
 
 #+header: :stdin s-lazy-input-test1
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -32693,26 +32166,22 @@ this doesn't fit our purpose.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[cbffed4a59e5e9b956a7a1e50c11acdb21d5a4eb]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (try a b) (if (= a 0) 1 b))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (try 0 (/ 1 0))
 ;;; L-Eval value:
 1
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 #+header: :stdin s-lazy-input-test1
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -32740,23 +32209,19 @@ ok
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[c93394678e039c5fc086dd0b6ef92d8a3ce4a1b5]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (try a b) (if (= a 0) 1 b))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (try 0 (/ 1 0))
 ;;; L-Eval value:
 1
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 Looks like at least the basic interpretation is working.
@@ -32780,7 +32245,7 @@ count
 #+end_quote
 
 #+header: :stdin s-lazy-input-4-27
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -32808,53 +32273,43 @@ count
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[cbf62fdf8259c230d9965b0cfb76b83c85d9881f]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (try a b) (if (= a 0) 1 b))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (try 0 (/ 1 0))
 ;;; L-Eval value:
 1
-
 ;;; L-Eval input:
 (define count 0)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (id x) (set! count (+ count 1)) x)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define w (id (id 10)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 count
 ;;; L-Eval value:
 1
-
 ;;; L-Eval input:
 w
 ;;; L-Eval value:
 10
-
 ;;; L-Eval input:
 count
 ;;; L-Eval value:
 2
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Explanation: ~count~ counts the number of times that ~id~ gets
 evaluated. ~id~ itself does nothing, so no matter how many times we
@@ -32893,7 +32348,7 @@ the sequence of operations (a compound procedure) or a primitive procedure.
 #+end_quote
 
 #+header: :stdin s-lazy-input-memo-slow
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -32921,47 +32376,39 @@ the sequence of operations (a compound procedure) or a primitive procedure.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[79220d6bc99f771cae866d1538013b140ba64d12]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (f x) (* x x))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define g (f (f 5)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (loop n state) (if (= n 0) state (loop (- n 1) (+ state g))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define starttime (current-second))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (loop 100 0)
 ;;; L-Eval value:
 62500
-
 ;;; L-Eval input:
 (- (current-second) starttime)
 ;;; L-Eval value:
-0.013883113861083984
-
+0.022387981414794922
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 #+header: :stdin s-lazy-input-memo-slow
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -32989,43 +32436,35 @@ ok
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[3da015d16180f5b3642b1a289b47f7e6cb6bc79a]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (f x) (* x x))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define g (f (f 5)))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (loop n state) (if (= n 0) state (loop (- n 1) (+ state g))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define starttime (current-second))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (loop 100 0)
 ;;; L-Eval value:
 62500
-
 ;;; L-Eval input:
 (- (current-second) starttime)
 ;;; L-Eval value:
-0.1923069953918457
-
+0.37328100204467773
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 An impressive difference!
 
@@ -33050,7 +32489,7 @@ count
 #+end_quote
 
 #+header: :stdin s-lazy-input-memoization
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33078,41 +32517,34 @@ count
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[6e231b8a1805e454860bbeaa665c906e42051727]:
+#+begin_src shell
 ;;; L-Eval input:
 (define count 0)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (id x) (set! count (+ count 1)) x)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (square x) (* x x))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (square (id 10))
 ;;; L-Eval value:
 100
-
 ;;; L-Eval input:
 count
 ;;; L-Eval value:
 1
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 #+header: :stdin s-lazy-input-memoization
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33140,38 +32572,31 @@ count
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[6bff042c04544121a685bab80b3674390d184a18]:
+#+begin_src shell
 ;;; L-Eval input:
 (define count 0)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (id x) (set! count (+ count 1)) x)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (define (square x) (* x x))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (square (id 10))
 ;;; L-Eval value:
 100
-
 ;;; L-Eval input:
 count
 ;;; L-Eval value:
 2
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 This is quite obvious. ~x~ is a thunk, and it is forced either once
 (the memoizing case) or twice (nonmemoizing case).
@@ -33180,7 +32605,7 @@ This is quite obvious. ~x~ is a thunk, and it is forced either once
       CLOSED: [2020-02-15 Sat 21:32]
 
 #+name: s-sequences-lazy-eager
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (eval-sequence exps env)
     (cond ((last-exp? exps) (eval (first-exp exps) env))
 	  (else (actual-value (first-exp exps) env)
@@ -33208,7 +32633,7 @@ right, it doesn't eliminate Cy's concern.
 #+end_quote
 
 #+header: :stdin s-lazy-input-for-each
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33236,26 +32661,25 @@ right, it doesn't eliminate Cy's concern.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[305187ea7ebe5ae4e8f38397d32dfd5d268087ff]:
+#+begin_src shell
 ;;; L-Eval input:
-(define (for-each proc items) (if (null? items) (quote done) (begin (proc (car items)) (for-each proc (cdr items)))))
+(define (for-each proc items)
+  (if (null? items)
+      'done
+      (begin (proc (car items)) (for-each proc (cdr items)))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (for-each (lambda (x) (newline) (display x)) (list 57 321 88))
+
 57
 321
-88
-;;; L-Eval value:
+88;;; L-Eval value:
 done
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 ****** b Cy's example
@@ -33276,7 +32700,7 @@ done
 #+end_quote
 
 #+header: :stdin s-lazy-input-cy-example
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33303,36 +32727,30 @@ done
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[f6296d19d1ada83dd5ddc5516f77cbe771689aae]:
+#+begin_src shell
 ;;; L-Eval input:
-(define (p1 x) (set! x (cons x (quote (2)))) x)
+(define (p1 x) (set! x (cons x '(2))) x)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (p2 x) (define (p e) e x) (p (set! x (cons x (quote (2))))))
+(define (p2 x) (define (p e) e x) (p (set! x (cons x '(2)))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (p1 1)
 ;;; L-Eval value:
 (1 2)
-
 ;;; L-Eval input:
 (p2 1)
 ;;; L-Eval value:
 1
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 #+header: :stdin s-lazy-input-cy-example
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33359,33 +32777,27 @@ ok
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-
+#+RESULTS[94bc7728a056d632f6e4b3c2bf2593276ddf7da2]:
+#+begin_src shell
 ;;; L-Eval input:
-(define (p1 x) (set! x (cons x (quote (2)))) x)
+(define (p1 x) (set! x (cons x '(2))) x)
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
-(define (p2 x) (define (p e) e x) (p (set! x (cons x (quote (2))))))
+(define (p2 x) (define (p e) e x) (p (set! x (cons x '(2)))))
 ;;; L-Eval value:
 ok
-
 ;;; L-Eval input:
 (p1 1)
 ;;; L-Eval value:
 (1 2)
-
 ;;; L-Eval input:
 (p2 1)
 ;;; L-Eval value:
 (1 2)
-
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Indeed, Cy is right! In the truly lazy interpreter, every element but
 last in every sequence is not guaranteed to be evaluated, because it's
@@ -33439,7 +32851,7 @@ c)rewrite define
 d)rewrite actual-value
 
 #+name: s-compound-procedures-semilazy
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports code :results none
   (define (make-procedure parameters body env)
       (define (parameter-laziness p)
          (if (pair? p)
@@ -33463,7 +32875,7 @@ d)rewrite actual-value
 #+end_src
 
 #+name: s-lazy-apply-semilazy
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (apply procedure arguments env)
     (cond ((primitive-procedure? procedure)
 	   (apply-primitive-procedure
@@ -33510,7 +32922,7 @@ d)rewrite actual-value
 #+end_src
 
 #+name: s-lazy-thunks-semilazy
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (delay-it exp env)
     (list 'thunk exp env))
   (define (delay-it-nonmemo exp env)
@@ -33567,7 +32979,7 @@ d)rewrite actual-value
 
 
 #+header: :stdin s-lazy-input-semilazy
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports code
 <<s-glue1>>
 <<put-and-get>>
 <<s-lazy-eval-implementation>>
@@ -33592,8 +33004,8 @@ d)rewrite actual-value
 (driver-loop)
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[876fd0c913d5327112316e623638a2c971959e5b]:
+#+begin_src shell
 ;;; L-Eval input:
 (define (f a (b lazy) c (d lazy-memo))
   (newline)
@@ -33625,7 +33037,7 @@ d
 ok
 ;;; L-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Seems to be working like charm. I feel myself immensely proud.
 
