@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-27 12:08:29 lockywolf>
+# Time-stamp: <2020-05-27 14:14:45 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -45,7 +45,7 @@
        "-m" "chibi process"
        "-m" "scheme list"
        "-m" "srfi 18"))
-  (setq geiser-connection-timeout 60000)
+  (setq geiser-connection-timeout 120000)
 #+end_src
 
 #+RESULTS[4b09abc1e048c56020004a5a0ac6b595766a9d38]:
@@ -24703,7 +24703,7 @@ Also seems to be working fine.
 *** DONE Exercise 3.48 serialized-exchange deadlock
     CLOSED: [2020-01-03 Fri 13:30]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (make-account-and-serializer balance)
     (define (withdraw amount)
       (if (>= balance amount)
@@ -24742,7 +24742,7 @@ Also seems to be working fine.
 
 The following code will thus get stuck in a deadlock:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define a1 (make-account-and-serializer 20))
 (define a2 (make-account-and-serializer 30))
 
@@ -24751,9 +24751,10 @@ The following code will thus get stuck in a deadlock:
   (lambda () (serialized-exchange a2 a1)))
 #+end_src
 
+
 We add serial numbers to resources:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
     <<make-serializer>>
     <<parallel-execute>>
     (define (make-account-and-serializer balance serial)
@@ -24807,9 +24808,11 @@ We add serial numbers to resources:
 (show #t "Balance end: " (a1 'balance) " " (a2 'balance) "\n")
 #+end_src
 
-#+RESULTS:
-: Balance start: 20 30
-: Balance end: 20 30
+#+RESULTS[93c5ac33a97be8258101f856c3ffdabe9d609b94]:
+#+begin_src scheme
+Balance start: 20 30
+Balance end: 20 30
+#+end_src
 
 Exchange seems to go fine.
 
@@ -24830,8 +24833,9 @@ We could, however, unlock a1, lock a2, then lock a1 again, and check
 that the pending transaction from a1 to a2 is still needed.
 
 *** Streams common
+
 #+name: streams-common
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define-syntax cons-stream
     (syntax-rules ()
       ((cons-stream a b) (cons a (delay b)))))
@@ -24877,7 +24881,7 @@ that the pending transaction from a1 to a2 is still needed.
 
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 (display (cons-stream 2 3))
 (newline)
@@ -24888,13 +24892,14 @@ that the pending transaction from a1 to a2 is still needed.
 (display-stream (cons-stream 2 (cons-stream 3 the-empty-stream)))
 #+end_src
 
-#+RESULTS:
-: (2 (#f . #<procedure #f>) promise)
-: 2
-: 3
-:
-: 2
-: 3
+#+RESULTS[4a3dd4d5a27998b632ca2c029cbdcd3c43e2087c]:
+#+begin_src scheme
+(2 (#f . #<procedure #f>) promise)
+2
+3
+2
+3
+#+end_src
 
 NOTE: As far as I understand, ~(delay)~ and ~(force)~ are using
 memoization inside by default in R^7 RS, so we needn't care about it
@@ -24902,8 +24907,9 @@ ourselves.
 
 *** DONE Exercise 3.50 stream-map multiple arguments
     CLOSED: [2020-01-03 Fri 21:18]
+
 #+name: streams-multimap
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (stream-map proc . argstreams)
     (if (stream-null? (car argstreams))
 	the-empty-stream
@@ -24914,26 +24920,25 @@ ourselves.
 
 #+end_src
 
-#+RESULTS:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 (display-stream (stream-map list (cons-stream 'one the-empty-stream)
                                  (cons-stream 'two the-empty-stream)))
-
 #+end_src
 
-#+RESULTS:
-:
-: (one two)
+#+RESULTS[4a24a883cf9ffe32952f54938ac5c4041e612321]:
+#+begin_src scheme
+(one two)
+#+end_src
 
 Apparently, works.
 
 *** DONE Exercise 3.51 stream-show
     CLOSED: [2020-01-03 Fri 21:28]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   (define (show x)
     (display-line x)
@@ -24945,19 +24950,18 @@ Apparently, works.
   (stream-ref x 7)
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
+#+RESULTS[6e8ca163b7ab982c8aaa1fdbd1a0d18ec3f7ee3f]:
+#+begin_src scheme
 0
 1
 2
 3
 4
 5
-next call to stream-ref:
-6
+
+next call to stream-ref:6
 7
-#+end_example
+#+end_src
 
 Why does it only print 6 and 7 on the second call? The answer is --
 memoization. Since ~force~ already knows the result of calls to
@@ -24966,7 +24970,7 @@ memoization. Since ~force~ already knows the result of calls to
 *** DONE Exercise 3.52 streams with mind-boggling
     CLOSED: [2020-01-03 Fri 22:17]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
   (define sum 0)
   (show #t "debug1: " sum "\n")
@@ -24987,15 +24991,14 @@ memoization. Since ~force~ already knows the result of calls to
   (show #t "\ndebug7: " sum "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[c90cc2d0a15697e54610829190a47f405080472d]:
+#+begin_src scheme
 debug1: 0
 debug2: 0
-debug3: 1
-debug4: 6
-debug5: 10
-debug6: 136
-
+debug3 (stream-map forces a stream once): 1
+debug4 1+2+3: 6
+debug5 adds 4, as all lower are already evaluated: 10
+debug6 adds sums that are even up to 20: 136
 10
 15
 45
@@ -25004,10 +25007,11 @@ debug6: 136
 120
 190
 210
-debug7: 210
-#+end_example
 
-#+begin_src scheme :exports both :results output
+debug7: 210
+#+end_src
+
+#+begin_src scheme :exports both :results output scalar code
 (define delay #f)
 (define force #f)
 (define-syntax delay
@@ -25034,21 +25038,21 @@ debug7: 210
   (show #t "\ndebug7: " sum "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[785ab156cc90e363ea13020c699ee7af94943144]:
+#+begin_src scheme
 debug1: 0
 debug2: 0
 debug3: 1
 debug4: 6
 debug5: 15
 debug6: 162
-
 15
 180
 230
 305
+
 debug7: 362
-#+end_example
+#+end_src
 
 The difference here, again, lies in memoization. In the first example,
 sum is only evaluated once for every number from 1 to 20, in the
@@ -25059,8 +25063,9 @@ but the general rule seems to be: don't use mutation together with
 lazy lists.
 
 *** Some more tools for streams
+
 #+name: streams-2
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (add-streams s1 s2)
     (stream-map + s1 s2))
   (define ones (cons-stream 1 ones))
@@ -25077,7 +25082,7 @@ Before running the code, I make a hypothesis that the stream
 represents powers of two, because each element is the previous one,
 doubled.
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25085,19 +25090,21 @@ doubled.
 (stream-ref s 6)
 #+end_src
 
-#+RESULTS:
-: 64
+#+RESULTS[1081db5f83335b36e26b0c366bd6acbae6a5f309]:
+#+begin_src scheme
+64
+#+end_src
 
 *** DONE Exercise 3.54 mul-streams
     CLOSED: [2020-01-03 Fri 22:47]
 
 #+name: streams-mul
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (mul-streams s1 s2)
     (stream-map * s1 s2))
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25107,19 +25114,22 @@ doubled.
 (stream-ref factorials 5)
 #+end_src
 
-#+RESULTS:
-: 120
+#+RESULTS[c47872b7676506593a60efe121f5156f7a11b110]:
+#+begin_src scheme
+120
+#+end_src
 
 *** DONE Exercise 3.55 streams partial-sums
     CLOSED: [2020-01-03 Fri 23:05]
+
 #+name: streams-partial-sums
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (partial-sums s)
   (define ps (cons-stream (stream-car s) (add-streams ps (stream-cdr s))))
   ps)
 #+end_src
 
-#+begin_src scheme :exports both :results output value
+#+begin_src scheme :exports both :results value scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25133,14 +25143,16 @@ doubled.
 
 #+end_src
 
-#+RESULTS:
-| 1 | 3 | 6 | 10 | 15 |
+#+RESULTS[0df2a1ede3b798ce55755b735ac4eb75db5c99b6]:
+#+begin_src scheme
+(1 3 6 10 15)
+#+end_src
 
 *** DONE Exercise 3.56 Hamming's streams-merge
     CLOSED: [2020-01-03 Fri 23:26]
 
 #+name: streams-merge
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
           (define (merge s1 s2)
             (cond ((stream-null? s1) s2)
                   ((stream-null? s2) s1)
@@ -25158,7 +25170,7 @@ doubled.
 
 #+end_src
 
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25169,15 +25181,17 @@ doubled.
 (stream-ref S 5)
 #+end_src
 
-#+RESULTS:
-: 6
+#+RESULTS[81590ef8b3fa955760d28e89d02450ecc4dd4483]:
+#+begin_src scheme
+6
+#+end_src
 
 *** DONE Exercise 3.57 exponential additions fibs
     CLOSED: [2020-01-03 Fri 23:36]
 
 The definition of ~fibs~ is the following:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define fibs
     (cons-stream 0
 		 (cons-stream 1
@@ -25199,7 +25213,7 @@ operations. Thus the total number would be \(O(2^n)\).
 This cryptic stream approximates a rational fraction by a decimal
 (radix) one.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   (define (expand num den radix)
     (cons-stream
@@ -25218,18 +25232,22 @@ This cryptic stream approximates a rational fraction by a decimal
 
 #+end_src
 
-#+RESULTS:
-: 14285
-: 0.14285714285714285
-: 37500
-: 0.375
+#+RESULTS[d05efe05e0b0beaf4f1495e10bb087f2249bdbeb]:
+#+begin_src scheme
+14285
+0.14285714285714285
+37500
+0.375
+#+end_src
 
 *** DONE Exercise 3.59 power series
     CLOSED: [2020-01-04 Sat 09:58]
+
 **** integrate series
      CLOSED: [2020-01-04 Sat 09:49]
+
 #+name: streams-integrate-series
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (div-streams s1 s2)
   (stream-map / s1 s2))
 
@@ -25238,7 +25256,7 @@ This cryptic stream approximates a rational fraction by a decimal
 
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25252,13 +25270,16 @@ This cryptic stream approximates a rational fraction by a decimal
 
 #+end_src
 
-#+RESULTS:
-: 1 1/2 1/3 1/4 1/5
+#+RESULTS[a132b572a71833bb51b4e1fa2fb1d566895329bf]:
+#+begin_src scheme
+1 1/2 1/3 1/4 1/5 
+#+end_src
 
 **** exponential series
      CLOSED: [2020-01-04 Sat 09:58]
+
 #+name: streams-sin-cos
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define exp-series
   (cons-stream 1 (integrate-series exp-series)))
 (define cosine-series
@@ -25267,7 +25288,7 @@ This cryptic stream approximates a rational fraction by a decimal
   (cons-stream 0 (integrate-series cosine-series)))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25283,9 +25304,11 @@ This cryptic stream approximates a rational fraction by a decimal
     (show #t (stream-ref sine-series i) " "))
 #+end_src
 
-#+RESULTS:
-: 1 0 -1/2 0 1/24
-: 0 1 0 -1/6 0
+#+RESULTS[86f498fe8be8f46fdcaccce1ab2410542ff44ed3]:
+#+begin_src scheme
+1 0 -1/2 0 1/24 
+0 1 0 -1/6 0 
+#+end_src
 
 *** DONE Exercise 3.60 mul-series
     CLOSED: [2020-01-04 Sat 11:07]
@@ -25295,14 +25318,14 @@ Let's write out a formula first:
 \sum_{i=1}^{\infty}a_i + \sum_{i=0}^{\infty}a_i \cdot \sum_{j=1}^{\infty}b_j\)
 
 #+name: streams-mul-series
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (mul-series s1 s2)
   (cons-stream (* (stream-car s1) (stream-car s2))
                 (add-streams (scale-stream (stream-cdr s1) (stream-car s2))
                              (mul-series s1 (stream-cdr s2)))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25319,22 +25342,18 @@ Let's write out a formula first:
 
 #+end_src
 
-#+RESULTS:
-: 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+#+RESULTS[23280968a50201b3257279fe6bf1a9d298ac81c1]:
+#+begin_src scheme
+1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
+#+end_src
 
 Converges to 1 quite fast.
 
 *** DONE Exercise 3.61 power-series-inversion
     CLOSED: [2020-01-04 Sat 13:13]
-#+name: streams-invert-unit-series
-#+begin_src scheme :exports both :results output
 
- #;(define (invert-unit-series S)
-  (define x (cons-stream 1
-                         (mul-series
-                          (scale-stream (cons-stream 0 (stream-cdr S)) -1)
-                          x)))
-  x)
+#+name: streams-invert-unit-series
+#+begin_src scheme :exports code :results none
 (define (invert-unit-series S)
     (if (not (= 1 (stream-car S)))
         (error "First term must be 1 -- INVERT-UNIT-SERIES" (stream-car S))
@@ -25349,9 +25368,8 @@ Converges to 1 quite fast.
 
 #+end_src
 
-#+RESULTS:
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25369,8 +25387,10 @@ Converges to 1 quite fast.
 
 #+end_src
 
-#+RESULTS:
-: 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+#+RESULTS[7337bf3046c1f7088b455e4ed332973252261d4e]:
+#+begin_src scheme
+1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
+#+end_src
 
 Okay, this exercise gave me hell of a lot of pain. Why on it is so
 dependent on the implementation of ~mul-series~?
@@ -25383,7 +25403,7 @@ https://github.com/ypeels/sicp/blob/master/exercises/3.61-invert-unit-series.scm
     CLOSED: [2020-01-04 Sat 13:21]
 
 #+name: streams-div-series
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (div-series s1 s2)
   (let* ((scale-factor (stream-car s2))
          (scaled-s2 (scale-stream s2 (/ 1 scale-factor)))
@@ -25392,7 +25412,7 @@ https://github.com/ypeels/sicp/blob/master/exercises/3.61-invert-unit-series.scm
    (mul-series scaled-s1 inverted-s2)))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25411,15 +25431,18 @@ https://github.com/ypeels/sicp/blob/master/exercises/3.61-invert-unit-series.scm
 
 #+end_src
 
-#+RESULTS:
-: 1.0 0.0 0.5 0.3333333333333333 0.375 0.36666666666666664 0.3680555555555556 0.3678571428571429 0.36788194444444444 0.36787918871252206
+#+RESULTS[6bad44138bca584aa7c04c2c48bddc046ff5b3a8]:
+#+begin_src scheme
+1.0 0.0 0.5 0.3333333333333333 0.375 0.36666666666666664 0.3680555555555556 0.3678571428571429 0.36788194444444444 0.36787918871252206 
+#+end_src
 
 Well, not sure this is correct, but it runs.
 
 *** DONE Exercise 3.63 sqrt-stream
     CLOSED: [2020-01-04 Sat 20:32]
+
 #+name: streams-sqrt-stream
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (average x y)
        (/ (+ x y) 2))
   (define (sqrt-improve guess x)
@@ -25444,7 +25467,7 @@ implementations.
     CLOSED: [2020-01-06 Mon 09:38]
 
 #+name: streams-stream-limit
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define (stream-limit stream tolerance)
   (let ((a1 (stream-car stream))
         (a2 (stream-car (stream-cdr stream))))
@@ -25455,12 +25478,12 @@ implementations.
 #+end_src
 
 #+name: streams-sqrt
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (sqrt x tolerance)
     (stream-limit (sqrt-stream x) tolerance))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25472,8 +25495,10 @@ implementations.
 
 #+end_src
 
-#+RESULTS:
-: Test sqrt of 17: 4.123105625617805
+#+RESULTS[7ce5d41f7264af9ba057a211af91f38438837da3]:
+#+begin_src scheme
+Test sqrt of 17: 4.123105625617805
+#+end_src
 
 Seems to be working. I copied some of the ~sqrt~-related code from the
 earlier chapters instead of tangling, because it seems too slow.
@@ -25484,7 +25509,7 @@ earlier chapters instead of tangling, because it seems too slow.
 First let's make sure that the pi-stream is working.
 
 #+name: streams-print-n
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 
   (define (stream-sublist-n stream n)
     (cond ((null? stream) '())
@@ -25503,7 +25528,7 @@ First let's make sure that the pi-stream is working.
 #+end_src
 
 #+name: streams-pi-summands
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (pi-summands n)
        (cons-stream (/ 1.0 n)
                     (stream-map - (pi-summands (+ n 2)))))
@@ -25511,7 +25536,7 @@ First let's make sure that the pi-stream is working.
        (scale-stream (partial-sums (pi-summands 1)) 4))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25522,15 +25547,17 @@ First let's make sure that the pi-stream is working.
 
 #+end_src
 
-#+RESULTS:
-: (4.0                2.666666666666667  3.466666666666667  2.8952380952380956
-:  3.3396825396825403 2.9760461760461765 3.2837384837384844 3.017071817071818
-:  3.2523659347188767 3.0418396189294032)
+#+RESULTS[33401a55df96ec459f41978f91f6ebd0c9a480ad]:
+#+begin_src scheme
+(4.0                2.666666666666667  3.466666666666667  2.8952380952380956
+ 3.3396825396825403 2.9760461760461765 3.2837384837384844 3.017071817071818
+ 3.2523659347188767 3.0418396189294032)
+#+end_src
 
 Now let us do the same for the logarithm of 2.
 
 #+name: streams-log-summands
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (log-summands n)
        (cons-stream (/ 1.0 n)
                     (stream-map - (log-summands (+ n 1)))))
@@ -25539,7 +25566,7 @@ Now let us do the same for the logarithm of 2.
 #+end_src
 
 #+name: streams-euler-tableau
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
      (define (euler-transform s)
        (let ((s0 (stream-ref s 0))
              (s1 (stream-ref s 1))
@@ -25556,7 +25583,7 @@ Now let us do the same for the logarithm of 2.
                    (make-tableau transform s)))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25576,9 +25603,9 @@ Now let us do the same for the logarithm of 2.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-1.0 -0.5 0.3333333333333333 -0.25 0.2 -0.16666666666666666 0.14285714285714285 -0.125 0.1111111111111111 -0.1
+#+RESULTS[f10feab036cfb86075ddb265ebbcabc774c7f265]:
+#+begin_src scheme
+1.0 -0.5 0.3333333333333333 -0.25 0.2 -0.16666666666666666 0.14285714285714285 -0.125 0.1111111111111111 -0.1 
 (1.0                0.5                0.8333333333333333 0.5833333333333333
  0.7833333333333332 0.6166666666666666 0.7595238095238095 0.6345238095238095
  0.7456349206349207 0.6456349206349207)
@@ -25590,7 +25617,7 @@ Now let us do the same for the logarithm of 2.
 (1.0                0.7                0.6932773109243697 0.6931488693329254
  0.6931471960735491 0.6931471806635636 0.6931471805604039 0.6931471805599445
  0.6931471805599427 0.6931471805599454)
-#+end_example
+#+end_src
 
 The first stream seems to be converging quite slowly, needing about 10
 steps for 0.01 precision. The "accelerated" sequence converges in
@@ -25601,7 +25628,7 @@ would require a bit more of a mathematical analysis.
     CLOSED: [2020-01-06 Mon 22:55]
 
 #+name: streams-interleave
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (interleave s1 s2)
     (if (stream-null? s1)
 	s2
@@ -25610,7 +25637,7 @@ would require a bit more of a mathematical analysis.
 #+end_src
 
 #+name: streams-pairs
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (pairs s t)
     (cons-stream
      (list (stream-car s) (stream-car t))
@@ -25620,7 +25647,7 @@ would require a bit more of a mathematical analysis.
       (pairs (stream-cdr s) (stream-cdr t)))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25633,8 +25660,8 @@ would require a bit more of a mathematical analysis.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[653e1ec24f28ee0f8efc75aee195083f319b8491]:
+#+begin_src scheme
 ((1 1)  (1 2)  (2 2)  (1 3)  (2 3)  (1 4)  (3 3)  (1 5)  (2 4)  (1 6)  (3 4)
  (1 7)  (2 5)  (1 8)  (4 4)  (1 9)  (2 6)  (1 10) (3 5)  (1 11) (2 7)  (1 12)
  (4 5)  (1 13) (2 8)  (1 14) (3 6)  (1 15) (2 9)  (1 16) (5 5)  (1 17) (2 10)
@@ -25645,7 +25672,7 @@ would require a bit more of a mathematical analysis.
  (1 40) (5 7)  (1 41) (2 22) (1 42) (3 13) (1 43) (2 23) (1 44) (4 9)  (1 45)
  (2 24) (1 46) (3 14) (1 47) (2 25) (1 48) (6 7)  (1 49) (2 26) (1 50) (3 15)
  (1 51))
-#+end_example
+#+end_src
 
 The logic behind the ordering can be seen from the kind of a
 "probabilistic analysis". Let's imagine a table with columns indexed
@@ -25662,7 +25689,7 @@ something like \(b \cdot a^{n} \).
 Seems not too hard. Just add in one more interleave.
 
 #+name: streams-pairs-full
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (pairs s t)
     (if (or (null? s) (null? t))
 	'()
@@ -25677,7 +25704,7 @@ Seems not too hard. Just add in one more interleave.
 	   (pairs (stream-cdr s) (stream-cdr t)))))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25696,17 +25723,19 @@ Seems not too hard. Just add in one more interleave.
 
 #+end_src
 
-#+RESULTS:
-: (1 1) (1 2) (2 1) (1 3) (2 2) (1 4) (3 1) (1 5) (2 3) (1 6) (4 1) (1 7) (3 2) (1 8) (5 1) (1 9) (2 4) (1 10) (6 1) (1 11)
-: (() 1) (() 2) (() 3) (() 4) (() 5) (() 6) (() 7) (() 8) (() 9) (() 10)
-: No more elements
-: No more elements
+#+RESULTS[a2b06cf46381675c6caf9e7fa8eb75c615f466d6]:
+#+begin_src scheme
+(1 1) (1 2) (2 1) (1 3) (2 2) (1 4) (3 1) (1 5) (2 3) (1 6) (4 1) (1 7) (3 2) (1 8) (5 1) (1 9) (2 4) (1 10) (6 1) (1 11) 
+(() 1) (() 2) (() 3) (() 4) (() 5) (() 6) (() 7) (() 8) (() 9) (() 10) 
+No more elements
+No more elements
+#+end_src
 
 *** DONE Exercise 3.68 pairs-louis
     CLOSED: [2020-01-06 Mon 23:26]
 
 #+name: streams-pairs-louis
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (pairs s t)
     (interleave
       (stream-map (lambda (x) (list (stream-car s) x))
@@ -25714,7 +25743,7 @@ Seems not too hard. Just add in one more interleave.
       (pairs (stream-cdr s) (stream-cdr t))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25727,9 +25756,11 @@ Seems not too hard. Just add in one more interleave.
 
 #+end_src
 
-#+RESULTS:
-: ERROR: out of stack space
-: >
+#+RESULTS[05d202ca2644c003b8a306a2333de30cfd3320b0]:
+#+begin_src scheme
+ERROR: out of stack space
+> 
+#+end_src
 
 This is expected. Remember, the second argument to ~cons-stream~ is
 not evaluated, it's delayed. If we don't separate the first pair from
@@ -25739,7 +25770,7 @@ the rest, ~interleave~ would run indefinitely.
     CLOSED: [2020-02-17 Mon 20:10]
 
 #+name: streams-triples
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (triples s t u)
     (cons-stream
      (list (stream-car s) (stream-car t) (stream-car u))
@@ -25749,9 +25780,7 @@ the rest, ~interleave~ would run indefinitely.
       (triples (stream-cdr s) (stream-cdr t) (stream-cdr u)))))
 #+end_src
 
-#+RESULTS:
-
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
     <<streams-common>>
     <<streams-multimap>>
     <<streams-2>>
@@ -25764,11 +25793,12 @@ the rest, ~interleave~ would run indefinitely.
 (stream-print-n (triples integers integers integers) 10)
 #+end_src
 
-#+RESULTS:
-: (1 1 1) (1 2 2) (2 2 2) (1 2 3) (2 3 3) (1 3 3) (3 3 3) (1 2 4) (2 3 4) (1 3 4)
+#+RESULTS[9d71e064611733e0e76315c0aafabc8441b4e589]:
+#+begin_src scheme
+(1 1 1) (1 2 2) (2 2 2) (1 2 3) (2 3 3) (1 3 3) (3 3 3) (1 2 4) (2 3 4) (1 3 4) 
+#+end_src
 
-#+begin_src shell :exports both :results output :shebang "#! /usr/bin/chibi-scheme -xscheme.r5rs"
-
+#+begin_src shell :exports both :results output scalar code :shebang "#! /usr/bin/chibi-scheme -xscheme.r5rs"
     <<streams-common>>
     <<streams-multimap>>
     <<streams-2>>
@@ -25791,10 +25821,12 @@ the rest, ~interleave~ would run indefinitely.
   (display "\nTriple test ended")
 #+end_src
 
-#+RESULTS:
-: Starting triples test
-: (3 4 5) (6 8 10) (5 12 13) (9 12 15)
-: Triple test ended
+#+RESULTS[6128e62c2a9be0a046cb48feec75fdc600270c77]:
+#+begin_src shell
+Starting triples test
+(3 4 5) (6 8 10) (5 12 13) (9 12 15) 
+Triple test ended
+#+end_src
 
 
 
@@ -25804,7 +25836,7 @@ Seems to be working fine.
     CLOSED: [2020-01-07 Tue 11:58]
 
 #+name: streams-merge-weighted
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (merge-weighted s1 s2 weight)
     (cond ((stream-null? s1) s2)
 	  ((stream-null? s2) s1)
@@ -25824,7 +25856,7 @@ Seems to be working fine.
 #+end_src
 
 #+name: streams-pairs-weighted
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (pairs-weighted s t weight)
     (cons-stream
      (list (stream-car s) (stream-car t))
@@ -25835,7 +25867,7 @@ Seems to be working fine.
       weight)))
 #+end_src
 
-#+begin_src scheme :exports code :results output
+#+begin_src scheme :exports code :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25865,8 +25897,8 @@ Seems to be working fine.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[bd9b3276dd4dc7d8718fb1e4d656fc4139f3d664]:
+#+begin_src scheme
 ((1 1)   (1 2)   (1 3)   (2 2)   (1 4)   (2 3)   (1 5)   (2 4)   (3 3)
  (1 6)   (2 5)   (3 4)   (1 7)   (2 6)   (3 5)   (4 4)   (1 8)   (2 7)
  (3 6)   (4 5)   (1 9)   (2 8)   (3 7)   (4 6)   (5 5)   (1 10)  (2 9)
@@ -25892,14 +25924,14 @@ Seems to be working fine.
  (13 41) (23 31) (1 149) (1 151) (17 37) (13 43) (11 47) (7 59)  (29 29)
  (1 157) (1 161) (19 37) (7 61)  (11 49) (1 163) (29 31) (1 167) (1 169)
  (17 41))
-#+end_example
+#+end_src
 
 Cannot say I understand what the second sequence signifies, but meh.
 
 *** DONE Exercise 3.71 Ramanujan numbers
     CLOSED: [2020-01-07 Tue 12:49]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25919,7 +25951,9 @@ Cannot say I understand what the second sequence signifies, but meh.
    (stream-map (lambda (x) (+ (expt (car x) 3)
                           (expt (cadr x) 3)))
                cubic-pairs))
+(show #t "debug: sums-of-cubes: " )
 (stream-print-n sums-of-cubes 20)
+(newline)
 (define (first-repetition s)
  (if (= (stream-car s) (stream-car (stream-cdr s)))
     s
@@ -25929,13 +25963,16 @@ Cannot say I understand what the second sequence signifies, but meh.
                (filter-repetitions
                  (stream-cdr (stream-cdr (first-repetition s))))))
 (newline)
-#;(display (stream-car (filter-repetitions s)))
+ #;(display (stream-car (filter-repetitions s)))
 (stream-print-n (filter-repetitions sums-of-cubes) 6)
 #+end_src
 
-#+RESULTS:
-: 2 9 16 28 35 54 65 72 91 126 128 133 152 189 217 224 243 250 280 341
-: 1729 4104 13832 20683 32832 39312
+#+RESULTS[4e102cb7d6cfde519a5a18c5a6ec3f6c462315ec]:
+#+begin_src scheme
+debug: sums-of-cubes: 2 9 16 28 35 54 65 72 91 126 128 133 152 189 217 224 243 250 280 341 
+
+1729 4104 13832 20683 32832 39312 
+#+end_src
 
 
 This solution is not very good, because it would fail to distinguish
@@ -25947,7 +25984,8 @@ lazy to fix it.
 WARNING: The code below is quite slow. On my machine it takes more time than
 geiser's default ~geiser-connection-timeout~ permits.
 Refer to [[Setting chibi arguments. DANGEROUS]] for more information.
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -25957,33 +25995,55 @@ Refer to [[Setting chibi arguments. DANGEROUS]] for more information.
 <<streams-merge-weighted>>
 <<streams-pairs-weighted>>
 
-(define cubic-pairs
+(define sum-squares
+   (lambda (x) (+ (expt (car x) 2) (expt (cadr x) 2))))
+
+(define square-pairs
   (pairs-weighted
     integers
     integers
-    (lambda (p) (+ (expt (car p) 3) (expt (cadr p) 3)))))
+    sum-squares))
 
-(define sumcubes
-   (lambda (x) (+ (expt (car x) 3)
-                          (expt (cadr x) 3))))
-#;(stream-print-n sums-of-cubes 20)
+(show #t "square-pairs, first 20: ")
+(stream-print-n square-pairs 20)
+(newline)
+(define sums-of-squares
+   (stream-map sum-squares square-pairs))
+
+(show #t "20 sums of squares" "\n")
+
+(stream-print-n sums-of-squares 20)
+
 (define (first-repetition s)
- (if (= (sumcubes (stream-car s))
-        (sumcubes (stream-car (stream-cdr s)))
-        (sumcubes (stream-car (stream-cdr (stream-cdr s)))))
+ (if (and (= (sum-squares (stream-car s))
+             (sum-squares (stream-car (stream-cdr s))))
+          (= (sum-squares (stream-car (stream-cdr s)))
+             (sum-squares (stream-car (stream-cdr (stream-cdr s))))))
     s
     (first-repetition (stream-cdr s))))
+
 (define (filter-repetitions s)
-  (cons-stream (stream-car (first-repetition s))
+  (cons-stream (first-repetition s)
                (filter-repetitions
                  (stream-cdr (stream-cdr (stream-cdr (first-repetition s)))))))
-(display " ")
-(stream-print-n (filter-repetitions cubic-pairs) 1)
+(display " \n")
+(show #t "first-repetition= ") 
+
+(stream-print-n (stream-car (filter-repetitions square-pairs)) 3)
 (newline)
+(stream-print-n (stream-car (stream-cdr (filter-repetitions square-pairs))) 3)
+(newline)
+
 #+end_src
 
-#+RESULTS:
-:  (167 436)
+#+RESULTS[c3fa816e5de5721fcdf374a1f083d6ce08ca7e8a]:
+#+begin_src scheme
+square-pairs, first 20: (1 1) (1 2) (2 2) (1 3) (2 3) (1 4) (3 3) (2 4) (3 4) (1 5) (2 5) (4 4) (3 5) (1 6) (2 6) (4 5) (3 6) (1 7) (5 5) (4 6) 
+20 sums of squares
+2 5 8 10 13 17 18 20 25 26 29 32 34 37 40 41 45 50 50 52  
+first-repetition= (1 18) (6 17) (10 15) 
+(5 20) (8 19) (13 16) 
+#+end_src
 
 *** DONE Figure 3.32 The integral procedure viewed as a signal-processing system :plantuml:
     CLOSED: [2020-01-08 Wed 10:59]
@@ -26009,7 +26069,7 @@ fake -> integral
 @enduml
 #+end_src
 
-#+RESULTS:
+#+RESULTS[9d304b5f50bacb4597fdfe5d67fe8f513c708f87]:
 [[file:figure-3-32.png]]
 
 *** DONE Exercise 3.73 RC-circuit
