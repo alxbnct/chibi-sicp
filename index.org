@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-27 14:14:45 lockywolf>
+# Time-stamp: <2020-05-27 14:26:39 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -26085,7 +26085,7 @@ fake -> integral
  int)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -26109,15 +26109,17 @@ fake -> integral
 
 #+end_src
 
-#+RESULTS:
-: 5 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0 10.5 11.0 11.5 12.0 12.5 13.0 13.5 14.0 14.5 15.0 15.5 16.0 16.5 17.0 17.5 18.0 18.5 19.0 19.5
+#+RESULTS[ade0d8b5aeb47254b0874101b926842ccc6c28ea]:
+#+begin_src scheme
+5 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0 10.5 11.0 11.5 12.0 12.5 13.0 13.5 14.0 14.5 15.0 15.5 16.0 16.5 17.0 17.5 18.0 18.5 19.0 19.5 
+#+end_src
 
 Hm... is that all?
 
 *** DONE Exercise 3.74 zero-crossings
     CLOSED: [2020-01-08 Wed 16:50]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -26157,9 +26159,11 @@ Hm... is that all?
 (stream-print-n zero-crossings 50)
 #+end_src
 
-#+RESULTS:
-: 0 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0
-: 0 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0
+#+RESULTS[d44301ad7408a49249395417581bebe935e94255]:
+#+begin_src scheme
+0 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 
+0 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 0 0 0 0 0 1 -1 0 
+#+end_src
 
 Huh, didn't think about it.
 
@@ -26169,7 +26173,7 @@ Huh, didn't think about it.
 This exercise is confusing. The detector needs to be applied to _two_averaged_ values.
 
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
 <<streams-multimap>>
 <<streams-2>>
@@ -26204,8 +26208,10 @@ This exercise is confusing. The detector needs to be applied to _two_averaged_ v
 
 #+end_src
 
-#+RESULTS:
-: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#+RESULTS[e541ea0a09339709b2cfd591bb48f1b43b54915d]:
+#+begin_src scheme
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+#+end_src
 
 Well, seems to be working.
 
@@ -26219,7 +26225,7 @@ Well, seems to be working.
     (smooth (stream-cdr s) smoothener)))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
@@ -26248,15 +26254,17 @@ Well, seems to be working.
 
 #+end_src
 
-#+RESULTS:
-: 3/2 5/2 7/2 9/2 11/2
-: 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1
+#+RESULTS[4a35f26b46e39c6aec2f4df9d6be739657d819ef]:
+#+begin_src scheme
+3/2 5/2 7/2 9/2 11/2 
+1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 
+#+end_src
 
 Seems to be working.
 
 *** COMMENT Delayed integration
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
@@ -26274,14 +26282,16 @@ Seems to be working.
   (display (stream-ref (solve (lambda (y) y) 1 0.001) 1000))
 #+end_src
 
-#+RESULTS:
-: 2.716923932235896
+#+RESULTS[20239ac6b53dd4020630f39a599782ca53794cf4]:
+#+begin_src scheme
+2.716923932235896
+#+end_src
 
 *** DONE Exercise 3.77
     CLOSED: [2020-01-08 Wed 20:51]
 
 #+name: streams-integral-explicit
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
   (define (integral integrand initial-value dt)
     (cons-stream
      initial-value
@@ -26294,28 +26304,27 @@ Seems to be working.
 		   dt)))))
 #+end_src
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
   <<streams-integral-explicit>>
-
   (define (solve f y0 dt)
     (define y (integral (delay dy) y0 dt))
     (define dy (stream-map f y))
     y)
   (display (stream-ref (solve (lambda (y) y) 1 0.001) 1000))
-
-
 #+end_src
 
-#+RESULTS:
-: 2.716923932235896
+#+RESULTS[2b4d9282eb02f7d74fedb85b85324b0fee8639c5]:
+#+begin_src scheme
+2.716923932235896
+#+end_src
 
 *** DONE Exercise 3.78 second order differential equation
     CLOSED: [2020-01-08 Wed 21:47]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
@@ -26330,17 +26339,19 @@ Seems to be working.
 (show #t (pretty (stream-sublist-n (solve-2nd 10 -10 0.001 20 -30) 20)))
 #+end_src
 
-#+RESULTS:
-: (10                9.99              9.9795            9.9684903
-:  9.956961021       9.944902101711    9.932303295205589 9.919154165507019
-:  9.905444084115622 9.891162226471431 9.876297568351834 9.860838882203051
-:  9.844774733404241 9.828093476462989 9.81078325114091  9.792831978508096
-:  9.77422735692509  9.75495685795107  9.735007722176862 9.71436695498143)
+#+RESULTS[1ba641ac0aaa1a4c6fb976c6de916e908da7c975]:
+#+begin_src scheme
+(10                9.99              9.9795            9.9684903
+ 9.956961021       9.944902101711    9.932303295205589 9.919154165507019
+ 9.905444084115622 9.891162226471431 9.876297568351834 9.860838882203051
+ 9.844774733404241 9.828093476462989 9.81078325114091  9.792831978508096
+ 9.77422735692509  9.75495685795107  9.735007722176862 9.71436695498143)
+#+end_src
 
 *** DONE Exercise 3.79 general second-order ode
     CLOSED: [2020-01-08 Wed 21:57]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
@@ -26355,12 +26366,14 @@ Seems to be working.
 (show #t (pretty (stream-sublist-n (solve-2nd 10 -10 0.001 (lambda (s1 s2) (mul-streams s1 s2))) 20)))
 #+end_src
 
-#+RESULTS:
-: (10                9.99              9.9799            9.969699101
-:  9.959396398048069 9.948990980247782 9.938481930766933 9.92786832684759
-:  9.917149239817473 9.906323735102736 9.895390872242148 9.88434970490271
-:  9.873199280896765 9.861938642200586 9.85056682497453  9.83908285958474
-:  9.827485770626463 9.815774576948995 9.803948291682303 9.792005922265352)
+#+RESULTS[3d2127191c2f17550c958769729a3da0f57981af]:
+#+begin_src scheme
+(10                9.99              9.9799            9.969699101
+ 9.959396398048069 9.948990980247782 9.938481930766933 9.92786832684759
+ 9.917149239817473 9.906323735102736 9.895390872242148 9.88434970490271
+ 9.873199280896765 9.861938642200586 9.85056682497453  9.83908285958474
+ 9.827485770626463 9.815774576948995 9.803948291682303 9.792005922265352)
+#+end_src
 
 Cool. As long as ~f~ is implemented in terms of streams, it works.
 
@@ -26373,7 +26386,7 @@ Cool. As long as ~f~ is implemented in terms of streams, it works.
 #+header: :buffer on
 #+begin_src latex :results raw file :exports both :file figure-3-36.png
 \begin{tikzpicture}
-[color=white,
+[color=blue,
 circuit ee IEC,
 semithick,
 every info/.style={font=\footnotesize},
@@ -26386,8 +26399,6 @@ circuit declare annotation={direct polarity}{1cm}
 circuit declare annotation={invert polarity}{1cm}
 {(0.5cm,0.25cm) node {+} (-0.5cm,0.25cm) node {-}}
 ]
-
-
 \draw (0,0) to [capacitor={info={\(v_C\)},info'={C},invert polarity},
                 current direction'={near end,info=\(i_C\)}] ++(up:2)
             to [current direction={near start,info'={\(i_R\)}},
@@ -26395,12 +26406,10 @@ circuit declare annotation={invert polarity}{1cm}
             to [current direction={very near start, info'={\(i_L\)}},
                 inductor={info={\(v_L\)},info'={L},direct polarity}]  ++(down:2)
             -- (0,0);
-
-
 \end{tikzpicture}
 #+end_src
-
-#+RESULTS: figure-3-36
+#+attr_latex: :width 250pt
+#+RESULTS[2ba30f2330b5794b23a641bce756e5f3735e2216]: figure-3-36
 [[file:figure-3-36.png]]
 
 *** DONE Exercise 3.80 RLC circuit
