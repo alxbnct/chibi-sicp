@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-27 14:26:39 lockywolf>
+# Time-stamp: <2020-05-27 14:28:38 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -26415,7 +26415,7 @@ circuit declare annotation={invert polarity}{1cm}
 *** DONE Exercise 3.80 RLC circuit
     CLOSED: [2020-01-08 Wed 23:40]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
@@ -26439,8 +26439,8 @@ circuit declare annotation={invert polarity}{1cm}
 (show #t (pretty (stream-sublist-n (cdr pair-of-streams) 20)))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[7a4cb399a7d312b53f1a0f3892a7a1894aa20c59]:
+#+begin_src scheme
 (10                  10                  9.5
  8.55                7.220000000000001   5.5955
  3.77245             1.8519299999999999  -0.0651605000000004
@@ -26456,14 +26456,14 @@ circuit declare annotation={invert polarity}{1cm}
  1.4226674414399998    0.6850350732409998    -0.049967430210100305
  -0.7457214369781403   -1.3694016715588713   -1.893427810832622
  -2.296581252601054    -2.5647479596510117)
-#+end_example
+#+end_src
 
 Works? I can't believe it.
 
 *** DONE Exercise 3.81  renerator-in-streams
     CLOSED: [2020-01-09 Thu 00:37]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<streams-common>>
   <<streams-multimap>>
   <<streams-2>>
@@ -26493,15 +26493,17 @@ Works? I can't believe it.
   (stream-print-n my-rand 20)
 #+end_src
 
-#+RESULTS:
-: 2 12 3 7 1 9 7 7 1 9 7 7 1 9 7 7 1 9 7 7
+#+RESULTS[0fad508a75879366b97095611c47f56eb886bc37]:
+#+begin_src scheme
+2 12 3 7 1 9 7 7 1 9 7 7 1 9 7 7 1 9 7 7 
+#+end_src
 
 Working? Seems to be working. And no assignment used.
 
 *** DONE Exercise 3.82 streams Monte-Carlo
     CLOSED: [2020-01-09 Thu 09:42]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<random>>
   <<streams-common>>
   <<streams-multimap>>
@@ -26540,9 +26542,11 @@ Working? Seems to be working. And no assignment used.
 (show #t "Test 02: " (estimate-pi 100100) "\n")
 #+end_src
 
-#+RESULTS:
-: Test 01: 73
-: Test 02: 3.1463592499725284
+#+RESULTS[7ecaf28d585314e74f2522f10f349ab3beaa73e7]:
+#+begin_src scheme
+Test 01: 514
+Test 02: 3.1428828306843952
+#+end_src
 
 Well, works. Random numbers are not obtained from a stream, and are a
 little bit not modular in this respect, but hey, they task is done as
