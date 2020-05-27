@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 00:25:33 lockywolf>
+# Time-stamp: <2020-05-28 00:41:34 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -67866,7 +67866,7 @@ primitive procedures.
 
 #+name: c-test-factorial-1
 #+header: :stdin empty
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
 <<ec-glue1>>
 <<c-compile>>
 <<c-make-instruction-sequence-empty-instruction-sequence>>
@@ -68371,7 +68371,7 @@ in compile-time.
 
 #+name: c-test-factorial-2
 #+header: :stdin empty
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports both :results output verbatim
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output verbatim
   <<ec-glue1>>
   <<c-compile>>
   <<c-make-instruction-sequence-empty-instruction-sequence>>
@@ -68411,7 +68411,7 @@ in compile-time.
 
 #+end_src
 
-#+RESULTS[dc4152e03846a3406ed20f27e8d97adf133568aa]: c-test-factorial-2
+#+RESULTS[4898ba702e1b2157a1f5715335c7714fdd29af48]: c-test-factorial-2
 #+begin_example
 ((env) (val)
        ((assign val (op make-compiled-procedure) (label entry2) (reg env))
@@ -68496,8 +68496,8 @@ in compile-time.
 #+end_example
 
 
-#+header: :stdin empty
-#+begin_src shell :results output code :wrap src patch :export both
+#+name: diff-two-factorials
+#+begin_src shell :export both :results output code :stdin empty
   output1=$(
   cat <<'EOF'
   <<c-test-factorial-1()>>
@@ -68516,10 +68516,38 @@ in compile-time.
   diff -s -u <(echo "$output1") <(echo "$output2")
 #+end_src
 
-#+RESULTS[5c1dbcaedec7bc0821768256ee364c970d7b5c29]:
-#+begin_src patch
---- /dev/fd/63	2020-05-28 00:25:27.369944094 +0800
-+++ /dev/fd/62	2020-05-28 00:25:27.369944094 +0800
+#+RESULTS[8097e118610128ad10bafb1f6f24f13c6c39f240]: diff-two-factorials
+#+begin_src shell
+--- /dev/fd/63	2020-05-28 00:41:28.020007422 +0800
++++ /dev/fd/62	2020-05-28 00:41:28.021007391 +0800
+@@ -31,9 +31,7 @@
+         (assign proc (op lookup-variable-value) (const *) (reg env))
+         (save continue)
+         (save proc)
+-        (assign val (op lookup-variable-value) (const n) (reg env))
+-        (assign argl (op list) (reg val))
+-        (save argl)
++        (save env)
+         (assign proc (op lookup-variable-value) (const factorial) (reg env))
+         (save proc)
+         (assign proc (op lookup-variable-value) (const -) (reg env))
+@@ -61,7 +59,9 @@
+         primitive-branch11
+         (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+         after-call9
+-        (restore argl)
++        (assign argl (op list) (reg val))
++        (restore env)
++        (assign val (op lookup-variable-value) (const n) (reg env))
+         (assign argl (op cons) (reg val) (reg argl))
+         (restore proc)
+         (restore continue)
+#+end_src
+
+#+RESULTS[8097e118610128ad10bafb1f6f24f13c6c39f240]:
+#+begin_src shell
+--- /dev/fd/63	2020-05-28 00:38:50.249907140 +0800
++++ /dev/fd/62	2020-05-28 00:38:50.249907140 +0800
 @@ -31,9 +31,7 @@
          (assign proc (op lookup-variable-value) (const *) (reg env))
          (save continue)
