@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-27 23:09:21 lockywolf>
+# Time-stamp: <2020-05-28 00:25:33 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -11,6 +11,8 @@
 #+latex_class: report
 #+LATEX_CLASS_OPTIONS: [a4paper,12pt,twoside]
 #+latex_header: \usepackage[a4paper,margin=1cm]{geometry}
+#+LATEX_HEADER: \usepackage{supertabular}
+
 
 
 * noweb + common
@@ -61168,6 +61170,7 @@ base-case
 fact-done)
 #+end_src
 
+#+ATTR_LATEX: :center :environment supertabular :align l|l|l|l|l|l|l|p{6cm}
 |  # | ip | op                                    | test | val | n | continue   | stack                                                       |
 |----+----+---------------------------------------+------+-----+---+------------+-------------------------------------------------------------|
 |  0 |    |                                       |      | '() | 5 | '()        | '()                                                         |
@@ -61259,6 +61262,7 @@ fib-done
 23)
 #+end_src
 
+#+ATTR_LATEX: :center :environment supertabular :align l|l|l|l|l|l|l|p{6cm}
 |  # | ip | instruction                            | test | n | val | continue     | stack          |
 |----+----+----------------------------------------+------+---+-----+--------------+----------------|
 |    |    |                                        |      | 2 |     |              |                |
@@ -61305,7 +61309,7 @@ job of restoring and saving the return address. They can be removed.
 **** Common code
 
 #+name: regmac-glue1
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (import (scheme small))
 (import (scheme list))
 (import (srfi 159))
@@ -61318,7 +61322,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-controller-gcd-machine
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (test-b (test (op =) (reg b) (const 0))
 	      (branch (label gcd-done))
 	      (assign t (op rem) (reg a) (reg b))
@@ -61329,7 +61333,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-test-gcd-1
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (define gcd-machine
     (make-machine
      '(a b t)
@@ -61346,7 +61350,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -61365,11 +61369,14 @@ job of restoring and saving the return address. They can be removed.
   <<regmac-test-gcd-1>>
 #+end_src
 
-#+RESULTS:
-: 2
+#+RESULTS[eb5a89381188e0947dd61e42f48135b684b3036d]:
+#+begin_src shell
+2
+#+end_src
+
 
 #+name: regmac-make-machine
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-machine register-names ops controller-text)
     (let ((machine (make-new-machine)))
       (for-each
@@ -61383,7 +61390,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-register
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-register name)
     (let ((contents '*unassigned*))
       (define (dispatch message)
@@ -61399,7 +61406,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-stack
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-stack)
     (let ((s '()))
       (define (push x) (set! s (cons x s)))
@@ -61423,7 +61430,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-new-machine
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-new-machine)
     (let ((pc (make-register 'pc))
 	  (flag (make-register 'flag))
@@ -61487,7 +61494,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-extract-labels
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (extract-labels text receive)
     (if (null? text)
 	(receive '() '())
@@ -61507,7 +61514,7 @@ job of restoring and saving the return address. They can be removed.
 
 
 #+name: regmac-assembler
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (assemble controller-text machine)
     (extract-labels
      controller-text
@@ -61545,11 +61552,8 @@ job of restoring and saving the return address. They can be removed.
 		 label-name))))
 #+end_src
 
-#+RESULTS: regmac-assembler
-: #<undef>
-
 #+name: regmac-generating-execution-procedures
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-execution-procedure
       inst labels machine pc flag stack ops)
     (cond ((eq? (car inst) 'assign)
@@ -61572,7 +61576,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-assign
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-assign inst machine labels operations pc)
     (let ((target
 	   (get-register machine (assign-reg-name inst)))
@@ -61595,7 +61599,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-test
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-test inst machine labels operations flag pc)
     (let ((condition (test-condition inst)))
       (if (operation-exp? condition)
@@ -61641,7 +61645,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-save-restore
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-save inst machine stack pc)
     (let ((reg (get-register machine
 			     (stack-inst-reg-name inst))))
@@ -61657,7 +61661,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-other-instructions
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (stack-inst-reg-name stack-instruction)
     (cadr stack-instruction))
   (define (make-perform inst machine labels operations pc)
@@ -61691,7 +61695,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-operation-exp
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-operation-exp exp machine labels operations)
     (let ((op (lookup-prim (operation-exp-op exp)
 			   operations))
@@ -61704,7 +61708,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-operation-exp-syntax
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (operation-exp? exp)
     (and (pair? exp) (tagged-list? (car exp) 'op)))
   (define (operation-exp-op operation-exp)
@@ -61721,7 +61725,7 @@ job of restoring and saving the return address. They can be removed.
 #+end_src
 
 #+name: regmac-make-stack-with-performance
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-stack)
     (let ((s '())
 	  (number-pushes 0)
@@ -61771,8 +61775,9 @@ job of restoring and saving the return address. They can be removed.
 This turned out to be easier than I had thought.
 
 ***** a Recursive exponentiation
+
 #+name: regmac-test-recursive-expt
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (define expt-recursive-machine
     (make-machine
      '(n b result stack continue)
@@ -61790,7 +61795,7 @@ This turned out to be easier than I had thought.
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -61809,13 +61814,15 @@ This turned out to be easier than I had thought.
   <<regmac-test-recursive-expt>>
 #+end_src
 
-#+RESULTS:
-: 1024
+#+RESULTS[5111e22bab47d4dac20208dcddbf53e77e2c5e37]:
+#+begin_src shell
+1024
+#+end_src
 
 ***** b Iterative exponentiation
 
 #+name: regmac-test-iterative-expt
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (define expt-machine
     (make-machine
      '(n b product)
@@ -61833,7 +61840,7 @@ This turned out to be easier than I had thought.
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -61852,14 +61859,16 @@ This turned out to be easier than I had thought.
   <<regmac-test-iterative-expt>>
 #+end_src
 
-#+RESULTS:
-: 1024
+#+RESULTS[ec063a19690aca7b3cfae06493d409226fc81a5a]:
+#+begin_src shell
+1024
+#+end_src
 
 **** DONE Exercise 5.8 Ambiguous labels
      CLOSED: [2020-02-25 Tue 21:58]
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -61895,15 +61904,17 @@ This turned out to be easier than I had thought.
   (display (get-register-contents test-machine 'a))
 #+end_src
 
-#+RESULTS:
-: 3
+#+RESULTS[b7247377c72c1868caab60149e819de2842300ad]:
+#+begin_src shell
+3
+#+end_src
 
 This example shows that the first label is used.
 
 Let's modify ~extract-labels~:
 
 #+name: regmac-extract-labels-improved
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (extract-labels text receive)
     (if (null? text)
 	(receive '() '())
@@ -61924,7 +61935,7 @@ Let's modify ~extract-labels~:
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -61959,19 +61970,21 @@ Let's modify ~extract-labels~:
   (display (get-register-contents test-machine 'a))
 #+end_src
 
-#+RESULTS:
-: ERROR: extract-labels: ambiguous label: here
-:   called from <anonymous> on line 119 of file /tmp/babel-GK3Ycx/sh-script-zu2mZa
-:   called from <anonymous> on line 12 of file /tmp/babel-GK3Ycx/sh-script-zu2mZa
-:   called from <anonymous> on line 310 of file /tmp/babel-GK3Ycx/sh-script-zu2mZa
-:   called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+#+RESULTS[80dff3d877476d8e2c255fe5cdacb70fab69e232]:
+#+begin_src shell
+ERROR: extract-labels: ambiguous label: here
+  called from <anonymous> on line 122 of file /tmp/babel-NNNv58/sh-script-lnTFyD
+  called from <anonymous> on line 14 of file /tmp/babel-NNNv58/sh-script-lnTFyD
+  called from <anonymous> on line 314 of file /tmp/babel-NNNv58/sh-script-lnTFyD
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+#+end_src
 
 Errors as expected.
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62006,8 +62019,10 @@ Errors as expected.
   (display (get-register-contents test-machine 'a))
 #+end_src
 
-#+RESULTS:
-: 3
+#+RESULTS[374e16973a19e96eefdfc0e5f09d342344203d85]:
+#+begin_src shell
+3
+#+end_src
 
 
 Works as expected.
@@ -62016,7 +62031,7 @@ Works as expected.
      CLOSED: [2020-02-25 Tue 22:23]
 
 #+name: regmac-make-operation-exp-improved
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-operation-exp exp machine labels operations)
     (let ((op (lookup-prim (operation-exp-op exp)
 			   operations))
@@ -62033,7 +62048,7 @@ Works as expected.
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62069,21 +62084,23 @@ Works as expected.
   (display (get-register-contents test-machine 'a))
 #+end_src
 
-#+RESULTS:
-#+begin_example
-ERROR: make-operation-exp: operations cannot be applied to labels: (label here)
+#+RESULTS[2fd4b470face0d43cdedaa2b863689de231354d9]:
+#+begin_src shell
+ERROR: make-operation-exp: operations cannot be applied to labels
+    (label here)
+    ((op =) (const 1) (label here))
   called from map1 on line 62 of file /usr/lib64/chibi/init-7.scm
   called from make-operation-exp on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 210 of file /tmp/babel-GK3Ycx/sh-script-4D8UKY
-  called from <anonymous> on line 142 of file /tmp/babel-GK3Ycx/sh-script-4D8UKY
+  called from <anonymous> on line 216 of file /tmp/babel-NNNv58/sh-script-yM9NYT
+  called from <anonymous> on line 145 of file /tmp/babel-NNNv58/sh-script-yM9NYT
   called from for1 on line 75 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 132 of file /tmp/babel-GK3Ycx/sh-script-4D8UKY
-  called from <anonymous> on line 12 of file /tmp/babel-GK3Ycx/sh-script-4D8UKY
-  called from <anonymous> on line 312 of file /tmp/babel-GK3Ycx/sh-script-4D8UKY
-  called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 135 of file /tmp/babel-NNNv58/sh-script-yM9NYT
+  called from <anonymous> on line 14 of file /tmp/babel-NNNv58/sh-script-yM9NYT
+  called from <anonymous> on line 317 of file /tmp/babel-NNNv58/sh-script-yM9NYT
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-  called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
-#+end_example
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+#+end_src
 
 Is this what was expected?
 
@@ -62096,7 +62113,7 @@ don't explicitly say that we want to assign to a register. Let's make
 it work like this: ~(assign (reg a) (reg b))~.
 
 #+name: regmac-make-assign-improved
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code  :results none
   (define (make-assign inst machine labels operations pc)
     (let ((target
 	   (get-register machine (assign-reg-name inst)))
@@ -62117,13 +62134,8 @@ it work like this: ~(assign (reg a) (reg b))~.
     (cddr assign-instruction))
 #+end_src
 
-#+begin_src scheme :exports code
-
-#+end_src
-
-
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62159,8 +62171,10 @@ it work like this: ~(assign (reg a) (reg b))~.
   (display (get-register-contents test-machine 'a))
 #+end_src
 
-#+RESULTS:
-: #f
+#+RESULTS[90127e26640a4b6691f586023f2c81209c52f77c]:
+#+begin_src shell
+#f
+#+end_src
 
 Works! In principle, if we model a machine that is not a
 load-and-store machine, we could extend the syntax further in order to
@@ -62178,7 +62192,7 @@ design we can do ~(restore n)~ directly. Let's test.
 First let's test a standard Fibonacci machine.
 
 #+name: regmac-controller-fibonacci-512
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (controller
    (assign continue (label fib-done))
 fib-loop
@@ -62210,7 +62224,7 @@ fib-done)
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62238,11 +62252,13 @@ fib-done)
   (display (get-register-contents test-machine 'val))
 #+end_src
 
-#+RESULTS:
-: 55
+#+RESULTS[337b71c41f05fe5de58272fe49d04988d29a772b]:
+#+begin_src shell
+55
+#+end_src
 
 #+name: regmac-controller-fibonacci-improved-a
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (controller
    (assign continue (label fib-done))
 fib-loop
@@ -62273,7 +62289,7 @@ fib-done)
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62301,8 +62317,10 @@ fib-done)
   (display (get-register-contents test-machine 'val))
 #+end_src
 
-#+RESULTS:
-: 55
+#+RESULTS[5ba5937b446ec06cc2c86c7472bdb49f3ac5f87c]:
+#+begin_src shell
+55
+#+end_src
 
 Works.
 
@@ -62312,7 +62330,7 @@ To enforce variable control on the stack, we have to add variable
 checking to ~(save)~ and ~(restore)~.
 
 #+name: regmac-make-save-restore-regcheck
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code  :results none
   (define (make-save inst machine stack pc)
     (let ((reg (get-register machine
 			     (stack-inst-reg-name inst))))
@@ -62334,7 +62352,7 @@ checking to ~(save)~ and ~(restore)~.
 With the variable control, the following code should fail.
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62362,20 +62380,22 @@ With the variable control, the following code should fail.
   (display (get-register-contents test-machine 'val))
 #+end_src
 
-#+RESULTS:
-: ERROR: make-restore: restoring register values into different register is forbidden
-:     #<procedure dispatch>
-:     #<procedure dispatch>
-:   called from <anonymous> on line 277 of file /tmp/babel-GK3Ycx/sh-script-KJ1p4u
-:   called from <anonymous> on line 76 of file /tmp/babel-GK3Ycx/sh-script-KJ1p4u
-:   called from <anonymous> on line 1285 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
-:   called from <anonymous> on line 813 of file /usr/lib64/chibi/init-7.scm
+#+RESULTS[9c916f832c3d2e597f0289c8a91226d0b038209a]:
+#+begin_src shell
+ERROR: make-restore: restoring register values into different register is forbidden
+    #<procedure dispatch>
+    #<procedure dispatch>
+  called from <anonymous> on line 282 of file /tmp/babel-NNNv58/sh-script-n72UZ2
+  called from <anonymous> on line 78 of file /tmp/babel-NNNv58/sh-script-n72UZ2
+  called from <anonymous> on line 1289 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 280 of file /usr/lib64/chibi/init-7.scm
+  called from <anonymous> on line 817 of file /usr/lib64/chibi/init-7.scm
+#+end_src
 
 But the old one should still work.
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62403,15 +62423,17 @@ But the old one should still work.
   (display (get-register-contents test-machine 'val))
 #+end_src
 
-#+RESULTS:
-: 55
+#+RESULTS[452234ec7888f6a6230f2b52b1af62bc81bf7218]:
+#+begin_src shell
+55
+#+end_src
 
 As expected.
 
 ***** c Different stacks
 
 #+name: regmac-make-stack-multistack
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-stack)
     (let ((s '()))
       (define (push reg x)
@@ -62444,7 +62466,7 @@ As expected.
 #+end_src
 
 #+name: regmac-make-save-restore-multistack
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-save inst machine stack pc)
     (let ((reg (get-register machine
 			     (stack-inst-reg-name inst)))
@@ -62465,7 +62487,7 @@ As expected.
 The test for this behaviour would be:
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62498,13 +62520,15 @@ The test for this behaviour would be:
   (display (get-register-contents test-machine 'a))
 #+end_src
 
-#+RESULTS:
-: 1
+#+RESULTS[2fc273cb91cdf7ed68ac940b0229e7a765fc5e0d]:
+#+begin_src shell
+1
+#+end_src
 
 The Fibonacci machine should still work.
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62532,8 +62556,10 @@ The Fibonacci machine should still work.
   (display (get-register-contents test-machine 'val))
 #+end_src
 
-#+RESULTS:
-: 55
+#+RESULTS[6aa9d94b3a9f0435f55f2096d1abad6ad7d332d2]:
+#+begin_src shell
+55
+#+end_src
 
 Works.
 
@@ -62543,7 +62569,7 @@ Extend the assembler to store:
 
 
 #+name: regmac-assembler-with-metadata
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (goto-inst? inst) (tagged-list? (instruction-text inst) 'goto))
   (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
   (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
@@ -62620,7 +62646,7 @@ Extend the assembler to store:
 #+end_src
 
 #+name: regmac-make-new-machine-with-metadata
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-new-machine)
     (let ((pc (make-register 'pc))
 	  (flag (make-register 'flag))
@@ -62692,7 +62718,7 @@ Extend the assembler to store:
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62738,18 +62764,20 @@ Extend the assembler to store:
   (newline)
 #+end_src
 
-#+RESULTS:
-: (reg a) has3
-: metadata=
-: (instructions (goto save assign))
-: (entry-points (a))
-: (stack-registers (a))
-: (datapaths ((b ((const 3)) ((op =) (const 2) (const 1)) ((const 1))) (a ((label there)) ((const 4)) ((const 3)))))
+#+RESULTS[f8ad63cf59609082beedb53ecebef952558242bc]:
+#+begin_src shell
+(reg a) has 3
+metadata=
+(instructions (goto save assign))
+(entry-points (a))
+(stack-registers (a))
+(datapaths ((b ((const 3)) ((op =) (const 2) (const 1)) ((const 1))) (a ((label there)) ((const 4)) ((const 3)))))
+#+end_src
 
 Seems to be working.
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62783,8 +62811,8 @@ Seems to be working.
   (newline)
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[7fed31a20dc42d7aede353c9b512c899615cc187]:
+#+begin_src shell
 (reg val) has 55
 metadata=
 (instructions (assign test branch save goto restore))
@@ -62798,13 +62826,13 @@ metadata=
   (n ((reg val)) ((op -) (reg n) (const 2)) ((op -) (reg n) (const 1)))
   (continue ((label afterfib-n-2)) ((label afterfib-n-1)) ((label fib-done)))))
 
-#+end_example
+#+end_src
 
 **** DONE Exercise 5.13 Registers from controller
      CLOSED: [2020-02-27 Thu 10:57]
 
 #+name: regmac-assembler-with-metadata-and-register-allocation
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (goto-inst? inst) (tagged-list? (instruction-text inst) 'goto))
   (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
   (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
@@ -62905,7 +62933,7 @@ metadata=
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62951,19 +62979,19 @@ metadata=
   (newline)
 #+end_src
 
-#+RESULTS:
-: (a b)
-: (reg a) has 3
-: metadata=
-: (instructions (goto save assign))
-: (entry-points (a))
-: (stack-registers (a))
-: (datapaths ((b ((const 3)) ((op =) (const 2) (const 1)) ((const 1))) (a ((label there)) ((const 4)) ((const 3)))))
-
+#+RESULTS[3829130c54f4c7850d14937fa71ee942bb90ebe5]:
+#+begin_src shell
+(reg a) has 3
+metadata=
+(instructions (goto save assign))
+(entry-points (a))
+(stack-registers (a))
+(datapaths ((b ((const 3)) ((op =) (const 2) (const 1)) ((const 1))) (a ((label there)) ((const 4)) ((const 3)))))
+#+end_src
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -62997,9 +63025,8 @@ metadata=
   (newline)
 #+end_src
 
-#+RESULTS:
-#+begin_example
-assemble:allregs=(continue n val)
+#+RESULTS[7fc0d20ef0e8b9d3d569e47ac4099b8b9818eae7]:
+#+begin_src shell
 metadata=
 (instructions (assign test branch save goto restore))
 
@@ -63013,7 +63040,7 @@ metadata=
   (continue ((label afterfib-n-2)) ((label afterfib-n-1)) ((label fib-done)))))
 
 (reg val) has 55
-#+end_example
+#+end_src
 
 Seems to be working. I am keeping the interface with the empty first
 argument just in case.
@@ -63024,7 +63051,7 @@ argument just in case.
 Let us define the factorial machine first:
 
 #+name: regmac-controller-factorial-511
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (controller
    (assign continue (label fact-done)) ;set up final return address
    fact-loop
@@ -63052,7 +63079,7 @@ Let us define the factorial machine first:
 Let us test the simulator on the unmodified machine.
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -63095,8 +63122,9 @@ Let us test the simulator on the unmodified machine.
 : (reg val) has 3628800
 
 
+
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
   <<regmac-glue1>>
   <<regmac-make-machine>>
   <<regmac-make-register>>
@@ -63166,8 +63194,8 @@ Let us test the simulator on the unmodified machine.
   (start test-machine)
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[78301c633cd7522343b97b6ae7c8eeac828f3374]:
+#+begin_src shell
 metadata=
   (instructions (assign test branch perform save goto restore))
   (entry-points (continue))
@@ -63201,7 +63229,7 @@ n=12
 (total-pushes = 0 maximum-depth = 0)
 (total-pushes = 22 maximum-depth = 22)
 reg val has 479001600
-#+end_example
+#+end_src
 
 Works. Now let's rewrite the machine.
 
@@ -63212,7 +63240,7 @@ of pushes and stack depth.
      CLOSED: [2020-02-28 Fri 21:36]
 
 #+name: regmac-make-new-machine-with-metadata-instr-count
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-new-machine)
     (let ((pc (make-register 'pc))
 	  (flag (make-register 'flag))
@@ -63290,7 +63318,7 @@ of pushes and stack depth.
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
     <<regmac-glue1>>
     <<regmac-make-machine>>
     <<regmac-make-register>>
@@ -63361,8 +63389,8 @@ of pushes and stack depth.
     (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[51b8089cb14f6e507a7ca7ded803daf29112828f]:
+#+begin_src shell
 metadata=
   (instructions (assign test branch perform save goto restore))
   (entry-points (continue))
@@ -63397,13 +63425,13 @@ n=12
 (total-pushes = 22 maximum-depth = 22)
 reg val has 479001600
 Instructions executed: 496
-#+end_example
+#+end_src
 
 **** DONE Exercise 5.16 Tracing execution
      CLOSED: [2020-02-28 Fri 22:59]
 
 #+name: regmac-make-new-machine-with-metadata-instr-count-trace
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-new-machine)
     (let ((pc (make-register 'pc))
 	  (flag (make-register 'flag))
@@ -63486,7 +63514,7 @@ Instructions executed: 496
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
     <<regmac-glue1>>
     <<regmac-make-machine>>
     <<regmac-make-register>>
@@ -63559,8 +63587,8 @@ Instructions executed: 496
     (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[b3a6b7e78190b0c681d15e4de8e895204e8d7115]:
+#+begin_src shell
 metadata=
   (instructions (assign test branch perform save goto restore))
   (entry-points (continue))
@@ -63598,7 +63626,7 @@ instruction: (goto (reg continue))
 instruction: (perform (op print-stack-statistics))
 (total-pushes = 2 maximum-depth = 2)
 instruction: (perform (op print) (const "\nreg val has "))
-reg val has
+reg val has 
 instruction: (perform (op print) (reg val))2
 instruction: (goto (label meta-start))
 instruction: (assign n (op newdata))
@@ -63651,14 +63679,14 @@ instruction: (goto (reg continue))
 instruction: (perform (op print-stack-statistics))
 (total-pushes = 6 maximum-depth = 6)
 instruction: (perform (op print) (const "\nreg val has "))
-reg val has
+reg val has 
 instruction: (perform (op print) (reg val))24
 instruction: (goto (label meta-start))
 instruction: (assign n (op newdata))
 instruction: (test (op =) (reg n) (const -1))
 instruction: (branch (label final-end))
 Instructions executed: 80
-#+end_example
+#+end_src
 
 **** DONE Exercise 5.17 Printing labels
      CLOSED: [2020-02-29 Sat 17:43]
@@ -63666,7 +63694,7 @@ Instructions executed: 80
 Firstly, let us make the assembler save labels.
 
 #+name: regmac-extract-labels-improved-labels
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (add-inst-label! instr label)
     (let* ((label-cell (cddr instr)))
       (set-car! label-cell (cons label (car label-cell)))))
@@ -63694,7 +63722,7 @@ Firstly, let us make the assembler save labels.
 
 
 #+name: regmac-assembler-with-metadata-register-labels
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (goto-inst? inst) (tagged-list? (instruction-text inst) 'goto))
   (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
   (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
@@ -63795,7 +63823,7 @@ Firstly, let us make the assembler save labels.
 #+end_src
 
 #+name: regmac-make-new-machine-with-metadata-instr-count-trace-labels
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-new-machine)
     (let ((pc (make-register 'pc))
 	  (flag (make-register 'flag))
@@ -63886,7 +63914,7 @@ Firstly, let us make the assembler save labels.
 
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
     <<regmac-glue1>>
     <<regmac-make-machine>>
     <<regmac-make-register>>
@@ -63961,8 +63989,8 @@ Firstly, let us make the assembler save labels.
     (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[677828f5713a8732975403654acf417a6dfa56cb]:
+#+begin_src shell
 metadata=
   (instructions (assign test branch perform save goto restore))
   (entry-points (continue))
@@ -64077,7 +64105,7 @@ instruction text: (assign n (op newdata))
 instruction text: (test (op =) (reg n) (const -1))
 instruction text: (branch (label final-end))
 Instructions executed: 80
-#+end_example
+#+end_src
 
 Seems to be working, and the labels don't interfere with instruction counting.
 
@@ -64112,7 +64140,7 @@ Seems to be working, and the labels don't interfere with instruction counting.
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
     <<regmac-glue1>>
     <<regmac-make-machine>>
     <<regmac-make-register-tracing>>
@@ -64188,8 +64216,8 @@ Seems to be working, and the labels don't interfere with instruction counting.
     (show #t "\nInstructions executed: " (test-machine 'get-instruction-count))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[e016aff9530dc1204181a64dd59fc91a0a35ea01]:
+#+begin_src shell
 metadata=
   (instructions (assign test branch perform save goto restore))
   (entry-points (continue))
@@ -64223,13 +64251,13 @@ instruction text: (test (op =) (reg n) (const 1))
 instruction text: (branch (label base-case))
 labels: (base-case)
 instruction text: (assign val (const 1))
-trace: (assign (reg val) (old-value *unassigned*) (new-value 1))
+trace:val:*unassigned*->1
 instruction text: (goto (reg continue))
 labels: (after-fact)
 instruction text: (restore n)
 instruction text: (restore continue)
 instruction text: (assign val (op *) (reg n) (reg val))
-trace: (assign (reg val) (old-value 1) (new-value 2))
+trace:val:1->2
 instruction text: (goto (reg continue))
 labels: (fact-done)
 instruction text: (perform (op print-stack-statistics))
@@ -64278,25 +64306,25 @@ instruction text: (test (op =) (reg n) (const 1))
 instruction text: (branch (label base-case))
 labels: (base-case)
 instruction text: (assign val (const 1))
-trace: (assign (reg val) (old-value 2) (new-value 1))
+trace:val:2->1
 instruction text: (goto (reg continue))
 labels: (after-fact)
 instruction text: (restore n)
 instruction text: (restore continue)
 instruction text: (assign val (op *) (reg n) (reg val))
-trace: (assign (reg val) (old-value 1) (new-value 2))
+trace:val:1->2
 instruction text: (goto (reg continue))
 labels: (after-fact)
 instruction text: (restore n)
 instruction text: (restore continue)
 instruction text: (assign val (op *) (reg n) (reg val))
-trace: (assign (reg val) (old-value 2) (new-value 6))
+trace:val:2->6
 instruction text: (goto (reg continue))
 labels: (after-fact)
 instruction text: (restore n)
 instruction text: (restore continue)
 instruction text: (assign val (op *) (reg n) (reg val))
-trace: (assign (reg val) (old-value 6) (new-value 24))
+trace:val:6->24
 instruction text: (goto (reg continue))
 labels: (fact-done)
 instruction text: (perform (op print-stack-statistics))
@@ -64310,7 +64338,7 @@ instruction text: (assign n (op newdata))
 instruction text: (test (op =) (reg n) (const -1))
 instruction text: (branch (label final-end))
 Instructions executed: 80
-#+end_example
+#+end_src
 
 Seems to be working okay.
 
@@ -64321,7 +64349,7 @@ Since the exercise 5.17 we already have label information embedded
 into the instruction sequence.
 
 #+name: regmac-extract-labels-improved-labels-brk
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (add-inst-label! instr label)
     (let* ((label-cell (cddr instr)))
       (set-car! label-cell (cons label (car label-cell)))))
@@ -64349,7 +64377,7 @@ into the instruction sequence.
 
 
 #+name: regmac-assembler-with-metadata-register-labels-brk
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (goto-inst? inst) (tagged-list? (instruction-text inst) 'goto))
   (define (save-inst? inst) (tagged-list? (instruction-text inst) 'save))
   (define (restore-inst? inst) (tagged-list? (instruction-text inst) 'restore))
@@ -64466,7 +64494,7 @@ into the instruction sequence.
 
 
 #+name: regmac-make-new-machine-with-metadata-instr-count-trace-labels-brk
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 
   (define (make-breakpoint label offset)
     (list label offset))
@@ -64614,7 +64642,7 @@ into the instruction sequence.
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
       <<regmac-glue1>>
       <<regmac-make-machine>>
       <<regmac-make-register-tracing>>
@@ -64663,10 +64691,10 @@ into the instruction sequence.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[f5b502255476ea231e7c53e4bfaf6c74d81e499f]:
+#+begin_src shell
 
-trace: (assign (reg b) (old-value *unassigned*) (new-value 90))
+trace:b:*unassigned*->90
 b=90
 
 labels: (test-b)
@@ -64679,7 +64707,7 @@ Breakpoint: ((test-b 4))
 Inst=((assign b (reg t)) #<procedure #f> () ())
 
 Resuming.
-trace: (assign (reg b) (old-value 90) (new-value 30))
+trace:b:90->30
 instruction text: (goto (label test-b))
 labels: (test-b)
 instruction text: (test (op =) (reg b) (const 0))
@@ -64687,14 +64715,14 @@ instruction text: (branch (label gcd-done))
 instruction text: (assign t (op rem) (reg a) (reg b))
 instruction text: (assign a (reg b))
 instruction text: (assign b (reg t))
-trace: (assign (reg b) (old-value 30) (new-value 0))
+trace:b:30->0
 instruction text: (goto (label test-b))
 labels: (test-b)
 instruction text: (test (op =) (reg b) (const 0))
 instruction text: (branch (label gcd-done))
 Instructions executed: 15
 Answer=30
-#+end_example
+#+end_src
 
 Heh. Without ~call/cc~ all this would have been a lot of pain. But
 with ~call/cc~ and ~(scheme list)~ works like charm.
@@ -64704,11 +64732,11 @@ with ~call/cc~ and ~(scheme list)~ works like charm.
      CLOSED: [2020-02-29 Sat 22:15]
 
 
-#+name: exercise-5-3-list-register-memory
+#+name: exercise-5-20-list-register-memory
 #+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 250
 #+header: :fit yes :headers '("\\usepackage{tikz} \\usetikzlibrary{positioning,fit,petri,arrows,calc,matrix,quotes}")
 #+header: :buffer on
-#+begin_src latex :results raw file :exports both :file exercise-5-3-list-register-memory.png
+#+begin_src latex :results raw file :exports both :file exercise-5-20-list-register-memory.png
 \begin{tikzpicture}[inner sep=0mm,>=stealth',very thick,color=blue!99,
        every node/.style={font=\sffamily,align=left},
              node distance=20mm,
@@ -64756,8 +64784,8 @@ with ~call/cc~ and ~(scheme list)~ works like charm.
 \end{tikzpicture}
 #+end_src
 
-#+RESULTS[960574c0ececbfc5432056c8a136fa79d52ad0d7]: exercise-5-3-list-register-memory
-[[file:exercise-5-3-list-register-memory.png]]
+#+RESULTS[d09697a6a57d1d90de4e35290bde1ad0123eb550]: exercise-5-20-list-register-memory
+[[file:exercise-5-20-list-register-memory.png]]
 
 Now let us make a table with the memory summary.
 
@@ -64775,7 +64803,7 @@ The values corresponding to ~x~ and ~y~ should be ~p1~ and ~p3~.
      CLOSED: [2020-03-01 Sun 13:03]
 ***** a. Recursive count-leaves
 
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (count-leaves tree)
     (cond ((null? tree) 0)
 	  ((not (pair? tree)) 1)
@@ -64784,7 +64812,7 @@ The values corresponding to ~x~ and ~y~ should be ~p1~ and ~p3~.
 #+end_src
 
 #+name: regmac-controller-count-leaves-1
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (controller
    (assign continue (label finale))
    count-leaves-loop
@@ -64822,7 +64850,7 @@ end)
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
       <<regmac-glue1>>
       <<regmac-make-machine>>
       <<regmac-make-register-tracing>>
@@ -64869,15 +64897,17 @@ end)
 
 #+end_src
 
-#+RESULTS:
-:
-: Result=4
+#+RESULTS[5c00e912fb039ea0d648b9795f437c413314ed4f]:
+#+begin_src shell
+
+Result=4
+#+end_src
 
 Seems to work.
 
 ***** b. Recursive count-leaves with explicit counter:
 
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (count-leaves tree)
     (define (count-iter tree n)
       (cond ((null? tree) n)
@@ -64890,7 +64920,7 @@ Seems to work.
 #+end_src
 
 #+name: regmac-controller-count-leaves-iterative
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (controller
    (assign continue (label finale))
    (assign n (const 0))
@@ -64923,7 +64953,7 @@ end
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
       <<regmac-glue1>>
       <<regmac-make-machine>>
       <<regmac-make-register-tracing>>
@@ -64970,8 +65000,8 @@ end
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[b1ad33c1858e66fcd9687c7f0d28aaebfdd2cbe3]:
+#+begin_src shell
 
 labels: (controller)
 instruction text: (assign continue (label finale))
@@ -65059,7 +65089,7 @@ instruction text: (goto (reg continue))
 labels: (finale)
 instruction text: (perform (op print) (const "\nResult=") (reg n))
 Result=4
-#+end_example
+#+end_src
 
 Turned out to be even easier.
 
@@ -65068,7 +65098,7 @@ Turned out to be even easier.
 
 ***** a ~append~
 
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (append x y)
     (if (null? x)
 	y
@@ -65076,7 +65106,7 @@ Turned out to be even easier.
 #+end_src
 
 #+name: regmac-controller-append
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (controller
     (assign continue (label finale))
 append
@@ -65102,7 +65132,7 @@ end)
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
       <<regmac-glue1>>
       <<regmac-make-machine>>
       <<regmac-make-register-tracing>>
@@ -65152,8 +65182,8 @@ end)
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[cb448908aab5cbd54cc598d67a6bc898646b3a46]:
+#+begin_src shell
 
 labels: (controller)
 instruction text: (assign continue (label finale))
@@ -65221,13 +65251,13 @@ instruction text: (goto (reg continue))
 labels: (finale)
 instruction text: (perform (op print) (const "\nResult=") (reg y))
 Result=(1 2 3 4 a b c d)
-#+end_example
+#+end_src
 
 Seems to work.
 
 ***** b ~append!~
 
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (append! x y)
     (set-cdr! (last-pair x) y)
     x)
@@ -65236,7 +65266,7 @@ Seems to work.
 I will borrow the ~last-pair~ operation from the ~(scheme list)~.
 
 #+name: regmac-controller-append!
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (controller
   (assign retval (reg x))
   (assign x (op last-pair) (reg x))
@@ -65246,7 +65276,7 @@ end)
 #+end_src
 
 #+header: :stdin empty
-#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output
+#+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :exports both :results output scalar code
       <<regmac-glue1>>
       <<regmac-make-machine>>
       <<regmac-make-register-tracing>>
@@ -65298,14 +65328,16 @@ end)
 
 #+end_src
 
-#+RESULTS:
-:
-: labels: (controller)
-: instruction text: (assign retval (reg x))
-: instruction text: (assign x (op last-pair) (reg x))
-: instruction text: (perform (op set-cdr!) (reg x) (reg y))
-: instruction text: (perform (op print) (const "\nResult=") (reg retval))
-: Result=(1 2 3 4 a b c d)
+#+RESULTS[c51e23461b18930eec34db9750a89edd63bba025]:
+#+begin_src shell
+
+labels: (controller)
+instruction text: (assign retval (reg x))
+instruction text: (assign x (op last-pair) (reg x))
+instruction text: (perform (op set-cdr!) (reg x) (reg y))
+instruction text: (perform (op print) (const "\nResult=") (reg retval))
+Result=(1 2 3 4 a b c d)
+#+end_src
 
 Seems to work.
 
@@ -65316,12 +65348,12 @@ Seems to work.
      :END:
 
 #+name: ec-solutionbook-error
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (perform (op error) (const "The code should not reach here"))
 #+end_src
 
 #+name: ec-eval-dispatch
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   eval-dispatch
   (test (op self-evaluating?) (reg exp))
   (branch (label ev-self-eval))
@@ -65345,7 +65377,7 @@ Seems to work.
 #+end_src
 
 #+name: ec-simple-expressions
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   ev-self-eval
   (assign val (reg exp))
   (goto (reg continue))
@@ -65363,7 +65395,7 @@ Seems to work.
 #+end_src
 
 #+name: ec-ev-application
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-application
 (save continue)
 (save env)
@@ -65375,14 +65407,14 @@ ev-application
 #+end_src
 
 #+name: ec-s-additional-syntax
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (define (empty-arglist) '())
 (define (adjoin-arg arg arglist) (append arglist (list arg)))
 (define (last-operand? ops) (null? (cdr ops)))
 #+end_src
 
 #+name: ec-ev-appl-did-operator
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-appl-did-operator
 (restore unev) ; the operands
 (restore env)
@@ -65394,7 +65426,7 @@ ev-appl-did-operator
 #+end_src
 
 #+name: ec-ev-appl-operand-loop
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-appl-operand-loop
 (save argl)
 (assign exp (op first-operand) (reg unev))
@@ -65407,7 +65439,7 @@ ev-appl-operand-loop
 #+end_src
 
 #+name: ec-ev-appl-accumulate-arg
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-appl-accumulate-arg
 (restore unev)
 (restore env)
@@ -65418,14 +65450,14 @@ ev-appl-accumulate-arg
 #+end_src
 
 #+name: ec-ev-appl-last-arg
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-appl-last-arg
 (assign continue (label ev-appl-accum-last-arg))
 (goto (label eval-dispatch))
 #+end_src
 
 #+name: ec-ev-appl-accum-last-arg
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-appl-accum-last-arg
 (restore argl)
 (assign argl (op adjoin-arg) (reg val) (reg argl))
@@ -65434,7 +65466,7 @@ ev-appl-accum-last-arg
 #+end_src
 
 #+name: ec-apply-dispatch
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 apply-dispatch
 (test (op primitive-procedure?) (reg proc))
 (branch (label primitive-apply))
@@ -65444,7 +65476,7 @@ apply-dispatch
 #+end_src
 
 #+name: ec-primitive-apply
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 primitive-apply
 (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
 (restore continue)
@@ -65452,7 +65484,7 @@ primitive-apply
 #+end_src
 
 #+name: ec-compound-apply
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 compound-apply
 (assign unev (op procedure-parameters) (reg proc))
 (assign env (op procedure-environment) (reg proc))
@@ -65463,7 +65495,7 @@ compound-apply
 #+end_src
 
 #+name: ec-ev-begin
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-begin
 (assign unev (op begin-actions) (reg exp))
 (save continue)
@@ -65471,7 +65503,7 @@ ev-begin
 #+end_src
 
 #+name: ec-ev-sequence
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-sequence
 (assign exp (op first-exp) (reg unev))
 (test (op last-exp?) (reg unev))
@@ -65483,7 +65515,7 @@ ev-sequence
 #+end_src
 
 #+name: ec-ev-sequence-continue
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-sequence-continue
 (restore env)
 (restore unev)
@@ -65495,7 +65527,7 @@ ev-sequence-last-exp
 #+end_src
 
 #+name: ec-ev-if
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-if
 (save exp) ; save expression for later
 (save env)
@@ -65506,7 +65538,7 @@ ev-if
 #+end_src
 
 #+name: ec-ev-if-decide
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-if-decide
 (restore continue)
 (restore env)
@@ -65522,7 +65554,7 @@ ev-if-consequent
 #+end_src
 
 #+name: ec-ev-assignment
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-assignment
 (assign unev (op assignment-variable) (reg exp))
 (save unev) ; save variable for later
@@ -65541,7 +65573,7 @@ ev-assignment-1
 #+end_src
 
 #+name: ec-ev-definition
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-definition
 (assign unev (op definition-variable) (reg exp))
 (save unev) ; save variable for later
@@ -65560,7 +65592,7 @@ ev-definition-1
 #+end_src
 
 #+name: ec-repl
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 read-eval-print-loop
 (perform (op initialize-stack))
 (perform (op prompt-for-input) (const ";;EC-Eval input:"))
@@ -65576,7 +65608,7 @@ print-result
 #+end_src
 
 #+name: ec-errors
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 unknown-expression-type
 (assign val (const unknown-expression-type-error))
 (goto (label signal-error))
@@ -65590,7 +65622,7 @@ signal-error
 #+end_src
 
 #+name: ec-glue1
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (import (scheme small))
   (import (scheme list))
   (import (srfi 159))
@@ -65606,7 +65638,7 @@ signal-error
 #+end_src
 
 #+name: ec-eceval-operations-basic
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (list 'self-evaluating? self-evaluating?)
 (list 'car car)
 (list 'cdr cdr)
@@ -65665,7 +65697,7 @@ signal-error
 #+end_src
 
 #+name: ec-eceval
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -65741,24 +65773,25 @@ EOF
 #+end_src
 
 #+header: :stdin eceval-test-append
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
 <<ec-eceval>>
 (start eceval)
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[6038665e29fe0da95c8c5ee492dd0b73174980ee]:
+#+begin_src shell
+
 ;;EC-Eval input:
 (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
 ;;EC-Eval value:
 ok
 ;;EC-Eval input:
-(append '(a b c) '(d e f))
+(append (quote (a b c)) (quote (d e f)))
 ;;EC-Eval value:
 (a b c d e f)
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 **** DONE Exercise 5.23 Extending EC-evaluator with ~let~ and ~cond~
      CLOSED: [2020-03-02 Mon 10:52]
@@ -65766,7 +65799,7 @@ ok
 ~let~'s basic SICP implementation is in the s-let-implementation block.
 
 #+name: ec-eval-dispatch-let-cond
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   eval-dispatch
   (test (op self-evaluating?) (reg exp))
   (branch (label ev-self-eval))
@@ -65805,7 +65838,7 @@ ev-cond
 #+end_src
 
 #+name: ec-eceval-operations-let-cond
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (list 'let? let?)
 (list 'let->combination let->combination)
 (list 'cond? cond?)
@@ -65828,7 +65861,7 @@ EOF
 #+end_src
 
 #+header: :stdin eceval-test-let-cond
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -65897,14 +65930,15 @@ EOF
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[f925f384aaff16904811f5ac6e428815c6e2bcf8]:
+#+begin_src shell
+
 ;;EC-Eval input:
 (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
 ;;EC-Eval value:
 ok
 ;;EC-Eval input:
-(append '(a b c) '(d e f))
+(append (quote (a b c)) (quote (d e f)))
 ;;EC-Eval value:
 (a b c d e f)
 ;;EC-Eval input:
@@ -65917,7 +65951,7 @@ ok
 #t
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Turned out to be not too hard.
 
@@ -65925,7 +65959,7 @@ Turned out to be not too hard.
      CLOSED: [2020-03-02 Mon 14:42]
 
 #+name: ec-eval-dispatch-let-cond-primitive
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   eval-dispatch
   (test (op self-evaluating?) (reg exp))
   (branch (label ev-self-eval))
@@ -65988,7 +66022,7 @@ ev-cond-process-cond-actions
 #+end_src
 
 #+name: ec-eceval-operations-let-cond-primitive
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (list 'let? let?)
 (list 'let->combination let->combination)
 (list 'cond? cond?)
@@ -65999,7 +66033,7 @@ ev-cond-process-cond-actions
 #+end_src
 
 #+header: :stdin eceval-test-let-cond-primitive
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -66072,8 +66106,9 @@ ev-cond-process-cond-actions
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[d7a0ee0b946a2c5593958d5eacd0d102d3578187]:
+#+begin_src shell
+
 ;;EC-Eval input:
 (cond ((= 1 0) #f) ((= 1 1) #t) (else "Arithmetic is broken"))
 ;;EC-Eval value:
@@ -66084,7 +66119,7 @@ ev-cond-process-cond-actions
 "Else clause"
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 
 #+name: eceval-test-let-cond-primitive
@@ -66106,7 +66141,7 @@ metacircular evaluator, but the assembly seems to do the job.
      CLOSED: [2020-03-03 Tue 14:57]
 
 #+name: ec-lazy-actual-value-delay-force
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 actual-value
 (save continue) ; 1
 (assign continue (label actual-value-did-eval))
@@ -66148,7 +66183,7 @@ procedures to eager arguments and compound procedures to lazy
 arguments... given that we populate ~argl~ correctly in advance.
 
 #+name: ec-lazy-ev-application
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   ev-application
   (save continue)
   (save env)
@@ -66219,7 +66254,7 @@ ev-appl-operand-loop-lazy
 #+end_src
 
 #+name: ec-repl-lazy
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 read-eval-print-loop
 (perform (op initialize-stack))
 (perform (op prompt-for-input) (const ";;LEC-Eval input:"))
@@ -66235,7 +66270,7 @@ print-result
 #+end_src
 
 #+name: ec-ev-if-lazy
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   ev-if
   (save exp) ; save expression for later
   (save env)
@@ -66258,7 +66293,7 @@ print-result
 #+end_src
 
 #+name: ec-eceval-operations-lazy
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (list 'thunk? thunk?) ; just tagged-list?
 (list 'thunk-env thunk-env) ; just cNr
 (list 'thunk-exp thunk-exp) ;just cNr
@@ -66284,7 +66319,7 @@ EOF
 #+end_src
 
 #+header: :stdin eceval-test-lazy
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -66355,14 +66390,15 @@ EOF
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[ccbbffed4db981de4f88f15704ba1df11e459b86]:
+#+begin_src shell
+
 ;;LEC-Eval input:
 (define (append x y) (if (null? x) y (cons (car x) (append (cdr x) y))))
 ;;LEC-Eval value:
 ok
 ;;LEC-Eval input:
-(append '(a b c) '(d e f))
+(append (quote (a b c)) (quote (d e f)))
 ;;LEC-Eval value:
 (a b c d e f)
 ;;LEC-Eval input:
@@ -66383,7 +66419,7 @@ ok
 1
 ;;LEC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Turned out to be actually much-much easier than I had expected.
 
@@ -66391,7 +66427,7 @@ Turned out to be actually much-much easier than I had expected.
      CLOSED: [2020-03-03 Tue 19:38]
 
 #+name: ec-repl-stack-monitor
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 read-eval-print-loop
 (perform (op initialize-stack))
 (perform (op prompt-for-input) (const "\n;;EC-Eval input:"))
@@ -66426,7 +66462,7 @@ print-result
 #+end_src
 
 #+header: :stdin eceval-test-factorial-iter
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -66492,45 +66528,43 @@ print-result
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[6222c86604548d231c2588f610fb7c59f3e0cdc3]:
+#+begin_src shell
+
 
 ;;EC-Eval input:
-(define (factorial n)
-  (define (iter product counter)
-    (if (> counter n) product (iter (* counter product) (+ counter 1))))
-  (iter 1 1))
+(define (factorial n) (define (iter product counter) (if (> counter n) product (iter (* counter product) (+ counter 1)))) (iter 1 1))
 ;;EC-Eval value:
 ok
-
 (total-pushes = 3 maximum-depth = 3)
+
 ;;EC-Eval input:
 (factorial 6)
 ;;EC-Eval value:
 720
-
 (total-pushes = 239 maximum-depth = 10)
+
 ;;EC-Eval input:
 (factorial 7)
 ;;EC-Eval value:
 5040
-
 (total-pushes = 274 maximum-depth = 10)
+
 ;;EC-Eval input:
 (factorial 8)
 ;;EC-Eval value:
 40320
-
 (total-pushes = 309 maximum-depth = 10)
+
 ;;EC-Eval input:
 (factorial 9)
 ;;EC-Eval value:
 362880
-
 (total-pushes = 344 maximum-depth = 10)
+
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 I just added the monitor operation into the REPL. Indeed, the depth is
 independent of ~n~, and is 10. That's essentially the deepest nested
@@ -66555,7 +66589,7 @@ call we are needing. There are a lot more pushes, evidently.
 #+end_src
 
 #+header: :stdin eceval-test-factorial-recursive
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -66621,42 +66655,43 @@ call we are needing. There are a lot more pushes, evidently.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[462d5bebee6715924013a3d44de26feaca2c2c55]:
+#+begin_src shell
+
 
 ;;EC-Eval input:
 (define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
 ;;EC-Eval value:
 ok
-
 (total-pushes = 3 maximum-depth = 3)
+
 ;;EC-Eval input:
 (factorial 6)
 ;;EC-Eval value:
 720
-
 (total-pushes = 176 maximum-depth = 33)
+
 ;;EC-Eval input:
 (factorial 7)
 ;;EC-Eval value:
 5040
-
 (total-pushes = 208 maximum-depth = 38)
+
 ;;EC-Eval input:
 (factorial 8)
 ;;EC-Eval value:
 40320
-
 (total-pushes = 240 maximum-depth = 43)
+
 ;;EC-Eval input:
 (factorial 9)
 ;;EC-Eval value:
 362880
-
 (total-pushes = 272 maximum-depth = 48)
+
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 The maximal depth: \(d=5n+3\)
 Total-pushes: \(p=32n-16\)
@@ -66672,7 +66707,7 @@ The summary table:
      CLOSED: [2020-03-03 Tue 20:29]
 
 #+name: ec-ev-sequence-no-tail
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-sequence
 (test (op no-more-exps?) (reg unev))
 (branch (label ev-sequence-end))
@@ -66717,7 +66752,7 @@ ev-sequence-end
 #+end_src
 
 #+header: :stdin eceval-test-factorial-combined
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -66784,75 +66819,73 @@ ev-sequence-end
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[328338fd5d91714570cb5bbb64176c1e7b5a0fc9]:
+#+begin_src shell
+
 
 ;;EC-Eval input:
 (define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
 ;;EC-Eval value:
 ok
-
 (total-pushes = 3 maximum-depth = 3)
+
 ;;EC-Eval input:
 (factorial 6)
 ;;EC-Eval value:
 720
-
 (total-pushes = 188 maximum-depth = 51)
+
 ;;EC-Eval input:
 (factorial 7)
 ;;EC-Eval value:
 5040
-
 (total-pushes = 222 maximum-depth = 59)
+
 ;;EC-Eval input:
 (factorial 8)
 ;;EC-Eval value:
 40320
-
 (total-pushes = 256 maximum-depth = 67)
+
 ;;EC-Eval input:
 (factorial 9)
 ;;EC-Eval value:
 362880
-
 (total-pushes = 290 maximum-depth = 75)
+
 ;;EC-Eval input:
-(define (factorial n)
-  (define (iter product counter)
-    (if (> counter n) product (iter (* counter product) (+ counter 1))))
-  (iter 1 1))
+(define (factorial n) (define (iter product counter) (if (> counter n) product (iter (* counter product) (+ counter 1)))) (iter 1 1))
 ;;EC-Eval value:
 ok
-
 (total-pushes = 3 maximum-depth = 3)
+
 ;;EC-Eval input:
 (factorial 6)
 ;;EC-Eval value:
 720
-
 (total-pushes = 255 maximum-depth = 32)
+
 ;;EC-Eval input:
 (factorial 7)
 ;;EC-Eval value:
 5040
-
 (total-pushes = 292 maximum-depth = 35)
+
 ;;EC-Eval input:
 (factorial 8)
 ;;EC-Eval value:
 40320
-
 (total-pushes = 329 maximum-depth = 38)
+
 ;;EC-Eval input:
 (factorial 9)
 ;;EC-Eval value:
 362880
-
 (total-pushes = 366 maximum-depth = 41)
+
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Indeed, both the depth and the number of pushes increase with n:
 
@@ -66880,7 +66913,7 @@ Indeed, both the depth and the number of pushes increase with n:
 #+end_src
 
 #+header: :stdin eceval-test-fibonacci
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -66945,42 +66978,43 @@ Indeed, both the depth and the number of pushes increase with n:
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[fcf2b7dfd72251d2d89f876f2508e869be46f345]:
+#+begin_src shell
+
 
 ;;EC-Eval input:
 (define (fib n) (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
 ;;EC-Eval value:
 ok
-
 (total-pushes = 3 maximum-depth = 3)
+
 ;;EC-Eval input:
 (fib 5)
 ;;EC-Eval value:
 5
-
 (total-pushes = 408 maximum-depth = 28)
+
 ;;EC-Eval input:
 (fib 6)
 ;;EC-Eval value:
 8
-
 (total-pushes = 688 maximum-depth = 33)
+
 ;;EC-Eval input:
 (fib 7)
 ;;EC-Eval value:
 13
-
 (total-pushes = 1136 maximum-depth = 38)
+
 ;;EC-Eval input:
 (fib 8)
 ;;EC-Eval value:
 21
-
 (total-pushes = 1864 maximum-depth = 43)
+
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** Stack depth
 
@@ -67006,7 +67040,7 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 ***** undefined variables
 
 #+name: eceval-test-error-undefined-variable
-#+begin_src shell :exports code :results verbatim output
+#+begin_src shell :exports code :results verbatim output scalar code
   cat <<EOF
   (fib 8)
   (set! test 1)
@@ -67016,7 +67050,7 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 #+end_src
 
 #+name: eceval-s-environments
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results none
      (define (enclosing-environment env) (cdr env))
      (define (first-frame env) (car env))
      (define the-empty-environment '())
@@ -67077,7 +67111,7 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 #+end_src
 
 #+name: ec-error-simple-expressions-assignment
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   ev-self-eval
   (assign val (reg exp))
   (goto (reg continue))
@@ -67128,7 +67162,7 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 #+end_src
 
 #+name: eceval-test-error-undefined-variable-2
-#+begin_src shell :exports code :results verbatim output
+#+begin_src shell :exports code :results verbatim output scalar code
   cat <<EOF
   (fib 8)
   (set! test 1)
@@ -67141,7 +67175,7 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 
 
 #+header: :stdin eceval-test-error-undefined-variable-2
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -67207,36 +67241,37 @@ An we know that Fibonacci numbers grow roughly like \(\varphi^n\), the golden ra
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[9b4384b69ef83fbdeb25e58f9907621f7cd16e92]:
+#+begin_src shell
+
 
 ;;EC-Eval input:
-(fib 8)
-(unbound-variable-error . fib)
+(fib 8)(unbound-variable-error . fib)
 
 ;;EC-Eval input:
-(set! test 1)
-(unbound-variable-error . test)
+(set! test 1)(unbound-variable-error . test)
 
 ;;EC-Eval input:
-(show #t "hello")
-(unbound-variable-error . show)
+(show #t "hello")hello
+;;EC-Eval value:
+{Show-Env #56 #<Output-Port 139870599364064> 0 5 78 10 #f #\  #f #f #<procedure substring-length> #f #f #<procedure output-default> ()}
+(total-pushes = 9 maximum-depth = 5)
 
 ;;EC-Eval input:
 (define test 5)
 ;;EC-Eval value:
 ok
-
 (total-pushes = 3 maximum-depth = 3)
+
 ;;EC-Eval input:
 test
 ;;EC-Eval value:
 5
-
 (total-pushes = 1 maximum-depth = 1)
+
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 ***** wrong function arguments
 
@@ -67246,7 +67281,7 @@ exceptioning). This is appropriate if the underlying interpreter
 supports exceptions. I guess, SICP authors expected a different thing.
 
 #+name: ec-primitive-apply-with-errors
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 primitive-apply
 (assign val (op apply-primitive-procedure-with-errors) (reg proc) (reg argl))
 (save val)
@@ -67265,7 +67300,7 @@ primitive-error
 #+end_src
 
 #+name: ec-primitive-with-errors
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 
 (define primitive-implementation-checkers
   (list
@@ -67298,7 +67333,7 @@ primitive-error
 #+end_src
 
 #+name: eceval-test-error-undefined-variable-function
-#+begin_src shell :exports code :results verbatim output
+#+begin_src shell :exports code :results verbatim output scalar code
   cat <<EOF
   (fib 8)
   (set! test 1)
@@ -67312,7 +67347,7 @@ primitive-error
 
 
 #+header: :stdin eceval-test-error-undefined-variable-function
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-primitive-with-errors>>
@@ -67380,38 +67415,37 @@ primitive-error
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[be10ef722208dd8e5441b345bd646724b282a078]:
+#+begin_src shell
+
 
 ;;EC-Eval input:
-(fib 8)
-(unbound-variable-error . fib)
+(fib 8)(unbound-variable-error . fib)
 
 ;;EC-Eval input:
-(set! test 1)
-(unbound-variable-error . test)
+(set! test 1)(unbound-variable-error . test)
 
 ;;EC-Eval input:
-(show #t "hello")
-(unbound-variable-error . show)
+(show #t "hello")hello
+;;EC-Eval value:
+{Show-Env #56 #<Output-Port 139971607322080> 0 5 78 10 #f #\  #f #f #<procedure substring-length> #f #f #<procedure output-default> ()}
+(total-pushes = 10 maximum-depth = 5)
 
 ;;EC-Eval input:
-(cons 'a 'b)
+(cons (quote a) (quote b))
 ;;EC-Eval value:
 (a . b)
-
 (total-pushes = 10 maximum-depth = 5)
-;;EC-Eval input:
-(/ 1 0)
-(primitive-application-error . division-by-zero)
 
 ;;EC-Eval input:
-(car 1)
-(primitive-application-error . car-not-a-pair)
+(/ 1 0)(primitive-application-error . division-by-zero)
+
+;;EC-Eval input:
+(car 1)(primitive-application-error . car-not-a-pair)
 
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 Okay, the system is working, but I am too lazy to implement it for all
 primitive procedures.
@@ -67420,7 +67454,7 @@ primitive procedures.
 **** Common code
 
 #+name: c-compile
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile exp target linkage)
     (cond ((self-evaluating? exp)
 	   (compile-self-evaluating exp target linkage))
@@ -67445,7 +67479,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-make-instruction-sequence-empty-instruction-sequence
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-instruction-sequence needs modifies statements)
     (list needs modifies statements))
 (define (empty-instruction-sequence)
@@ -67453,7 +67487,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-linkage
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-linkage linkage)
     (cond ((eq? linkage 'return)
 	   (make-instruction-sequence '(continue) '()
@@ -67466,7 +67500,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-end-with-linkage
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (end-with-linkage linkage instruction-sequence)
     (preserving '(continue)
 		instruction-sequence
@@ -67474,7 +67508,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-simple-expressions
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-self-evaluating exp target linkage)
     (end-with-linkage linkage
 		      (make-instruction-sequence '() (list target)
@@ -67493,7 +67527,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-assignment
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-assignment exp target linkage)
     (let ((var (assignment-variable exp))
 	  (get-value-code
@@ -67523,7 +67557,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-make-label
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define label-counter 0)
   (define (new-label-number)
     (set! label-counter (+ 1 label-counter))
@@ -67535,7 +67569,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-if
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-if exp target linkage)
     (let ((t-branch (make-label 'true-branch))
 	  (f-branch (make-label 'false-branch))
@@ -67562,7 +67596,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-sequence
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-sequence seq target linkage)
     (if (last-exp? seq)
 	(compile (first-exp seq) target linkage)
@@ -67573,7 +67607,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compiled-procedures
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (make-compiled-procedure entry env)
     (list 'compiled-procedure entry env))
   (define (compiled-procedure? proc)
@@ -67583,7 +67617,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-lambda
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-lambda exp target linkage)
     (let ((proc-entry (make-label 'entry))
 	  (after-lambda (make-label 'after-lambda)))
@@ -67602,7 +67636,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-lambda-body
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-lambda-body exp proc-entry)
     (let ((formals (lambda-parameters exp)))
       (append-instruction-sequences
@@ -67620,7 +67654,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-application
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-application exp target linkage)
     (let ((proc-code (compile (operator exp) 'proc 'next))
 	  (operand-codes
@@ -67635,7 +67669,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-construct-arglist
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (construct-arglist operand-codes)
     (let ((operand-codes (reverse operand-codes)))
       (if (null? operand-codes)
@@ -67667,7 +67701,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-procedure-call
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-procedure-call target linkage)
     (let ((primitive-branch (make-label 'primitive-branch))
 	  (compiled-branch (make-label 'compiled-branch))
@@ -67695,7 +67729,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-compile-proc-appl
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define all-regs '(env proc val argl continue))
   (define (compile-proc-appl target linkage)
     (cond ((and (eq? target 'val) (not (eq? linkage 'return)))
@@ -67729,7 +67763,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-combining-registers
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (registers-needed s)
     (if (symbol? s) '() (car s)))
   (define (registers-modified s)
@@ -67743,7 +67777,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-append-instruction-sequences
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (append-instruction-sequences . seqs)
     (define (append-2-sequences seq1 seq2)
       (make-instruction-sequence
@@ -67764,7 +67798,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-list-union
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (list-union s1 s2)
     (cond ((null? s1) s2)
 	  ((memq (car s1) s2) (list-union (cdr s1) s2))
@@ -67777,7 +67811,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-preserving
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (preserving regs seq1 seq2)
     (if (null? regs)
 	(append-instruction-sequences seq1 seq2)
@@ -67798,7 +67832,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-tack-on-instruction-sequence
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (tack-on-instruction-sequence seq body-seq)
     (make-instruction-sequence
      (registers-needed seq)
@@ -67808,7 +67842,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-parallel-instruction-sequences
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (parallel-instruction-sequences seq1 seq2)
     (make-instruction-sequence
      (list-union (registers-needed seq1)
@@ -67820,7 +67854,7 @@ primitive procedures.
 #+end_src
 
 #+name: c-test-compile-1
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (compile
    '(define (factorial n)
       (if (= n 1)
@@ -67869,10 +67903,9 @@ primitive procedures.
    'next))
 
 (show #t (pretty compiled-factorial))
-
 #+end_src
 
-#+RESULTS:
+#+RESULTS[db1dfbf14e04a8d1f1d0cdaac75bccdfdde7f4c7]: c-test-factorial-1
 #+begin_example
 ((env) (val)
        ((assign val (op make-compiled-procedure) (label entry2) (reg env))
@@ -67956,8 +67989,9 @@ primitive procedures.
         (assign val (const ok))))
 #+end_example
 
+
 #+name: c-compile-and-go
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   (define (compile-and-go expression)
     (let ((instructions
 	   (assemble
@@ -67971,7 +68005,7 @@ primitive procedures.
 #+end_src
 
 #+name: ec-apply-dispatch-with-compiled
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   apply-dispatch
   (test (op primitive-procedure?) (reg proc))
   (branch (label primitive-apply))
@@ -67987,12 +68021,12 @@ primitive procedures.
 #+end_src
 
 #+name: ec-before-repl-branch-to-compile
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 (branch (label external-entry))
 #+end_src
 
 #+name: ec-external-entry
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
   external-entry
   (perform (op initialize-stack))
   (assign env (op get-global-environment))
@@ -68001,7 +68035,7 @@ primitive procedures.
 #+end_src
 
 #+name: s-user-prompt-print-with-compiled
-#+begin_src scheme :exports both :results value
+#+begin_src scheme :exports both :results value scalar code
   (define (prompt-for-input string)
     #;(newline) #;(newline) (display string) (newline))
   (define (announce-output string)
@@ -68018,10 +68052,8 @@ primitive procedures.
 
 #+end_src
 
-
-
 #+name: ec-eceval-operations-compiled
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
      (list 'eq? eq?)
      (list 'apply-primitive-procedure apply)
      (list 'compiled-procedure? compiled-procedure?)
@@ -68042,7 +68074,7 @@ primitive procedures.
 
 
 #+header: :stdin c-test-compile-and-go
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-s-additional-syntax>>
@@ -68140,8 +68172,8 @@ primitive procedures.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[d9250fff6ef75a54fff25e40b2acb5f582b72bc4]:
+#+begin_src shell
 ;;EC-Eval value:
 ok
 
@@ -68154,7 +68186,7 @@ ok
 (total-pushes = 31 maximum-depth = 14)
 ;;EC-Eval input:
 (exit)
-#+end_example
+#+end_src
 
 **** DONE Exercise 5.31 a ~preserving~ mechanism
      CLOSED: [2020-03-04 Wed 21:36]
@@ -68194,6 +68226,7 @@ ok
      CLOSED: [2020-03-04 Wed 22:51]
 
 ***** a
+
 #+name: ec-test-symbol-optimization
 #+begin_src shell :exports code :results verbatim output
   cat <<EOF
@@ -68203,7 +68236,7 @@ ok
 #+end_src
 
 #+name: ec-ev-application-optimized
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-application
 (save continue)
 (assign unev (op operands) (reg exp))
@@ -68221,7 +68254,7 @@ symbol-optimization
 #+end_src
 
 #+name: ec-ev-appl-did-operator-optimized
-#+begin_src scheme :exports code
+#+begin_src scheme :exports code :results none
 ev-appl-did-operator
 (restore unev) ; the operands
 (restore env)
@@ -68235,7 +68268,7 @@ symbol-optimization-shortcut
 
 
 #+header: :stdin ec-test-symbol-optimization
-#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output
+#+begin_src shell :shebang "#!/usr/bin/chibi-scheme" :exports code :results output scalar code
   <<ec-glue1>>
   <<s-truefalse>>
   <<ec-primitive-with-errors>>
@@ -68304,16 +68337,19 @@ symbol-optimization-shortcut
 
 #+end_src
 
-#+RESULTS:
-:
-: ;;EC-Eval input:
-: (/ 4 2)
-: ;;EC-Eval value:
-: 2
-:
-: (total-pushes = 8 maximum-depth = 5)
-: ;;EC-Eval input:
-: (exit)
+#+RESULTS[2b19ed2019b18f76ff68bebd3f18291696ad9765]:
+#+begin_src shell
+
+
+;;EC-Eval input:
+(/ 4 2)
+;;EC-Eval value:
+2
+(total-pushes = 8 maximum-depth = 5)
+
+;;EC-Eval input:
+(exit)
+#+end_src
 
 Works, and apparently stack is even less used than in the typical case.
 
@@ -68375,9 +68411,93 @@ in compile-time.
 
 #+end_src
 
+#+RESULTS[dc4152e03846a3406ed20f27e8d97adf133568aa]: c-test-factorial-2
+#+begin_example
+((env) (val)
+       ((assign val (op make-compiled-procedure) (label entry2) (reg env))
+        (goto (label after-lambda1))
+        entry2
+        (assign env (op compiled-procedure-env) (reg proc))
+        (assign env (op extend-environment) (const (n)) (reg argl) (reg env))
+        (save continue)
+        (save env)
+        (assign proc (op lookup-variable-value) (const =) (reg env))
+        (assign val (const 1))
+        (assign argl (op list) (reg val))
+        (assign val (op lookup-variable-value) (const n) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch17))
+        compiled-branch16
+        (assign continue (label after-call15))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch17
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call15
+        (restore env)
+        (restore continue)
+        (test (op false?) (reg val))
+        (branch (label false-branch4))
+        true-branch5
+        (assign val (const 1))
+        (goto (reg continue))
+        false-branch4
+        (assign proc (op lookup-variable-value) (const *) (reg env))
+        (save continue)
+        (save proc)
+        (save env)
+        (assign proc (op lookup-variable-value) (const factorial) (reg env))
+        (save proc)
+        (assign proc (op lookup-variable-value) (const -) (reg env))
+        (assign val (const 1))
+        (assign argl (op list) (reg val))
+        (assign val (op lookup-variable-value) (const n) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch8))
+        compiled-branch7
+        (assign continue (label after-call6))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch8
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call6
+        (assign argl (op list) (reg val))
+        (restore proc)
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch11))
+        compiled-branch10
+        (assign continue (label after-call9))
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch11
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        after-call9
+        (assign argl (op list) (reg val))
+        (restore env)
+        (assign val (op lookup-variable-value) (const n) (reg env))
+        (assign argl (op cons) (reg val) (reg argl))
+        (restore proc)
+        (restore continue)
+        (test (op primitive-procedure?) (reg proc))
+        (branch (label primitive-branch14))
+        compiled-branch13
+        (assign val (op compiled-procedure-entry) (reg proc))
+        (goto (reg val))
+        primitive-branch14
+        (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
+        (goto (reg continue))
+        after-call12
+        after-if3
+        after-lambda1
+        (perform (op define-variable!) (const factorial) (reg val) (reg env))
+        (assign val (const ok))))
+#+end_example
+
 
 #+header: :stdin empty
-#+begin_src shell :results output code :wrap src patch
+#+begin_src shell :results output code :wrap src patch :export both
   output1=$(
   cat <<'EOF'
   <<c-test-factorial-1()>>
@@ -68396,10 +68516,10 @@ in compile-time.
   diff -s -u <(echo "$output1") <(echo "$output2")
 #+end_src
 
-#+RESULTS:
+#+RESULTS[5c1dbcaedec7bc0821768256ee364c970d7b5c29]:
 #+begin_src patch
---- /dev/fd/63	2020-03-05 20:18:02.407373896 +0800
-+++ /dev/fd/62	2020-03-05 20:18:02.406373917 +0800
+--- /dev/fd/63	2020-05-28 00:25:27.369944094 +0800
++++ /dev/fd/62	2020-05-28 00:25:27.369944094 +0800
 @@ -31,9 +31,7 @@
          (assign proc (op lookup-variable-value) (const *) (reg env))
          (save continue)
