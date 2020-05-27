@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-26 16:40:22 lockywolf>
+# Time-stamp: <2020-05-27 10:37:56 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -43,11 +43,9 @@
        "-m" "chibi time"
        "-m" "srfi 27"
        "-m" "chibi process"
-       "-m" "srfi 42"
-       "-m" "srfi 78"
        "-m" "scheme list"
        "-m" "srfi 18"))
-  (setq geiser-connection-timeout (* 2 geiser-connection-timeout))
+  (setq geiser-connection-timeout 60000)
 #+end_src
 
 #+RESULTS[4b09abc1e048c56020004a5a0ac6b595766a9d38]:
@@ -10876,8 +10874,6 @@ functions are needed for the tests to work. Bad practice, don't do so.
 
 #+end_src
 
-#+RESULTS:
-:  (scheme-number . 4)
 
 #+name: apply-generic-many-args
 #+begin_src scheme :exports code :results none
@@ -10922,7 +10918,8 @@ functions are needed for the tests to work. Bad practice, don't do so.
 (define (identity x) x)
 #+end_src
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 <<accumulate>>
 <<generic-arithmetic-packages-multidispatch>>
 <<alyssa-complex-suggestion>>
@@ -10934,8 +10931,10 @@ functions are needed for the tests to work. Bad practice, don't do so.
                   (make-complex-from-real-imag 3 0))))
 #+end_src
 
-#+RESULTS:
-:  3
+#+RESULTS[04e85d66c4f33a374442ad0fe227ea254f7216a5]:
+#+begin_src scheme
+ 3
+#+end_src
 
 Well, this solution works, but is not perfect. Indeed, we can promote the
 numbers to one of the arguments, but this implementation would fail if the
@@ -10948,7 +10947,7 @@ This exercise has a problem: the name of the ~(raise)~ function coincides
 with the R7RS' built-in name for an operation to raise exceptions. Therefore,
 I have to name my operation ~raise-type~.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports code :results none
 (define numeric-tower (list 'integer 'rational 'scheme-number 'complex))
 
 (define (higher-type x)
@@ -10969,6 +10968,7 @@ I have to name my operation ~raise-type~.
 
 #+end_src
 
+
 *** DONE Exercise 2.84 Using ~raise~ (~raise-type~) in ~apply-generic~
     CLOSED: [2019-10-17 Thu 11:39]
 
@@ -10982,7 +10982,7 @@ In this exercise I will try to implement the following strategy:
  2. Will not implement any operations for ~'integer~'s, because those will be
     covered by the ~'rational~ class.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
@@ -11326,9 +11326,11 @@ In this exercise I will try to implement the following strategy:
   (show #t "Adding (coercion to rational): " (add 5 6))
 #+end_src
 
-#+RESULTS:
-: Remainder-integer            : 0
-: Adding (coercion to rational): (rational 11 . 1)
+#+RESULTS[8ea5add6746bf0ba9d59e535ca541bb7b79a298b]:
+#+begin_src scheme
+Remainder-integer            : 0
+Adding (coercion to rational): (rational 11 . 1)
+#+end_src
 
 This seems to do the job.
 
@@ -11353,7 +11355,19 @@ believed to be working fine. It turns out that I had to fix several bugs in
 the coercion functions from the previous exercises. I am not describing those
 fixed explicitly, but you may get them by comparing the code.
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
+  (define (project obj) (apply-generic 'project obj))
+  (define (droppable? obj)
+    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj)
+    (if (droppable? obj)
+	(drop (project obj))
+	obj))
+
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
@@ -11625,26 +11639,28 @@ fixed explicitly, but you may get them by comparing the code.
 	(if (accumulate (lambda (x y) (and x y)) #t coercion-list)
 	    coercion-list
 	    #f)))
-    (drop (let* ((type-tags (map type-tag args))
-			 (proc (get op type-tags)))
-		    (cond (proc (apply proc (map contents args)))
-			  ((= 2 (length args))
-			   (if (type1<=type2? (car type-tags) (cadr type-tags))
-			       (apply-generic op (raise-type (car args)) (cadr args))
-			       (apply-generic op (car args)  (raise-type (cadr args)))))
-			  ((and (>= (length args) 2) (not (all-argtypes-same? args)))
-			   (let types-loop ((types type-tags))
-			     (let ((list-of-coercion-functions
-				    (coercion-if-exists? (car types) type-tags)))
-			       (if list-of-coercion-functions
-				   (apply apply-generic (cons op (map (lambda (fun arg) (fun arg))
-								      list-of-coercion-functions
-								      args)))
-				   (if (not (null? (cdr types)))
-				       (types-loop (cdr types))
-				       (error "apply-generic:Even coercions failed. No method for these types."))))))
-			  (else (error "apply-generic:No method for these types"
-				       (list op type-tags)))))))
+    (let ((application-result (let* ((type-tags (map type-tag args))
+		 (proc (get op type-tags)))
+	    (cond (proc (apply proc (map contents args)))
+		  ((= 2 (length args))
+		   (if (type1<=type2? (car type-tags) (cadr type-tags))
+		       (apply-generic op (raise-type (car args)) (cadr args))
+		       (apply-generic op (car args)  (raise-type (cadr args)))))
+		  ((and (>= (length args) 2) (not (all-argtypes-same? args)))
+		   (let types-loop ((types type-tags))
+		     (let ((list-of-coercion-functions
+			    (coercion-if-exists? (car types) type-tags)))
+		       (if list-of-coercion-functions
+			   (apply apply-generic (cons op (map (lambda (fun arg) (fun arg))
+							      list-of-coercion-functions
+							      args)))
+			   (if (not (null? (cdr types)))
+			       (types-loop (cdr types))
+			       (error "apply-generic:Even coercions failed. No method for these types."))))))
+		  (else (error "apply-generic:No method for these types"
+			       (list op type-tags)))))))
+            #;(show #t "Application result: " (pretty application-result))
+            (drop application-result)))
   (define (scheme-number->complex n)
     (make-complex-from-real-imag (contents n) 0))
   (put-coercion 'scheme-number
@@ -11699,36 +11715,34 @@ fixed explicitly, but you may get them by comparing the code.
   (put 'remainder '(integer integer) remainder-integer)
   (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-  (define (project obj) (apply-generic 'project obj))
-  (define (droppable? obj)
-    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	  ((eq? (type-tag obj) (car numeric-tower)) #f)
-	  ((equ? obj (raise-type (project obj))) #t)
-	  (else #f)))
-  (define (drop obj)
-     (if (droppable? obj)
-	 (drop (project obj))
-	 obj))
 
-  #;(show #t "Test: " (droppable? (make-complex-from-real-imag 1 0)))
+  (show #t "Test: " (make-complex-from-real-imag 1 0) "\n")
+  (show #t "Test: " (droppable? (make-complex-from-real-imag 1 0)) "\n")
+  (show #t "Test: " (droppable? 1) "\n")
+  
   #;(show #t "Test 2: projecting a 'scheme-number: " (displayed (project (make-scheme-number 1))) "\n")
   #;(show #t "Test 3:" (drop (make-complex-from-real-imag 1 0)) "\n")
   (show #t "Subtracting complex numbers: "
 	(sub
 	 (make-complex-from-real-imag 1 2)
 	 (make-complex-from-real-imag 0 2)) "\n")
-   #;(show #t "Dropping #t: " (drop #t) "\n")
-   #;(show #t "Dropping #f: " (drop #f) "\n")
-   #;(show #t
-	"(equ? (raise-type (project '(complex rectangular 1 0))) '(complex rectangular 1 0))"
-	 (equ? (raise-type (project '(complex rectangular 1 0))) '(complex rectangular 1 0)))
-    #;(show #t (drop '(complex rectangular 1 0)) "\n")
-   #;(show #t "Testing project: " (displayed (project (make-complex-from-real-imag 1 0))) "\n")
-   #;(show #t "Testing: " (displayed (equ? (make-complex-from-real-imag 2 0) (raise-type (project (make-complex-from-real-imag 2 1))))) "\n")
+  #;(show #t "Dropping #t: " (drop #t) "\n")
+  #;(show #t "Dropping #f: " (drop #f) "\n")
+  #;(show #t
+  "(equ? (raise-type (project '(complex rectangular 1 0))) '(complex rectangular 1 0))"
+  (equ? (raise-type (project '(complex rectangular 1 0))) '(complex rectangular 1 0)))
+  #;(show #t (drop '(complex rectangular 1 0)) "\n")
+  #;(show #t "Testing project: " (displayed (project (make-complex-from-real-imag 1 0))) "\n")
+  #;(show #t "Testing: " (displayed (equ? (make-complex-from-real-imag 2 0) (raise-type (project (make-complex-from-real-imag 2 1))))) "\n")
 #+end_src
 
-#+RESULTS:
-: Subtracting complex numbers: 1
+#+RESULTS[f80e462b0d543d6d00502c95f6441fbc90bde6bb]:
+#+begin_src scheme
+Test: (complex rectangular 1 . 0)
+Test: #t
+Test: #f
+Subtracting complex numbers: 1
+#+end_src
 
 *** DONE Exercise 2.86 Compound complex numbers
     CLOSED: [2019-10-20 Sun 20:22]
@@ -11742,7 +11756,19 @@ the whole system in one block.
 It seems that implementing sines and cosines over 'scheme-number's is enough,
 because the other types should be covered by coercion.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
+  (define (project obj)
+    (show #t "Project function: " obj "\n")
+    (apply-generic 'project obj))
+  (define (droppable? obj)
+    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj)
+       (if (droppable? obj)
+	   (drop (project obj))
+	   obj))
     (define (accumulate op initial sequence)
       (if (null? sequence)
 	  initial
@@ -12103,18 +12129,7 @@ because the other types should be covered by coercion.
     (put 'remainder '(integer integer) remainder-integer)
     (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-  (define (project obj)
-    (show #t "Project function: " obj "\n")
-    (apply-generic 'project obj))
-  (define (droppable? obj)
-    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	  ((eq? (type-tag obj) (car numeric-tower)) #f)
-	  ((equ? obj (raise-type (project obj))) #t)
-	  (else #f)))
-  (define (drop obj)
-       (if (droppable? obj)
-	   (drop (project obj))
-	   obj))
+
 
     (show #t "Subtracting complex numbers: "
 	  (sub
@@ -12123,8 +12138,8 @@ because the other types should be covered by coercion.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[98ce38e9eab43d5cfb31e52122d20933ed898526]:
+#+begin_src scheme
 Project function: (rational 0 . 1)
 Calling project rational, x=(0 . 1)
 Project function: (rational 0 . 1)
@@ -12196,7 +12211,7 @@ Calling project rational, x=(2476979795053773 . 2251799813685248)
 Project function: (rational 2476979795053773 . 2251799813685248)
 Calling project rational, x=(2476979795053773 . 2251799813685248)
 Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
-#+end_example
+#+end_src
 
 All right, this seems super fragile, but somehow works.
 
@@ -12204,7 +12219,8 @@ All right, this seems super fragile, but somehow works.
 This piece will probably also be quite hairy, so it probably will be a good
 idea to write down the code examples.
 
-#+begin_src scheme :exports both :results output polynomial-package
+#+name: polynomial-package
+#+begin_src scheme :exports code :results none
   (define (install-polynomial-package)
     #;(internal procedures)
     #;(representation of poly)
@@ -12221,37 +12237,37 @@ idea to write down the code examples.
 
     #;(representation of terms and term lists)
 
-     (define (adjoin-term term term-list)
-       (if (=zero? (coeff term))
-           term-list
-           (cons term term-list)))
+    (define (adjoin-term term term-list)
+      (if (=zero? (coeff term))
+	  term-list
+	  (cons term term-list)))
 
-     (define (the-empty-termlist) '())
-     (define (first-term term-list) (car term-list))
-     (define (rest-terms term-list) (cdr term-list))
-     (define (empty-termlist? term-list) (null? term-list))
+    (define (the-empty-termlist) '())
+    (define (first-term term-list) (car term-list))
+    (define (rest-terms term-list) (cdr term-list))
+    (define (empty-termlist? term-list) (null? term-list))
 
-     (define (make-term order coeff) (list order coeff))
-     (define (order term) (car term))
-     (define (coeff term) (cadr term))
+    (define (make-term order coeff) (list order coeff))
+    (define (order term) (car term))
+    (define (coeff term) (cadr term))
 
     #;(continued on next page)
 
-     (define (add-poly p1 p2)
-       (if (same-variable? (variable p1) (variable p2))
-           (make-poly (variable p1)
-                      (add-terms (term-list p1)
-                                 (term-list p2)))
-           (error "Polys not in same var -- ADD-POLY"
-                  (list p1 p2))))
+    (define (add-poly p1 p2)
+      (if (same-variable? (variable p1) (variable p2))
+	  (make-poly (variable p1)
+		     (add-terms (term-list p1)
+				(term-list p2)))
+	  (error "Polys not in same var -- ADD-POLY"
+		 (list p1 p2))))
 
-     (define (mul-poly p1 p2)
-       (if (same-variable? (variable p1) (variable p2))
-           (make-poly (variable p1)
-                      (mul-terms (term-list p1)
-                                 (term-list p2)))
-           (error "Polys not in same var -- MUL-POLY"
-                  (list p1 p2))))
+    (define (mul-poly p1 p2)
+      (if (same-variable? (variable p1) (variable p2))
+	  (make-poly (variable p1)
+		     (mul-terms (term-list p1)
+				(term-list p2)))
+	  (error "Polys not in same var -- MUL-POLY"
+		 (list p1 p2))))
 
     #;(interface to rest of the system)
     (define (tag p) (attach-tag 'polynomial p))
@@ -12263,45 +12279,42 @@ idea to write down the code examples.
 	 (lambda (var terms) (tag (make-poly var terms))))
     'done)
 
-     (define (add-terms L1 L2)
-       (cond ((empty-termlist? L1) L2)
-             ((empty-termlist? L2) L1)
-             (else
-              (let ((t1 (first-term L1)) (t2 (first-term L2)))
-                (cond ((> (order t1) (order t2))
-                       (adjoin-term
-                        t1 (add-terms (rest-terms L1) L2)))
-                      ((< (order t1) (order t2))
-                       (adjoin-term
-                        t2 (add-terms L1 (rest-terms L2))))
-                      (else
-                       (adjoin-term
-                        (make-term (order t1)
-                                   (add (coeff t1) (coeff t2)))
-                        (add-terms (rest-terms L1)
-                                   (rest-terms L2)))))))))
-     (define (mul-terms L1 L2)
-       (if (empty-termlist? L1)
-           (the-empty-termlist)
-           (add-terms (mul-term-by-all-terms (first-term L1) L2)
-                      (mul-terms (rest-terms L1) L2))))
+  (define (add-terms L1 L2)
+    (cond ((empty-termlist? L1) L2)
+	  ((empty-termlist? L2) L1)
+	  (else
+	   (let ((t1 (first-term L1)) (t2 (first-term L2)))
+	     (cond ((> (order t1) (order t2))
+		    (adjoin-term
+		     t1 (add-terms (rest-terms L1) L2)))
+		   ((< (order t1) (order t2))
+		    (adjoin-term
+		     t2 (add-terms L1 (rest-terms L2))))
+		   (else
+		    (adjoin-term
+		     (make-term (order t1)
+				(add (coeff t1) (coeff t2)))
+		     (add-terms (rest-terms L1)
+				(rest-terms L2)))))))))
+  (define (mul-terms L1 L2)
+    (if (empty-termlist? L1)
+	(the-empty-termlist)
+	(add-terms (mul-term-by-all-terms (first-term L1) L2)
+		   (mul-terms (rest-terms L1) L2))))
 
-     (define (mul-term-by-all-terms t1 L)
-       (if (empty-termlist? L)
-           (the-empty-termlist)
-           (let ((t2 (first-term L)))
-             (adjoin-term
-              (make-term (+ (order t1) (order t2))
-                         (mul (coeff t1) (coeff t2)))
-              (mul-term-by-all-terms t1 (rest-terms L))))))
+  (define (mul-term-by-all-terms t1 L)
+    (if (empty-termlist? L)
+	(the-empty-termlist)
+	(let ((t2 (first-term L)))
+	  (adjoin-term
+	   (make-term (+ (order t1) (order t2))
+		      (mul (coeff t1) (coeff t2)))
+	   (mul-term-by-all-terms t1 (rest-terms L))))))
 
-     (define (make-polynomial var terms)
-       ((get 'make 'polynomial) var terms))
-
+  (define (make-polynomial var terms)
+    ((get 'make 'polynomial) var terms))
 
 #+end_src
-
-#+RESULTS:
 
 *** DONE Exercise 2.87 Generalized zero?
     CLOSED: [2019-10-21 Mon 18:25]
@@ -12309,7 +12322,20 @@ idea to write down the code examples.
 Remark 1: Even before I started solving anything, it required me 2.5 hours in
 order to just make the examples run and add a couple of simple polynomials.
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
+      (define (project obj)
+	(apply-generic 'project obj))
+      (define (droppable? obj)
+	(cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	      ((eq? (type-tag obj) (car numeric-tower)) #f)
+	      ((equ? obj (raise-type (project obj))) #t)
+	      (else #f)))
+      (define (drop obj)
+	   (if (droppable? obj)
+	       (drop (project obj))
+	       obj))
+
 	(define (accumulate op initial sequence)
 	  (if (null? sequence)
 	      initial
@@ -12670,17 +12696,7 @@ order to just make the examples run and add a couple of simple polynomials.
 	(put 'remainder '(integer integer) remainder-integer)
 	(define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-      (define (project obj)
-	(apply-generic 'project obj))
-      (define (droppable? obj)
-	(cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	      ((eq? (type-tag obj) (car numeric-tower)) #f)
-	      ((equ? obj (raise-type (project obj))) #t)
-	      (else #f)))
-      (define (drop obj)
-	   (if (droppable? obj)
-	       (drop (project obj))
-	       obj))
+
 
 	(show #t "Test 1: Subtracting complex numbers: "
 	      (sub
@@ -12794,15 +12810,17 @@ order to just make the examples run and add a couple of simple polynomials.
       (show #t "Test 4: Zero?: " (zero? (make-polynomial 'x '((5 0) (3 1)))) "\n")
 #+end_src
 
-#+RESULTS:
-: Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
-: Test 2: Making polynomials: (polynomial x (5 1) (4 2))
-: No proc found for op=zero?, type-tags=(integer)
-: Test 3: Adding polynomials: (polynomial x (5 2) (4 2) (0 1))
-: zero-poly?: poly=(x (5 0) (3 1))
-: No proc found for op=zero?, type-tags=(integer)
-: No proc found for op=zero?, type-tags=(integer)
-: Test 4: Zero?: #f
+#+RESULTS[974eab85c3ef897d59ad5b5ac51dc03cefadae5a]:
+#+begin_src scheme
+Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
+Test 2: Making polynomials: (polynomial x (5 1) (4 2))
+No proc found for op=zero?, type-tags=(integer)
+Test 3: Adding polynomials: (polynomial x (5 2) (4 2) (0 1))
+zero-poly?: poly=(x (5 0) (3 1))
+No proc found for op=zero?, type-tags=(integer)
+No proc found for op=zero?, type-tags=(integer)
+Test 4: Zero?: #f
+#+end_src
 
 Even though making the example code turned out to be a huge pain, actually
 solving the puzzle wasn't that hard. Just added a predicate to check if every
@@ -12816,7 +12834,19 @@ subtraction function.
 
 This task turned out to be super-easy.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
+  (define (project obj)
+    (apply-generic 'project obj))
+  (define (droppable? obj)
+    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj)
+    (if (droppable? obj)
+	(drop (project obj))
+	obj))
+
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
@@ -13177,17 +13207,6 @@ This task turned out to be super-easy.
   (put 'remainder '(integer integer) remainder-integer)
   (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-  (define (project obj)
-    (apply-generic 'project obj))
-  (define (droppable? obj)
-    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	  ((eq? (type-tag obj) (car numeric-tower)) #f)
-	  ((equ? obj (raise-type (project obj))) #t)
-	  (else #f)))
-  (define (drop obj)
-    (if (droppable? obj)
-	(drop (project obj))
-	obj))
 
   (show #t "Test 1: Subtracting complex numbers: "
 	(sub
@@ -13310,13 +13329,15 @@ This task turned out to be super-easy.
 	     (make-polynomial 'x '((0 1)))) "\n")
 #+end_src
 
-#+RESULTS:
-: Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
-: Test 2: Making polynomials: (polynomial x (5 1) (4 2))
-: Test 3: Adding polynomials: (polynomial x (5 2) (4 2) (0 1))
-: zero-poly?: poly=(x (5 0) (3 1))
-: Test 4: Zero?: #f
-: Test 5: Subtracting polynomials: (polynomial x (5 1) (4 2))
+#+RESULTS[b354c709c0fb26659a7c6a58241a7c4d1fefcd54]:
+#+begin_src scheme
+Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
+Test 2: Making polynomials: (polynomial x (5 1) (4 2))
+Test 3: Adding polynomials: (polynomial x (5 2) (4 2) (0 1))
+zero-poly?: poly=(x (5 0) (3 1))
+Test 4: Zero?: #f
+Test 5: Subtracting polynomials: (polynomial x (5 1) (4 2))
+#+end_src
 
 *** DONE Exercise 2.89 Dense term-lists
     CLOSED: [2019-10-22 Tue 11:55]
@@ -13334,7 +13355,7 @@ The sparse list-based ~adjoin-term~ seems to be only adjoining higher terms, not
 lower, so my dense list-based only supports that too. In any case, adding the
 option to adjoin smaller terms seems to be possible if needed.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
     (define (adjoin-term term term-list)
       (if (zero? (coeff term))
 	  term-list
@@ -13360,10 +13381,12 @@ option to adjoin smaller terms seems to be possible if needed.
 
 #+end_src
 
-#+RESULTS:
-: Test 1: appending zero: ()
-: Test 2: appending zero: (1)
-: Test 2: appending zero: (1 0 0 0 0 0 0 0 0 0 1)
+#+RESULTS[6af2197ea0139c79c1817783da8f3341fe9fe06d]:
+#+begin_src scheme
+Test 1: appending zero: ()
+Test 2: appending zero: (1)
+Test 2: appending zero: (1 0 0 0 0 0 0 0 0 0 1)
+#+end_src
 
 *** DONE Exercise 2.90 Implementing dense polynomials as a separate package
     CLOSED: [2019-10-22 Tue 21:31]
@@ -13371,7 +13394,20 @@ option to adjoin smaller terms seems to be possible if needed.
 Again, since implementing the new package will require a major rewrite of the
 system, it's better to copy the code rather than tangle.
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
+  (define (project obj)
+    (apply-generic 'project obj))
+  (define (droppable? obj)
+    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj)
+    (if (droppable? obj)
+	(drop (project obj))
+	obj))
+
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
@@ -13732,17 +13768,6 @@ system, it's better to copy the code rather than tangle.
   (put 'remainder '(integer integer) remainder-integer)
   (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-  (define (project obj)
-    (apply-generic 'project obj))
-  (define (droppable? obj)
-    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	  ((eq? (type-tag obj) (car numeric-tower)) #f)
-	  ((equ? obj (raise-type (project obj))) #t)
-	  (else #f)))
-  (define (drop obj)
-    (if (droppable? obj)
-	(drop (project obj))
-	obj))
 
   (show #t "Test 1: Subtracting complex numbers: "
 	(sub
@@ -13913,8 +13938,8 @@ system, it's better to copy the code rather than tangle.
 	     (make-polynomial 'x '((4 2)))) "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[73ffa111c8d1f0b9dd0479c9c8db75690f851de5]:
+#+begin_src scheme
 Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
 Test 2: Making polynomials: (polynomial x (5 1) (4 2))
 Test 3: Zero?: #f
@@ -13926,7 +13951,7 @@ Test 8: zero? dense polynomial: #f
 Test 9: Adding dense polynomials: (polynomial x (5 2) (4 2) (0 1))
 Test10: Subtracting dense polynomials: (polynomial x 2 0 0 0 1)
 Test11: Subtracting dense and sparse polynomials: (polynomial x 1 0 0 0 0 1)
-#+end_example
+#+end_src
 
 This also turned out to be not such a difficult exercise. The slightly
 controversial thing that I am concerned with is that the function
@@ -13938,7 +13963,19 @@ generic dispatch subsystem. But so far this seems good enough.
 And again, since div-poly is an internal procedure of the polynomial package,
 let me copy the whole code.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
+  (define (project obj)
+    (apply-generic 'project obj))
+  (define (droppable? obj)
+    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj)
+    (if (droppable? obj)
+	(drop (project obj))
+	obj))
+
   (define (accumulate op initial sequence)
     (if (null? sequence)
 	initial
@@ -14299,17 +14336,6 @@ let me copy the whole code.
   (put 'remainder '(integer integer) remainder-integer)
   (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-  (define (project obj)
-    (apply-generic 'project obj))
-  (define (droppable? obj)
-    (cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	  ((eq? (type-tag obj) (car numeric-tower)) #f)
-	  ((equ? obj (raise-type (project obj))) #t)
-	  (else #f)))
-  (define (drop obj)
-    (if (droppable? obj)
-	(drop (project obj))
-	obj))
 
   (show #t "Test 1: Subtracting complex numbers: "
 	(sub
@@ -14512,8 +14538,8 @@ let me copy the whole code.
 	      (make-polynomial 'x '(      (1 1) (0 1)))) ) "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[d4f49c4abd9e0b75d04625dfe26b86bc37e11b40]:
+#+begin_src scheme
 Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
 Test 2: Making polynomials: (polynomial x (5 1) (4 2))
 Test 3: Zero?: #f
@@ -14528,7 +14554,7 @@ Test11: Subtracting dense and sparse polynomials: (polynomial x 1 0 0 0 0 1)
 div-terms: rest-of-result: (() ())
 div-terms: rest-of-result: (((0 1)) ())
 Test12: Dividing x^2 + 2x + 1 by x+1: ((x (1 1) (0 1)) (x))
-#+end_example
+#+end_src
 
 This task also wasn't very difficult. The only problem here is that
 ~div-poly~ returns two polynomials, not one. This is a problem, because this
@@ -14563,7 +14589,20 @@ it is semantically.
 In total, this exercise took me several days, and the net amount of hours
 spent is about 10.
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
+    (define (project obj)
+      (apply-generic 'project obj))
+    (define (droppable? obj)
+      (cond ((not (memq (type-tag obj) numeric-tower)) #f)
+	    ((eq? (type-tag obj) (car numeric-tower)) #f)
+	    ((equ? obj (raise-type (project obj))) #t)
+	    (else #f)))
+    (define (drop obj)
+      (if (droppable? obj)
+	  (drop (project obj))
+	  obj))
+
   (define (thingy-source thingy)
     (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 	  ((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -14981,17 +15020,6 @@ spent is about 10.
     (put 'remainder '(integer integer) remainder-integer)
     (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-    (define (project obj)
-      (apply-generic 'project obj))
-    (define (droppable? obj)
-      (cond ((not (memq (type-tag obj) numeric-tower)) #f)
-	    ((eq? (type-tag obj) (car numeric-tower)) #f)
-	    ((equ? obj (raise-type (project obj))) #t)
-	    (else #f)))
-    (define (drop obj)
-      (if (droppable? obj)
-	  (drop (project obj))
-	  obj))
 
     (show #t "Test 1: Subtracting complex numbers: "
 	  (sub
@@ -15437,8 +15465,8 @@ spent is about 10.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[f79b271de0f74177f3577032e4d846f03401626e]:
+#+begin_src scheme
 Test: Higher than 'integer: rational
 Test 1: Subtracting complex numbers: (rational 2476979795053773 . 2251799813685248)
 TestY2: poly of poly: (x (3 (y (1 1) (0 1))) (1 2) (0 4))
@@ -15458,7 +15486,7 @@ Test24:result: normalizing a bad polynomial: (polynomial x (4 1) (2 1) (0 2))
 Test24:input: normalize-fully a bad polynomial: (polynomial y (2 (polynomial x (2 1) (0 1))) (0 2))
 Test24:result: normalize-fully a bad polynomial: (polynomial x (2 (polynomial y (2 1))) (0 (polynomial y (2 1) (0 2))))
 Test25: multiplying different variables: (polynomial x (1 (polynomial y (1 1))))
-#+end_example
+#+end_src
 
 *** DONE Exercise 2.93 Rational polynomials
     CLOSED: [2019-10-27 Sun 22:36]
@@ -15474,7 +15502,21 @@ Note that the normalization algorithm developed in the Exercise 2.92 is still
 hooked into the system, even though it would only be used for the case when
 the "inner" and "outer" polynomials are of the same variable.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
+      (define (project obj)
+	(apply-generic 'project obj))
+      (define (droppable? obj)
+	#;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
+	(cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
+	      ((not (memq (type-tag obj) numeric-tower)) #f)
+	      ((eq? (type-tag obj) (car numeric-tower)) #f)
+	      ((equ? obj (raise-type (project obj))) #t)
+	      (else #f)))
+      (define (drop obj)
+	(if (droppable? obj)
+	    (drop (project obj))
+	    obj))
+
     (define (thingy-source thingy)
       (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 	    ((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -15895,19 +15937,7 @@ the "inner" and "outer" polynomials are of the same variable.
       (put 'remainder '(integer integer) remainder-integer)
       (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-      (define (project obj)
-	(apply-generic 'project obj))
-      (define (droppable? obj)
-	#;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
-	(cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
-	      ((not (memq (type-tag obj) numeric-tower)) #f)
-	      ((eq? (type-tag obj) (car numeric-tower)) #f)
-	      ((equ? obj (raise-type (project obj))) #t)
-	      (else #f)))
-      (define (drop obj)
-	(if (droppable? obj)
-	    (drop (project obj))
-	    obj))
+
 
       (show #t "Test 1: Subtracting complex numbers: "
 	    (sub
@@ -16358,8 +16388,8 @@ the "inner" and "outer" polynomials are of the same variable.
   (show #t "Test 27: " (add rf rf) "\n")
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[6401a904a6fe8852faacecf638699ce04c9f53d8]:
+#+begin_src scheme
 Test: Higher than 'integer: scheme-number
 Test 1: Subtracting complex numbers: (scheme-number . 1.1)
 TestY2: poly of poly: (x (3 (y (1 1) (0 1))) (1 2) (0 4))
@@ -16383,7 +16413,7 @@ Test 26: make-rational-polynomial: (rational (polynomial x (3 1) (0 1)) polynomi
 Test 27: add-rational
 rational not droppable: #f
 Test 27: (rational (polynomial x (5 2) (3 2) (2 2) (0 2)) polynomial x (4 1) (2 2) (0 1))
-#+end_example
+#+end_src
 
 *** DONE Exercise 2.94 Greatest-common-divisor for polynomials
     CLOSED: [2019-10-28 Mon 00:47]
@@ -16394,7 +16424,21 @@ functions to the polynomial package, which cannot be done with a mere
 include.
 
 #+name: cas-with-rational-polynomials
-#+begin_src scheme :exports code :results none
+#+begin_src scheme :exports code :results output scalar code
+      (define (project obj)
+	(apply-generic 'project obj))
+      (define (droppable? obj)
+	#;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
+	(cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
+	      ((not (memq (type-tag obj) numeric-tower)) #f)
+	      ((eq? (type-tag obj) (car numeric-tower)) #f)
+	      ((equ? obj (raise-type (project obj))) #t)
+	      (else #f)))
+      (define (drop obj)
+	(if (droppable? obj)
+	    (drop (project obj))
+	    obj))
+
     (define (thingy-source thingy)
       (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 	    ((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -16815,19 +16859,7 @@ include.
       (put 'remainder '(integer integer) remainder-integer)
       (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-      (define (project obj)
-	(apply-generic 'project obj))
-      (define (droppable? obj)
-	#;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
-	(cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
-	      ((not (memq (type-tag obj) numeric-tower)) #f)
-	      ((eq? (type-tag obj) (car numeric-tower)) #f)
-	      ((equ? obj (raise-type (project obj))) #t)
-	      (else #f)))
-      (define (drop obj)
-	(if (droppable? obj)
-	    (drop (project obj))
-	    obj))
+
 
       (show #t "Test 1: Subtracting complex numbers: "
 	    (sub
@@ -17302,8 +17334,8 @@ include.
     (show #t "Test 28: polynomial-gcd: " (greatest-common-divisor p1 p2) "\n"))
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[b16dedb2123fdf3d13d68461e53c385c5fcf42aa]: cas-with-rational-polynomials
+#+begin_src scheme
 Test: Higher than 'integer: scheme-number
 Test 1: Subtracting complex numbers: (scheme-number . 1.1)
 TestY2: poly of poly: (x (3 (y (1 1) (0 1))) (1 2) (0 4))
@@ -17329,7 +17361,8 @@ rational not droppable: #f
 Test 27: (rational (polynomial x (5 2) (3 2) (2 2) (0 2)) polynomial x (4 1) (2 2) (0 1))
 Test 28: polynomial-gcd: start
 Test 28: polynomial-gcd: (polynomial x (2 -1) (1 1))
-#+end_example
+#+end_src
+
 
 So the answer is \(-x^2 + x\). Now we need to check this. Luckily, the number
 of iterations is not very big.
@@ -17339,7 +17372,20 @@ Wolfram Alpha gives me \(x^2 - x\), which is the same thing, I guess.
 *** DONE Exercise 2.95 Illustrate the non-integer problem
     CLOSED: [2019-10-28 Mon 11:35]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
+      (define (project obj)
+	(apply-generic 'project obj))
+      (define (droppable? obj)
+	#;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
+	(cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
+	      ((not (memq (type-tag obj) numeric-tower)) #f)
+	      ((eq? (type-tag obj) (car numeric-tower)) #f)
+	      ((equ? obj (raise-type (project obj))) #t)
+	      (else #f)))
+      (define (drop obj)
+	(if (droppable? obj)
+	    (drop (project obj))
+	    obj))
     (define (thingy-source thingy)
       (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 	    ((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -17760,19 +17806,7 @@ Wolfram Alpha gives me \(x^2 - x\), which is the same thing, I guess.
       (put 'remainder '(integer integer) remainder-integer)
       (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-      (define (project obj)
-	(apply-generic 'project obj))
-      (define (droppable? obj)
-	#;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
-	(cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
-	      ((not (memq (type-tag obj) numeric-tower)) #f)
-	      ((eq? (type-tag obj) (car numeric-tower)) #f)
-	      ((equ? obj (raise-type (project obj))) #t)
-	      (else #f)))
-      (define (drop obj)
-	(if (droppable? obj)
-	    (drop (project obj))
-	    obj))
+
 
       (show #t "Test 1: Subtracting complex numbers: "
 	    (sub
@@ -18261,8 +18295,8 @@ Wolfram Alpha gives me \(x^2 - x\), which is the same thing, I guess.
     )
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[17b02fb04ff2d386fe792f8b9e99f502c7d46fe2]:
+#+begin_src scheme
 Test: Higher than 'integer: scheme-number
 Test 1: Subtracting complex numbers: (scheme-number . 1.1)
 TestY2: poly of poly: (x (3 (y (1 1) (0 1))) (1 2) (0 4))
@@ -18296,7 +18330,7 @@ gcd-terms: (term-list b)=((1 (scheme-number . -17.254437869822485)) (0 (scheme-n
 gcd-terms: (term-list b)=((0 (scheme-number . 7.993605777301127e-15)))
 gcd-terms: (term-list b)=()
 Test 29: gcd : (polynomial x (0 (scheme-number . 1.100410578432558)))
-#+end_example
+#+end_src
 
 The answer is a polynomial \(x^0 \times 1.100410578432558\), which is
 essentially just a number. Clearly, this is not the greatest common
@@ -18316,8 +18350,21 @@ becomes very hard to operate with these numbers.
 This is not a very hard exercise. The only problem here is still the messy
 part in the division by the gcd, but hey, formally the exercise is done.
 
-#+begin_src scheme :exports both :results output
 
+#+begin_src scheme :exports both :results output scalar code
+	  (define (project obj)
+	    (apply-generic 'project obj))
+	  (define (droppable? obj)
+	    #;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
+	    (cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
+		  ((not (memq (type-tag obj) numeric-tower)) #f)
+		  ((eq? (type-tag obj) (car numeric-tower)) #f)
+		  ((equ? obj (raise-type (project obj))) #t)
+		  (else #f)))
+	  (define (drop obj)
+	    (if (droppable? obj)
+		(drop (project obj))
+		obj))
 	(define (thingy-source thingy)
 	  (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 		((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -18457,11 +18504,9 @@ part in the division by the gcd, but hey, formally the exercise is done.
 	  (define (make-scheme-number n)
 	     #;(show #t "debug:make-scheme-number: n=" n "\n")
 	    ((get 'make 'scheme-number) n))
-	  #;(check (+ 1 1) => 2)
 	  (show #t "Test 31: start\n")
 	  (show #t "Test 31:" (equal? (make-scheme-number 1) 1) "\n")
 
-	  #;(check (add (make-scheme-number 1) (make-scheme-number 1)) => 2)
 
 	  (define (install-rational-package)
 	    (define (numer x) (car x))
@@ -18651,19 +18696,7 @@ part in the division by the gcd, but hey, formally the exercise is done.
 	  (put 'remainder '(integer integer) remainder-integer)
 	  (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-	  (define (project obj)
-	    (apply-generic 'project obj))
-	  (define (droppable? obj)
-	    #;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
-	    (cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
-		  ((not (memq (type-tag obj) numeric-tower)) #f)
-		  ((eq? (type-tag obj) (car numeric-tower)) #f)
-		  ((equ? obj (raise-type (project obj))) #t)
-		  (else #f)))
-	  (define (drop obj)
-	    (if (droppable? obj)
-		(drop (project obj))
-		obj))
+
 
 	  (define (apply-generic op . args)
 	    #;(show #t "apply-generic:entry\n")
@@ -19301,8 +19334,8 @@ part in the division by the gcd, but hey, formally the exercise is done.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[9cf0e4fd4ba150889fdb5f8e0ac298018492d6b5]:
+#+begin_src scheme
 (tag 5)=5
 Test 31: start
 Test 31:#t
@@ -19353,7 +19386,7 @@ Test14: Adding polynomials of two variables: (polynomial x
                                                          (0
                                                           (polynomial y (1 1))))
 Test14: Adding polynomials of two variables,
- when one of them is nonexistant:
+ when one of them is nonexistant: 
 (polynomial x (1 1) (0 (polynomial y (0 1))))
 zero-poly?: poly=(y (1 1))
 zero-poly?: poly=(y (1 1))
@@ -19429,7 +19462,7 @@ gcd-poly: first-terms=((2 1458) (1 -2916) (0 1458))
 gcd-poly: coefficients=(1458 -2916 1458)
 gcd-poly: coeff-gcd=1458
 Test 29: gcd : (polynomial x (2 0.9999999999999999) (1 -1.9999999999999998) (0 0.9999999999999999))
-#+end_example
+#+end_src
 
 We unfortunately, there is an error with exact-inexact numbers somewhere
 here. I am too tired to fix it, but this should be doable. Let me say, I'd
@@ -19441,7 +19474,21 @@ also leave it as an exercise to the reader.
 Here is the solution of the exercise. I have to copy the code again, because
 implementing term reduction requires extending the polynomial package.
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
+  (define (project obj)
+    (apply-generic 'project obj))
+  (define (droppable? obj)
+    #;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
+    (cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
+	  ((not (memq (type-tag obj) numeric-tower)) #f)
+	  ((eq? (type-tag obj) (car numeric-tower)) #f)
+	  ((equ? obj (raise-type (project obj))) #t)
+	  (else #f)))
+  (define (drop obj)
+    (if (droppable? obj)
+	(drop (project obj))
+	obj))
   (define (thingy-source thingy)
     (cond ((lambda? thingy) (list "lambda" (lambda-source thingy)))
 	  ((procedure? thingy) (list "procedure" (procedure-name thingy)))
@@ -19581,11 +19628,9 @@ implementing term reduction requires extending the polynomial package.
   (define (make-scheme-number n)
     #;(show #t "debug:make-scheme-number: n=" n "\n")
     ((get 'make 'scheme-number) n))
-  #;(check (+ 1 1) => 2)
   (show #t "Test 31: start\n")
   (show #t "Test 31:" (equal? (make-scheme-number 1) 1) "\n")
 
-  #;(check (add (make-scheme-number 1) (make-scheme-number 1)) => 2)
   (define (reduce a b) (apply-generic 'reduce a b))
   (define (install-rational-package)
     (define (numer x) (car x))
@@ -19777,19 +19822,7 @@ implementing term reduction requires extending the polynomial package.
   (put 'remainder '(integer integer) remainder-integer)
   (define (remainder-generalized a b) (apply-generic 'remainder a b))
 
-  (define (project obj)
-    (apply-generic 'project obj))
-  (define (droppable? obj)
-    #;(show #t "droppable?: obj=" obj ", type-tag=" (type-tag obj) "\n")
-    (cond ((eq? (type-tag obj) 'rational) (begin (show #t "rational not droppable: #f\n") #f))
-	  ((not (memq (type-tag obj) numeric-tower)) #f)
-	  ((eq? (type-tag obj) (car numeric-tower)) #f)
-	  ((equ? obj (raise-type (project obj))) #t)
-	  (else #f)))
-  (define (drop obj)
-    (if (droppable? obj)
-	(drop (project obj))
-	obj))
+
 
   (define (apply-generic op . args)
     #;(show #t "apply-generic:entry\n")
@@ -20485,8 +20518,8 @@ implementing term reduction requires extending the polynomial package.
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
+#+RESULTS[1b38b44f1730a7e90cc23c2ae39d360472b17533]:
+#+begin_src scheme
 (tag 5)=5
 Test 31: start
 Test 31:#t
@@ -20533,7 +20566,7 @@ div-terms: L1=((1 1) (0 1)), L2=((1 1) (0 1))
 div-terms: L1=(), L2=((1 1) (0 1))
 Test12: Dividing x^2 + 2x + 1 by x+1: ((x (1 1) (0 1)) (x))
 Test14: Adding polynomials of two variables: (polynomial x (1 1) (0 (polynomial y (1 1))))Test14: Adding polynomials of two variables,
- when one of them is nonexistant:
+ when one of them is nonexistant: 
 (polynomial x (1 1) (0 (polynomial y (0 1))))
 zero-poly?: poly=(y (1 1))
 zero-poly?: poly=(y (1 1))
@@ -20887,7 +20920,7 @@ maprest: operation=#<procedure first-term>term-list=()
 full-list=(-2401 -4802 -7203 -2401 -2401 -2401 2401 2401)
 rational not droppable: #f
 Test 33: (rational (polynomial x (3 -1) (2 -2) (1 -3) (0 -1)) polynomial x (4 -1) (3 -1) (1 1) (0 1))
-#+end_example
+#+end_src
 
 This exercise ends the Chapter 2 of the Structure and Interpretation of
 Computer programs.
@@ -20899,26 +20932,24 @@ is a good idea to read a book on algebra and integer algorithms.
 *** DONE Exercise 3.1 accumulators
     CLOSED: [2019-10-29 Tue 10:24]
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define (make-accumulator initial-amount)
    (lambda (increment) (set! initial-amount (+ initial-amount increment)) initial-amount))
 (define A (make-accumulator 5))
-(check (A 10) => 15)
-(check (A 20) => 35)
+(show #t "Test: (check (A 10) => 15): " (equal? (A 10) 15) "\n")
+(show #t "Test: (check (A 20) => 35): " (equal? (A 20) 35) "\n")
 (define B (make-accumulator 100))
-(check (B 200) => 300)
-(check (B   1) => 301)
+(show #t "Test: (check (B 200) => 300): " (equal? (B 200) 300) "\n")
+(show #t "Test: (check (B   1) => 301): " (equal? (B   1) 301) "\n")
 #+end_src
 
-#+RESULTS:
-:
-: (A 10) => 15 ; correct
-:
-: (A 20) => 35 ; correct
-:
-: (B 200) => 300 ; correct
-:
-: (B 1) => 301 ; correct
+#+RESULTS[ea5fe9c6a72a768d568a44d1f55bd12487d91312]:
+#+begin_src scheme
+Test: (check (A 10) => 15): #t
+Test: (check (A 20) => 35): #t
+Test: (check (B 200) => 300): #t
+Test: (check (B   1) => 301): #t
+#+end_src
 
 *** DONE Exercise 3.2 make-monitored
     CLOSED: [2019-10-29 Tue 11:03]
@@ -20927,7 +20958,7 @@ This problem is ill-defined. In particular, it doesn't specify whether we
 should be counting calls to ~f~ only, or to ~mf~ in total, including the
 calls to ~'how-many-calls?~.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   (define (make-monitored f)
     (let ((call-counter 0))
       (lambda (arg)
@@ -20936,15 +20967,15 @@ calls to ~'how-many-calls?~.
 	      (else (begin (set! call-counter (+ 1 call-counter)) (f arg)))))))
   (define s (make-monitored sqrt))
 
-  (check (s 100) => 10)
-  (check (s 'how-many-calls?) => 1)
+  (show #t "Test: (check (s 100) => 10): " (equal? (s 100) 10) "\n")
+  (show #t "Test: (check (s 'how-many-calls?) => 1): " (equal? (s 'how-many-calls?) 1)) "\n"
 #+end_src
 
-#+RESULTS:
-:
-: (s 100) => 10 ; correct
-:
-: (s (quote how-many-calls?)) => 1 ; correct
+#+RESULTS[f0248ce7466e974c7873e84e9dbf3e75dda0ae11]:
+#+begin_src scheme
+Test: (check (s 100) => 10): #t
+Test: (check (s 'how-many-calls?) => 1): #t
+#+end_src
 
 *** DONE Exercise 3.3 password protection
     CLOSED: [2019-10-29 Tue 11:17]
@@ -20952,7 +20983,7 @@ calls to ~'how-many-calls?~.
 This exercise is slightly tricky in that it uses the less commonly used form
 of ~lambda~, which can take any number of arguments.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define (make-account balance password)
        (define (withdraw amount)
          (if (>= balance amount)
@@ -20973,22 +21004,23 @@ of ~lambda~, which can take any number of arguments.
 
 (define acc (make-account 100 'secret-password))
 
-(check ((acc 'secret-password 'withdraw) 40) => 60)
+(show #t "Test: (check ((acc 'secret-password 'withdraw) 40) => 60): " (equal? ((acc 'secret-password 'withdraw) 40) 60) "\n")
 
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\"): " (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
 
 #+end_src
 
-#+RESULTS:
-:
-: ((acc (quote secret-password) (quote withdraw)) 40) => 60 ; correct
-:
-: ((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
+#+RESULTS[3a6e771aa236eca173d350b94e45f0e2f438c896]:
+#+begin_src scheme
+Test: (check ((acc 'secret-password 'withdraw) 40) => 60): #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password"): #t
+#+end_src
 
 *** DONE Exercise 3.4 call-the-cops
     CLOSED: [2019-10-29 Tue 11:32]
 
-#+begin_src scheme :exports both :results output
+
+#+begin_src scheme :exports both :results output scalar code
 (define (make-account balance password)
        (define (withdraw amount)
          (if (>= balance amount)
@@ -21014,40 +21046,39 @@ of ~lambda~, which can take any number of arguments.
 
 (define acc (make-account 100 'secret-password))
 
-(check ((acc 'secret-password 'withdraw) 40) => 60)
+(show #t "Test: (check ((acc 'secret-password 'withdraw) 40) => 60): " (equal? ((acc 'secret-password 'withdraw) 40) 60) "\n")
 
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-(check ((acc 'some-other-password 'deposit) 50) => "Call the cops")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Call the cops\") " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Call the cops") "\n")
 
 #+end_src
 
-#+RESULTS:
-#+begin_example
-
-((acc (quote secret-password) (quote withdraw)) 40) => 60 ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-
-((acc (quote some-other-password) (quote deposit)) 50) => "Call the cops" ; correct
-#+end_example
+#+RESULTS[22d704aeaf1eea5a9125cf479a049a194c91962a]:
+#+begin_src scheme
+Test: (check ((acc 'secret-password 'withdraw) 40) => 60): #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password") #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Call the cops") #t
+#+end_src
 
 *** DONE Exercise 3.5 Monte-Carlo
     CLOSED: [2019-10-30 Wed 00:12]
@@ -21055,7 +21086,7 @@ of ~lambda~, which can take any number of arguments.
 I am using the random function first defined in Exercise 1.24, not the
 rand-update, because I am not very sure in my prng development skills.
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
   <<random>>
   (define (random-in-range low high)
       (let ((range (- high low)))
@@ -21087,12 +21118,14 @@ rand-update, because I am not very sure in my prng development skills.
   (define (estimate-pi trials)
     (inexact (* 4 (estimate-integral
 	  (lambda (x y) (is-inside-circle? x y 1000)) 1 2000 1 2000 trials))))
-(show #t "Test 02:" (estimate-pi 100100) "\n")
+(show #t "Test 02: " (estimate-pi 100100) "\n")
 #+end_src
 
-#+RESULTS:
-: Test 01: 907
-: Test 02:3.148211788211788
+#+RESULTS[b8c4b2f83b9877d1d2a9f511fc18e6597353689d]:
+#+begin_src scheme
+Test 01: 38
+Test 02:3.1442157842157843
+#+end_src
 
 It took me more time to understand what exactly is wanted than to write the
 actual code.
@@ -21102,11 +21135,8 @@ actual code.
 
 All three components in the random formula are primes. Is this good?
 
-#+begin_src scheme :exports both :results output
-
-
+#+begin_src scheme :exports both :results output scalar code
   (define rand
-
     (let ((seed 1))
       (define (rand-update x)
 	(remainder (+ (* x 111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111389)
@@ -21125,11 +21155,13 @@ All three components in the random formula are primes. Is this good?
   (show #t "Test 02: Second random call: " (rand 'generate) "\n")
 #+end_src
 
-#+RESULTS:
-: Seed=1
-: Test 01: First random call: 473684210526315790444679008925823330256457
-: Seed=100
-: Test 02: Second random call: 701754385964912314820502646968297937855541
+#+RESULTS[59cf48b620e440cebb36771995a32a567fb9ec15]:
+#+begin_src scheme
+Seed=1
+Test 01: First random call: 473684210526315790444679008925823330256457
+Seed=100
+Test 02: Second random call: 701754385964912314820502646968297937855541
+#+end_src
 
 *** DONE Exercise 3.7 Joint accounts
     CLOSED: [2019-10-30 Wed 13:07]
@@ -21137,7 +21169,7 @@ All three components in the random formula are primes. Is this good?
 This exercise illustrates a fairly common thing in programming called
 "wrapping" or "interfacing".
 
-#+begin_src scheme :exports both :results output
+#+begin_src scheme :exports both :results output scalar code
 (define (make-account balance password)
        (define (withdraw amount)
          (if (>= balance amount)
@@ -21155,40 +21187,30 @@ This exercise illustrates a fairly common thing in programming called
                             m)))
          (lambda rest "Incorrect password")))
        dispatch)
-
 (define acc (make-account 100 'secret-password))
-
-(check ((acc 'secret-password 'withdraw) 40) => 60)
-
-(check ((acc 'some-other-password 'deposit) 50) => "Incorrect password")
-
+(show #t "Test: (check ((acc 'secret-password 'withdraw) 40) => 60): " (equal? ((acc 'secret-password 'withdraw) 40) 60) "\n")
+(show #t "Test: (check ((acc 'some-other-password 'deposit) 50) => \"Incorrect password\"): " 
+  (equal? ((acc 'some-other-password 'deposit) 50) "Incorrect password") "\n")
 (define (make-joint account main-password sub-password)
  (define (dispatch pass m)
         (if (eq? pass sub-password)
          (account main-password m)
          (lambda rest "Incorrect password")))
  dispatch)
-
 (define peter-acc (make-account 100 'open-sesame))
-
 (define paul-acc
  (make-joint peter-acc 'open-sesame 'rosebud))
-
-(check ((peter-acc 'open-sesame 'withdraw) 40) => 60)
-(check ((paul-acc  'rosebud     'deposit)  50) => 110)
-
-
+(show #t "Test: (check ((peter-acc 'open-sesame 'withdraw) 40) => 60): " (equal? ((peter-acc 'open-sesame 'withdraw) 40) 60) "\n")
+(show #t "Test: (check ((paul-acc  'rosebud     'deposit)  50) => 110): " (equal? ((paul-acc  'rosebud     'deposit)  50) 110) "\n")
 #+end_src
 
-#+RESULTS:
-:
-: ((acc (quote secret-password) (quote withdraw)) 40) => 60 ; correct
-:
-: ((acc (quote some-other-password) (quote deposit)) 50) => "Incorrect password" ; correct
-:
-: ((peter-acc (quote open-sesame) (quote withdraw)) 40) => 60 ; correct
-:
-: ((paul-acc (quote rosebud) (quote deposit)) 50) => 110 ; correct
+#+RESULTS[619d08dddec9ac7b863db752b4663cdcacbfe9ae]:
+#+begin_src scheme
+Test: (check ((acc 'secret-password 'withdraw) 40) => 60): #t
+Test: (check ((acc 'some-other-password 'deposit) 50) => "Incorrect password"): #t
+Test: (check ((peter-acc 'open-sesame 'withdraw) 40) => 60): #t
+Test: (check ((paul-acc  'rosebud     'deposit)  50) => 110): #t
+#+end_src
 
 *** DONE Exercise 3.8 Right-to-left vs Left-to-right
     CLOSED: [2019-10-30 Wed 13:45]
