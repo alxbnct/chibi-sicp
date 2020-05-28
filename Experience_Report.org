@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-26 12:54:57 lockywolf>
+# Time-stamp: <2020-05-28 13:43:30 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -603,6 +603,7 @@ The following figure presents some of the aggregated statistic on the solution o
 - *94.73* hours for the hardest problem: writing a scheme interpreter in a low-level language
 - *652* study sessions
 - *1.79* study sessions on average
+- *>78000* lines long .org file (*>2.6* megabytes)
 - *1* median study session
 - *13* problems were solved out of order. 
   - "Figure 1.1 Tree representation, ..."

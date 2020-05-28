@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 13:38:29 lockywolf>
+# Time-stamp: <2020-05-28 13:45:01 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -78186,7 +78186,8 @@ This was a huge project. Even just revising it, going through it to
 check if every piece of code runs, took a week's time. 
 
 The document should be now exportable to PDF, and potentially in some other formats.
-
+At the end Emacs became slow under the load of a 78 thousand-long file.
+I had to turn off company-mode and font-lock-mode to make is reasonable.
 
 
 * Footnotes
