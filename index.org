@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 20:27:32 lockywolf>
+# Time-stamp: <2020-05-28 20:53:14 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -4490,7 +4490,7 @@ and Sussman for general reference.
 #+end_src
 
 #+name: print-point
-#+begin_src scheme :exports none :results none
+#+begin_src scheme :exports code :results none
   (define (print-point p)
     (newline)
     (display "(")
@@ -4909,8 +4909,6 @@ Marvelous.
       (/ percent center)))
 #+end_src
 
-#+RESULTS:
-: #<undef>
 
 #+begin_src scheme :exports both :results output scalar code
 <<make-center-width>>
@@ -5163,16 +5161,18 @@ turned out to be less fit for this problem.
 
 *Warning:* the next code is a bit slow (~1 minute).
 
-#+begin_src scheme :exports both :results output scalar none
+#+begin_src scheme :exports both :results output scalar code
 <<first-denomination>>
 <<coin-values>>
 (show #t " " (cc 137 us-coins) "\n")
 (show #t " " (cc 137 uk-coins) "\n")
 #+end_src
 
-#+RESULTS:
-:  704
-:  443166
+#+RESULTS[f3618a82451af30378c72dc5a2fc66ffe5d4809c]:
+#+begin_src scheme
+ 704
+ 443166
+#+end_src
 
 #+begin_src scheme :exports both :results output scalar code
 <<first-denomination>>
@@ -5578,6 +5578,7 @@ The task was funny.
 #+begin_src scheme
 5
 #+end_src
+
 #+name: mobile-balanced
 #+begin_src scheme :exports code :results none
     (define (balanced? mobile)
@@ -6357,7 +6358,7 @@ For the canonical solution, we can safely assume that the ~safe?~
 procedure filters out no sequences at all (this would only worsen our
 estimate). Therefore, every additional column would multiply the total
 computation needed by the size of the column. Roughly speaking, this
-would be \(k^k \approx 2^k \rightarrow 2^{}^6 = 64\).
+would be \(k^k \approx 2^k \rightarrow 2^6 = 64\).
 
 For the Louis's solution, however, the ~(queen-cols (- k 1))~ is
 solved for every value of ~k~ from scratch, which is not necessary,
@@ -9105,7 +9106,7 @@ not really specifying which one to use. Also, I never had to use the
           (put 'angle '(complex) angle)
 #+end_src
 
-#+begin_src scheme :exports both :results output scalar coden
+#+begin_src scheme :exports both :results output scalar code
 (define false #f)
 (define true  #t)
 <<put-and-get>>
@@ -9118,8 +9119,10 @@ not really specifying which one to use. Also, I never had to use the
 
 #+end_src
 
-#+RESULTS[cba9603f04d7d5745b4df2819a1496f536732fdf]:
-: Louis's result: 5
+#+RESULTS[d12a7f5cedd4e3a4014a32766cd3e98923cfef03]:
+#+begin_src scheme
+Louis's result: 5
+#+end_src
 
 This example illustrates what can, perhaps, be called "double
 dispatch". Indeed,  our "complex" implementation still keeps the 'rectangular
