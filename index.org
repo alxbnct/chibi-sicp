@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 17:48:58 lockywolf>
+# Time-stamp: <2020-05-28 18:09:36 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -85,7 +85,7 @@
 
 #+end_quote
 
-\(E=mc^{2 \)}
+\(E=mc^{2} \)
 
 * SICP [363/363]
 :PROPERTIES:
@@ -608,6 +608,7 @@ rather from a derivative of a cube.
 #+end_src
 
 *** Figure 1.2 Procedural decomposition of the sqrt program
+
 #+name: figure-1-2
 #+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1200
 #+header: :fit yes :headers '("\\usepackage{tikz}")
