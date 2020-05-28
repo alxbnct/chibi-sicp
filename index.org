@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 20:53:14 lockywolf>
+# Time-stamp: <2020-05-28 21:12:51 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -25682,7 +25682,7 @@ The logic behind the ordering can be seen from the kind of a
 by the elements of the first stream, and rows indexed by the second
 stream. Every call to "interleave" takes a row of a table, and another
 instance of the "pairs". This means that the frequency, with which
-elements of every row appear in the output is \(2^{^}{-n}\), where n is
+elements of every row appear in the output is \(2^{-n}\), where n is
 the number of the row. Therefore the number of a pair (a,b) should be
 something like \(b \cdot a^{n} \).
 
@@ -25986,7 +25986,7 @@ lazy to fix it.
     CLOSED: [2020-01-08 Wed 10:27]
 WARNING: The code below is quite slow. On my machine it takes more time than
 geiser's default ~geiser-connection-timeout~ permits.
-Refer to [[Setting chibi arguments. DANGEROUS]] for more information.
+Refer to "Setting chibi arguments." for more information.
 
 #+begin_src scheme :exports both :results output scalar code
 <<streams-common>>
