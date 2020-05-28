@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 13:45:01 lockywolf>
+# Time-stamp: <2020-05-28 17:08:30 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -3687,8 +3687,6 @@ two implementations, not 4, but that should not be too much of a digression.
 
 #+name: filtered-accumulate
 #+begin_src scheme :exports code :results value scalar code
-  <<accumulator-common>>
-  <<rabin-prime>>
     (define (filtered-accumulate combiner filter null-value term a next b)
      (define (iter a result)
        (if (= a b)
@@ -3698,6 +3696,7 @@ two implementations, not 4, but that should not be too much of a digression.
 #+end_src
 
 #+begin_src scheme :exports both :results value scalar code
+<<accumulator-common>>
 <<filtered-accumulate>>
 <<fast-prime>>
 <<expmod-miller-rabin>>
@@ -3710,7 +3709,7 @@ two implementations, not 4, but that should not be too much of a digression.
     (sum-square-prime 1 inc 10)
 #+end_src
 
-#+RESULTS[85561b6b36e517fd7301e50807c0d44b11c1592b]:
+#+RESULTS[f059df2ed955aa2e0ae34a4e4934d8004399bc77]:
 #+begin_src scheme
 88
 #+end_src
@@ -3719,7 +3718,8 @@ two implementations, not 4, but that should not be too much of a digression.
      CLOSED: [2019-09-03 Tue 14:36]
 
 #+begin_src scheme :exports both :results output scalar code
-  <<filtered-accumulate>>
+<<accumulator-common>>
+<<filtered-accumulate>>
   (define (product-mutually-prime n)
     (define (filter-gcd x)
       (if (= (gcd n x) 1)
@@ -3729,7 +3729,7 @@ two implementations, not 4, but that should not be too much of a digression.
   (display (product-mutually-prime 10))
 #+end_src
 
-#+RESULTS[2aa5322f4ec574d152905b2bf5ff4eedf7c61783]:
+#+RESULTS[83586b163ebf07f167361ab80635b54ec8e14bb4]:
 #+begin_src scheme
 189
 #+end_src
