@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 21:12:51 lockywolf>
+# Time-stamp: <2020-05-28 22:12:25 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -26556,6 +26556,7 @@ little bit not modular in this respect, but hey, they task is done as
 a stream.
 
 ** Chapter 4: Metalinguistic Abstraction [80/80]
+
 This chapter started as a bit of a mess. Because it uses quite a bit
 of input-output, and the standard ob-scheme interface is not very open
 to this, I had to be inventive, that is, I repurposed SRFI-22 and
@@ -26567,6 +26568,8 @@ This took me about 8 working hours to figure out.
 
 *** 4.1 The Metacircular Evaluator [24/24]
 [2020-01-09 Thu 15:46]
+
+
 **** 4.1.1 The Core of the Evaluator
 **** DONE Exercise 4.1 list-of-values ordered
      CLOSED: [2020-01-09 Thu 20:11]
@@ -26756,6 +26759,7 @@ ok
        'ok)
 #+end_src
 **** 4.1.2 Representing Expressions
+
 ***** Common code for expressions
 #+name: s-syntax
 #+begin_src scheme :exports code :results none
@@ -27010,6 +27014,9 @@ If we define an application as:
 
 This should work. But this example is not practical, so we won't test it.
 
+
+
+
 ***** DONE Exercise 4.3 data-directed eval
       CLOSED: [2020-01-09 Thu 21:24]
 
@@ -27046,7 +27053,7 @@ This should work. But this example is not practical, so we won't test it.
 
 
 #+name: s-input-test5
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -27065,7 +27072,7 @@ a
 (cond (#f "clause 1") (#f 'clause2) (#t "clause 3") (else "else clause"))
 (cond (#f "clause 1") (#f 'clause2) (#f "clause 3") (else "else clause"))
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-input-test5
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -27170,6 +27177,7 @@ ok
 
 Well, put and get work, so this should work in general. Let's see if we can
 test it later.
+
 
 ***** DONE Exercise 4.4 eval-and and eval-or
       CLOSED: [2020-01-09 Thu 22:14]
@@ -27350,6 +27358,8 @@ ok
 ;;; M-Eval input:
 (exit)
 #+end_src
+
+
 
 ***** DONE Exercise 4.5 cond with arrow
       CLOSED: [2020-01-22 Wed 16:36]
@@ -27567,6 +27577,8 @@ ok
 ;;; M-Eval input:
 (exit)
 #+end_src
+
+
 
 ***** DONE Exercise 4.6 Implementing let
       CLOSED: [2020-01-22 Wed 17:03]
@@ -31831,7 +31843,7 @@ ok
   <<s-compound-procedures>>
   <<s-environments-list-of-bindings-better-abstractions>>
   <<s-primitive-procedures>>
-<<s-driver-loop>>
+  <<s-driver-loop>>
   <<s-eval-and>>
   <<s-let>>
   <<s-let-star>>
