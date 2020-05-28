@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 18:09:36 lockywolf>
+# Time-stamp: <2020-05-28 20:27:32 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -431,8 +431,8 @@ possible, desirably as little as machine precision would allow. So
 assuming $E=0$, we get an equation to solve:
 \begin{align}
 \label{eq:9}
-E=0 \leftrightarrow& f^2-f_0^2-2f_0\delta=0 \\
-\delta =& \frac{f_0^2 -f^2 }{2f_0}
+E=0 \leftrightarrow & f^2-f_0^2-2f_0\delta=0 \\
+\delta = & \frac{f_0^2 -f^2 }{2f_0}
 \end{align}
 
 Remember though that we don't need just $\delta$ here. We actually need
@@ -856,16 +856,15 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
     CLOSED: [2019-08-25 Sun 21:54]
 
 \begin{equation}
-\label{eq:6}
-\mbox{Fib}(n)=\left\{
+\mbox{Fib}(n) = \left\{
 \begin{array}{l@{\quad:\quad}l}
-0 & n=0\\
-1 & n=1\\
-\mbox{Fib}(n-1) + \mbox{Fib}(n-2) & \mbox{otherwise}
-\end{array}\right}
+0 & n=0 \\
+1 & n=1 \\
+\mbox{Fib} (n-1) + \mbox{Fib} (n-2) & \mbox{otherwise} \\
+\end{array}\right\}
 \end{equation}
 
-Abelson and Sussman define \(\varphi=(1+\sqrt{5})/2\) and \(\psi=(1-\sqrt{5})/2\).
+Abelson and Sussman define \( \varphi=(1+\sqrt{5})/2\) and \(\psi=(1-\sqrt{5})/2\).
 
 Knowing that \( \mbox{Fib}(n) = (\varphi^{n} - \psi^n)/\sqrt{5}\) is almost all the
 problem done, because \(\psi\) is clearly less than \(1\), so for large
@@ -875,15 +874,15 @@ problem done, because \(\psi\) is clearly less than \(1\), so for large
 Let us prove the rest by induction.
 \begin{eqnarray}
 \label{eq:13}
-\frac{\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2}}{\sqrt{5}} &=& \frac{\varphi^{n} - \psi^{n}}{\sqrt{5}}\\
-\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2} &=& \varphi^{n} - \psi^{n} \\
-(\varphi + 1)\varphi^{n-2} - (\psi + 1)\psi^{n-2} &=&  \varphi^{n} - \psi^{n}\\
-(\varphi + 1 - \varphi^2)\varphi^{n-2} &=&  (\psi + 1 - \psi^2)\psi^{n-2}\\
-(\frac{1+\sqrt{5}}{2} + 1 - (\frac{1+\sqrt{5}}{2})^2)\varphi^{n-2} &=&
+\frac{\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2}}{\sqrt{5}} & = & \frac{\varphi^{n} - \psi^{n}}{\sqrt{5}}\\
+\varphi^{n-1} - \psi^{n-1} + \varphi^{n-2} - \psi^{n-2} & = & \varphi^{n} - \psi^{n} \\
+(\varphi + 1)\varphi^{n-2} - (\psi + 1)\psi^{n-2} & = &  \varphi^{n} - \psi^{n}\\
+(\varphi + 1 - \varphi^2)\varphi^{n-2} & = &  (\psi + 1 - \psi^2)\psi^{n-2}\\
+(\frac{1+\sqrt{5}}{2} + 1 - (\frac{1+\sqrt{5}}{2})^2)\varphi^{n-2} & = &
 (\frac{1-\sqrt{5}}{2} + 1 - (\frac{1-\sqrt{5}}{2}))\psi^{n-2} \\
-(\frac{2+2\sqrt{5}}{4} + \frac{4}{4} - \frac{1+2\sqrt{5}+5}{4})\varphi^{n-2} &=&
+(\frac{2+2\sqrt{5}}{4} + \frac{4}{4} - \frac{1+2\sqrt{5}+5}{4})\varphi^{n-2} & = &
 (\frac{2-2\sqrt{5}}{4} + \frac{4}{4} - \frac{1-2\sqrt{5}+5}{4})\psi^{n-2}\\
-0&=&0
+0 & = & 0
 \end{eqnarray}
 
 This proves that the recurrent relation for \(\frac{\varphi^n-\psi^n}{\sqrt{5}}\) is the
@@ -2870,12 +2869,12 @@ The formula for \(T\) is the following:
 
 \begin{eqnarray}
 T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix} aq+bq+ap
- \\ bp + aq \end{pmatrix} &\\
+ \\ bp + aq \end{pmatrix} \\
 T_{pq} \left( T_{pq} \begin{pmatrix} a\\ b \end{pmatrix} \right)
 & = & \begin{pmatrix} (aq+bq+ap)q+(bp + aq)q+(aq+bq+ap)p \\
-(bp + aq)p + (aq+bq+ap)q \end{pmatrix} &\\
+(bp + aq)p + (aq+bq+ap)q \end{pmatrix} \\
 T_{p'q'}\begin{pmatrix} a\\ b \end{pmatrix} & = & \begin{pmatrix}a(2pq + qq)
- + a(pp+qq) + b(2pq + qq)\\ a(2pq + qq) + b(pp + qq) \end{pmatrix}& \\
+ + a(pp+qq) + b(2pq + qq)\\ a(2pq + qq) + b(pp + qq) \end{pmatrix} \\
 \end{eqnarray}
 From here we can easily see the values for \(p\prime\) and \(q'\):
 # \(a(2pq + qq) + a(pp+qq) + b(2pq + qq)\)
@@ -3268,9 +3267,6 @@ Firstly we need the ~(fast-prime?)~ procedure.
   (define (prime? x)
     (fast-prime? x 10))
 #+end_src
-
-#+RESULTS:
-: #<undef>
 
 #+begin_src scheme :exports both :results output scalar code
 <<expmod>>
@@ -3802,7 +3798,7 @@ non-procedure application.
 \(\varphi = \frac{1+\sqrt{5}}{2}\)
 \(x\mapsto 1+\frac{1}{x}\)
 Let's substitute:
-\( \frac{1+\sqrt{5}}{2} &=& 1+ \frac{2}{1+\sqrt{5}} \)
+\( \frac{1+\sqrt{5}}{2} = 1+ \frac{2}{1+\sqrt{5}} \)
 \( (1+\sqrt{5})^2 = 2(1+\sqrt{5})+ 4\)
 \( 1 + 2 \sqrt{5} + 5 = 2 + 2 \sqrt{5} + 4 \)
 \(6 = 6\)
@@ -4393,6 +4389,7 @@ first chapter of SICP. Some macros are wrong, I need to revise them, but that
 will be done on the second pass. (Yes, there will be a second [or, rather, third] pass!)
 
 ** Chapter 2: Building abstractions with data [98/98]
+
 *** DONE Exercise 2.1 make-rat
     CLOSED: [2019-09-06 Fri 13:00]
 
