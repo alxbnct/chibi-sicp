@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 17:08:30 lockywolf>
+# Time-stamp: <2020-05-28 17:48:58 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -92,6 +92,7 @@
 :header-args: :noweb yes :cache yes
 :END:
 ** Chapter 1: Building abstractions with procedures [47/47]
+
 *** Snippet
 #+attr_latex: :options caption=Snippet
 #+BEGIN_SRC scheme :exports both :results value
@@ -401,14 +402,14 @@ Newton's method formula, where $f_i$ denotes the next guess:
 
 \begin{equation}
 \label{eq:1}
-f_{i+1}_{} = \frac{f_i + \frac{x}{f_i}}{2}
+f_{i+1} = \frac{f_i + \frac{x}{f_i}}{2}
 \end{equation}
 
 How on Earth does this formula even appear? Let's remember some
 mathematics, namely, the Taylor series (variables unbound):
 \begin{equation}
 \label{eq:2}
- f(x) = f(x_{0}_{}) + f'(x_{0})(x-x_{0}) + o(x)
+ f(x) = f(x_{0}) + f'(x_{0})(x-x_{0}) + o(x)
 \end{equation}
 
 Let us call `true' value of $\sqrt{x}=f$. Let us call our first guess
@@ -859,8 +860,8 @@ f(n-1) + 2f(n-2) + 3f(n-3) & \ge 3
 \begin{array}{l@{\quad:\quad}l}
 0 & n=0\\
 1 & n=1\\
-\mbox{Fib}(n-1) + \mbox{Fib}(n-2) & \mbox{otherwise}}
-\end{array}\right.
+\mbox{Fib}(n-1) + \mbox{Fib}(n-2) & \mbox{otherwise}
+\end{array}\right}
 \end{equation}
 
 Abelson and Sussman define \(\varphi=(1+\sqrt{5})/2\) and \(\psi=(1-\sqrt{5})/2\).
