@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-28 22:12:25 lockywolf>
+# Time-stamp: <2020-05-29 09:10:47 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -91,6 +91,7 @@
 :PROPERTIES:
 :header-args: :noweb yes :cache yes
 :END:
+
 ** Chapter 1: Building abstractions with procedures [47/47]
 
 *** Snippet
@@ -27016,7 +27017,6 @@ This should work. But this example is not practical, so we won't test it.
 
 
 
-
 ***** DONE Exercise 4.3 data-directed eval
       CLOSED: [2020-01-09 Thu 21:24]
 
@@ -27215,7 +27215,7 @@ test it later.
 
 
 #+name: s-input-test-and-or
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -27239,32 +27239,32 @@ clause"))
 (or #t #f)
 (or #f #f)
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-test-and-or
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
-<<s-glue1>>
-<<s-apply>>
-<<put-and-get>>
-<<s-data-driven-eval>>
-<<s-list-of-values-left-to-right>>
-<<s-standard-if>>
-<<s-sequences>>
-<<s-assignment>>
-<<s-define>>
-<<s-syntax>>
-<<s-application>>
-<<s-cond>>
-<<s-truefalse>>
-<<s-compound-procedures>>
-<<s-environments>>
-<<s-primitive-procedures>>
-<<s-driver-loop>>
-<<s-eval-and>>
-<<s-glue2>>
+  <<s-glue1>>
+  <<s-apply>>
+  <<put-and-get>>
+  <<s-data-driven-eval>>
+  <<s-list-of-values-left-to-right>>
+  <<s-standard-if>>
+  <<s-sequences>>
+  <<s-assignment>>
+  <<s-define>>
+  <<s-syntax>>
+  <<s-application>>
+  <<s-cond>>
+  <<s-truefalse>>
+  <<s-compound-procedures>>
+  <<s-environments>>
+  <<s-primitive-procedures>>
+  <<s-driver-loop>>
+  <<s-eval-and>>
+  <<s-glue2>>
 
-(driver-loop)
+  (driver-loop)
 
 #+end_src
 
@@ -27416,7 +27416,7 @@ exercise will have forward references.
 #+end_src
 
 #+name: s-input-test-cond-arrow
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -27446,7 +27446,7 @@ clause"))
 (cond ((assoc 'b '((a 1) (b 2))) => cadr)
    (else false))
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-test-cond-arrow
@@ -27615,7 +27615,7 @@ ok
 #+end_src
 
 #+name: s-input-test-let
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -27651,7 +27651,7 @@ clause"))
 "let test3"
 (let ((a "Let2") (b "Let3")) a (cons a b))
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-test-let
@@ -27846,7 +27846,7 @@ I assume that plain ~let~ is already implemented in Exercise 4.6.
 #+end_src
 
 #+name: s-input-test-let-star
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -27883,7 +27883,7 @@ clause"))
 (let ((a "Let2") (b "Let3")) a (cons a b))
 (let* ((a 1) (b (cons a 1))) b)
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-input-test-let-star
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -28084,7 +28084,7 @@ implementing it as a derived expression is okay...
 #+end_src
 
 #+name: s-input-test-let-named
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -28129,7 +28129,7 @@ clause"))
         (fib-iter (+ a b) a (- count 1)))))
 (fib 10)
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-input-test-let-named
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -28335,7 +28335,7 @@ procedure is evaluated and if it evaluates to a true (in the sense of
 #+end_src
 
 #+name: s-input-until
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -28390,7 +28390,7 @@ a
   (set! x (+ x 1)))
 x
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-until
@@ -28594,7 +28594,7 @@ quickly modify ~if~ to work like ~unless~.
 
 
 #+name: s-input-modifying-syntax
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -28647,7 +28647,7 @@ a
 (define x 0)
 x
 (exit)
-#+end_quote
+#+end_example
 
 #+name: s-input-modifying-syntax-conditionals
 #+begin_src scheme :exports code :results none
@@ -28842,6 +28842,7 @@ x
 
 
 **** 4.1.3 Evaluator Data Structures
+
 ***** Common code for the Evaluator
 #+name: s-truefalse
 #+begin_src scheme :exports code :results none
@@ -28931,7 +28932,7 @@ The tests for this exercise should be the same as for the previous one
 Tests:
 
 #+name: s-input-list-of-bindings
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -28985,7 +28986,7 @@ a
   (set! x (+ x 1)))
 x
 (exit)
-#+end_quote
+#+end_example
 
 
 #+name: s-environments-list-of-bindings
@@ -29050,8 +29051,8 @@ x
 
 #+end_src
 
-Note that the :stdin header is the same as in the Exercise [[Exercise 4.9
-Implementing until]].
+Note that the :stdin header is the same as in the "Exercise 4.9
+Implementing until".
 
 #+header: :stdin s-input-list-of-bindings
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -29247,7 +29248,7 @@ We need to rewrite
  - lookup-variable-value
 
 #+name: s-input-list-of-bindings-better-abstractions
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -29301,7 +29302,7 @@ a
   (set! x (+ x 1)))
 x
 (exit)
-#+end_quote
+#+end_example
 
 
 #+name: s-environments-list-of-bindings-better-abstractions
@@ -29572,7 +29573,7 @@ will have an effect, but not all bindings will be destroyed.
 We will need to make sure that all the previous tests pass in this section.
 
 #+name: s-input-make-unbound
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -29632,7 +29633,7 @@ x
  (make-unbound! y))
 y
 (exit)
-#+end_quote
+#+end_example
 
 #+name: s-make-unbound
 #+begin_src scheme :exports code :results none
@@ -29865,6 +29866,7 @@ y
 
 Seems to be working fine.
 
+
 **** 4.1.4 Running the Evaluator as a Program
 ***** DONE Exercise 4.14 meta map versus built-in map
       CLOSED: [2020-02-12 Wed 08:58]
@@ -30010,10 +30012,10 @@ it myself.
 #+end_src
 
 #+name: s-input-test1
-#+begin_quote
+#+begin_example
 "test
 "
-#+end_quote
+#+end_example
 
 #+header: :stdin s-input-test1
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -30028,9 +30030,9 @@ test
 #+end_src
 
 #+NAME: s-input-test2
-#+BEGIN_QUOTE
+#+BEGIN_EXAMPLE
 (exit)
-#+END_QUOTE
+#+END_EXAMPLE
 
 
 #+header: :stdin s-input-test2
@@ -30061,14 +30063,14 @@ Try evaluate
 #+end_src
 
 #+NAME: s-input-test3
-#+BEGIN_QUOTE
+#+BEGIN_EXAMPLE
 (define (append x y)
   (if (null? x)
       y
     (cons (car x) (append (cdr x) y))))
 (append '(a b c) '(d e f))
 (exit)
-#+END_QUOTE
+#+END_EXAMPLE
 
 #+header: :stdin s-input-test3
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -30182,7 +30184,7 @@ into ~make-procedure~ is better, because it just rewrites the source
 once.
 
 #+name: s-input-internal-definitions
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -30253,7 +30255,7 @@ x
   (test3))
 (test1)
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-input-internal-definitions
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -30703,7 +30705,7 @@ have not defines left, or until the set of defines stops decreasing.
 #+end_src
 
 #+name: s-input-letrec
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -30778,7 +30780,7 @@ x
             (if (= n 1) 1 (* n (fact (- n 1)))))))
   (fact 10))
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-input-letrec
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -31316,7 +31318,7 @@ right-to-left analysis of the arguments.
 From these three pieces we need to assemble a working interpreter.
 
 #+name: s-input-analyze
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -31391,7 +31393,7 @@ x
             (if (= n 1) 1 (* n (fact (- n 1)))))))
   (fact 10))
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-analyze
@@ -31530,7 +31532,7 @@ a lot of special forms, let us just modify the ~analyze~ a little.
 #+end_src
 
 #+name: s-input-analyze-let
-#+begin_quote
+#+begin_example
 "hello"
 1
 #t
@@ -31576,7 +31578,7 @@ a
 (define x 100)
 (define x 0)
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-analyze-let
@@ -31737,7 +31739,7 @@ We will write the same program and then interpret it with two
 different interpreters.
 
 #+name: s-input-analyze-time
-#+begin_quote
+#+begin_example
 "starting testing"
 (define (fact a b)
   (if (= a 1) b (fact (- a 1) (* a b))))
@@ -31753,7 +31755,7 @@ different interpreters.
 (- (current-second) starttime)
 
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-input-analyze-time
@@ -31909,6 +31911,7 @@ check and one subtraction.
 
 **** IMPROV Needs exercises on the (syntax-rules and low-level)    :edition3:
 *** 4.2 Variations on a Scheme − Lazy Evaluation [10/10]
+
 **** 4.2.1 Normal Order and Applicative Order
 ***** DONE Exercise 4.25 lazy factorial
       CLOSED: [2020-02-14 Fri 21:01]
@@ -31982,11 +31985,13 @@ if works
 unless works
 #+end_src
 
+
 **** 4.2.2 An Interpreter with Lazy Evaluation
+
 ***** Common code
 
 #+name: s-lazy-eval-implementation
-#+begin_src scheme :exports code :results none :results none :results none
+#+begin_src scheme :exports code :results none
   (define (eval . o) (display "in the wrong eval"))
   (define (special-form-maybe exp) (if (and (pair? exp) (symbol? (car exp)))
 			      (get 'eval (car exp))
@@ -32004,7 +32009,7 @@ unless works
 #+end_src
 
 #+name: s-lazy-eval-installation
-#+begin_src scheme :exports code :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none
+#+begin_src scheme :exports code :results none
   (put 'eval 'quote (lambda (exp env) (text-of-quotation exp)))
   (put 'eval 'set! (lambda (exp env) (eval-assignment exp env)))
   (put 'eval 'define (lambda (exp env) (eval-definition exp env)))
@@ -32019,20 +32024,20 @@ unless works
 #+end_src
 
 #+name: s-lazy-eval
-#+begin_src scheme :exports code :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none :results none
+#+begin_src scheme :exports code :results none
 <<s-lazy-eval-implementation>>
 <<s-lazy-eval-installation>>
 #+end_src
 
 #+name: s-lazy-actual-value
-#+begin_src scheme :exports code :results none :results none :results none :results none :results none :results none :results none
+#+begin_src scheme :exports code :results none
   (define (actual-value exp env)
     (force-it (eval exp env)))
 
 #+end_src
 
 #+name: s-lazy-apply
-#+begin_src scheme :exports code :results none :results none :results none :results none :results none :results none :results none :results none
+#+begin_src scheme :exports code :results none
   (define (apply procedure arguments env)
     (cond ((primitive-procedure? procedure)
 	   (apply-primitive-procedure
@@ -32064,7 +32069,7 @@ unless works
 #+end_src
 
 #+name: s-lazy-if
-#+begin_src scheme :exports code :results none :results none :results none :results none :results none :results none :results none :results none :results 
+#+begin_src scheme :exports code :results none
   (define (eval-if exp env)
     (if (true? (actual-value (if-predicate exp) env))
 	(eval (if-consequent exp) env)
@@ -32146,11 +32151,11 @@ default. Since we want a more fine-grained control over memoizaion,
 this doesn't fit our purpose.
 
 #+name: s-lazy-input-test1
-#+begin_quote
+#+begin_example
 (define (try a b) (if (= a 0) 1 b))
 (try 0 (/ 1 0))
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-test1
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -32245,7 +32250,7 @@ Looks like at least the basic interpretation is working.
       CLOSED: [2020-02-15 Sat 16:54]
 
 #+name: s-lazy-input-4-27
-#+begin_quote
+#+begin_example
 (define (try a b) (if (= a 0) 1 b))
 (try 0 (/ 1 0))
 
@@ -32257,7 +32262,7 @@ w
 count
 
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-4-27
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -32349,7 +32354,7 @@ the sequence of operations (a compound procedure) or a primitive procedure.
 ****** a Memoization vs no memoization
 
 #+name: s-lazy-input-memo-slow
-#+begin_quote
+#+begin_example
 (define (f x) (* x x))
 (define g (f (f 5)))
 (define (loop n state)
@@ -32360,7 +32365,7 @@ the sequence of operations (a compound procedure) or a primitive procedure.
 (loop 100 0)
 (- (current-second) starttime)
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-memo-slow
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -32494,14 +32499,14 @@ interpreter than on a memoizing. It actually turned out to be almost
 ****** b Memoization vs no memoization for a given example
 
 #+name: s-lazy-input-memoization
-#+begin_quote
+#+begin_example
 (define count 0)
 (define (id x) (set! count (+ count 1)) x)
 (define (square x) (* x x))
 (square (id 10))
 count
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-memoization
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -32635,7 +32640,7 @@ is forced by ~display~, which is a primitive procedure. So while Ben is
 right, it doesn't eliminate Cy's concern.
 
 #+name: s-lazy-input-for-each
-#+begin_quote
+#+begin_example
 (define (for-each proc items)
   (if (null? items)
     'done
@@ -32645,7 +32650,7 @@ right, it doesn't eliminate Cy's concern.
 (for-each (lambda (x) (newline) (display x))
 (list 57 321 88))
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-for-each
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -32700,7 +32705,7 @@ done
 ****** b Cy's example
 
 #+name: s-lazy-input-cy-example
-#+begin_quote
+#+begin_example
 (define (p1 x)
   (set! x (cons x '(2)))
   x)
@@ -32712,7 +32717,7 @@ done
 (p1 1)
 (p2 1)
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-cy-example
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -32833,7 +32838,7 @@ don't have a return value.
 So, my response was also given on the irc://irc.freenode.net/#scheme
 at 2020-02-15T13:20:59.028885UTC
 
-#+begin_quote
+#+begin_example
 <lockywolf> The point is that if I write (set! x 1), it may never be
 actually forced, because noone cares about its return value.  <pjb>
 And results of operators such as setf are specified (to be the last
@@ -32855,7 +32860,7 @@ confusion!
 successfully mutated, and #f if not.
 <lockywolf> Then I would produce
 guaranteed mutators by writing (and (set! x 1) (set! x2 0), etc.
-#+end_quote
+#+end_example
 
 ***** DONE Exercise 4.31 Lazy arguments with syntax extension
       CLOSED: [2020-02-15 Sat 23:44]
@@ -32971,7 +32976,7 @@ d)rewrite actual-value
 #+end_src
 
 #+name: s-lazy-input-semilazy
-#+begin_quote
+#+begin_example
 (define (f a (b lazy) c (d lazy-memo))
    (newline)
    (display a)
@@ -32990,7 +32995,7 @@ d)rewrite actual-value
 
 (f 'a (begin (display "b-l") 'b) 'c (begin (display "d-l") 'd))
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-lazy-input-semilazy
@@ -33056,13 +33061,14 @@ ok
 
 Seems to be working like charm. I feel myself immensely proud.
 
+
 **** 4.2.3 Streams as Lazy Lists
 ***** Common code
 
 The next code requires a fully lazy evaluator.
 
 #+name: s-lazy-input-streams-test
-#+begin_quote
+#+begin_example
   (define (cons x y) (lambda (m) (m x y)))
   (define (car z) (z (lambda (p q) p)))
   (define (cdr z) (z (lambda (p q) q)))
@@ -33097,7 +33103,7 @@ y (integral dy y0 dt))
 y)
 (list-ref (solve (lambda (x) x) 1 0.001) 1000)
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-streams-test
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -33203,7 +33209,7 @@ Seems to work.
       CLOSED: [2020-02-16 Sun 11:49]
 
 #+name: s-lazy-input-streams-trees
-#+begin_quote
+#+begin_example
   (define (cons x y) (lambda (m) (m x y)))
   (define (car z) (z (lambda (p q) p)))
   (define (cdr z) (z (lambda (p q) q)))
@@ -33242,7 +33248,7 @@ Seems to work.
     'ok)
 (begin (newline) (print-tree p 5 #t))
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-lazy-input-streams-trees
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -33368,7 +33374,7 @@ Yay, a tree. You can't do it with simple "streams".
 #+end_src
 
 #+name: s-lazy-input-lazy-quote
-#+begin_quote
+#+begin_example
 (define test1 (quote (test input1 input2)))
 (quote (test input1 input2))
 
@@ -33396,7 +33402,7 @@ Yay, a tree. You can't do it with simple "streams".
 (car '(a b c))
 (quote '(a b c))
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-lazy-input-lazy-quote
@@ -33537,7 +33543,7 @@ I will set the default depth of printing to 10 just because it seems reasonable.
 
 
 #+name: s-lazy-input-lazy-list-print
-#+begin_quote
+#+begin_example
 
 (define test1 (quote (test input1 input2)))
 (quote (test input1 input2))
@@ -33602,7 +33608,7 @@ I will set the default depth of printing to 10 just because it seems reasonable.
 (car '(a b c))
 '(a b c d e f)
 (exit)
-#+end_quote
+#+end_example
 
 
 #+header: :stdin s-lazy-input-lazy-list-print
@@ -33810,7 +33816,9 @@ Well, this may be not the best, but still a meaningful solution. It
 avoids infinite lists, is rather careful at printing cycles, prints
 eager lists correctly, and it's only drawback is not being able to
 distinguish between finite lazy lists and infinite ones.
+
 **** IMPROV Needs exercises on (scheme lazy) library               :edition3:
+
 *** 4.3 Variations on Scheme − Nondeterministic Computing [20/20]
 
 Note. Very typical of this book, the first two subsections of this
@@ -36127,7 +36135,7 @@ be applied to a preposition phrase.
 The student is in a class. This student has a cat. The professor
 lectures to them.
 
-#+begin_src scheme :exports code : results none
+#+begin_src scheme :exports code :results none
   (professor (lectures (to (student (in (class (with cat)))))))
 
 #+end_src
@@ -36969,7 +36977,7 @@ evaluator's ~driver-loop~.
 #+end_src
 
 #+name: s-amb-first-test
-#+begin_quote
+#+begin_example
 "Starting test"
 try-again
 (amb 1 2 3)
@@ -36977,7 +36985,7 @@ try-again
 try-again
 try-again
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-amb-first-test
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -37104,7 +37112,7 @@ Seems to be working, huh.
 #+end_src
 
 #+name: s-amb-ramb-test
-#+begin_quote
+#+begin_example
 "Testing amb"
 try-again
 (amb 1 2 3)
@@ -37117,7 +37125,7 @@ try-again
 try-again
 try-again
 (exit)
-#+end_quote
+#+end_example
 
 #+header: :stdin s-amb-ramb-test
 #+begin_src shell :shebang "#! /usr/bin/chibi-scheme" :results output scalar code :exports both
@@ -54123,6 +54131,7 @@ debug:simple-query
 exit
 #+end_src
 
+
 **** 4.4.4 Implementing the Query System [10/10]
 ***** Common code
 
@@ -54662,7 +54671,7 @@ chapter 3, it was not used, since ~interleave~ was used.
 #+end_src
 
 #+name: prolog-input-test-assert
-#+begin_quote scheme :exports code :results output
+#+begin_example scheme :exports code :results output
   (assert! (job (Bitdiddle Ben)
 		(computer wizard)))
   (assert! (rule (wheel ?person)
@@ -54670,7 +54679,7 @@ chapter 3, it was not used, since ~interleave~ was used.
 		      (supervisor ?x ?middle-manager))))
   (missing-fact)
   exit
-#+end_quote
+#+end_example
 
 
 #+header: :stdin prolog-input-test-assert
@@ -76833,7 +76842,7 @@ corresponds to the main_ loop() function in the Fortran code.
 #+end_src
 
 #+name: fortran-scheme-interpreter-runtime-epilogue
-#+begin_src fortran :exports both :results none
+#+begin_src fortran :exports code :results none
       end select label_selector
       error stop "Critical error. The end of main loop should never be reached."
     end subroutine main_loop
@@ -76853,6 +76862,8 @@ corresponds to the main_ loop() function in the Fortran code.
     stop 0
   end program main
 #+end_src
+
+
 
 #+name: fortran-scheme-interpreter
 #+begin_src f90 :exports code :results none :stdin fortran-scheme-test
