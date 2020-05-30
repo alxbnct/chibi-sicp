@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-28 13:43:30 lockywolf>
+# Time-stamp: <2020-05-30 19:08:48 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -117,6 +117,9 @@ It suggests:
 - An applied task management software-backed procedure
 - Improvements on the technical side of any hard skills teaching
 - Improvements on the social side of any kind of teaching
+
+The solution may be visited immediately (source and pdf):
+- [[bib:chibi-sicp]]
 
 #+end_abstract
 
@@ -348,6 +351,12 @@ Rather than solving them, SICP just goes around, enforcing  a very rigid standar
 The final choice of tools turned out to be the following:
 
 - chibi-scheme :: as it is the scheme implementation
+  - srfi-159 :: as a petty-printing tool
+  - srfi-27 :: as a random bits library
+  - srfi-18 :: as a threading library
+  - (chibi time) :: as a timing library
+  - (chibi ast) :: (not strictly necessary) macro expansion tool
+  - (chibi process) :: for calling ImageMagick
 - GNU Emacs :: as the only IDE
   - org-mode :: as the main editing mode and the main planning tool
   - f90-mode :: as a low-level coding adaptor
@@ -368,6 +377,10 @@ Informally this can be summarised as "I will learn every tool that is required t
 
 *chibi-scheme* is effectively the only scheme system claiming to support the last scheme standard, r7rs-large (Red Edition), so there was really no other choice.
 This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought creating various partly-compliant scheme systems.
+Several libraries (three of which standardised, and three of which not) were required for the completeness of the solution.
+Effectively, it is not possible to solve all the exercises using _only_ scheme.
+Even scheme together with standardised extensions is not enough.
+However, strictly speaking, only one non-standard library was really required: ~(chibi process)~, which served as a bridge between scheme and the graphics toolkit. 
 
 *git* is not often taught in schools.
 Maybe because the teachers don't want to busy themselves with something deemed trivial or impossible to get by without, or due to being overloaded with work.
@@ -603,7 +616,7 @@ The following figure presents some of the aggregated statistic on the solution o
 - *94.73* hours for the hardest problem: writing a scheme interpreter in a low-level language
 - *652* study sessions
 - *1.79* study sessions on average
-- *>78000* lines long .org file (*>2.6* megabytes)
+- *>78000* lines long .org file (*>2.6* megabytes) (5300 pages in a PDF)
 - *1* median study session
 - *13* problems were solved out of order. 
   - "Figure 1.1 Tree representation, ..."

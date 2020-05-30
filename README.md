@@ -10,5 +10,5 @@ This still required three SRFI libraries: SRFI-27, SRFI-18 and SRFI-159; and thr
 
 Here are the links:
 
-  1. [https://gitlab.com/Lockywolf/chibi-sicp/-/blob/master/index.org](Solution source code, 2Mb)
-  2. [https://gitlab.com/Lockywolf/chibi-sicp/-/blob/master/index.pdf](Exported solution, 20Mb)
+  1. [Solution source code, 2Mb](https://gitlab.com/Lockywolf/chibi-sicp/-/blob/master/index.org)
+  2. [Exported solution, 20Mb](https://gitlab.com/Lockywolf/chibi-sicp/-/blob/master/index.pdf)
