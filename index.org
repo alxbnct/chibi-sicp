@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-29 09:10:47 lockywolf>
+# Time-stamp: <2020-05-30 13:50:15 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -8,9 +8,9 @@
 #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
 #+HTML_MATHJAX: cancel.js noErrors.js
 #+OPTIONS: tex:imagemagick
-#+latex_class: report
+#+latex_class: book
 #+LATEX_CLASS_OPTIONS: [a4paper,12pt,twoside]
-#+latex_header: \usepackage[a4paper,margin=1cm]{geometry}
+#+latex_header: \usepackage[a4paper,margin=2cm]{geometry}
 #+LATEX_HEADER: \usepackage{supertabular}
 #+LATEX_HEADER: \usepackage{color}
 
