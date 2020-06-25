@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-05-30 20:08:02 lockywolf>
+# Time-stamp: <2020-06-19 22:40:07 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -38,12 +38,13 @@
  - https://github.com/cxphoe/SICP-solutions
 ** Setting chibi arguments. DANGEROUS                       :dangerous:elisp:
 
+#
+
 #+begin_src elisp :export code :results none
   (setq geiser-chibi-extra-command-line-parameters
      '("-m" "chibi"
-       "-m" "srfi 159"
+       "-m" "scheme show"
        "-m" "chibi ast"
-       "-m" "chibi time"
        "-m" "srfi 27"
        "-m" "chibi process"
        "-m" "scheme list"
@@ -86,6 +87,28 @@
 #+end_quote
 
 \(E=mc^{2} \)
+
+
+** SRFI Library
+
+Nonstandard functions used in SICP:
+
+- (runtime) :: can be implemented using (current-second) from r7rs
+- (random-in-range) :: implementable using (random-integer) from (srfi 27)
+- (parallel-execute) :: implementable with (srfi 18)
+- (test-and-set!) :: implementable with (srfi 18)
+- (cons-stream) :: implementable using (syntax-rules) from r7rs
+-  :: 
+
+
+#+begin_src shell :results output
+
+chibi-scheme -I ~/DevLinux/srfi-sicp-prerequisites/ -msrfi.199 -p "(sicp-helloworld)"
+
+#+end_src
+
+#+RESULTS:
+: hello from srfi-199#<undef>
 
 * SICP [363/363]
 :PROPERTIES:
@@ -692,6 +715,9 @@ them `plus' and `minus'.
 (inc (inc (inc (inc 5))))
 #+end_src
 
+
+
+
 We can see that the macro expander has expanded the computation in to
 a tree of length 4. This happens because the algorithm is genuinely
 recursive, the return value is not produced by a call to itself, and
@@ -935,6 +961,7 @@ the execution tree.
    0)
   0)
 #+end_src
+
 
 Initially I wrote the same code in Emacs Lisp, I am leaving it here
 for future reference.
@@ -3073,19 +3100,19 @@ Well, this problem doesn't look too complicated on the first glance.
 1003
 1005
 1007
-1009 *** 0.008056640625
+1009 *** 0.012939453125
 1011
-1013 *** 0.008056640625
+1013 *** 0.012939453125
 1015
 1017
-1019 *** 0.00830078125
+1019 *** 0.01318359375
 
 10000
 10001
 10003
 10005
-10007 *** 0.026123046875
-10009 *** 0.025146484375
+10007 *** 0.03369140625
+10009 *** 0.03515625
 10011
 10013
 10015
@@ -3099,11 +3126,11 @@ Well, this problem doesn't look too complicated on the first glance.
 10031
 10033
 10035
-10037 *** 0.02392578125
+10037 *** 0.0341796875
 
 100000
 100001
-100003 *** 0.073974609375
+100003 *** 0.098876953125
 100005
 100007
 100009
@@ -3111,7 +3138,7 @@ Well, this problem doesn't look too complicated on the first glance.
 100013
 100015
 100017
-100019 *** 0.07373046875
+100019 *** 0.10107421875
 100021
 100023
 100025
@@ -3127,7 +3154,7 @@ Well, this problem doesn't look too complicated on the first glance.
 
 1000000
 1000001
-1000003 *** 0.23779296875
+1000003 *** 0.30908203125
 1000005
 1000007
 1000009
@@ -3142,9 +3169,9 @@ Well, this problem doesn't look too complicated on the first glance.
 1000027
 1000029
 1000031
-1000033 *** 0.23583984375
+1000033 *** 0.31689453125
 1000035
-1000037 *** 0.23193359375
+1000037 *** 0.30712890625
 #+end_src
 
 

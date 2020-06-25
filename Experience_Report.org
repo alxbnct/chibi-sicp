@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-05-30 19:08:48 lockywolf>
+# Time-stamp: <2020-06-25 22:44:10 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -11,12 +11,14 @@
 #+LATEX_CLASS: acmart
 # +LATEX_CLASS_OPTIONS: [a4paper]
 #+latex_header: \usepackage[utf8]{inputenc}
-#+LATEX_HEADER: \usepackage[T1]{fontenc}
-#+LATEX_HEADER: \usepackage{supertabular}
+#+latex_header: \usepackage[T1]{fontenc}
+#+latex_header: \usepackage{supertabular}
+#+latex_header: \usepackage{polyglossia}
 # the safeinputenc option to biblatex seems to be dangerous, but I had to use it for (R) to be displayed. 
 # be careful
-#+LATEX_HEADER: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear,safeinputenc]{biblatex}
-#+LATEX_HEADER: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
+#+latex_header: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear,safeinputenc]{biblatex}
+#+latex_header: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
+#+latex_header: \setdefaultlanguage[variant=american]{english}
 
 \title{Solving SICP}
 \subtitle{An Experience Report on Solving the World's Most Famous Programming Problem Set}
@@ -98,6 +100,8 @@
 \ccsdesc[500]{Software and its engineering~Abstraction, modeling and modularity}
 \ccsdesc[500]{Software and its engineering~Software architectures}
 
+#+latex: \def\hyph{-\penalty0\hskip0pt\relax}
+
 \maketitle
 
 #+begin_abstract
@@ -151,7 +155,7 @@ seldom considered!) aspect of a computer science (and in general, any
 other subject's) curriculum. That is, it's how much work exactly is
 required to pass a particular course.
 
-This endeavour was spurned by the author's previous experience of
+This endeavour was spurred by the author's previous experience of
 learning Partial Differential Equations using a traditional
 paper-and-pen based approach, only mildly augmented with a
 time-tracking software. But even such a tiny augmentation already
@@ -163,7 +167,7 @@ to try and design an as smooth, manageable, and measurable approach to performin
 university coursework, as possible. A computer science subject
 therefore provided an obvious choice.
 
-The solution was decided, broken down into parts, harnesses with a
+The solution was decided, broken down into parts, harnessed with a
 software support system, and executed in a timely and measured manner
 by the author, thus proving that the chosen goal is doable. The
 complete measured data are provided. Teaching professionals may
@@ -199,9 +203,9 @@ In simple words, what does it mean "to pass a course" or "to learn a subject" at
 How exactly can one formalise the statement "I know calculus"?
 Or even a simpler "I have learned everything that was implied by a university course on calculus". 
 
-I would be a good idea to conduct a survey of teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
+It would be a good idea to conduct a survey of teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
 
-So far, however, following are the potential answers to this questions as they may be given:
+So far, however, following are the potential answers to these questions as they may be given:
 
 - Passing an oral examination
 - Passing a written examination
@@ -215,7 +219,7 @@ Any combination of those can be also chosen to signify the "mastering"
 of a subject, but the course designer is then met with a typical
 goal-attainment multi-objective optimisation problem ([[bib:Gembicki_1975]]), which are usually still solved by reducing the multiple goals to a single engineered goal.
 
-Now if we try to look at this with a "martian standpoint" ([[bib:berne1964games]]), we will see that all the goals listed above are reducible to the "completing coursework" goal, whereas "completing coursework" is not in the most general case reducible to any of those, so the "engineered goal" may look essentially like a tree-structured coursework, with possibly several tasks requiring viewing certain video recordings and writing a response.
+Now if we try to look at this with a "martian point of view" ([[bib:berne:1973:what_do_you_say_after_you_say_hello]]), we will see that all the goals listed above are reducible to the "completing coursework" goal, whereas "completing coursework" is not in the most general case reducible to any of those, so the "engineered goal" may look essentially like a tree-structured coursework, with possibly several tasks requiring viewing certain video recordings and writing a response.
 
 Moreover, thinking realistically, doing coursework is the only way
 that a working professional can study without completely abandoning
@@ -229,7 +233,7 @@ But that is not enough, because "just solving all of the exercises" may be the m
 
 As I wanted to "grasp the skill" rather than just "pass the exercises", I initially decided to consider additional exercises that may be valuable as a process of "engineering a custom problem set".
 
-One of the approaches used to "engineer exercises" is to try an put yourself in the position of a teacher, and ask yourself: "After I finish this book/problem set, will I be able to write my own book on this?".
+One of the approaches used to "engineer exercises" is to try and put yourself in the position of a teacher, and ask yourself: "After I finish this book/problem set, will I be able to write my own book on this?".
 Even if the answer is "no", continue asking yourself "Okay then. But can I at least create a book that would be conveying exactly the same now myself?".
 If the answer is "yes", then learning is successful with high likelihood.
 
@@ -239,7 +243,7 @@ Those were added by me for the very reason "to be able to reproduce the source c
 *** Meta-cognitive exercises
 
 It is often underestimated how much imbalance there is between a teacher and a pupil, in the sense that the teacher not only knows better the subject of study, that is expected, but is also effectively deciding _how_ and _when_ a student is going to study.
-This is often overlooked by practitioners, how consider themselves as either just sources of knowledge, or, even worse, only the examiners.
+This is often overlooked by practitioners, who consider themselves as either just sources of knowledge, or, even worse, only the examiners.
 However, it is worth considering _the whole_ effect that a teacher is having on the student's life.
 In particular, a student has no other choice than to trust the teacher on the choice of exercises. 
 
@@ -260,7 +264,7 @@ The examples of meta-cognitive exercises include:
 An additional challenge to the learning process is the lack of peer support.
 There has been attempts by learning institutions to encourage peer support among the students, but the successfullness of those attempts is unclear.
 Do students really help each other in those artificially created support groups?
-How does side-communication, generally irrelevant to the subject of study affect the learners?
+How does side\hyph{}communication, generally irrelevant to the subject of study affect the learners?
 
 A support medium is even more important for adult self-learners, who don't get even those artificial support groups created by the school functionaries.
 
@@ -272,27 +276,27 @@ From the *personal experience*:
 
 - I used the [[irc:irc.freenode.org/#scheme][#scheme freenode channel]] as a place to ask questions in real-time. #emacs was also useful.
 - I used stackoverflow.com to ask offline questions.
-- I used the scheme community wiki community.schemewiki.org as a reference material.
-- I emailed some prominent member of the scheme community with unsolicited questions.
+- I used the scheme community wiki community.sche\hyph{}mewiki.org as a reference material.
+- I emailed some prominent members of the scheme community with unsolicited questions.
 - I was reporting errors in the documents generated by the scheme community process.
 - I was asking for help on the Chibi-scheme mailing list.
-- There was also some help from the opendatascience Slack chat.
+- There was also some help from the Open Data Science Slack chat.
 - There was also some help from the Closed-Circles data science community.
-- There was also some help from the rulinux@conference.jabber.ru community.
+- There was also some help from the rulinux@confe\hyph{}rence.jabber.ru community.
 - There was also some help from the Shanghai Linux User Group.
 - There was also some help from the www.dxdy.ru scientific forum.
 - There was also some help from the Haskell self-study group in Telegram.
 
-It should be noted that out of those communities, only the OpenDataScience community, and a small Haskell community resides in a "fashionable" communication system.
+It should be noted that out of those communities, only the Open Data Science community, and a small Haskell community reside in a "fashionable" communication system.
 
 The summary of the community interaction is under the "meta-cognitive" exercises section, because the skill of finding people who can help you with your problems is one of the most important soft skills ever, and one of the hardest to teach.
 Moreover, naturally, the people who _can_ and _may_ answer questions are in most of the cases not at all obliged to do so, so soliciting an answer from non-deliberately-cooperating people is another cognitive exercise that is worth looking into.
 
-I will repeat the main point of the previous paragraph in another words: human communities consist of rude people. Naturally, in the modern "free" world, no-one can force anyone to bear rudeness, but no-one can just as much force anyone to be polite.
+I will repeat the main point of the previous paragraph in other words: human communities consist of rude people. Naturally, in the modern "free" world, no-one can force anyone to bear rudeness, but no-one can just as much force anyone to be polite.
 The meta-cognitive skill of extracting valuable knowledge from willing but rude people is a very important skill.
 
 But returning to the choice of the community, it is important to convey to the students, as well as the teachers, the following idea: it is not the fashion, population, easy availability, promotion, and social acceptability of the support media that matters.
-Unfortunately, it is not even the technological advanceness, technological modernity or convenience that matters. It is the availability of information, and the availability of people who can help. This is a painful knowledge worth learning.
+Unfortunately, it is not even the technological sophistication, technological modernity or convenience that matters. It is the availability of information, and the availability of people who can help. This is a painful knowledge worth learning.
 
 Support communication statistics is the following:
 
@@ -328,7 +332,7 @@ When I started this project, I already had a Ph.D. in Informatics, although not 
 This gave me a certain advantage over a first-year undergraduate student.
 However, to a large extent I resembled a newbie still, as I had never before used a proudly functional programming language, and had never used any programmer's editor other than Notepad++. The only _really_ distinguishing property of me at the start of the project was that I already had learned the skill of typing quickly and without looking at the keyboard.
 
-*note* All of this report is _heavily_ dependent on the fact that I learned how to "touch type", and can do it relatively fast. Without the fast touch-typing (not looking at the keyboard), almost all of it has no sense, ergonomic suggestions make no sense, and the choice of tools may seem counter-intuitive or even arbitrary. 
+*NOTE:* All of this report is _heavily_ dependent on the fact that I learned how to "touch type", and can do it relatively fast. Without the fast touch-typing (not looking at the keyboard), almost all of it has no sense, ergonomic suggestions make no sense, and the choice of tools may seem counter-intuitive or even arbitrary. 
 
 The goal I had was slightly schizophrenic, in the sense that I intended to model (reenact) a "normal" student, that is the one that doesn't exist, in the sense that I:
 
@@ -340,9 +344,9 @@ The goal I had was slightly schizophrenic, in the sense that I intended to model
 
 While the first three principles turned out to be almost self-fulfilling, the last one turned out to be more involved.
 
-My own personal experience with the university-level programming suggested than on average the largest amount of time is spent on debugging input and output procedures.
+My own personal experience with the university-level programming suggested than on average the largest amo\hyph{}unt of time is spent on debugging input and output procedures.
 The second-largest amount is usually dedicated to inventing test cases for the code.
-The actual writing of the substantive part of the code only comes the third.
+The actual writing of the substantive part of the code only comes third.
 
 As I knew that SICP had been intended as a deliberately created introductory course, I assumed that a large part of the syllabus would be dedicated to solving the two most laborious problems.
 I was wrong.
@@ -350,7 +354,7 @@ Rather than solving them, SICP just goes around, enforcing  a very rigid standar
 
 The final choice of tools turned out to be the following:
 
-- chibi-scheme :: as it is the scheme implementation
+- chibi-scheme :: as the scheme implementation
   - srfi-159 :: as a petty-printing tool
   - srfi-27 :: as a random bits library
   - srfi-18 :: as a threading library
@@ -375,8 +379,8 @@ The choice of all the software above except "org-mode" is driven by the "imitati
 That is, I tried to imagine myself being an "ideal student" and making the decisions as the imaginary student would be doing them.
 Informally this can be summarised as "I will learn every tool that is required to get the job done to the extent needed to get the job done, but not a slightest bit more".
 
-*chibi-scheme* is effectively the only scheme system claiming to support the last scheme standard, r7rs-large (Red Edition), so there was really no other choice.
-This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought creating various partly-compliant scheme systems.
+*chibi-scheme* is effectively the only scheme system cla\hyph{}iming to support the last scheme standard, r7rs-large (Red Edition), so there was really no other choice.
+This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought creating various partly-compliant sch\hyph{}eme systems.
 Several libraries (three of which standardised, and three of which not) were required for the completeness of the solution.
 Effectively, it is not possible to solve all the exercises using _only_ scheme.
 Even scheme together with standardised extensions is not enough.
@@ -394,8 +398,8 @@ Moreover, this procedure (a simple synchronous application call) is likely to be
 Almost all operating systems support applications executing other applications.
 
 *PlantUML* is a text-based implementation of the international standard of software visualisation diagrams. 
-The syntax is very easy, well documented.
-The PlantUML-Emacs interface exists and is relatively reliable.
+The syntax is very easy and well documented.
+The Plant\hyph{}UML-Emacs interface exists and is relatively reliable.
 The textual representation conveys the hacker spirit, and supports easy version control.
 UML almost totally dominates the software visualisation market, and almost every university programming degree includes it to some extent.
 It seemed therefore very natural to (where the problem permitted) solve the "diagramming" problems of the SICP with the industry standard compliant diagrams.
@@ -406,7 +410,7 @@ The ~dot~ package benefits from being fully machine-parseable and context indepe
 *TikZ* is essentially the only general-purpose text-based drawing package.
 So when neither UML nor DOT managed to properly embed the complexity of the models diagrammed, TikZ ended up being the only choice.
 Just as natural of an approach could be drawing everything with a graphical tool, such as Inkscape or Adobe Illustrator.
-The first problem with the images generated by them is though that those are hard to manage under version control.
+The first problem with the images generated by them though is that those are hard to manage under version control.
 The second problem is that (I will get to it later) for the purposes of easy defendability of the resulting work, it was desirable to keep all the product of the course in one digital artefact (read, one file).
 
 *gfortran*, or GNU Fortran was the low language of choice for the last two problems in the problem set.
@@ -421,7 +425,7 @@ The reason for choosing not a very popular language were the following:
 *GNU Emacs*: is de-facto the most popular IDE among scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most "hacker-like" editor.
 It is, perhaps, the most controversial choice, as the most likely IDE to be used by freshmen university students in general would be Microsoft Visual Studio.
 Another popular option would be Dr.Racket.
-However, at the end of the day, Emacs turned out to be having the most superior support for a "generic Lisp" development, even though it's support for scheme is not as good as may be desired.
+However, at the end of the day, Emacs turned out to be having the most superior support for a "generic Lisp" development, even tho\hyph{}ugh it's support for scheme is not as good as may be desired.
 The decisive victory point actually ended up being the org-mode (discussed later).
 Informally speaking, fully buying into the Emacs platform ended up being a huge mind-expanding experience.
 The learning curve is steep though.
@@ -442,7 +446,7 @@ Even proper file naming, though increases readability, is hard to enforce, and d
 Things get worse when the teacher has to not only examine the student's work, but also test it.
 (Which is a common case with computer science exercises.)
 
-SICP also provides and additional challenge (meta-cognitive exercise) in that its problems are highly dependent on one another.
+SICP also provides an additional challenge (meta-cognitive exercise) in that its problems are highly dependent on one another.
 As an example, problems from Chapter 5 require successfully completed exercises of Chapter 1.
 A standard practice of modern schools is to copy the code (or other forms of solution).
 However, in the later parts of SICP, the solutions end up requiring up to tens of pieces of code written in the chapters before.
@@ -463,7 +467,7 @@ Unsurprisingly, the most portable and time-resistant format of practical usage i
 So ideally the solutions (after being examined by a teacher) should be printable in the form of a report or a book.
 Additionally, the comparatively (to the full size of SICP) small amount of work required to turn a solution that is "just enough to pass" into a readable report would be an important emotional incentive for the students to carefully post-process their work.
 Naturally, "plain paper" is not a very manageable medium nowadays.
-But the closes, and quite manageable approximation is PDF.
+But the closest, and quite manageable approximation is PDF.
 So the actual "source code" of a solution should be logically and consistently exportable into a PDF file.
 
 This leads us to the idea first proposed by Donald Knuth with his WEB system and its web2c implementation.
@@ -486,7 +490,7 @@ SICP's problems can be roughly classified into the following classes:
 - Programming problems in Scheme without input
 - Programming problems in Scheme with input (possibly running other programs)
 - Programming problems in Scheme with graphical output
-- Programming problems in a "low lever language of your choice"
+- Programming problems in a "low level language of your choice"
 - Mathematical problems
 - Standard-fitting drawing exercises
 - Non-standard drawing exercises
@@ -514,13 +518,13 @@ Eventually I ended up writing a scheme-system (chibi) dependent wrapper around t
 org-mode has a special syntax for the inclusion of graphic files, so the exercise solutions had to be make to generate those files.
 
 *Standard drawing exercises* illustrate a problem that is extremely widespread, but seldom well understood, perhaps because people aiming to solve it usually do not come from the programming community.
-Indeed, there are several standard on industrial illustrations and diagramming, including UML, ArchiMate, SDL, and various others.
+Indeed, there are several standards on industrial illustrations and diagramming, including UML, ArchiMate, SDL, and various others.
 So wherever possible, I tried to use a standard diagram to express the answer to the problem.
 The PlantUML language satisfied almost all of the requirements, and via an org-plantuml bridge, it was possible to solve these problems in the manner similar to the coding problems -- as "org-babel" blocks.
 
 *Non-standard drawing exercises*, the most prominent of those requiring drawing environment diagrams (debugging interfaces), were significantly more challenging.
 When a prepared mental model (i.e. an established diagramming standard) was absent, that standard had to be implemented from scratch in an improvised way.
-The TikZ language proved to be having enough features to cover the requirements of the book where PlantUML was not enough.
+The TikZ language proved to have enough features to cover the requirements of the book where PlantUML was not enough.
 It required a lot of reading of the manual though and a fair level of familiarity with \TeX.
 
 
@@ -532,7 +536,7 @@ In this section I will start by explaining exactly how the working process was o
 
 The execution was performed in the following way: 
 
-Firstly, the heading outline-tree corresponding to the book subsection tree was created.
+To start with, the heading outline-tree corresponding to the book subsection tree was created.
 Most leaves are two-state *TODO*-headings.
 (Some outline leaves correspond to sections without problems, and thus are not *TODO*-styled.)
 
@@ -567,7 +571,6 @@ An example of the outline look in the following way:
 \end{figure}
 #+end_export
 
-
 This allows for constant monitoring of the "degree of completeness" and provides an important emotion of "getting close to the result with each complete exercise".
 Additional research is needed on how persistent this emotion is in students and how much it depends of the uneven distribution of hardness or time consumption.
 There is, however, empirical evidence that even very imprecise self-measured KPIs do positively affect the chance of reaching the goal.
@@ -577,10 +580,9 @@ It should be noted though that even if the hypothesis of uneven time consumption
 The problems were executed almost sequentially, and the work on the next one was started immediately after the previous one had been finished.
 Deliberate effort was spent on avoiding the cases when a study session ends at the same time as the last problem of the session is done.
 This was done in order to exploit the well-known tricks (See: [[bib:adler_factors_1939]]): 
-
+# +latex: \topsep=0pt \partopsep=0pt \itemsep=0pt \parsep=0pt
 - When you have something undone, it is easier to make yourself start the next session.
 - Even just reading out the description of a problem makes you start thinking about how to solve it.
-
 Exercise completion time was registered with a standard org-mode completion time mechanism. (See [[*Appendix: Full data on the exercise completion times.][Appendix: Full data on the exercise completion times.]])
 
 Study sessions were registered in a separate org-mode file in the standard org-mode time interval standard: 
@@ -602,6 +604,10 @@ Noweb-links is a method of verbatim inclusion of a code block into another code 
 In particular, Exercise 5.48 required inclusion of *58* other code blocks into the final solution block.
 Pure copying would not suffice, because as SICP exercises often involve the evaluation of the code written before by the code written during the execution of an exercise, thus later exercises are likely to expose errors in the earlier exercises solutions.
 
+#+latex: \raggedbottom
+
+#+latex: \pagebreak
+
 ** Out of order problems and other statistics
 
 The following figure presents some of the aggregated statistic on the solution of the problem set.
@@ -609,7 +615,6 @@ The following figure presents some of the aggregated statistic on the solution o
 #+begin_export latex
 \begin{figure}[H]
 #+end_export
-
 - *792* hours of total workload
 - *2.184* hours mean time per problem
 - *0.96* hours median time
@@ -632,7 +637,6 @@ The following figure presents some of the aggregated statistic on the solution o
   - "Figure 5.1 Data paths for a Register Machine"
   - "Exercise 5.17 Printing labels"
   - "Exercise 5.40 maintaining a compile-time environment"
-
 #+begin_export latex
 \caption{Aggregated statistic on the problem set execution}
 \end{figure}
@@ -677,6 +681,8 @@ It is very interesting to observe that the histogram shape resembles a uni-modal
 It is hard to think of a theoretical foundation on which to base assumptions on the distribution law.
 Prior research, however, may imply that the distribution is log-normal. 
 (See [[bib:crow2018lognormal]])
+
+
 
 * Conclusion and Further Work
 ** Conclusion
@@ -738,7 +744,7 @@ The last two exercises amount to one fifth of the whole work.
 It was quite unexpected to see a task to be completed in a language other then Scheme after having already done most of the exercises.
 
 Probably the biggest drawback of the book is the absence of any conclusion.
-Indeed, the book point the reader attention into various direction by the means of an extensive bibliography.
+Indeed the book points reader's attention into various directions by the means of an extensive bibliography.
 However, I, as a willing student, would like to see some overview of the possible future directions done informally.
 
 ** Informal recommendations
@@ -796,6 +802,440 @@ This section attempts to provide a complete list of materials used in the proces
 
 
 \printbibliography
+
+
+* Appendix: Analysed data on problem difficulty
+
+*** Analysed time consumption
+
+#+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem #'" set:"ylabel 'Study sessions (number)'"
+#+ATTR_LATEX: :center :environment supertabular :align l|p{4cm}|p{1cm}|p{0.9cm}|p{0.9cm}
+|  No | Exercise Name                                                | Days Spent | Spans Sessions | Minutes Spent |
+|-----+--------------------------------------------------------------+------------+----------------+---------------|
+|   1 | Exercise 1.1 Interpreter result                              |      1.211 |              2 |           459 |
+|   2 | Exercise 1.2 Prefix form                                     |      0.001 |              1 |             2 |
+|   3 | Figure 1.1 Tree representation, showing the value of each su |      0.007 |              1 |            10 |
+|   4 | Exercise 1.4 Compound expressions                            |      0.003 |              1 |             4 |
+|   5 | Exercise 1.5 Ben's test                                      |      0.008 |              1 |            11 |
+|   6 | Exercise 1.6 If is a special form                            |      0.969 |              2 |           118 |
+|   7 | Exercise 1.7 Good enough?                                    |      0.949 |              3 |           436 |
+|   8 | Exercise 1.8 Newton's method                                 |      0.197 |              2 |           193 |
+|   9 | Exercise 1.10 Ackermann's function                           |      3.038 |              2 |           379 |
+|  10 | Exercise 1.11 Recursive vs iterative                         |      0.037 |              1 |            54 |
+|  11 | Exercise 1.12 Recursive Pascal's triangle                    |      0.012 |              1 |            17 |
+|  12 | Exercise 1.13 Fibonacci                                      |      0.092 |              1 |           132 |
+|  13 | Exercise 1.9 Iterative or recursive?                         |      3.722 |              2 |            65 |
+|  14 | Exercise 1.14 count-change                                   |      1.038 |              2 |            50 |
+|  15 | Exercise 1.15 sine                                           |      0.267 |              2 |           195 |
+|  16 | Exercise 1.16 Iterative exponentiation                       |      0.032 |              1 |            46 |
+|  17 | Exercise 1.17 Fast multiplication                            |      0.019 |              1 |            28 |
+|  18 | Exercise 1.18 Iterative multiplication                       |      0.497 |              2 |            23 |
+|  19 | Exercise 1.19 Logarithmic Fibonacci                          |      1.374 |              2 |            93 |
+|  20 | Exercise 1.20 GCD applicative vs normal                      |      0.099 |              1 |           142 |
+|  21 | Exercise 1.21 smallest-divisor                               |      0.027 |              1 |            39 |
+|  22 | Exercise 1.22 timed-prime-test                               |      0.042 |              1 |            61 |
+|  23 | Exercise 1.23 (next test-divisor)                            |      0.383 |              2 |             5 |
+|  24 | Exercise 1.24 Fermat method                                  |      0.067 |              1 |            96 |
+|  25 | Exercise 1.25 expmod                                         |      0.051 |              1 |            74 |
+|  26 | Exercise 1.26 square vs mul                                  |      0.003 |              1 |             4 |
+|  27 | Exercise 1.27 Carmichael numbers                             |      0.333 |              2 |           102 |
+|  28 | Exercise 1.28 Miller-Rabin                                   |      0.110 |              1 |           158 |
+|  29 | Exercise 1.29 Simpson's integral                             |      0.464 |              2 |            68 |
+|  30 | Exercise 1.30 Iterative sum                                  |      0.030 |              2 |            10 |
+|  31 | Exercise 1.31 Product                                        |      0.028 |              1 |            40 |
+|  32 | Exercise 1.32 Accumulator                                    |      0.017 |              1 |            24 |
+|  33 | Exercise 1.33 filtered-accumulate                            |      0.092 |              1 |           133 |
+|  34 | Exercise 1.34 lambda                                         |      0.006 |              1 |             8 |
+|  35 | Exercise 1.35 fixed-point                                    |      0.265 |              2 |            87 |
+|  36 | Exercise 1.36 fixed-point-with-dampening                     |      0.035 |              1 |            50 |
+|  37 | Exercise 1.37 cont-frac                                      |      0.569 |              2 |           348 |
+|  38 | Exercise 1.38 euler constant                                 |      0.000 |              1 |             0 |
+|  39 | Exercise 1.39 tan-cf                                         |      0.025 |              1 |            36 |
+|  40 | Exercise 1.40 newtons-method                                 |      0.205 |              2 |             6 |
+|  41 | Exercise 1.41 double-double                                  |      0.010 |              1 |            15 |
+|  42 | Exercise 1.42 compose                                        |      0.004 |              1 |             6 |
+|  43 | Exercise 1.43 repeated                                       |      0.019 |              1 |            27 |
+|  44 | Exercise 1.44 smoothing                                      |      0.099 |              2 |           142 |
+|  45 | Exercise 1.45 nth-root                                       |      0.056 |              1 |            80 |
+|  46 | Exercise 1.46 iterative-improve                              |      0.033 |              1 |            48 |
+|  47 | Exercise 2.1 make-rat                                        |      1.608 |              2 |           109 |
+|  48 | Exercise 2.2 make-segment                                    |      0.024 |              1 |            34 |
+|  49 | Exercise 2.3 make-rectangle                                  |      2.183 |              2 |           174 |
+|  50 | Exercise 2.4 cons-lambda                                     |      0.007 |              1 |            10 |
+|  51 | Exercise 2.5 cons-pow                                        |      0.041 |              1 |            59 |
+|  52 | Exercise 2.6 Church Numerals                                 |      0.024 |              1 |            34 |
+|  53 | Exercise 2.7 make-interval                                   |      0.019 |              1 |            28 |
+|  54 | Exercise 2.8 sub-interval                                    |      0.124 |              1 |            58 |
+|  55 | Exercise 2.9 interval-width                                  |      0.006 |              1 |             8 |
+|  56 | Exercise 2.10 div-interval-better                            |      0.010 |              1 |            15 |
+|  57 | Exercise 2.11 mul-interval-nine-cases                        |      0.052 |              1 |            75 |
+|  58 | Exercise 2.12 make-center-percent                            |      0.393 |              2 |            43 |
+|  59 | Exercise 2.13 formula for tolerance                          |      0.003 |              1 |             5 |
+|  60 | Exercise 2.14 parallel-resistors                             |      0.047 |              1 |            68 |
+|  61 | Exercise 2.15 better-intervals                               |      0.007 |              1 |            10 |
+|  62 | Exercise 2.16 interval-arithmetic                            |      0.002 |              1 |             3 |
+|  63 | Exercise 2.17 last-pair                                      |      0.966 |              2 |            89 |
+|  64 | Exercise 2.18 reverse                                        |      0.006 |              1 |             9 |
+|  65 | Exercise 2.19 coin-values                                    |      0.021 |              1 |            30 |
+|  66 | Exercise 2.20 dotted-tail notation                           |      0.311 |              2 |           156 |
+|  67 | Exercise 2.21 map-square-list                                |      0.013 |              1 |            19 |
+|  68 | Exercise 2.22 wrong list order                               |      0.007 |              1 |            10 |
+|  69 | Exercise 2.23 for-each                                       |      0.006 |              1 |             9 |
+|  70 | Exercise 2.24 list-plot-result                               |      0.111 |              2 |            75 |
+|  71 | Exercise 2.25 caddr                                          |      0.037 |              1 |            54 |
+|  72 | Exercise 2.26 append cons list                               |      0.011 |              1 |            16 |
+|  73 | Exercise 2.27 deep-reverse                                   |      0.433 |              2 |            40 |
+|  74 | Exercise 2.28 fringe                                         |      0.026 |              1 |            37 |
+|  75 | Exercise 2.29 mobile                                         |      0.058 |              1 |            83 |
+|  76 | Exercise 2.30 square-tree                                    |      0.100 |              2 |           122 |
+|  77 | Exercise 2.31 tree-map square tree                           |      0.019 |              1 |            27 |
+|  78 | Exercise 2.32 subsets                                        |      0.010 |              1 |            15 |
+|  79 | Exercise 2.33 map-append-length                              |      0.375 |              2 |            96 |
+|  80 | Exercise 2.34 horners-rule                                   |      0.006 |              1 |             8 |
+|  81 | Exercise 2.35 count-leaves-accumulate                        |      0.011 |              1 |            16 |
+|  82 | Exercise 2.36 accumulate-n                                   |      0.006 |              1 |             9 |
+|  83 | Exercise 2.37 matrix-*-vector                                |      0.017 |              1 |            24 |
+|  84 | Exercise 2.38 fold-left                                      |      0.372 |              2 |            65 |
+|  85 | Exercise 2.39 reverse fold-right fold-left                   |      0.005 |              1 |             7 |
+|  86 | Exercise 2.40 unique-pairs                                   |      0.029 |              1 |            42 |
+|  87 | Exercise 2.41 triple-sum                                     |      2.195 |              2 |            57 |
+|  88 | Figure 2.8 A solution to the eight-queens puzzle.            |      0.001 |              1 |             2 |
+|  89 | Exercise 2.42 k-queens                                       |      3.299 |              2 |           122 |
+|  90 | Exercise 2.43 slow k-queens                                  |      0.019 |              1 |            28 |
+|  91 | Exercise 2.46 make-vect                                      |      2.578 |              5 |           535 |
+|  92 | Exercise 2.47 make-frame                                     |      0.083 |              1 |            10 |
+|  93 | Exercise 2.48 make-segment                                   |      0.054 |              1 |            78 |
+|  94 | Exercise 2.49 segments->painter applications                 |      0.294 |              2 |           139 |
+|  95 | Exercise 2.50 flip-horiz and rotate270 and rotate180         |      0.019 |              1 |            27 |
+|  96 | Exercise 2.51 below                                          |      1.801 |              4 |           524 |
+|  97 | Exercise 2.44 up-split                                       |      1.169 |              2 |            89 |
+|  98 | Exercise 2.45 split                                          |      0.113 |              2 |            23 |
+|  99 | Exercise 2.52 modify square-limit                            |      0.450 |              2 |            58 |
+| 100 | Exercise 2.53 quote introduction                             |      0.008 |              1 |            11 |
+| 101 | Exercise 2.54 equal? implementation                          |      0.050 |              1 |            72 |
+| 102 | Exercise 2.55 quote quote                                    |      0.000 |              1 |             0 |
+| 103 | Exercise 2.56 differentiation-exponentiation                 |      0.393 |              2 |            65 |
+| 104 | Exercise 2.57 differentiate-three-sum                        |      0.560 |              3 |           147 |
+| 105 | Exercise 2.58 infix-notation                                 |      0.112 |              1 |           161 |
+| 106 | Exercise 2.59 union-set                                      |      0.277 |              2 |             6 |
+| 107 | Exercise 2.60 duplicate-set                                  |      0.012 |              1 |            17 |
+| 108 | Exercise 2.62 ordered-union-set (ordered list)               |      0.973 |              2 |            14 |
+| 109 | Exercise 2.61 sets as ordered lists                          |      0.004 |              1 |             6 |
+| 110 | Exercise 2.63 tree->list (binary search tree)                |      0.078 |              1 |           113 |
+| 111 | Exercise 2.64 balanced-tree                                  |      2.740 |              3 |           106 |
+| 112 | Exercise 2.65 tree-union-set                                 |      9.785 |              2 |            47 |
+| 113 | Exercise 2.66 tree-lookup                                    |      0.035 |              1 |            50 |
+| 114 | Exercise 2.67 Huffman decode a simple message                |      0.303 |              3 |           108 |
+| 115 | Exercise 2.68 Huffman encode a simple message                |      0.023 |              1 |            33 |
+| 116 | Exercise 2.69 Generate Huffman tree                          |      0.608 |              2 |           160 |
+| 117 | Exercise 2.70 Generate a tree and encode a song              |      0.072 |              2 |            57 |
+| 118 | Exercise 2.71 Huffman tree for frequencies 5 and 10          |      0.258 |              2 |           202 |
+| 119 | Exercise 2.72 Huffman order of growth                        |      0.050 |              2 |            26 |
+| 120 | Exercise 2.73 data-driven-deriv                              |      0.605 |              2 |           189 |
+| 121 | Exercise 2.74 Insatiable Enterprises                         |      0.410 |              4 |           171 |
+| 122 | Exercise 2.75 make-from-mag-ang message passing              |      0.019 |              1 |            28 |
+| 123 | Exercise 2.76 types or functions?                            |      0.003 |              1 |             5 |
+| 124 | Exercise 2.77 generic-algebra-magnitude                      |      0.772 |              3 |           190 |
+| 125 | Exercise 2.78 Ordinary numbers for scheme                    |      0.212 |              2 |            67 |
+| 126 | Exercise 2.79 generic-equality                               |      1.786 |              2 |            28 |
+| 127 | Exercise 2.80 Generic arithmetic zero?                       |      0.056 |              1 |            80 |
+| 128 | Exercise 2.81 coercion to-itself                             |      0.749 |              3 |           330 |
+| 129 | Exercise 2.82 three-argument-coercion                        |      0.433 |              2 |           230 |
+| 130 | Exercise 2.83 Numeric Tower and (raise)                      |      0.717 |              3 |           116 |
+| 131 | Exercise 2.84 Using ~raise~ (~raise-type~) in ~apply-generic |      0.865 |              2 |           135 |
+| 132 | Exercise 2.85 Dropping a type                                |      3.089 |              5 |           507 |
+| 133 | Exercise 2.86 Compound complex numbers                       |      0.274 |              2 |           108 |
+| 134 | Exercise 2.87 Generalized zero?                              |      0.919 |              4 |           389 |
+| 135 | Exercise 2.88 Subtraction of polynomials                     |      0.646 |              3 |            50 |
+| 136 | Exercise 2.89 Dense term-lists                               |      0.083 |              1 |           120 |
+| 137 | Exercise 2.90 Implementing dense polynomials as a separate p |      0.400 |              2 |           148 |
+| 138 | Exercise 2.91 Division of polynomials                        |      0.111 |              2 |           103 |
+| 139 | Exercise 2.92 Ordering of variables so that addition and mul |      4.556 |             11 |           964 |
+| 140 | Exercise 2.93 Rational polynomials                           |      0.378 |              3 |           198 |
+| 141 | Exercise 2.94 Greatest-common-divisor for polynomials        |      0.091 |              1 |           131 |
+| 142 | Exercise 2.95 Illustrate the non-integer problem             |      0.450 |              2 |           149 |
+| 143 | Exercise 2.96 Integerizing factor                            |      0.325 |              2 |           275 |
+| 144 | Exercise 2.97 Reduction of polynomials                       |      0.201 |              1 |           140 |
+| 145 | Exercise 3.1 accumulators                                    |      0.425 |              2 |            53 |
+| 146 | Exercise 3.2 make-monitored                                  |      0.027 |              1 |            39 |
+| 147 | Exercise 3.3 password protection                             |      0.010 |              1 |            14 |
+| 148 | Exercise 3.4 call-the-cops                                   |      0.010 |              1 |            15 |
+| 149 | Exercise 3.5 Monte-Carlo                                     |      0.528 |              2 |            98 |
+| 150 | Exercise 3.6 reset a prng                                    |      0.479 |              2 |            68 |
+| 151 | Exercise 3.7 Joint accounts                                  |      0.059 |              1 |            85 |
+| 152 | Exercise 3.8 Right-to-left vs Left-to-right                  |      0.026 |              1 |            38 |
+| 153 | Exercise 3.9 Environment structures                          |     21.030 |             10 |          1100 |
+| 154 | Exercise 3.10 Using ~let~ to create state variables          |      4.933 |              2 |           138 |
+| 155 | Exercise 3.11 Internal definitions                           |      0.994 |              2 |           219 |
+| 156 | Exercise 3.12 Drawing ~append!~                              |      2.966 |              3 |           347 |
+| 157 | Exercise 3.13 ~make-cycle~                                   |      0.010 |              1 |            14 |
+| 158 | Exercise 3.14 ~mystery~                                      |      0.385 |              2 |            77 |
+| 159 | Exercise 3.15 ~set-to-wow!~                                  |      1.942 |              3 |           117 |
+| 160 | Exercise 3.16 ~count-pairs~                                  |      0.171 |              1 |           118 |
+| 161 | Exercise 3.17 Real ~count-pairs~                             |      0.029 |              1 |            42 |
+| 162 | Exercise 3.18 Finding cycles                                 |      0.012 |              1 |            17 |
+| 163 | Exercise 3.19 Efficient finding cycles                       |      0.934 |              2 |           205 |
+| 164 | Exercise 3.20 Procedural ~set-car!~                          |      0.633 |              2 |           121 |
+| 165 | Exercise 3.21 queues                                         |      0.021 |              1 |            30 |
+| 166 | Exercise 3.22 procedural queue                               |      0.294 |              2 |            67 |
+| 167 | Exercise 3.23 dequeue                                        |      0.049 |              2 |            71 |
+| 168 | Exercise 3.24 tolerant tables                                |      0.780 |              3 |            33 |
+| 169 | Exercise 3.25 multilevel tables                              |      2.103 |              2 |           486 |
+| 170 | Exercise 3.26 binary tree table                              |      0.013 |              1 |            18 |
+| 171 | Exercise 3.27 memoization                                    |      0.802 |              2 |             2 |
+| 172 | Exercise 3.28 primitive or-gate                              |      1.316 |              2 |           783 |
+| 173 | Exercise 3.29 Compound or-gate                               |      0.001 |              1 |             2 |
+| 174 | Exercise 3.30 ripple-carry adder                             |      0.009 |              1 |            13 |
+| 175 | Exercise 3.31 Initial propagation                            |      0.013 |              1 |            18 |
+| 176 | Exercise 3.32 Order matters                                  |      0.007 |              1 |            10 |
+| 177 | Exercise 3.33 averager constraint                            |      9.460 |              3 |           198 |
+| 178 | Exercise 3.34 Wrong squarer                                  |      0.042 |              1 |            61 |
+| 179 | Exercise 3.35 Correct squarer                                |      0.012 |              1 |            17 |
+| 180 | Exercise 3.36 Connector environment diagram                  |      3.319 |              3 |           263 |
+| 181 | Exercise 3.37 Expression-based constraints                   |      0.037 |              1 |            53 |
+| 182 | Exercise 3.38 Timing                                         |      0.061 |              1 |            88 |
+| 183 | Exercise 3.39 Serializer                                     |      1.266 |              4 |           269 |
+| 184 | Exercise 3.40 Three parallel multiplications                 |      5.973 |              3 |           332 |
+| 185 | Exercise 3.41 Better protected account                       |      4.229 |              2 |            97 |
+| 186 | Exercise 3.42 Saving on serializers                          |      0.023 |              1 |            33 |
+| 187 | Exercise 3.43 Multiple serializations                        |      0.040 |              1 |            58 |
+| 188 | Exercise 3.44 Transfer money                                 |      0.005 |              1 |             7 |
+| 189 | Exercise 3.45 new plus old serializers                       |      0.004 |              1 |             6 |
+| 190 | Exercise 3.46 broken test-and-set!                           |      0.007 |              1 |            10 |
+| 191 | Exercise 3.47 semaphores                                     |      1.044 |              2 |            53 |
+| 192 | Exercise 3.48 serialized-exchange deadlock                   |      0.022 |              1 |            31 |
+| 193 | Exercise 3.49 When numbering accounts doesn't work           |      0.008 |              1 |            11 |
+| 194 | Exercise 3.50 stream-map multiple arguments                  |      0.317 |              3 |            96 |
+| 195 | Exercise 3.51 stream-show                                    |      0.007 |              1 |            10 |
+| 196 | Exercise 3.52 streams with mind-boggling                     |      0.034 |              1 |            49 |
+| 197 | Exercise 3.53 stream power of two                            |      0.016 |              1 |            23 |
+| 198 | Exercise 3.54 mul-streams                                    |      0.005 |              1 |             7 |
+| 199 | Exercise 3.55 streams partial-sums                           |      0.013 |              1 |            18 |
+| 200 | Exercise 3.56 Hamming's streams-merge                        |      0.015 |              1 |            21 |
+| 201 | Exercise 3.57 exponential additions fibs                     |      0.007 |              1 |            10 |
+| 202 | Exercise 3.58 Cryptic stream                                 |      0.010 |              1 |            14 |
+| 203 | Exercise 3.59 power series                                   |      0.422 |              2 |            30 |
+| 204 | Exercise 3.60 mul-series                                     |      0.048 |              1 |            69 |
+| 205 | Exercise 3.61 power-series-inversion                         |      0.087 |              1 |           126 |
+| 206 | Exercise 3.62 div-series                                     |      0.006 |              1 |             8 |
+| 207 | Exercise 3.63 sqrt-stream                                    |      0.299 |              2 |             8 |
+| 208 | Exercise 3.64 stream-limit                                   |      1.546 |              2 |            55 |
+| 209 | Exercise 3.65 approximating logarithm                        |      0.039 |              1 |            56 |
+| 210 | Exercise 3.66 lazy pairs                                     |      0.515 |              2 |           107 |
+| 211 | Exercise 3.67 all possible pairs                             |      0.010 |              1 |            14 |
+| 212 | Exercise 3.68 pairs-louis                                    |      0.012 |              1 |            17 |
+| 213 | Exercise 3.70 merge-weighted                                 |      0.522 |              2 |           188 |
+| 214 | Exercise 3.71 Ramanujan numbers                              |      0.035 |              1 |            51 |
+| 215 | Exercise 3.72 Ramanujan 3-numbers                            |      0.901 |              2 |           187 |
+| 216 | Figure 3.32                                                  |      0.022 |              1 |            32 |
+| 217 | Exercise 3.73 RC-circuit                                     |      0.090 |              1 |           130 |
+| 218 | Exercise 3.74 zero-crossings                                 |      0.153 |              1 |           221 |
+| 219 | Exercise 3.75 filtering signals                              |      0.056 |              1 |            81 |
+| 220 | Exercise 3.76 stream-smooth                                  |      0.073 |              2 |            36 |
+| 221 | Exercise 3.77                                                |      0.038 |              1 |            55 |
+| 222 | Exercise 3.78 second order differential equation             |      0.039 |              1 |            56 |
+| 223 | Exercise 3.79 general second-order ode                       |      0.007 |              1 |            10 |
+| 224 | Figure 3.36                                                  |      0.058 |              1 |            84 |
+| 225 | Exercise 3.80 RLC circuit                                    |      0.013 |              1 |            19 |
+| 226 | Exercise 3.81  renerator-in-streams                          |      0.040 |              1 |            57 |
+| 227 | Exercise 3.82 streams Monte-Carlo                            |      0.378 |              2 |            57 |
+| 228 | Exercise 4.1 list-of-values ordered                          |      0.437 |              2 |            14 |
+| 229 | Exercise 4.2 application before assignments                  |      0.021 |              1 |            30 |
+| 230 | Exercise 4.3 data-directed eval                              |      0.030 |              1 |            43 |
+| 231 | Exercise 4.4 eval-and and eval-or                            |      0.035 |              1 |            50 |
+| 232 | Exercise 4.5 cond with arrow                                 |     12.765 |              7 |          1252 |
+| 233 | Exercise 4.6 Implementing let                                |      0.019 |              1 |            27 |
+| 234 | Exercise 4.7 Implementing let*                               |      0.046 |              1 |            66 |
+| 235 | Exercise 4.8 Implementing named let                          |      0.070 |              1 |           101 |
+| 236 | Exercise 4.9 Implementing until                              |      0.928 |              3 |           102 |
+| 237 | Exercise 4.10 Modifying syntax                               |     14.168 |              3 |           462 |
+| 238 | Exercise 4.11 Environment as a list of bindings              |      4.368 |              2 |           194 |
+| 239 | Exercise 4.12 Better abstractions for setting a value        |      0.529 |              2 |           120 |
+| 240 | Exercise 4.13 Implementing ~make-unbound!~                   |      0.550 |              2 |           149 |
+| 241 | Exercise 4.14 meta map versus built-in map                   |      0.004 |              1 |             6 |
+| 242 | Exercise 4.15 The ~halts?~ predicate                         |      0.018 |              1 |            26 |
+| 243 | Exercise 4.16 Simultaneous internal definitions              |      0.162 |              2 |           177 |
+| 244 | Exercise 4.17 Environment with simultaneous definitions      |      0.036 |              1 |            52 |
+| 245 | Exercise 4.18 Alternative scanning                           |      0.018 |              1 |            26 |
+| 246 | Exercise 4.19 Mutual simultaneous definitions                |      0.220 |              2 |            96 |
+| 247 | Exercise 4.20 letrec                                         |      0.206 |              2 |           195 |
+| 248 | Exercise 4.21 Y-combinator                                   |      0.013 |              1 |            18 |
+| 249 | Exercise 4.22 Extending evaluator to support ~let~           |      1.768 |              3 |           144 |
+| 250 | Exercise 4.23 Analysing sequences                            |      0.005 |              1 |             7 |
+| 251 | Exercise 4.24 Analysis time test                             |      0.022 |              1 |            32 |
+| 252 | Exercise 4.25 lazy factorial                                 |      0.034 |              1 |            49 |
+| 253 | Exercise 4.26 unless as a special form                       |      0.313 |              1 |           451 |
+| 254 | Exercise 4.27 Working with mutation in lazy interpreters     |      0.515 |              2 |           112 |
+| 255 | Exercise 4.28 Eval before applying                           |      0.005 |              1 |             7 |
+| 256 | Exercise 4.29 Lazy evaluation is slow without memoization    |      0.035 |              1 |            50 |
+| 257 | Exercise 4.30 Lazy sequences                                 |      0.153 |              2 |            74 |
+| 258 | Exercise 4.31 Lazy arguments with syntax extension           |      0.092 |              2 |           112 |
+| 259 | Exercise 4.32 streams versus lazy lists                      |      0.503 |              2 |            87 |
+| 260 | Exercise 4.33 quoted lazy lists                              |      0.097 |              2 |           103 |
+| 261 | Exercise 4.34 printing lazy lists                            |      0.219 |              3 |           205 |
+| 262 | Exercise 4.50 The ~ramb~ operator                            |      0.813 |              4 |           266 |
+| 263 | Exercise 4.35 ~an-integer-between~ and Pythagorean triples   |      0.103 |              2 |           138 |
+| 264 | Exercise 3.69 triples                                        |      0.115 |              2 |            85 |
+| 265 | Exercise 4.36 infinite search for Pythagorean triples        |      0.011 |              1 |            16 |
+| 266 | Exercise 4.37 another method for triples                     |      0.035 |              1 |            51 |
+| 267 | Exercise 4.38 Logical puzzle - Not same floor                |      0.027 |              1 |            39 |
+| 268 | Exercise 4.39 Order of restrictions                          |      0.003 |              1 |             5 |
+| 269 | Exercise 4.40 People to floor assignment                     |      0.019 |              1 |            28 |
+| 270 | Exercise 4.41 Ordinary scheme to solve the problem           |      0.072 |              1 |           103 |
+| 271 | Exercise 4.42 The liars puzzle                               |      0.503 |              1 |            81 |
+| 272 | Exercise 4.43 Problematical Recreations                      |      0.052 |              1 |            75 |
+| 273 | Exercise 4.44 Nondeterministic eight queens                  |      0.074 |              1 |           106 |
+| 274 | Exercise 4.45 Five parses                                    |      0.186 |              3 |           145 |
+| 275 | Exercise 4.46 Order of parsing                               |      0.007 |              1 |            10 |
+| 276 | Exercise 4.47 Parse verb phrase by Louis                     |      0.013 |              1 |            18 |
+| 277 | Exercise 4.48 Extending the grammar                          |      0.037 |              1 |             1 |
+| 278 | Exercise 4.49 Alyssa's generator                             |      0.031 |              1 |            45 |
+| 279 | Exercise 4.51 Implementing ~permanent-set!~                  |      0.030 |              1 |            43 |
+| 280 | Exercise 4.52 ~if-fail~                                      |      0.063 |              1 |            91 |
+| 281 | Exercise 4.53 test evaluation                                |      0.005 |              1 |             7 |
+| 282 | Exercise 4.54 ~analyze-require~                              |      0.468 |              2 |            31 |
+| 283 | Exercise 4.55 Simple queries                                 |      0.258 |              2 |           372 |
+| 284 | Exercise 4.56 Compound queries                               |      0.018 |              1 |            26 |
+| 285 | Exercise 4.57 custom rules                                   |      0.147 |              3 |           112 |
+| 286 | Exercise 4.58 big shot                                       |      0.025 |              1 |            36 |
+| 287 | Exercise 4.59 meetings                                       |      0.031 |              1 |            45 |
+| 288 | Exercise 4.60 pairs live near                                |      0.016 |              1 |            23 |
+| 289 | Exercise 4.61 next-to relation                               |      0.008 |              1 |            11 |
+| 290 | Exercise 4.62 last-pair                                      |      0.033 |              1 |            48 |
+| 291 | Exercise 4.63 Genesis                                        |      0.423 |              2 |            40 |
+| 292 | Figure 4.6 How the system works                              |      0.022 |              1 |            31 |
+| 293 | Exercise 4.64 broken outranked-by                            |      0.065 |              1 |            94 |
+| 294 | Exercise 4.65 second-degree subordinates                     |      0.012 |              1 |            17 |
+| 295 | Exercise 4.66 Ben's accumulation                             |      0.013 |              1 |            18 |
+| 296 | Exercise 4.70 Cons-stream delays its second argument         |      0.167 |              3 |            79 |
+| 297 | Exercise 4.72 interleave-stream                              |      0.002 |              1 |             3 |
+| 298 | Exercise 4.73 flatten-stream delays                          |      0.006 |              1 |             8 |
+| 299 | Exercise 4.67 loop detector                                  |      0.251 |              1 |           361 |
+| 300 | Exercise 4.68 reverse rule                                   |      0.686 |              2 |           321 |
+| 301 | Exercise 4.69 great grandchildren                            |      0.080 |              2 |            65 |
+| 302 | Exercise 4.71 Louis' simple queries                          |      0.134 |              2 |            69 |
+| 303 | Exercise 4.74 Alyssa's streams                               |      0.044 |              1 |            64 |
+| 304 | Exercise 4.75 ~unique~ special form                          |      0.055 |              1 |            79 |
+| 305 | Exercise 4.76 improving ~and~                                |      0.797 |              2 |           438 |
+| 306 | Figure 5.2 Controller for a GCD Machine                      |      0.167 |              3 |           124 |
+| 307 | Exercise 5.1 Register machine plot                           |      0.020 |              1 |            29 |
+| 308 | Figure 5.1 Data paths for a Register Machine                 |      0.599 |              2 |           115 |
+| 309 | Exercise 5.2 Register machine language description of Exerci |      0.006 |              1 |             8 |
+| 310 | Exercise 5.3 Machine for ~sqrt~ using Newton Method          |      0.306 |              2 |           286 |
+| 311 | Exercise 5.4 Recursive register machines                     |      1.001 |              4 |           274 |
+| 312 | Exercise 5.5 Hand simulation for factorial and Fibonacci     |      0.110 |              1 |           158 |
+| 313 | Exercise 5.6 Fibonacci machine extra instructions            |      0.011 |              1 |            16 |
+| 314 | Exercise 5.7 Test the 5.4 machine on a simulator             |      0.458 |              2 |           133 |
+| 315 | Exercise 5.8 Ambiguous labels                                |      0.469 |              1 |           160 |
+| 316 | Exercise 5.9 Prohibit (op)s on labels                        |      0.017 |              1 |            25 |
+| 317 | Exercise 5.10 Changing syntax                                |      0.011 |              1 |            16 |
+| 318 | Exercise 5.11 Save and restore                               |      0.619 |              3 |           186 |
+| 319 | Exercise 5.12 Data paths from controller                     |      0.424 |              2 |           183 |
+| 320 | Exercise 5.13 Registers from controller                      |      0.470 |              2 |           101 |
+| 321 | Exercise 1.3 Sum of squares                                  |      1.044 |              1 |             6 |
+| 322 | Exercise 5.14 Profiling                                      |      0.347 |              2 |            57 |
+| 323 | Exercise 5.15 Instruction counting                           |      0.052 |              1 |            75 |
+| 324 | Exercise 5.16 Tracing execution                              |      0.058 |              1 |            83 |
+| 325 | Exercise 5.18 Register tracing                               |      0.631 |              2 |            90 |
+| 326 | Exercise 5.19 Breakpoints                                    |      0.149 |              1 |           215 |
+| 327 | Exercise 5.17 Printing labels                                |      0.001 |              1 |             1 |
+| 328 | Exercise 5.20 Drawing a list "~(#1=(1 . 2) #1)~"             |      0.189 |              2 |           139 |
+| 329 | Exercise 5.21 Register machines for list operations          |      0.617 |              2 |           115 |
+| 330 | Exercise 5.22 ~append~ and ~append!~ as register machines    |      0.047 |              1 |            68 |
+| 331 | Exercise 5.23 Extending EC-evaluator with ~let~ and ~cond~   |      0.862 |              4 |           363 |
+| 332 | Exercise 5.24 Making ~cond~ a primitive                      |      0.160 |              2 |           199 |
+| 333 | Exercise 5.25 Normal-order (lazy) evaluation                 |      1.010 |              4 |           342 |
+| 334 | Exercise 5.26 Explore tail recursion with ~factorial~        |      0.195 |              2 |            26 |
+| 335 | Exercise 5.27 Stack depth for a recursive factorial          |      0.008 |              1 |            11 |
+| 336 | Exercise 5.28 Interpreters without tail recursion            |      0.028 |              1 |            40 |
+| 337 | Exercise 5.29 Stack in tree-recursive Fibonacci              |      0.015 |              1 |            21 |
+| 338 | Exercise 5.30 Errors                                         |      0.615 |              3 |           147 |
+| 339 | Exercise 5.31 a ~preserving~ mechanism                       |      0.417 |              2 |           161 |
+| 340 | Exercise 5.32 symbol-lookup optimization                     |      0.052 |              1 |            75 |
+| 341 | Exercise 5.33 compiling ~factorial-alt~                      |      0.753 |              2 |           267 |
+| 342 | Exercise 5.34 compiling iterative factorial                  |      0.169 |              1 |           243 |
+| 343 | Exercise 5.35 Decompilation                                  |      0.022 |              1 |            32 |
+| 344 | Exercise 5.36 Order of evaluation                            |      0.845 |              4 |           256 |
+| 345 | Exercise 5.37 ~preserving~                                   |      0.135 |              1 |           194 |
+| 346 | Exercise 5.38 open code primitives                           |      0.914 |              3 |           378 |
+| 347 | Exercise 5.41 ~find-variable~                                |      0.028 |              1 |            40 |
+| 348 | Exercise 5.39 ~lexical-address-lookup~                       |      0.044 |              1 |            64 |
+| 349 | Exercise 5.42 Rewrite ~compile-variable~ and ~compile-assign |      0.679 |              2 |           118 |
+| 350 | Exercise 5.40 maintaining a compile-time environment         |      0.085 |              2 |           101 |
+| 351 | Exercise 5.43 Scanning out defines                           |      0.249 |              3 |           261 |
+| 352 | Exercise 5.44 open code with compile-time environment        |      0.020 |              1 |            29 |
+| 353 | Exercise 5.45 stack usage analysis for a ~factorial~         |      0.528 |              1 |            61 |
+| 354 | Exercise 5.46 stack usage analysis for ~fibonacci~           |      0.017 |              1 |            25 |
+| 355 | Exercise 5.47 calling interpreted procedures                 |      0.049 |              1 |            71 |
+| 356 | Exercise 5.48 ~compile-and-run~                              |      1.020 |              3 |           264 |
+| 357 | Exercise 5.49 ~read-compile-execute-print~ loop              |      0.015 |              1 |            22 |
+| 358 | Exercise 4.77 lazy queries                                   |      4.129 |              9 |          1214 |
+| 359 | Exercise 5.50 Compiling the metacircular evaluator           |      0.007 |              1 |            10 |
+| 360 | Exercise 4.78 non-deterministic queries                      |      0.867 |              6 |           602 |
+| 361 | Exercise 5.51 Translating the EC-evaluator into a low-level  |     28.962 |             33 |          5684 |
+| 362 | Exercise 5.52 Making a compiler for scheme                   |     22.975 |             13 |          2359 |
+| 363 | Exercise 4.79 prolog environments                            |      4.285 |              5 |           940 |
+#+TBLFM: $1=@#-1
+
+*** Time consumption histogram linear
+
+#+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [hours]'"
+| Bin Lower Bound | N. tasks |
+|-----------------+----------|
+|              0. |      301 |
+|         177.625 |       38 |
+|          355.25 |       14 |
+|         532.875 |        2 |
+|           710.5 |        1 |
+|         888.125 |        2 |
+|         1065.75 |        2 |
+|        1243.375 |        1 |
+|           1421. |        0 |
+|        1598.625 |        0 |
+|         1776.25 |        0 |
+|        1953.875 |        0 |
+|          2131.5 |        0 |
+|        2309.125 |        1 |
+|         2486.75 |        0 |
+|        2664.375 |        0 |
+|           2842. |        0 |
+|        3019.625 |        0 |
+|         3197.25 |        0 |
+|        3374.875 |        0 |
+|          3552.5 |        0 |
+|        3730.125 |        0 |
+|         3907.75 |        0 |
+|        4085.375 |        0 |
+|           4263. |        0 |
+|        4440.625 |        0 |
+|         4618.25 |        0 |
+|        4795.875 |        0 |
+|          4973.5 |        0 |
+|        5151.125 |        1 |
+#+TBLFM: $1=(@#-2)*177.625
+
+*** Time consumption histogram logarithmic
+
+#+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [log(hours)]'"
+| Bin Lower Bound | N. tasks |
+|-----------------+----------|
+|               1 |        2 |
+|               2 |        6 |
+|               4 |       15 |
+|               8 |       41 |
+|              16 |       55 |
+|              32 |       67 |
+|              64 |       85 |
+|             128 |       52 |
+|             256 |       29 |
+|             512 |        6 |
+|            1024 |        3 |
+|            2048 |        1 |
+|            4096 |        1 |
+#+TBLFM: $1=pow(2,(@#-2))
+
+
+
 
 * Appendix: Full data on the exercise completion times.
 
@@ -1538,6 +1978,7 @@ Exercise 5.52 Making a compiler for scheme
 [2020-05-06 Wed 11:09]
 #+end_example
 
+
 * Appendix: Full data on the study sessions.
 
 #+attr_latex: :left
@@ -1851,434 +2292,3 @@ Exercise 5.52 Making a compiler for scheme
   [2019-08-19 Mon 09:19]-[2019-08-19 Mon 13:32] >  4:13
 
 #+end_example
-* Appendix: Analysed data on problem difficulty
-
-*** Analysed time consumption
-
-#+PLOT: title:"Study sessions per problem" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem #'" set:"ylabel 'Study sessions (number)'"
-#+ATTR_LATEX: :center :environment supertabular :align l|p{4cm}|p{1cm}|p{0.9cm}|p{0.9cm}
-|  No | Exercise Name                                                | Days Spent | Spans Sessions | Minutes Spent |
-|-----+--------------------------------------------------------------+------------+----------------+---------------|
-|   1 | Exercise 1.1 Interpreter result                              |      1.211 |              2 |           459 |
-|   2 | Exercise 1.2 Prefix form                                     |      0.001 |              1 |             2 |
-|   3 | Figure 1.1 Tree representation, showing the value of each su |      0.007 |              1 |            10 |
-|   4 | Exercise 1.4 Compound expressions                            |      0.003 |              1 |             4 |
-|   5 | Exercise 1.5 Ben's test                                      |      0.008 |              1 |            11 |
-|   6 | Exercise 1.6 If is a special form                            |      0.969 |              2 |           118 |
-|   7 | Exercise 1.7 Good enough?                                    |      0.949 |              3 |           436 |
-|   8 | Exercise 1.8 Newton's method                                 |      0.197 |              2 |           193 |
-|   9 | Exercise 1.10 Ackermann's function                           |      3.038 |              2 |           379 |
-|  10 | Exercise 1.11 Recursive vs iterative                         |      0.037 |              1 |            54 |
-|  11 | Exercise 1.12 Recursive Pascal's triangle                    |      0.012 |              1 |            17 |
-|  12 | Exercise 1.13 Fibonacci                                      |      0.092 |              1 |           132 |
-|  13 | Exercise 1.9 Iterative or recursive?                         |      3.722 |              2 |            65 |
-|  14 | Exercise 1.14 count-change                                   |      1.038 |              2 |            50 |
-|  15 | Exercise 1.15 sine                                           |      0.267 |              2 |           195 |
-|  16 | Exercise 1.16 Iterative exponentiation                       |      0.032 |              1 |            46 |
-|  17 | Exercise 1.17 Fast multiplication                            |      0.019 |              1 |            28 |
-|  18 | Exercise 1.18 Iterative multiplication                       |      0.497 |              2 |            23 |
-|  19 | Exercise 1.19 Logarithmic Fibonacci                          |      1.374 |              2 |            93 |
-|  20 | Exercise 1.20 GCD applicative vs normal                      |      0.099 |              1 |           142 |
-|  21 | Exercise 1.21 smallest-divisor                               |      0.027 |              1 |            39 |
-|  22 | Exercise 1.22 timed-prime-test                               |      0.042 |              1 |            61 |
-|  23 | Exercise 1.23 (next test-divisor)                            |      0.383 |              2 |             5 |
-|  24 | Exercise 1.24 Fermat method                                  |      0.067 |              1 |            96 |
-|  25 | Exercise 1.25 expmod                                         |      0.051 |              1 |            74 |
-|  26 | Exercise 1.26 square vs mul                                  |      0.003 |              1 |             4 |
-|  27 | Exercise 1.27 Carmichael numbers                             |      0.333 |              2 |           102 |
-|  28 | Exercise 1.28 Miller-Rabin                                   |      0.110 |              1 |           158 |
-|  29 | Exercise 1.29 Simpson's integral                             |      0.464 |              2 |            68 |
-|  30 | Exercise 1.30 Iterative sum                                  |      0.030 |              2 |            10 |
-|  31 | Exercise 1.31 Product                                        |      0.028 |              1 |            40 |
-|  32 | Exercise 1.32 Accumulator                                    |      0.017 |              1 |            24 |
-|  33 | Exercise 1.33 filtered-accumulate                            |      0.092 |              1 |           133 |
-|  34 | Exercise 1.34 lambda                                         |      0.006 |              1 |             8 |
-|  35 | Exercise 1.35 fixed-point                                    |      0.265 |              2 |            87 |
-|  36 | Exercise 1.36 fixed-point-with-dampening                     |      0.035 |              1 |            50 |
-|  37 | Exercise 1.37 cont-frac                                      |      0.569 |              2 |           348 |
-|  38 | Exercise 1.38 euler constant                                 |      0.000 |              1 |             0 |
-|  39 | Exercise 1.39 tan-cf                                         |      0.025 |              1 |            36 |
-|  40 | Exercise 1.40 newtons-method                                 |      0.205 |              2 |             6 |
-|  41 | Exercise 1.41 double-double                                  |      0.010 |              1 |            15 |
-|  42 | Exercise 1.42 compose                                        |      0.004 |              1 |             6 |
-|  43 | Exercise 1.43 repeated                                       |      0.019 |              1 |            27 |
-|  44 | Exercise 1.44 smoothing                                      |      0.099 |              2 |           142 |
-|  45 | Exercise 1.45 nth-root                                       |      0.056 |              1 |            80 |
-|  46 | Exercise 1.46 iterative-improve                              |      0.033 |              1 |            48 |
-|  47 | Exercise 2.1 make-rat                                        |      1.608 |              2 |           109 |
-|  48 | Exercise 2.2 make-segment                                    |      0.024 |              1 |            34 |
-|  49 | Exercise 2.3 make-rectangle                                  |      2.183 |              2 |           174 |
-|  50 | Exercise 2.4 cons-lambda                                     |      0.007 |              1 |            10 |
-|  51 | Exercise 2.5 cons-pow                                        |      0.041 |              1 |            59 |
-|  52 | Exercise 2.6 Church Numerals                                 |      0.024 |              1 |            34 |
-|  53 | Exercise 2.7 make-interval                                   |      0.019 |              1 |            28 |
-|  54 | Exercise 2.8 sub-interval                                    |      0.124 |              1 |            58 |
-|  55 | Exercise 2.9 interval-width                                  |      0.006 |              1 |             8 |
-|  56 | Exercise 2.10 div-interval-better                            |      0.010 |              1 |            15 |
-|  57 | Exercise 2.11 mul-interval-nine-cases                        |      0.052 |              1 |            75 |
-|  58 | Exercise 2.12 make-center-percent                            |      0.393 |              2 |            43 |
-|  59 | Exercise 2.13 formula for tolerance                          |      0.003 |              1 |             5 |
-|  60 | Exercise 2.14 parallel-resistors                             |      0.047 |              1 |            68 |
-|  61 | Exercise 2.15 better-intervals                               |      0.007 |              1 |            10 |
-|  62 | Exercise 2.16 interval-arithmetic                            |      0.002 |              1 |             3 |
-|  63 | Exercise 2.17 last-pair                                      |      0.966 |              2 |            89 |
-|  64 | Exercise 2.18 reverse                                        |      0.006 |              1 |             9 |
-|  65 | Exercise 2.19 coin-values                                    |      0.021 |              1 |            30 |
-|  66 | Exercise 2.20 dotted-tail notation                           |      0.311 |              2 |           156 |
-|  67 | Exercise 2.21 map-square-list                                |      0.013 |              1 |            19 |
-|  68 | Exercise 2.22 wrong list order                               |      0.007 |              1 |            10 |
-|  69 | Exercise 2.23 for-each                                       |      0.006 |              1 |             9 |
-|  70 | Exercise 2.24 list-plot-result                               |      0.111 |              2 |            75 |
-|  71 | Exercise 2.25 caddr                                          |      0.037 |              1 |            54 |
-|  72 | Exercise 2.26 append cons list                               |      0.011 |              1 |            16 |
-|  73 | Exercise 2.27 deep-reverse                                   |      0.433 |              2 |            40 |
-|  74 | Exercise 2.28 fringe                                         |      0.026 |              1 |            37 |
-|  75 | Exercise 2.29 mobile                                         |      0.058 |              1 |            83 |
-|  76 | Exercise 2.30 square-tree                                    |      0.100 |              2 |           122 |
-|  77 | Exercise 2.31 tree-map square tree                           |      0.019 |              1 |            27 |
-|  78 | Exercise 2.32 subsets                                        |      0.010 |              1 |            15 |
-|  79 | Exercise 2.33 map-append-length                              |      0.375 |              2 |            96 |
-|  80 | Exercise 2.34 horners-rule                                   |      0.006 |              1 |             8 |
-|  81 | Exercise 2.35 count-leaves-accumulate                        |      0.011 |              1 |            16 |
-|  82 | Exercise 2.36 accumulate-n                                   |      0.006 |              1 |             9 |
-|  83 | Exercise 2.37 matrix-*-vector                                |      0.017 |              1 |            24 |
-|  84 | Exercise 2.38 fold-left                                      |      0.372 |              2 |            65 |
-|  85 | Exercise 2.39 reverse fold-right fold-left                   |      0.005 |              1 |             7 |
-|  86 | Exercise 2.40 unique-pairs                                   |      0.029 |              1 |            42 |
-|  87 | Exercise 2.41 triple-sum                                     |      2.195 |              2 |            57 |
-|  88 | Figure 2.8 A solution to the eight-queens puzzle.            |      0.001 |              1 |             2 |
-|  89 | Exercise 2.42 k-queens                                       |      3.299 |              2 |           122 |
-|  90 | Exercise 2.43 slow k-queens                                  |      0.019 |              1 |            28 |
-|  91 | Exercise 2.46 make-vect                                      |      2.578 |              5 |           535 |
-|  92 | Exercise 2.47 make-frame                                     |      0.083 |              1 |            10 |
-|  93 | Exercise 2.48 make-segment                                   |      0.054 |              1 |            78 |
-|  94 | Exercise 2.49 segments->painter applications                 |      0.294 |              2 |           139 |
-|  95 | Exercise 2.50 flip-horiz and rotate270 and rotate180         |      0.019 |              1 |            27 |
-|  96 | Exercise 2.51 below                                          |      1.801 |              4 |           524 |
-|  97 | Exercise 2.44 up-split                                       |      1.169 |              2 |            89 |
-|  98 | Exercise 2.45 split                                          |      0.113 |              2 |            23 |
-|  99 | Exercise 2.52 modify square-limit                            |      0.450 |              2 |            58 |
-| 100 | Exercise 2.53 quote introduction                             |      0.008 |              1 |            11 |
-| 101 | Exercise 2.54 equal? implementation                          |      0.050 |              1 |            72 |
-| 102 | Exercise 2.55 quote quote                                    |      0.000 |              1 |             0 |
-| 103 | Exercise 2.56 differentiation-exponentiation                 |      0.393 |              2 |            65 |
-| 104 | Exercise 2.57 differentiate-three-sum                        |      0.560 |              3 |           147 |
-| 105 | Exercise 2.58 infix-notation                                 |      0.112 |              1 |           161 |
-| 106 | Exercise 2.59 union-set                                      |      0.277 |              2 |             6 |
-| 107 | Exercise 2.60 duplicate-set                                  |      0.012 |              1 |            17 |
-| 108 | Exercise 2.62 ordered-union-set (ordered list)               |      0.973 |              2 |            14 |
-| 109 | Exercise 2.61 sets as ordered lists                          |      0.004 |              1 |             6 |
-| 110 | Exercise 2.63 tree->list (binary search tree)                |      0.078 |              1 |           113 |
-| 111 | Exercise 2.64 balanced-tree                                  |      2.740 |              3 |           106 |
-| 112 | Exercise 2.65 tree-union-set                                 |      9.785 |              2 |            47 |
-| 113 | Exercise 2.66 tree-lookup                                    |      0.035 |              1 |            50 |
-| 114 | Exercise 2.67 Huffman decode a simple message                |      0.303 |              3 |           108 |
-| 115 | Exercise 2.68 Huffman encode a simple message                |      0.023 |              1 |            33 |
-| 116 | Exercise 2.69 Generate Huffman tree                          |      0.608 |              2 |           160 |
-| 117 | Exercise 2.70 Generate a tree and encode a song              |      0.072 |              2 |            57 |
-| 118 | Exercise 2.71 Huffman tree for frequencies 5 and 10          |      0.258 |              2 |           202 |
-| 119 | Exercise 2.72 Huffman order of growth                        |      0.050 |              2 |            26 |
-| 120 | Exercise 2.73 data-driven-deriv                              |      0.605 |              2 |           189 |
-| 121 | Exercise 2.74 Insatiable Enterprises                         |      0.410 |              4 |           171 |
-| 122 | Exercise 2.75 make-from-mag-ang message passing              |      0.019 |              1 |            28 |
-| 123 | Exercise 2.76 types or functions?                            |      0.003 |              1 |             5 |
-| 124 | Exercise 2.77 generic-algebra-magnitude                      |      0.772 |              3 |           190 |
-| 125 | Exercise 2.78 Ordinary numbers for scheme                    |      0.212 |              2 |            67 |
-| 126 | Exercise 2.79 generic-equality                               |      1.786 |              2 |            28 |
-| 127 | Exercise 2.80 Generic arithmetic zero?                       |      0.056 |              1 |            80 |
-| 128 | Exercise 2.81 coercion to-itself                             |      0.749 |              3 |           330 |
-| 129 | Exercise 2.82 three-argument-coercion                        |      0.433 |              2 |           230 |
-| 130 | Exercise 2.83 Numeric Tower and (raise)                      |      0.717 |              3 |           116 |
-| 131 | Exercise 2.84 Using ~raise~ (~raise-type~) in ~apply-generic |      0.865 |              2 |           135 |
-| 132 | Exercise 2.85 Dropping a type                                |      3.089 |              5 |           507 |
-| 133 | Exercise 2.86 Compound complex numbers                       |      0.274 |              2 |           108 |
-| 134 | Exercise 2.87 Generalized zero?                              |      0.919 |              4 |           389 |
-| 135 | Exercise 2.88 Subtraction of polynomials                     |      0.646 |              3 |            50 |
-| 136 | Exercise 2.89 Dense term-lists                               |      0.083 |              1 |           120 |
-| 137 | Exercise 2.90 Implementing dense polynomials as a separate p |      0.400 |              2 |           148 |
-| 138 | Exercise 2.91 Division of polynomials                        |      0.111 |              2 |           103 |
-| 139 | Exercise 2.92 Ordering of variables so that addition and mul |      4.556 |             11 |           964 |
-| 140 | Exercise 2.93 Rational polynomials                           |      0.378 |              3 |           198 |
-| 141 | Exercise 2.94 Greatest-common-divisor for polynomials        |      0.091 |              1 |           131 |
-| 142 | Exercise 2.95 Illustrate the non-integer problem             |      0.450 |              2 |           149 |
-| 143 | Exercise 2.96 Integerizing factor                            |      0.325 |              2 |           275 |
-| 144 | Exercise 2.97 Reduction of polynomials                       |      0.201 |              1 |           140 |
-| 145 | Exercise 3.1 accumulators                                    |      0.425 |              2 |            53 |
-| 146 | Exercise 3.2 make-monitored                                  |      0.027 |              1 |            39 |
-| 147 | Exercise 3.3 password protection                             |      0.010 |              1 |            14 |
-| 148 | Exercise 3.4 call-the-cops                                   |      0.010 |              1 |            15 |
-| 149 | Exercise 3.5 Monte-Carlo                                     |      0.528 |              2 |            98 |
-| 150 | Exercise 3.6 reset a prng                                    |      0.479 |              2 |            68 |
-| 151 | Exercise 3.7 Joint accounts                                  |      0.059 |              1 |            85 |
-| 152 | Exercise 3.8 Right-to-left vs Left-to-right                  |      0.026 |              1 |            38 |
-| 153 | Exercise 3.9 Environment structures                          |     21.030 |             10 |          1100 |
-| 154 | Exercise 3.10 Using ~let~ to create state variables          |      4.933 |              2 |           138 |
-| 155 | Exercise 3.11 Internal definitions                           |      0.994 |              2 |           219 |
-| 156 | Exercise 3.12 Drawing ~append!~                              |      2.966 |              3 |           347 |
-| 157 | Exercise 3.13 ~make-cycle~                                   |      0.010 |              1 |            14 |
-| 158 | Exercise 3.14 ~mystery~                                      |      0.385 |              2 |            77 |
-| 159 | Exercise 3.15 ~set-to-wow!~                                  |      1.942 |              3 |           117 |
-| 160 | Exercise 3.16 ~count-pairs~                                  |      0.171 |              1 |           118 |
-| 161 | Exercise 3.17 Real ~count-pairs~                             |      0.029 |              1 |            42 |
-| 162 | Exercise 3.18 Finding cycles                                 |      0.012 |              1 |            17 |
-| 163 | Exercise 3.19 Efficient finding cycles                       |      0.934 |              2 |           205 |
-| 164 | Exercise 3.20 Procedural ~set-car!~                          |      0.633 |              2 |           121 |
-| 165 | Exercise 3.21 queues                                         |      0.021 |              1 |            30 |
-| 166 | Exercise 3.22 procedural queue                               |      0.294 |              2 |            67 |
-| 167 | Exercise 3.23 dequeue                                        |      0.049 |              2 |            71 |
-| 168 | Exercise 3.24 tolerant tables                                |      0.780 |              3 |            33 |
-| 169 | Exercise 3.25 multilevel tables                              |      2.103 |              2 |           486 |
-| 170 | Exercise 3.26 binary tree table                              |      0.013 |              1 |            18 |
-| 171 | Exercise 3.27 memoization                                    |      0.802 |              2 |             2 |
-| 172 | Exercise 3.28 primitive or-gate                              |      1.316 |              2 |           783 |
-| 173 | Exercise 3.29 Compound or-gate                               |      0.001 |              1 |             2 |
-| 174 | Exercise 3.30 ripple-carry adder                             |      0.009 |              1 |            13 |
-| 175 | Exercise 3.31 Initial propagation                            |      0.013 |              1 |            18 |
-| 176 | Exercise 3.32 Order matters                                  |      0.007 |              1 |            10 |
-| 177 | Exercise 3.33 averager constraint                            |      9.460 |              3 |           198 |
-| 178 | Exercise 3.34 Wrong squarer                                  |      0.042 |              1 |            61 |
-| 179 | Exercise 3.35 Correct squarer                                |      0.012 |              1 |            17 |
-| 180 | Exercise 3.36 Connector environment diagram                  |      3.319 |              3 |           263 |
-| 181 | Exercise 3.37 Expression-based constraints                   |      0.037 |              1 |            53 |
-| 182 | Exercise 3.38 Timing                                         |      0.061 |              1 |            88 |
-| 183 | Exercise 3.39 Serializer                                     |      1.266 |              4 |           269 |
-| 184 | Exercise 3.40 Three parallel multiplications                 |      5.973 |              3 |           332 |
-| 185 | Exercise 3.41 Better protected account                       |      4.229 |              2 |            97 |
-| 186 | Exercise 3.42 Saving on serializers                          |      0.023 |              1 |            33 |
-| 187 | Exercise 3.43 Multiple serializations                        |      0.040 |              1 |            58 |
-| 188 | Exercise 3.44 Transfer money                                 |      0.005 |              1 |             7 |
-| 189 | Exercise 3.45 new plus old serializers                       |      0.004 |              1 |             6 |
-| 190 | Exercise 3.46 broken test-and-set!                           |      0.007 |              1 |            10 |
-| 191 | Exercise 3.47 semaphores                                     |      1.044 |              2 |            53 |
-| 192 | Exercise 3.48 serialized-exchange deadlock                   |      0.022 |              1 |            31 |
-| 193 | Exercise 3.49 When numbering accounts doesn't work           |      0.008 |              1 |            11 |
-| 194 | Exercise 3.50 stream-map multiple arguments                  |      0.317 |              3 |            96 |
-| 195 | Exercise 3.51 stream-show                                    |      0.007 |              1 |            10 |
-| 196 | Exercise 3.52 streams with mind-boggling                     |      0.034 |              1 |            49 |
-| 197 | Exercise 3.53 stream power of two                            |      0.016 |              1 |            23 |
-| 198 | Exercise 3.54 mul-streams                                    |      0.005 |              1 |             7 |
-| 199 | Exercise 3.55 streams partial-sums                           |      0.013 |              1 |            18 |
-| 200 | Exercise 3.56 Hamming's streams-merge                        |      0.015 |              1 |            21 |
-| 201 | Exercise 3.57 exponential additions fibs                     |      0.007 |              1 |            10 |
-| 202 | Exercise 3.58 Cryptic stream                                 |      0.010 |              1 |            14 |
-| 203 | Exercise 3.59 power series                                   |      0.422 |              2 |            30 |
-| 204 | Exercise 3.60 mul-series                                     |      0.048 |              1 |            69 |
-| 205 | Exercise 3.61 power-series-inversion                         |      0.087 |              1 |           126 |
-| 206 | Exercise 3.62 div-series                                     |      0.006 |              1 |             8 |
-| 207 | Exercise 3.63 sqrt-stream                                    |      0.299 |              2 |             8 |
-| 208 | Exercise 3.64 stream-limit                                   |      1.546 |              2 |            55 |
-| 209 | Exercise 3.65 approximating logarithm                        |      0.039 |              1 |            56 |
-| 210 | Exercise 3.66 lazy pairs                                     |      0.515 |              2 |           107 |
-| 211 | Exercise 3.67 all possible pairs                             |      0.010 |              1 |            14 |
-| 212 | Exercise 3.68 pairs-louis                                    |      0.012 |              1 |            17 |
-| 213 | Exercise 3.70 merge-weighted                                 |      0.522 |              2 |           188 |
-| 214 | Exercise 3.71 Ramanujan numbers                              |      0.035 |              1 |            51 |
-| 215 | Exercise 3.72 Ramanujan 3-numbers                            |      0.901 |              2 |           187 |
-| 216 | Figure 3.32                                                  |      0.022 |              1 |            32 |
-| 217 | Exercise 3.73 RC-circuit                                     |      0.090 |              1 |           130 |
-| 218 | Exercise 3.74 zero-crossings                                 |      0.153 |              1 |           221 |
-| 219 | Exercise 3.75 filtering signals                              |      0.056 |              1 |            81 |
-| 220 | Exercise 3.76 stream-smooth                                  |      0.073 |              2 |            36 |
-| 221 | Exercise 3.77                                                |      0.038 |              1 |            55 |
-| 222 | Exercise 3.78 second order differential equation             |      0.039 |              1 |            56 |
-| 223 | Exercise 3.79 general second-order ode                       |      0.007 |              1 |            10 |
-| 224 | Figure 3.36                                                  |      0.058 |              1 |            84 |
-| 225 | Exercise 3.80 RLC circuit                                    |      0.013 |              1 |            19 |
-| 226 | Exercise 3.81  renerator-in-streams                          |      0.040 |              1 |            57 |
-| 227 | Exercise 3.82 streams Monte-Carlo                            |      0.378 |              2 |            57 |
-| 228 | Exercise 4.1 list-of-values ordered                          |      0.437 |              2 |            14 |
-| 229 | Exercise 4.2 application before assignments                  |      0.021 |              1 |            30 |
-| 230 | Exercise 4.3 data-directed eval                              |      0.030 |              1 |            43 |
-| 231 | Exercise 4.4 eval-and and eval-or                            |      0.035 |              1 |            50 |
-| 232 | Exercise 4.5 cond with arrow                                 |     12.765 |              7 |          1252 |
-| 233 | Exercise 4.6 Implementing let                                |      0.019 |              1 |            27 |
-| 234 | Exercise 4.7 Implementing let*                               |      0.046 |              1 |            66 |
-| 235 | Exercise 4.8 Implementing named let                          |      0.070 |              1 |           101 |
-| 236 | Exercise 4.9 Implementing until                              |      0.928 |              3 |           102 |
-| 237 | Exercise 4.10 Modifying syntax                               |     14.168 |              3 |           462 |
-| 238 | Exercise 4.11 Environment as a list of bindings              |      4.368 |              2 |           194 |
-| 239 | Exercise 4.12 Better abstractions for setting a value        |      0.529 |              2 |           120 |
-| 240 | Exercise 4.13 Implementing ~make-unbound!~                   |      0.550 |              2 |           149 |
-| 241 | Exercise 4.14 meta map versus built-in map                   |      0.004 |              1 |             6 |
-| 242 | Exercise 4.15 The ~halts?~ predicate                         |      0.018 |              1 |            26 |
-| 243 | Exercise 4.16 Simultaneous internal definitions              |      0.162 |              2 |           177 |
-| 244 | Exercise 4.17 Environment with simultaneous definitions      |      0.036 |              1 |            52 |
-| 245 | Exercise 4.18 Alternative scanning                           |      0.018 |              1 |            26 |
-| 246 | Exercise 4.19 Mutual simultaneous definitions                |      0.220 |              2 |            96 |
-| 247 | Exercise 4.20 letrec                                         |      0.206 |              2 |           195 |
-| 248 | Exercise 4.21 Y-combinator                                   |      0.013 |              1 |            18 |
-| 249 | Exercise 4.22 Extending evaluator to support ~let~           |      1.768 |              3 |           144 |
-| 250 | Exercise 4.23 Analysing sequences                            |      0.005 |              1 |             7 |
-| 251 | Exercise 4.24 Analysis time test                             |      0.022 |              1 |            32 |
-| 252 | Exercise 4.25 lazy factorial                                 |      0.034 |              1 |            49 |
-| 253 | Exercise 4.26 unless as a special form                       |      0.313 |              1 |           451 |
-| 254 | Exercise 4.27 Working with mutation in lazy interpreters     |      0.515 |              2 |           112 |
-| 255 | Exercise 4.28 Eval before applying                           |      0.005 |              1 |             7 |
-| 256 | Exercise 4.29 Lazy evaluation is slow without memoization    |      0.035 |              1 |            50 |
-| 257 | Exercise 4.30 Lazy sequences                                 |      0.153 |              2 |            74 |
-| 258 | Exercise 4.31 Lazy arguments with syntax extension           |      0.092 |              2 |           112 |
-| 259 | Exercise 4.32 streams versus lazy lists                      |      0.503 |              2 |            87 |
-| 260 | Exercise 4.33 quoted lazy lists                              |      0.097 |              2 |           103 |
-| 261 | Exercise 4.34 printing lazy lists                            |      0.219 |              3 |           205 |
-| 262 | Exercise 4.50 The ~ramb~ operator                            |      0.813 |              4 |           266 |
-| 263 | Exercise 4.35 ~an-integer-between~ and Pythagorean triples   |      0.103 |              2 |           138 |
-| 264 | Exercise 3.69 triples                                        |      0.115 |              2 |            85 |
-| 265 | Exercise 4.36 infinite search for Pythagorean triples        |      0.011 |              1 |            16 |
-| 266 | Exercise 4.37 another method for triples                     |      0.035 |              1 |            51 |
-| 267 | Exercise 4.38 Logical puzzle - Not same floor                |      0.027 |              1 |            39 |
-| 268 | Exercise 4.39 Order of restrictions                          |      0.003 |              1 |             5 |
-| 269 | Exercise 4.40 People to floor assignment                     |      0.019 |              1 |            28 |
-| 270 | Exercise 4.41 Ordinary scheme to solve the problem           |      0.072 |              1 |           103 |
-| 271 | Exercise 4.42 The liars puzzle                               |      0.503 |              1 |            81 |
-| 272 | Exercise 4.43 Problematical Recreations                      |      0.052 |              1 |            75 |
-| 273 | Exercise 4.44 Nondeterministic eight queens                  |      0.074 |              1 |           106 |
-| 274 | Exercise 4.45 Five parses                                    |      0.186 |              3 |           145 |
-| 275 | Exercise 4.46 Order of parsing                               |      0.007 |              1 |            10 |
-| 276 | Exercise 4.47 Parse verb phrase by Louis                     |      0.013 |              1 |            18 |
-| 277 | Exercise 4.48 Extending the grammar                          |      0.037 |              1 |             1 |
-| 278 | Exercise 4.49 Alyssa's generator                             |      0.031 |              1 |            45 |
-| 279 | Exercise 4.51 Implementing ~permanent-set!~                  |      0.030 |              1 |            43 |
-| 280 | Exercise 4.52 ~if-fail~                                      |      0.063 |              1 |            91 |
-| 281 | Exercise 4.53 test evaluation                                |      0.005 |              1 |             7 |
-| 282 | Exercise 4.54 ~analyze-require~                              |      0.468 |              2 |            31 |
-| 283 | Exercise 4.55 Simple queries                                 |      0.258 |              2 |           372 |
-| 284 | Exercise 4.56 Compound queries                               |      0.018 |              1 |            26 |
-| 285 | Exercise 4.57 custom rules                                   |      0.147 |              3 |           112 |
-| 286 | Exercise 4.58 big shot                                       |      0.025 |              1 |            36 |
-| 287 | Exercise 4.59 meetings                                       |      0.031 |              1 |            45 |
-| 288 | Exercise 4.60 pairs live near                                |      0.016 |              1 |            23 |
-| 289 | Exercise 4.61 next-to relation                               |      0.008 |              1 |            11 |
-| 290 | Exercise 4.62 last-pair                                      |      0.033 |              1 |            48 |
-| 291 | Exercise 4.63 Genesis                                        |      0.423 |              2 |            40 |
-| 292 | Figure 4.6 How the system works                              |      0.022 |              1 |            31 |
-| 293 | Exercise 4.64 broken outranked-by                            |      0.065 |              1 |            94 |
-| 294 | Exercise 4.65 second-degree subordinates                     |      0.012 |              1 |            17 |
-| 295 | Exercise 4.66 Ben's accumulation                             |      0.013 |              1 |            18 |
-| 296 | Exercise 4.70 Cons-stream delays its second argument         |      0.167 |              3 |            79 |
-| 297 | Exercise 4.72 interleave-stream                              |      0.002 |              1 |             3 |
-| 298 | Exercise 4.73 flatten-stream delays                          |      0.006 |              1 |             8 |
-| 299 | Exercise 4.67 loop detector                                  |      0.251 |              1 |           361 |
-| 300 | Exercise 4.68 reverse rule                                   |      0.686 |              2 |           321 |
-| 301 | Exercise 4.69 great grandchildren                            |      0.080 |              2 |            65 |
-| 302 | Exercise 4.71 Louis' simple queries                          |      0.134 |              2 |            69 |
-| 303 | Exercise 4.74 Alyssa's streams                               |      0.044 |              1 |            64 |
-| 304 | Exercise 4.75 ~unique~ special form                          |      0.055 |              1 |            79 |
-| 305 | Exercise 4.76 improving ~and~                                |      0.797 |              2 |           438 |
-| 306 | Figure 5.2 Controller for a GCD Machine                      |      0.167 |              3 |           124 |
-| 307 | Exercise 5.1 Register machine plot                           |      0.020 |              1 |            29 |
-| 308 | Figure 5.1 Data paths for a Register Machine                 |      0.599 |              2 |           115 |
-| 309 | Exercise 5.2 Register machine language description of Exerci |      0.006 |              1 |             8 |
-| 310 | Exercise 5.3 Machine for ~sqrt~ using Newton Method          |      0.306 |              2 |           286 |
-| 311 | Exercise 5.4 Recursive register machines                     |      1.001 |              4 |           274 |
-| 312 | Exercise 5.5 Hand simulation for factorial and Fibonacci     |      0.110 |              1 |           158 |
-| 313 | Exercise 5.6 Fibonacci machine extra instructions            |      0.011 |              1 |            16 |
-| 314 | Exercise 5.7 Test the 5.4 machine on a simulator             |      0.458 |              2 |           133 |
-| 315 | Exercise 5.8 Ambiguous labels                                |      0.469 |              1 |           160 |
-| 316 | Exercise 5.9 Prohibit (op)s on labels                        |      0.017 |              1 |            25 |
-| 317 | Exercise 5.10 Changing syntax                                |      0.011 |              1 |            16 |
-| 318 | Exercise 5.11 Save and restore                               |      0.619 |              3 |           186 |
-| 319 | Exercise 5.12 Data paths from controller                     |      0.424 |              2 |           183 |
-| 320 | Exercise 5.13 Registers from controller                      |      0.470 |              2 |           101 |
-| 321 | Exercise 1.3 Sum of squares                                  |      1.044 |              1 |             6 |
-| 322 | Exercise 5.14 Profiling                                      |      0.347 |              2 |            57 |
-| 323 | Exercise 5.15 Instruction counting                           |      0.052 |              1 |            75 |
-| 324 | Exercise 5.16 Tracing execution                              |      0.058 |              1 |            83 |
-| 325 | Exercise 5.18 Register tracing                               |      0.631 |              2 |            90 |
-| 326 | Exercise 5.19 Breakpoints                                    |      0.149 |              1 |           215 |
-| 327 | Exercise 5.17 Printing labels                                |      0.001 |              1 |             1 |
-| 328 | Exercise 5.20 Drawing a list "~(#1=(1 . 2) #1)~"             |      0.189 |              2 |           139 |
-| 329 | Exercise 5.21 Register machines for list operations          |      0.617 |              2 |           115 |
-| 330 | Exercise 5.22 ~append~ and ~append!~ as register machines    |      0.047 |              1 |            68 |
-| 331 | Exercise 5.23 Extending EC-evaluator with ~let~ and ~cond~   |      0.862 |              4 |           363 |
-| 332 | Exercise 5.24 Making ~cond~ a primitive                      |      0.160 |              2 |           199 |
-| 333 | Exercise 5.25 Normal-order (lazy) evaluation                 |      1.010 |              4 |           342 |
-| 334 | Exercise 5.26 Explore tail recursion with ~factorial~        |      0.195 |              2 |            26 |
-| 335 | Exercise 5.27 Stack depth for a recursive factorial          |      0.008 |              1 |            11 |
-| 336 | Exercise 5.28 Interpreters without tail recursion            |      0.028 |              1 |            40 |
-| 337 | Exercise 5.29 Stack in tree-recursive Fibonacci              |      0.015 |              1 |            21 |
-| 338 | Exercise 5.30 Errors                                         |      0.615 |              3 |           147 |
-| 339 | Exercise 5.31 a ~preserving~ mechanism                       |      0.417 |              2 |           161 |
-| 340 | Exercise 5.32 symbol-lookup optimization                     |      0.052 |              1 |            75 |
-| 341 | Exercise 5.33 compiling ~factorial-alt~                      |      0.753 |              2 |           267 |
-| 342 | Exercise 5.34 compiling iterative factorial                  |      0.169 |              1 |           243 |
-| 343 | Exercise 5.35 Decompilation                                  |      0.022 |              1 |            32 |
-| 344 | Exercise 5.36 Order of evaluation                            |      0.845 |              4 |           256 |
-| 345 | Exercise 5.37 ~preserving~                                   |      0.135 |              1 |           194 |
-| 346 | Exercise 5.38 open code primitives                           |      0.914 |              3 |           378 |
-| 347 | Exercise 5.41 ~find-variable~                                |      0.028 |              1 |            40 |
-| 348 | Exercise 5.39 ~lexical-address-lookup~                       |      0.044 |              1 |            64 |
-| 349 | Exercise 5.42 Rewrite ~compile-variable~ and ~compile-assign |      0.679 |              2 |           118 |
-| 350 | Exercise 5.40 maintaining a compile-time environment         |      0.085 |              2 |           101 |
-| 351 | Exercise 5.43 Scanning out defines                           |      0.249 |              3 |           261 |
-| 352 | Exercise 5.44 open code with compile-time environment        |      0.020 |              1 |            29 |
-| 353 | Exercise 5.45 stack usage analysis for a ~factorial~         |      0.528 |              1 |            61 |
-| 354 | Exercise 5.46 stack usage analysis for ~fibonacci~           |      0.017 |              1 |            25 |
-| 355 | Exercise 5.47 calling interpreted procedures                 |      0.049 |              1 |            71 |
-| 356 | Exercise 5.48 ~compile-and-run~                              |      1.020 |              3 |           264 |
-| 357 | Exercise 5.49 ~read-compile-execute-print~ loop              |      0.015 |              1 |            22 |
-| 358 | Exercise 4.77 lazy queries                                   |      4.129 |              9 |          1214 |
-| 359 | Exercise 5.50 Compiling the metacircular evaluator           |      0.007 |              1 |            10 |
-| 360 | Exercise 4.78 non-deterministic queries                      |      0.867 |              6 |           602 |
-| 361 | Exercise 5.51 Translating the EC-evaluator into a low-level  |     28.962 |             33 |          5684 |
-| 362 | Exercise 5.52 Making a compiler for scheme                   |     22.975 |             13 |          2359 |
-| 363 | Exercise 4.79 prolog environments                            |      4.285 |              5 |           940 |
-#+TBLFM: $1=@#-1
-
-*** Time consumption histogram linear
-
-#+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [hours]'"
-| Bin Lower Bound | N. tasks |
-|-----------------+----------|
-|              0. |      301 |
-|         177.625 |       38 |
-|          355.25 |       14 |
-|         532.875 |        2 |
-|           710.5 |        1 |
-|         888.125 |        2 |
-|         1065.75 |        2 |
-|        1243.375 |        1 |
-|           1421. |        0 |
-|        1598.625 |        0 |
-|         1776.25 |        0 |
-|        1953.875 |        0 |
-|          2131.5 |        0 |
-|        2309.125 |        1 |
-|         2486.75 |        0 |
-|        2664.375 |        0 |
-|           2842. |        0 |
-|        3019.625 |        0 |
-|         3197.25 |        0 |
-|        3374.875 |        0 |
-|          3552.5 |        0 |
-|        3730.125 |        0 |
-|         3907.75 |        0 |
-|        4085.375 |        0 |
-|           4263. |        0 |
-|        4440.625 |        0 |
-|         4618.25 |        0 |
-|        4795.875 |        0 |
-|          4973.5 |        0 |
-|        5151.125 |        1 |
-#+TBLFM: $1=(@#-2)*177.625
-
-*** Time consumption histogram logarithmic
-
-#+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [log(hours)]'"
-| Bin Lower Bound | N. tasks |
-|-----------------+----------|
-|               1 |        2 |
-|               2 |        6 |
-|               4 |       15 |
-|               8 |       41 |
-|              16 |       55 |
-|              32 |       67 |
-|              64 |       85 |
-|             128 |       52 |
-|             256 |       29 |
-|             512 |        6 |
-|            1024 |        3 |
-|            2048 |        1 |
-|            4096 |        1 |
-#+TBLFM: $1=pow(2,(@#-2))
-
-
