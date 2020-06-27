@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-06-25 22:44:10 lockywolf>
+# Time-stamp: <2020-06-27 15:03:59 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -756,6 +756,7 @@ If I may, by the virtue of personally experiencing this transformative experienc
  - Deliberately teach your students to read software manuals. Indeed, much of the modern software has manuals built-in piece-wise right into the software itself. Often reading the whole manual is not required to perform the task. But doing it at least once (reading ~some~ manual from the first page to the last), is a very broadening experience, and additionally useful in teaching how to assess the time needed to grasp the skill of using ~a~ piece off software.
  - Teach your student to use a timer when doing homework, even if it is not an org-mode timer. Realistic assessment of how much effort things actually take is a paradigm-shifting experience.
 
+
 * Materials
 
 This section attempts to provide a complete list of materials used in the process of the problem set solution. It is not to be confused with the list of materials used in the preparation of this Experience Report.
@@ -1238,6 +1239,9 @@ This section attempts to provide a complete list of materials used in the proces
 
 
 * Appendix: Full data on the exercise completion times.
+
+This section lists the data on the minute each exercise was deemed complete.
+(Local time.)
 
 #+begin_example
 Snippet, First Scheme Expression
@@ -1981,6 +1985,10 @@ Exercise 5.52 Making a compiler for scheme
 
 * Appendix: Full data on the study sessions.
 
+This section lists the data on each study session in the 
+"BEGIN_TIMESTAMP-END_TIMESTAMP > duration_in_hours"
+
+
 #+attr_latex: :left
 #+begin_example
   [2020-05-10 Sun 14:39]-[2020-05-10 Sun 18:00] >  3:21
@@ -2292,3 +2300,257 @@ Exercise 5.52 Making a compiler for scheme
   [2019-08-19 Mon 09:19]-[2019-08-19 Mon 13:32] >  4:13
 
 #+end_example
+
+
+* Appendix: Emacs Lisp code for data analysis
+
+This section included the Emacs Lisp code used to analyse the data above.
+The "only_study.org" buffer contains the data from the appendix
+([[*Appendix: Full data on the study sessions.][Appendix: Full data on the study sessions.]])
+formatted for easier parsing.
+The "index.org" is the file with the solutions, which can be imitated by copying the data from the appendix ([[*Appendix: Full data on the exercise completion times.][Appendix: Full data on the exercise completion times.]]) and adding 
+asterisks to indicate org-mode headlines.
+
+#+begin_src elisp :exports code :wrap example :results none
+(require 'org-element)
+(cl-labels
+    ((decorate-orgtable (tbl)
+			(seq-concatenate 'string
+					 "("
+					 "| Exercise Name | Days Spent | Spans Sessions | Minutes Spent |"
+					 (char-to-string ?\n)
+					 "|- + - + - + - |"
+					 (format-orgtable tbl)
+					 ")"))
+     (format-orgtable (list-of-lists)
+		      ;(error "Type of l-o-l=%s" (type-of list-of-lists))
+		      (apply #'seq-concatenate (cons 'string (seq-map (lambda (x) (format-table-line x))
+			       list-of-lists))))
+     (format-table-line (line)
+			(seq-concatenate 'string
+					 (char-to-string ?\n)
+					 "|"
+					 ;"debug: seq-length="
+					 ;(format "%d" (seq-length line))
+					 (substring (car line) 0 (min 60 (seq-length (car line))))
+					 "|"
+					 (format "%3.3f"(caddr line))
+					 "|"
+					 (format "%3d" (nth 4 line))
+					 "|"
+					 (format "%3.3f" (nth 6 line))
+					 "|")))
+
+  (let* ((study-sessions (apply 'append (with-current-buffer (find-file-noselect "only_study.org")
+		 (org-element-map (org-element-parse-buffer)
+		     (list 'clock)
+		   (lambda (x)
+		     (let ((raw-string (org-element-property :raw-value
+						  (org-element-property :value x))))
+		     (list
+		      (list
+		       (org-time-string-to-seconds (substring-no-properties
+		     	  raw-string
+		     	  1
+		     	  21))
+		       (org-time-string-to-seconds (substring-no-properties
+		     	  raw-string
+		     	  25
+		     	  45))))
+		     ))))))
+	 (task-seq (apply 'seq-concatenate ;'seq-concatenate ;'append
+			  (cons 'list (with-current-buffer (find-file-noselect "index.org")
+					;(with-temp-buffer (insert-file-contents "index.org")
+					(org-element-map (org-element-parse-buffer)
+					    (list 'headline)
+					  (lambda (x)
+					    (assert x)
+					    ;;(plist-get (cadr (org-element-at-point)) :raw-value)
+					    (if (and (eq 'done (org-element-property :todo-type x))
+						     ;;(string-match "Exercise" (org-element-property :raw-value x))
+						     )
+						(progn
+						  ;; (princ (org-element-property :raw-value x)
+						  ;; 	   (get-buffer "*scratch*"))
+						  ;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
+						  ;; (princ (org-element-property :raw-value
+						  ;; 				 (org-element-property :closed x))
+						  ;; 	   (get-buffer "*scratch*"))
+						  ;; (princ (char-to-string ?\n) (get-buffer "*scratch*"))
+						  (assert (org-element-property :raw-value x) t "error: x=%s" x)
+						  (assert (org-element-property :closed x) t "error: x=%s" x)
+						  
+						  (list (list (org-element-property :raw-value x)
+							      (org-element-property :closed x))))
+					      (list))))))))
+       (sorted-task-seq (seq-sort
+			 (lambda (x y)
+			  (if (org-time< (org-element-property :raw-value (cadr x))
+					 (org-element-property :raw-value (cadr y)))
+			      t
+			    nil))
+			 task-seq)))
+  (insert
+   (let ((res (seq-reduce (lambda (acc next-elem)
+			    (assert next-elem t "next-elem=%s" next-elem)
+			    (if (org-time< (org-element-property :raw-value
+								 (cadr next-elem))
+					   (cadr acc))
+				(list (+ 1 (car acc))
+				      (org-element-property :raw-value (cadr next-elem))
+				      (progn (assert (cadddr acc) "wrong append=%s" acc)
+					     (cons (cadddr acc) (caddr acc)))
+				      next-elem)
+			      (list (car acc)
+				    (org-element-property :raw-value (cadr next-elem))
+				    (caddr acc) next-elem)))
+			  task-seq
+			  (list 0 "2019-08-19 Mon 09:19" (list) (list))))
+	 (astrotime-list
+	  (cadr (seq-reduce
+		 (lambda (acc next-elem)
+		   (let ((perv-time-stamp (car acc))
+			 (retval (cadr acc))
+			 (next-time-stamp
+			  (org-time-string-to-seconds
+			   (org-element-property :raw-value (cadr next-elem)))))
+		     ;; loop body
+		     (let ((spans-sessions (seq-reduce
+					    (lambda (acc next-session)
+					      (let ((session-start (car next-session))
+						    (session-end (cadr next-session)))
+						(cond ((<= session-end perv-time-stamp) acc)
+						      ((<= next-time-stamp session-start ) acc)
+						      (t (list (+ (car acc) 1)
+							       (+ (cadr acc)
+								  (cond ((and (<= perv-time-stamp session-start)
+									      (<= session-end next-time-stamp))
+									 (- session-end session-start))
+									((and (<= session-start perv-time-stamp)
+									      (<= perv-time-stamp session-end)
+									      (<= session-end next-time-stamp))
+									 (- session-end perv-time-stamp))
+									((and (<= perv-time-stamp session-start)
+									      (<= session-start next-time-stamp)
+									      (<= next-time-stamp session-end))
+									 (- next-time-stamp session-start))
+									((and (<= session-start perv-time-stamp)
+									      (<= next-time-stamp session-end))
+									 (- next-time-stamp perv-time-stamp))
+									(t 0))))))
+						
+						;; (if (and
+						;;      (<= session-start next-time-stamp)
+						;;      (<= next-time-stamp session-end))
+						;;     t
+						;;   acc)
+						))
+					    study-sessions
+					    (list 0 0))))
+		     (list next-time-stamp
+			   (cons (list (car next-elem)  ;; next-elem
+				       :spent-time-calendar-days (/ (-
+							     next-time-stamp
+							     perv-time-stamp)
+							    (* 60 60 24))
+				       :spans-sessions (if (not (eq 0 (car spans-sessions)))
+							   (car spans-sessions)
+							   (error "Fix time: %s, spans-sessions=%s" next-elem spans-sessions))
+				       :spent-time-net-minutes (/ (cadr spans-sessions) 60))
+				 retval)))))
+		 sorted-task-seq
+		 (list (org-time-string-to-seconds "2019-08-19 Mon 09:19") ()))))
+	 )
+
+     (seq-concatenate 'string
+		      (char-to-string ?\()
+		      (pp "Amount of the out-of-order-problems: ")
+		      (pp (number-to-string (car res)))
+		      (char-to-string ?\n)
+		      ;(char-to-string ?\n)
+		      (pp "Out-of-order problems :")
+		      (char-to-string ?\n)
+		      ;;(pp (caddr res))
+		      ;; (pp (seq-reverse (seq-map (lambda (x) (list (car x))
+		      ;; 			      )
+		      ;; 			    (caddr res))))
+		      (char-to-string ?\n)
+		      (pp "Task summary:")
+		      (char-to-string ?\n)
+		      ;(pp (seq-reverse (seq-subseq astrotime-list 0 2)))
+		      ;;(decorate-orgtable (seq-reverse (seq-subseq astrotime-list 0)))
+		      ;;(decorate-orgtable (seq-reverse (seq-subseq astrotime-list 0)))
+		      ;; Make a histogram
+		      (pp (let* ((numbins (ceiling (log (+ 1.0 (seq-reduce #'max
+						    (seq-map (lambda (x) (nth 6 x))
+							     (seq-reverse (seq-subseq astrotime-list 0)))
+						    0))
+					       2))))
+			    
+			(seq-reduce (lambda (acc elem)
+				      (let* ((hardness (nth 6 elem))
+					    (nbin (floor (log (+ 1.0 hardness) 2))))
+					(aset acc
+					      nbin
+					      (+ 1 (aref acc nbin)))
+					acc))
+			 (seq-reverse (seq-subseq astrotime-list 0))
+			 (make-vector numbins 0))
+			))
+		      (char-to-string ?\n)
+		      (pp "Median hardness:")
+		      (char-to-string ?\n)
+		      
+		      (pp (let* (;; (numbins (ceiling (log (+ 1.0 (seq-reduce #'max
+				 ;; 		    (seq-map (lambda (x) (nth 6 x))
+				 ;; 			     (seq-reverse (seq-subseq astrotime-list 0)))
+				 ;; 		    0))
+				 ;; 	       2)))
+				 (by-hardness (seq-sort (lambda (x y)
+							  (let* ((hardness-x (nth 6 x))
+								 (hardness-y (nth 6 y)))
+							    (if (< hardness-x hardness-y)
+								t
+							      nil)))
+							astrotime-list)))
+			    
+			(nth (floor (/ (seq-length by-hardness) 2)) by-hardness)
+			))
+
+		      (pp "Median n-sessions:")
+		      (char-to-string ?\n)
+		      
+		      (pp (let* (;; (numbins (ceiling (log (+ 1.0 (seq-reduce #'max
+				 ;; 		    (seq-map (lambda (x) (nth 6 x))
+				 ;; 			     (seq-reverse (seq-subseq astrotime-list 0)))
+				 ;; 		    0))
+				 ;; 	       2)))
+				 (by-hardness (seq-sort (lambda (x y)
+							  (let* ((hardness-x (nth 4 x))
+								 (hardness-y (nth 4 y)))
+							    (if (< hardness-x hardness-y)
+								t
+							      nil)))
+							astrotime-list)))
+			    
+			(nth (floor (/ (seq-length by-hardness) 2)) by-hardness)
+			))
+		      (char-to-string ?\))
+     ;;(seq-reverse (caddr res))
+     )))))
+
+
+("Amount of the out-of-order-problems: ""13"
+"Out-of-order problems :"
+
+"Task summary:"
+[2 6 15 41 55 67 85 52 29 6 3 1 1]
+
+"Median hardness:"
+("Exercise 2.8 sub-interval" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0)
+"Median n-sessions:"
+("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0)
+)
+
+
+#+end_src
