@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-06-28 17:57:01 lockywolf>
+# Time-stamp: <2020-06-28 18:02:19 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -1702,10 +1702,6 @@ Exercise 1.31 Product
 [2019-09-03 Tue 11:59]
 Exercise 1.32 Accumulator
 [2019-09-03 Tue 12:23]
-Implement ~sum~ in terms of an iterative accumulator
-[2019-09-03 Tue 12:23]
-Implement ~product~ in terms of a recursive process
-[2019-09-03 Tue 12:22]
 Exercise 1.33 filtered-accumulate
 [2019-09-03 Tue 14:36]
 Exercise 1.34 lambda
@@ -2047,10 +2043,6 @@ Exercise 3.57 exponential additions fibs
 Exercise 3.58 Cryptic stream
 [2020-01-03 Fri 23:50]
 Exercise 3.59 power series
-[2020-01-04 Sat 09:58]
-integrate series
-[2020-01-04 Sat 09:49]
-exponential series
 [2020-01-04 Sat 09:58]
 Exercise 3.60 mul-series
 [2020-01-04 Sat 11:07]
@@ -2787,62 +2779,58 @@ The "index.org" is the file with the solutions, which can be imitated by copying
 
 #+RESULTS:
 #+begin_example
-"Amount of the out-of-order-problems: ""15""Out-of-order problems :"(("Exercise 5.40 maintaining a compile-time environment" "[2020-03-08 Sun 15:02]" 355)
- ("Exercise 5.17 Printing labels" "[2020-02-29 Sat 17:43]" 332)
- ("Figure 5.1 Data paths for a Register Machine" "[2020-02-23 Sun 13:18]" 314)
- ("Exercise 4.79 prolog environments" "[2020-05-10 Sun 17:59]" 313)
- ("Exercise 4.71 Louis' simple queries" "[2020-02-21 Fri 20:56]" 305)
- ("Exercise 4.69 great grandchildren" "[2020-02-21 Fri 17:43]" 303)
- ("Exercise 4.49 Alyssa's generator" "[2020-02-18 Tue 21:51]" 282)
- ("Exercise 3.69 triples" "[2020-02-17 Mon 20:10]" 218)
- ("Exercise 3.59 power series" "[2020-01-04 Sat 09:58]" 206)
- ("Exercise 2.61 sets as ordered lists" "[2019-09-26 Thu 21:44]" 111)
- ("Exercise 2.45 split" "[2019-09-24 Tue 01:37]" 95)
- ("Implement ~sum~ in terms of an iterative accumulator" "[2019-09-03 Tue 12:23]" 34)
+"Amount of the out-of-order-problems: ""13""Out-of-order problems :"(("Exercise 5.40 maintaining a compile-time environment" "[2020-03-08 Sun 15:02]" 351)
+ ("Exercise 5.17 Printing labels" "[2020-02-29 Sat 17:43]" 328)
+ ("Figure 5.1 Data paths for a Register Machine" "[2020-02-23 Sun 13:18]" 310)
+ ("Exercise 4.79 prolog environments" "[2020-05-10 Sun 17:59]" 309)
+ ("Exercise 4.71 Louis' simple queries" "[2020-02-21 Fri 20:56]" 301)
+ ("Exercise 4.69 great grandchildren" "[2020-02-21 Fri 17:43]" 299)
+ ("Exercise 4.49 Alyssa's generator" "[2020-02-18 Tue 21:51]" 278)
+ ("Exercise 3.69 triples" "[2020-02-17 Mon 20:10]" 214)
+ ("Exercise 2.61 sets as ordered lists" "[2019-09-26 Thu 21:44]" 109)
+ ("Exercise 2.45 split" "[2019-09-24 Tue 01:37]" 93)
  ("Exercise 1.9 Iterative or recursive?" "[2019-08-29 Thu 15:14]" 10)
  ("Exercise 1.3 Sum of squares" "[2020-02-28 Fri 12:01]" 4)
  ("Figure 1.1 Tree representation, showing the value of each subcombination" "[2019-08-20 Tue 14:35]" 1))
-"Task summary (astrotime):"(("Exercise 5.52 Making a compiler for scheme" :spent-time-calendar-days 22.975 :spans-sessions 13 :spent-time-net-minutes 2359.0 :original-index 367)
- ("Exercise 4.79 prolog environments" :spent-time-calendar-days 4.284722222222222 :spans-sessions 5 :spent-time-net-minutes 940.0 :original-index 313))
+"Task summary (astrotime):"(("Exercise 5.52 Making a compiler for scheme" :spent-time-calendar-days 22.975 :spans-sessions 13 :spent-time-net-minutes 2359.0 :original-index 363)
+ ("Exercise 4.79 prolog environments" :spent-time-calendar-days 4.284722222222222 :spans-sessions 5 :spent-time-net-minutes 940.0 :original-index 309))
 "Task summary (original-index):"(("Figure 1.1 Tree representation, showing the value of each subcombination" :spent-time-calendar-days 0.006944444444444444 :spans-sessions 1 :spent-time-net-minutes 10.0 :original-index 1)
  ("Exercise 1.1 Interpreter result" :spent-time-calendar-days 1.211111111111111 :spans-sessions 2 :spent-time-net-minutes 459.0 :original-index 2))
-"Logarithmic histogram:"[4 7 15 42 55 67 85 52 29 5 3 2 1]
-"Linear histogram:"[305 38 14 2 1 1 2 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-"Median hardness:"("Exercise 3.43 Multiple serializations" :spent-time-calendar-days 0.04027777777777778 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 190)
-"Median n-sessions:"("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 44)
-("Amount of the out-of-order-problems: ""15"
+"Logarithmic histogram:"[2 6 15 41 55 67 85 52 29 5 3 2 1]
+"Linear histogram:"[301 38 14 2 1 1 2 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+"Median hardness:"("Exercise 2.8 sub-interval" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 55)
+"Median n-sessions:"("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 42)
+("Amount of the out-of-order-problems: ""13"
 "Out-of-order problems :"
-(("Exercise 5.40 maintaining a compile-time environment" "[2020-03-08 Sun 15:02]" 355)
- ("Exercise 5.17 Printing labels" "[2020-02-29 Sat 17:43]" 332)
- ("Figure 5.1 Data paths for a Register Machine" "[2020-02-23 Sun 13:18]" 314)
- ("Exercise 4.79 prolog environments" "[2020-05-10 Sun 17:59]" 313)
- ("Exercise 4.71 Louis' simple queries" "[2020-02-21 Fri 20:56]" 305)
- ("Exercise 4.69 great grandchildren" "[2020-02-21 Fri 17:43]" 303)
- ("Exercise 4.49 Alyssa's generator" "[2020-02-18 Tue 21:51]" 282)
- ("Exercise 3.69 triples" "[2020-02-17 Mon 20:10]" 218)
- ("Exercise 3.59 power series" "[2020-01-04 Sat 09:58]" 206)
- ("Exercise 2.61 sets as ordered lists" "[2019-09-26 Thu 21:44]" 111)
- ("Exercise 2.45 split" "[2019-09-24 Tue 01:37]" 95)
- ("Implement ~sum~ in terms of an iterative accumulator" "[2019-09-03 Tue 12:23]" 34)
+(("Exercise 5.40 maintaining a compile-time environment" "[2020-03-08 Sun 15:02]" 351)
+ ("Exercise 5.17 Printing labels" "[2020-02-29 Sat 17:43]" 328)
+ ("Figure 5.1 Data paths for a Register Machine" "[2020-02-23 Sun 13:18]" 310)
+ ("Exercise 4.79 prolog environments" "[2020-05-10 Sun 17:59]" 309)
+ ("Exercise 4.71 Louis' simple queries" "[2020-02-21 Fri 20:56]" 301)
+ ("Exercise 4.69 great grandchildren" "[2020-02-21 Fri 17:43]" 299)
+ ("Exercise 4.49 Alyssa's generator" "[2020-02-18 Tue 21:51]" 278)
+ ("Exercise 3.69 triples" "[2020-02-17 Mon 20:10]" 214)
+ ("Exercise 2.61 sets as ordered lists" "[2019-09-26 Thu 21:44]" 109)
+ ("Exercise 2.45 split" "[2019-09-24 Tue 01:37]" 93)
  ("Exercise 1.9 Iterative or recursive?" "[2019-08-29 Thu 15:14]" 10)
  ("Exercise 1.3 Sum of squares" "[2020-02-28 Fri 12:01]" 4)
  ("Figure 1.1 Tree representation, showing the value of each subcombination" "[2019-08-20 Tue 14:35]" 1))
 
 "Task summary (astrotime):"
-(("Exercise 5.52 Making a compiler for scheme" :spent-time-calendar-days 22.975 :spans-sessions 13 :spent-time-net-minutes 2359.0 :original-index 367)
- ("Exercise 4.79 prolog environments" :spent-time-calendar-days 4.284722222222222 :spans-sessions 5 :spent-time-net-minutes 940.0 :original-index 313))
+(("Exercise 5.52 Making a compiler for scheme" :spent-time-calendar-days 22.975 :spans-sessions 13 :spent-time-net-minutes 2359.0 :original-index 363)
+ ("Exercise 4.79 prolog environments" :spent-time-calendar-days 4.284722222222222 :spans-sessions 5 :spent-time-net-minutes 940.0 :original-index 309))
 
 "Task summary (original-index):"
 (("Figure 1.1 Tree representation, showing the value of each subcombination" :spent-time-calendar-days 0.006944444444444444 :spans-sessions 1 :spent-time-net-minutes 10.0 :original-index 1)
  ("Exercise 1.1 Interpreter result" :spent-time-calendar-days 1.211111111111111 :spans-sessions 2 :spent-time-net-minutes 459.0 :original-index 2))
-"Logarithmic histogram:"[4 7 15 42 55 67 85 52 29 5 3 2 1]
+"Logarithmic histogram:"[2 6 15 41 55 67 85 52 29 5 3 2 1]
 
-"Linear histogram:"[305 38 14 2 1 1 2 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+"Linear histogram:"[301 38 14 2 1 1 2 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
 
 "Median hardness:"
-("Exercise 3.43 Multiple serializations" :spent-time-calendar-days 0.04027777777777778 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 190)
+("Exercise 2.8 sub-interval" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 55)
 "Median n-sessions:"
-("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 44)
+("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 42)
 )
 #+end_example
 
