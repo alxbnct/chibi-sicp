@@ -29,8 +29,6 @@
 ;;; Code:
 
 (require 'org-element)
-
-
 (cl-labels (
 ; lexical-defun
 (decorate-orgtable (tbl)
@@ -358,6 +356,9 @@
      (seq-concatenate
       'string
       (char-to-string ?\()
+      (pp "debug: task-seq")
+      (pp (seq-subseq task-seq 0 2))
+      (char-to-string ?\n)
       (pp "Amount of the out-of-order-problems: ")
       (pp (number-to-string (car out-of-order-tasks)))
       (char-to-string ?\n)
@@ -416,7 +417,87 @@
       ;;(seq-reverse (caddr out-of-order-tasks))
       )))))
 
+("debug: task-seq"
+ (("Figure 1.1 Tree representation, showing the value of each subcombination"
+  (timestamp
+   (:type inactive :raw-value "[2019-08-20 Tue 14:35]" :year-start 2019 :month-start 8 :day-start 20 :hour-start 14 :minute-start 35 :year-end 2019 :month-end 8 :day-end 20 :hour-end 14 :minute-end 35 :begin 3559 :end 3581 :post-blank 0))
+  1)
+ ("Exercise 1.1 Interpreter result"
+  (timestamp
+   (:type inactive :raw-value "[2019-08-20 Tue 14:23]" :year-start 2019 :month-start 8 :day-start 20 :hour-start 14 :minute-start 23 :year-end 2019 :month-end 8 :day-end 20 :hour-end 14 :minute-end 23 :begin 5324 :end 5346 :post-blank 0))
+  2))
 
+"Amount of the out-of-order-problems: ""13"
+"Out-of-order problems :"
+(("Exercise 5.40 maintaining a compile-time environment"
+  (timestamp
+   (:type inactive :raw-value "[2020-03-08 Sun 15:02]" :year-start 2020 :month-start 3 :day-start 8 :hour-start 15 :minute-start 2 :year-end 2020 :month-end 3 :day-end 8 :hour-end 15 :minute-end 2 :begin 2374268 :end 2374290 :post-blank 0))
+  351)
+ ("Exercise 5.17 Printing labels"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-29 Sat 17:43]" :year-start 2020 :month-start 2 :day-start 29 :hour-start 17 :minute-start 43 :year-end 2020 :month-end 2 :day-end 29 :hour-end 17 :minute-end 43 :begin 2170175 :end 2170197 :post-blank 0))
+  328)
+ ("Figure 5.1 Data paths for a Register Machine"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-23 Sun 13:18]" :year-start 2020 :month-start 2 :day-start 23 :hour-start 13 :minute-start 18 :year-end 2020 :month-end 2 :day-end 23 :hour-end 13 :minute-end 18 :begin 2070667 :end 2070689 :post-blank 0))
+  310)
+ ("Exercise 4.79 prolog environments"
+  (timestamp
+   (:type inactive :raw-value "[2020-05-10 Sun 17:59]" :year-start 2020 :month-start 5 :day-start 10 :hour-start 17 :minute-start 59 :year-end 2020 :month-end 5 :day-end 10 :hour-end 17 :minute-end 59 :begin 2020240 :end 2020262 :post-blank 0))
+  309)
+ ("Exercise 4.71 Louis' simple queries"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-21 Fri 20:56]" :year-start 2020 :month-start 2 :day-start 21 :hour-start 20 :minute-start 56 :year-end 2020 :month-end 2 :day-end 21 :hour-end 20 :minute-end 56 :begin 1890725 :end 1890747 :post-blank 0))
+  301)
+ ("Exercise 4.69 great grandchildren"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-21 Fri 17:43]" :year-start 2020 :month-start 2 :day-start 21 :hour-start 17 :minute-start 43 :year-end 2020 :month-end 2 :day-end 21 :hour-end 17 :minute-end 43 :begin 1673864 :end 1673886 :post-blank 0))
+  299)
+ ("Exercise 4.49 Alyssa's generator"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-18 Tue 21:51]" :year-start 2020 :month-start 2 :day-start 18 :hour-start 21 :minute-start 51 :year-end 2020 :month-end 2 :day-end 18 :hour-end 21 :minute-end 51 :begin 1156393 :end 1156415 :post-blank 0))
+  278)
+ ("Exercise 3.69 triples"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-17 Mon 20:10]" :year-start 2020 :month-start 2 :day-start 17 :hour-start 20 :minute-start 10 :year-end 2020 :month-end 2 :day-end 17 :hour-end 20 :minute-end 10 :begin 873125 :end 873147 :post-blank 0))
+  214)
+ ("Exercise 2.61 sets as ordered lists"
+  (timestamp
+   (:type inactive :raw-value "[2019-09-26 Thu 21:44]" :year-start 2019 :month-start 9 :day-start 26 :hour-start 21 :minute-start 44 :year-end 2019 :month-end 9 :day-end 26 :hour-end 21 :minute-end 44 :begin 242506 :end 242528 :post-blank 0))
+  109)
+ ("Exercise 2.45 split"
+  (timestamp
+   (:type inactive :raw-value "[2019-09-24 Tue 01:37]" :year-start 2019 :month-start 9 :day-start 24 :hour-start 1 :minute-start 37 :year-end 2019 :month-end 9 :day-end 24 :hour-end 1 :minute-end 37 :begin 206270 :end 206292 :post-blank 0))
+  93)
+ ("Exercise 1.9 Iterative or recursive?"
+  (timestamp
+   (:type inactive :raw-value "[2019-08-29 Thu 15:14]" :year-start 2019 :month-start 8 :day-start 29 :hour-start 15 :minute-start 14 :year-end 2019 :month-end 8 :day-end 29 :hour-end 15 :minute-end 14 :begin 18521 :end 18543 :post-blank 0))
+  10)
+ ("Exercise 1.3 Sum of squares"
+  (timestamp
+   (:type inactive :raw-value "[2020-02-28 Fri 12:01]" :year-start 2020 :month-start 2 :day-start 28 :hour-start 12 :minute-start 1 :year-end 2020 :month-end 2 :day-end 28 :hour-end 12 :minute-end 1 :begin 6379 :end 6401 :post-blank 0))
+  4)
+ ("Figure 1.1 Tree representation, showing the value of each subcombination"
+  (timestamp
+   (:type inactive :raw-value "[2019-08-20 Tue 14:35]" :year-start 2019 :month-start 8 :day-start 20 :hour-start 14 :minute-start 35 :year-end 2019 :month-end 8 :day-end 20 :hour-end 14 :minute-end 35 :begin 3559 :end 3581 :post-blank 0))
+  1))
+
+"Task summary (astrotime):"
+(("Exercise 5.52 Making a compiler for scheme" :spent-time-calendar-days 22.975 :spans-sessions 13 :spent-time-net-minutes 2359.0 :original-index 363)
+ ("Exercise 4.79 prolog environments" :spent-time-calendar-days 4.284722222222222 :spans-sessions 5 :spent-time-net-minutes 940.0 :original-index 309))
+
+"Task summary (original-index):"
+(("Figure 1.1 Tree representation, showing the value of each subcombination" :spent-time-calendar-days 0.006944444444444444 :spans-sessions 1 :spent-time-net-minutes 10.0 :original-index 1)
+ ("Exercise 1.1 Interpreter result" :spent-time-calendar-days 1.211111111111111 :spans-sessions 2 :spent-time-net-minutes 459.0 :original-index 2))
+"Logarithmic histogram:"[2 6 15 41 55 67 85 52 29 6 3 1 1]
+
+"Linear histogram:"[301 38 14 2 1 2 2 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+
+"Median hardness:"
+("Exercise 2.8 sub-interval" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 55)
+"Median n-sessions:"
+("Exercise 1.41 double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 42)
+)
 
 (provide '2020-05-13-time-analyzer)
 ;;; 2020-05-13-time-analyzer.el ends here
