@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-06-19 22:40:07 lockywolf>
+# Time-stamp: <2020-06-29 12:03:02 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -26318,7 +26318,7 @@ Seems to be working.
 2.716923932235896
 #+end_src
 
-*** DONE Exercise 3.77
+*** DONE Exercise 3.77 Streams integral
     CLOSED: [2020-01-08 Wed 20:51]
 
 #+name: streams-integral-explicit
