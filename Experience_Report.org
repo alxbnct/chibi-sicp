@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-06-29 12:18:02 lockywolf>
+# Time-stamp: <2020-06-30 00:11:21 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -10,24 +10,28 @@
 #+OPTIONS: tex:imagemagick
 #+LATEX_CLASS: acmart
 # +LATEX_CLASS_OPTIONS: [a4paper]
+#+latex_header: \usepackage{float}
+
 #+latex_header: \usepackage[utf8]{inputenc}
 #+latex_header: \usepackage[T1]{fontenc}
 #+latex_header: \usepackage{supertabular}
+#+latex_header: \usepackage{csquotes}
 #+latex_header: \usepackage{polyglossia}
 # the safeinputenc option to biblatex seems to be dangerous, but I had to use it for (R) to be displayed. 
 # be careful
 #+latex_header: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear,safeinputenc]{biblatex}
 #+latex_header: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
 #+latex_header: \setdefaultlanguage[variant=american]{english}
+#+LANGUAGE: en
 
 \title{Solving SICP}
 \subtitle{An Experience Report on Solving the World's Most Famous Programming Problem Set}
 
 \acmConference{Scheme Workshop 2020}{2020-09}{Online}
 
-\affiliation{Unaffiliated}
+# \affiliation{Unaffiliated}
 \email{wladimir.nikishkin@gmail.com}
-\keywords{scheme, r7rs, teaching, programming, literate programming, fortran}
+\keywords{scheme, r7rs, teaching, programming, literate programming, fortran, reproducible research, emacs lisp}
 \begin{CCSXML}
 <ccs2012>
    <concept>
@@ -102,38 +106,40 @@
 
 #+latex: \def\hyph{-\penalty0\hskip0pt\relax}
 
-\maketitle
-
 #+begin_abstract
 This report is written as a post-mortem of a project which has,
-perhaps been the most extensive personal project of the author: creating a complete and wholesome solution to one of the most famous programming problem sets in the modern computer science curricula Structure and "Interpretation of Computer Programs" by Abelson, Sussman and Sussman ([[bib:Abelson1996]]).
+perhaps been the most extensive personal project of the author: creating a complete and wholesome solution to one of the most famous programming problem sets in the modern computer science curricula Structure and ``Interpretation of Computer Programs" by Abelson, Sussman and Sussman ([[bib:Abelson1996]]).
 
 It measures exactly:
-- How much effort SICP requires (739 hours 19 minutes, eight months, 292 sessions)
-- How many computer languages it involves (6)
-- How many pieces of software are required (9)
-- How much communication with peers is needed
+- How much effort SICP requires (739 hours 19 minutes, eight months, 292 sessions).
+- How many computer languages it involves (6).
+- How many pieces of software are required (9).
+- How much communication with peers is needed.
 
 It suggests:
-- A practical software-supported task management procedure for solving coursework
-- Several improvements on the technical side of any hard skills teaching process
-- Several improvements on the social side of any kind of teaching process
+- A practical software-supported task management procedure for solving coursework.
+- Several improvements on the technical side of any hard skills teaching process.
+- Several improvements on the social side of any kind of teaching process.
 
-The solution may be visited immediately (source and pdf):
-- [[bib:chibi-sicp]]
+The solution is published online (the source code and pdf file):
+- [[http://gitlab.com/Lockywolf/chibi-sicp]] ([[bib:chibi-sicp]])
 
 It can be applied immediately as:
-- A single-point estimate of a problem set difficulty.
-- As a class handout aimed at increasing students' motivation for study.
-- As a data source for a study of learning patterns among adult professionals aiming at continuing education.
-- As an "almost ready" protocol for a convenient problem set solution procedure, which produces artefacts that can be later used as a student portfolio. 
-- As an "almost ready", and "almost convenient" protocol for measuring time consumption of almost any problem set expressable in a digital form.
+- A single-point estimate of the problem set difficulty.
+- A class handout aimed at increasing students' motivation for study.
+- A data source for a study of learning patterns among adult professionals aiming at continuing education.
+- An ``almost ready" protocol for a convenient problem set solution procedure, which produces artefacts that can be later used as a student portfolio. 
+- An ``almost ready", and ``almost convenient" protocol for measuring time consumption of almost any problem set expressable in a digital form.
 
 Additionally, time tracking data analysis be reproduced
 interactively in the org-mode version of this report.
-([[*Appendix: Emacs Lisp code for data analysis][Appendix: Emacs Lisp code for data analysis]])
+(See: [[*Appendix: Emacs Lisp code for data analysis][Appendix: Emacs Lisp code for data analysis]])
 
 #+end_abstract
+
+
+\maketitle
+
 
 * Introduction
 
@@ -141,14 +147,14 @@ Programming language textbooks are not a frequent object of study, as
 they are expected to convey existing knowledge. However, teaching
 practitioners, when they face the task of designing a computer science
 curriculum for their teaching institution, have to base their decision
-on something. An "ad-hoc" teaching method, primarily based on studying
+on something. An ``ad-hoc" teaching method, primarily based on studying
 some particular programming language fashionable at the time of
 selection, is still a popular choice. 
 
 There have been attempts to approach the design of a course
-with more rigour. The "Structure and Interpretation of Computer Programs" was created as a result of such an attempt. SICP was
+with more rigour. The ``Structure and Interpretation of Computer Programs" was created as a result of such an attempt. SICP was
 revolutionary for its time, and perhaps can be still considered
-revolutionary nowadays. Twenty years later, this endeavour was analysed by Felleisen in a paper "Structure And Interpretation of Computer Science Curriculum" ([[bib:sicsc]]). He then reflected upon the benefits and drawbacks of the ~deliberately designed~ syllabus from the pedagogical standpoint. He proposed what he believes to be a pedagogically superior successor to the first generation of a ~deliberate~ curriculum. (See: How to Design Programs (HTDP) [[bib:felleisen2018how]])
+revolutionary nowadays. Twenty years later, this endeavour was analysed by Felleisen in a paper ``Structure And Interpretation of Computer Science Curriculum" ([[bib:sicsc]]). He then reflected upon the benefits and drawbacks of the ~deliberately designed~ syllabus from the pedagogical standpoint. He proposed what he believes to be a pedagogically superior successor to the first generation of a ~deliberate~ curriculum. (See: How to Design Programs (HTDP) [[bib:felleisen2018how]])
 
 Leaving aside the pedagogical quality of the textbook (as the author is not a practising teacher), this report touches a different (and seldom considered!) aspect of a computer science (and in general, any
 other subject's) curriculum. That is, how much work precisely is required to pass a particular course. 
@@ -162,16 +168,16 @@ a task and the empirically measured time required to complete it.
 
 The author, therefore, decided to build upon the previous experience and to try and design an as smooth, manageable, and measurable approach to performing university coursework, as possible. A computer science subject provided an obvious choice.
 
-The solution was decided, broken down into parts, harnessed with a
+The solution was planned, broken down into parts, harnessed with a
 software support system, and executed in a timely and measured manner by the author, thus proving that the chosen goal is doable. The
 complete measured data are provided. Teaching professionals may
 benefit from it when planning coursework specialised to their requirements.
 
 More generally, the author wants to propose a comprehensive
 reassessment of university teaching in general, based on
-empiric approach (understanding precisely what and when every party
+empiric approach (understanding precisely how, when, and what each party
 involved in the teaching process does), in order to select the most
-efficient (potentially even using a gradient-based optimisation
+efficient (potentially even using an optimisation
 algorithm) strategy when selecting a learning approach for every
 particular student.
 
@@ -182,7 +188,7 @@ following principles:
 
  1. Be complete.
  2. Be a reasonably realistic model of a solution process as if executed by the intended audience of the course -- that is freshman university students with little programming experience.
- 3. Be done in a "fully digital", "digital native" form.
+ 3. Be done in a ``fully digital", ``digitally native" form.
  4. Be measurable.
 
 These principles need an explanation. 
@@ -194,25 +200,25 @@ These principles need an explanation.
 The author considers completeness to be an essential property of every
 execution of a teaching syllabus.
 
-In simple words, what does it mean "to pass a course" or "to learn a subject" at all?
-How exactly can one formalise the statement "I know calculus"?
-Alternatively, even simpler, what allows a student to say "I have learned everything that was implied by a university course on calculus". 
+In simple words, what does it mean ``to pass a course" or ``to learn a subject" at all?
+How exactly can one formalise the statement ``I know calculus"?
+Alternatively, even simpler, what allows a student to say ``I have learned everything that was implied by a university course on calculus"? 
 
-It would be a good idea to survey teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
+It would be a good idea to survey teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person ``knows a subject".
 
 So far, however, following are the potential answers to these questions as they may be given:
 
-- Passing an oral examination
-- Passing a written examination
-- Passing a project defence committee questioning
-- Completing a required number of continuous assessment (time-limited) tasks
-- Completing coursework
-- Attending a prescribed number of teaching sessions (lectures or tutorials)
-- Reading a prescribed amount of prescribed reading material
+- Passing an oral examination.
+- Passing a written examination.
+- Passing a project defence committee questioning.
+- Completing a required number of continuous assessment (time-limited) tasks.
+- Completing coursework.
+- Attending a prescribed number of teaching sessions (lectures or tutorials).
+- Reading a prescribed amount of prescribed reading material.
 
-Any combination of those can also be chosen to signify the "mastering" of a subject, but the course designer is then met with a typical goal-attainment multi-objective optimisation problem ([[bib:Gembicki_1975]]), which are usually still solved by reducing the multiple goals to a single engineered goal.
+Any combination of those can also be chosen to signify the ``mastering" of a subject, but the course designer is then met with a typical goal-attainment multi-objective optimisation problem ([[bib:Gembicki_1975]]), which are usually still solved by reducing the multiple goals to a single engineered goal.
 
-Following this approach, and looking at the list above from a "martian point of view" [[bib:berne:1973:what_do_you_say_after_you_say_hello]]), we will see that all the goals listed above are reducible to a single "completing coursework" goal. "Completing coursework" is not reducible to any of those in general, so the "engineered goal" may take the shape of a tree-structured problem set (task/subtask). "Engineered" tasks may include attending tutorials, watching videos and writing feedback.
+Looking at the list above from a ``martian point of view" ([[bib:berne:1973:what_do_you_say_after_you_say_hello]]), we will see that all the goals listed above are reducible to a single ``completing coursework" goal. ``Completing coursework" is not reducible to any of those in general, so the ``engineered goal" may take the shape of a tree-structured problem set (task/subtask). ``Engineered" tasks may include attending tutorials, watching videos and writing feedback.
 
 Moreover, thinking realistically, doing coursework is the only way
 that a working professional can study without altogether abandoning
@@ -220,22 +226,21 @@ her job.
 
 Therefore, choosing a computer science textbook that is known for the problem set that comes with it even more than for the actual text of the material was a natural choice.
 
-However, that is not enough, because "just solving all of the exercises" may be the most measurable and the most necessary learning outcome, but is it sufficient?
+However, that is not enough, because even though ``just solving all of the exercises" may be the most measurable and the most necessary learning outcome, is it sufficient?
 
-As the author intended to "grasp the skill" rather than just "pass the exercises", I initially decided to consider inventing additional exercises that may be valuable as a process of "engineering a custom problem set".
+As the author intended to ``grasp the skill" rather than just ``pass the exercises", he initially considered inventing additional exercises to cover the course material not covered by the original problem set.
 
-One of the approaches used to "engineer additional exercises" is to try and put yourself in the position of a teacher, and ask yourself: "After I finish this book/problem set, will I be able to write my own book on this subject?".
-Even if the answer is "no", continue asking yourself "Okay then. Will I be able to teach this subject professionally?". If the answer is still no, the last question would be "Can I successfully reconstruct the course material if I am given my solutions at a later date, when the course is already not in the quickly accessible memory?". 
-If the answer is "yes", then learning is successful with high likelihood.
+From the practical point, in the ``reference solution" referred to in this report's bibliography, the reader will not find exercises that are not a part of the original problem set.
 
-From the practical point, in the "reference solution" referred to in this report's bibliography, you can find exercises that are not a part of the original problem set.
-The author added those for the very reason "to be able to reproduce the material contained in the book from scratch at a later date". This was only done for the cases when the author considered the already available exercises insufficient. The additional exercises did not demand the amount of working time large enough to change the total hardness estimate noticeably.
+The author, however, redrew several figures from the book, representing those types of figures that are not required to be drawn by any of the exercises.
+
+This was done in order to ``be able to reproduce the material contained in the book from scratch at a later date". This was only done for the cases when the author considered the already available exercises insufficient. The additional figures did not demand the amount of working time large enough to change the total hardness estimate noticeably.
 
 *** A faithful imitation of the university experience
 
-One common objection to the undertaken endeavour may be the following. In most universities (if not all), it is not necessary to solve all exercises in order to complete a course. This is often true, and undoubtedly true for mathematics-based coursed (where problem books are containing several times more exercises than reasonably cover the course content). The author, however, considers SICP exercises not to be an example of such a problem set. The exercises cover the course material with minimal overlap, and the author even had to add several himself.
+One common objection to the undertaken endeavour may be the following. In most universities (if not all), it is not necessary to solve all exercises in order to complete a course. This is often true, and especially true for mathematics-related courses (where problem books usually contain several times more exercises than reasonably cover the course content). The author, however, considers SICP exercises not to be an example of such a problem set. The exercises cover the course material with minimal overlap, and the author even had to add several himself.
 
-Another objection would be that a self-study experience cannot faithfully imitate a university experience at all because a university course contains tutorials as a crucial point. Problem-solving methods are "cooked" by teaching assistants and delivered to the students in a personalised manner on those tutorials. 
+Another objection would be that a self-study experience cannot faithfully imitate a university experience at all because a university course contains tutorials and demonstrations as crucial points. Problem-solving methods are ``cooked" by teaching assistants and delivered to the students in a personalised manner on those tutorials. 
 
 This is indeed a valid argument. However, teaching assistants may not necessarily come from a relevant background; they are often recruited from an available pool and not explicitly trained. For such cases, the present report may serve as a crude estimate of the time needed for the teaching assistants to prepare for the tutorials.
 
@@ -255,7 +260,7 @@ A student will be likely mimicking the teacher's choice of tools used for the ex
 
 The main point of the previous paragraph is that the teaching process is not only the process of data transmission.
 It is also the process of metadata transmission, the development of meta-cognitive skills. (See [[bib:Ku2010]])
-Therefore, meta-cognitive challenges, although they may very well be valuable contributions to the student's "thinking abilities", deserve their own share of consideration when preparing a course.
+Therefore, meta-cognitive challenges, although they may very well be valuable contributions to the student's ``thinking abilities", deserve their own share of consideration when preparing a course.
 
 The examples of meta-cognitive exercises include:
 
@@ -271,7 +276,7 @@ There have been attempts by learning institutions to encourage peer support amon
 Do students really help each other in those artificially created support groups?
 How does side\hyph{}communication, generally irrelevant to the subject of study, affect the learners?
 
-A support medium is even more critical for adult self-learners, who do not get even those artificial support groups created by the school functionaries.
+A support medium is even more critical for adult self-learners, who do not get even those artificial support groups created by the school functionaries, and do not get access to teaching assistance.
 
 It should be noted that the support medium (a group chat platform, or a mailing list) choice, no matter how irrelevant to the subject itself it may be, is a significant social factor.
 This is not to say that a teacher should create a support group in that particular social medium that is fashionable at the start of the course.
@@ -280,8 +285,8 @@ This is only to say that ~deliberate effort~ should be spent on finding the best
 From the author's *personal experience*:
 
 - The [[irc:irc.freenode.org/#scheme][#scheme Freenode channel]] was used as a place to ask questions in real-time. #emacs was also useful.
-- stackoverflow.com was used to ask asynchronous questions.
-- The scheme community wiki community.sche\hyph{}mewiki.org was used as reference material.
+- http://StackOverflow.com was used to ask asynchronous questions.
+- The scheme community wiki http://community.schemewiki.org was used as reference material.
 - The author emailed some prominent members of the scheme community with unsolicited questions.
 - The author was reporting errors in the documents generated by the scheme community process.
 - The author was asking for help on the Chibi-scheme mailing list.
@@ -289,12 +294,12 @@ From the author's *personal experience*:
 - There was also some help from the Closed-Circles data science community.
 - There was also some help from the rulinux@confe\hyph{}rence.jabber.ru community.
 - There was also some help from the Shanghai Linux User Group.
-- There was also some help from the www.dxdy.ru scientific forum.
+- There was also some help from the http://www.dxdy.ru scientific forum.
 - There was also some help from the Haskell self-study group in Telegram.
 
-It should be noted that out of those communities, only the Open Data Science community, and a small Haskell community reside in a "fashionable" communication system.
+It should be noted that out of those communities, only the Open Data Science community, and a small Haskell community reside in a ``fashionable" communication system.
 
-The summary of the community interaction is under the "meta-cognitive" exercises section because the skill of finding people who can help you with your problems is one of the most useful soft skills and one of the hardest to teach.
+The summary of the community interaction is under the ``meta-cognitive" exercises section because the skill of finding people who can help you with your problems is one of the most useful soft skills and one of the hardest to teach.
 Moreover, naturally, the people who _can_ and _may_ answer questions are in most of the cases not at all obliged to do so, so soliciting an answer from non-deliberately-cooperating people is another cognitive exercise that is worth covering in a lecture explicitly.
 
 Repeating the main point of the previous paragraph in other words: human communities consist of rude people. Naturally, no-one can force anyone to bear rudeness, but no-one can just as much force anyone to be polite.
@@ -305,32 +310,32 @@ Unfortunately, it is not even the technological sophistication, technological mo
 
 Support communication statistics is the following:
 
-- Scheme interpreter related email threads: *28*
-- Editor/IDE related email threads + bug reports: *16*
-- Presentation/formatting related email threads: *20*
-- Syllabus related email threads: *3*
-- Documentation related email threads (mostly obsolete links): *16*
-- IRC chat messages: *2394* #scheme messages initiated by the author (the number obtained by simple filtering)
-- Software packages re-uploaded to source forges: *2* (recovered from authors' personal archives)
+- Scheme system related email threads in the official mailing list: *28*.
+- Editor/IDE related email threads + bug reports: *16*.
+- Presentation/formatting related email threads: *20*.
+- Syllabus related email threads: *3*.
+- Documentation related email threads (mostly obsolete link reports): *16*.
+- IRC chat messages: *2394* #scheme messages initiated by the author (the number obtained by simple filtering by the author's nickname).
+- Software packages re-uploaded to source forges: *2* (recovered from original authors' personal archives).
 
 Statistics from other communication means the author failed to collect.
 
 *** The figures to re-typeset
 
 Several figures from SICP were re-drawn using a textual representation.
-The choice of those was driven by the idea that someone who successfully passed the book should also be able to re-create the book from scratch using his own skills.
+The choice of those was driven by the idea that someone who successfully completed the book should also be able to re-create the book material and therefore should know how to draw similar diagrams.
 Therefore, those were chosen to be representative of the kinds of figures _not_ required to be drawn by any exercise.
 
-The pictures list:
-- 1.1 Tree representation, showing the value of each sub-combination
-- 1.2 Procedural decomposition of the sqrt program
-- 1.3 A linear recursive process for computing
-- 2.2 Box-and-pointer representation of ~(cons 1 2)~
-- 2.8 A solution to the eight-queens puzzle
-- 3.32 The integral procedure viewed as a signal-processing system
-- 3.36 A series RLC circuit
-- 5.1 Data paths for a Register Machine
-- 5.2 Controller for a GCD Machine
+The list of redrawn figures:
+- 1.1 Tree representation, showing the value of each sub-combination.
+- 1.2 Procedural decomposition of the sqrt program.
+- 1.3 A linear recursive process for computing.
+- 2.2 Box-and-pointer representation of ~(cons 1 2)~.
+- 2.8 A solution to the eight-queens puzzle.
+- 3.32 The integral procedure viewed as a signal-processing system.
+- 3.36 A series RLC circuit.
+- 5.1 Data paths for a Register Machine.
+- 5.2 Controller for a GCD Machine.
 
 ** Behaviour modelling, reenactment and the choice of tools
 
@@ -340,35 +345,37 @@ When starting the project, the author already possessed a PhD in Informatics, al
 This gave an advantage over a first-year undergraduate student.
 However, to a large extent, the author still resembled a newbie, as he never before used a proudly functional programming language, and had never used any programmer's editor other than Notepad++. Another noticeable difference was the skill of typing fast without looking at a keyboard (so-called touch-typing). This skill is already taught at some U.S. high schools but is still not considered mandatory all over the world.  
 
-*NOTE:* All of this report is _heavily_ dependent on the fact that the author learned how to "touch type", and can do it relatively fast. Without the skill of fast touch-typing, almost all of the measurements are meaningless, and the choice of tools may seem counter-intuitive or even arbitrary. 
+*NOTE:* All of this report is _heavily_ dependent on the fact that the author learned how to ``touch type", and can do it relatively fast. Without the skill of fast touch-typing, almost all of the measurements are meaningless, and the choice of tools may seem counter-intuitive or even arbitrary. 
 
-The goal I had was slightly schizophrenic, in the sense that the intention was to model (reenact) an "idealised" student, that is the one that does not exist, in the sense that the author decided to:
+The goal I had was slightly schizophrenic, in the sense that the intention was to model (reenact) an ``idealised" student, that is the one that does not exist, in the sense that the author decided to:
 
 - Perform all exercises honestly, no matter how hard they be or how much time they take.
 - Solve all exercises without cheating. Although that did not restrict consulting other people's solution when this did not involve direct copying.
 - Try to use the tools that may have been available at the disposal of the students in 1987, although possibly the most recent versions.
-- Try to follow the "Free Software/Open Source/Unix Way" approach as loosely formulated by well-known organisations, as close as possible. 
-- Try to prepare a "problem set solution" in a format that may be potentially presentable to a university teacher in charge of accepting or rejecting it.
+- Try to follow the ``Free Software/Open Source/Unix-way" approach as loosely formulated by well-known organisations, as close as possible. 
+- Try to prepare a ``problem set solution" in a format that may be potentially presentable to a university teacher in charge of accepting or rejecting it.
 
 While the first three principles turned out to be almost self-fulfilling, the last one turned out to be more involved.
 
-The author's personal experience with university-level programming suggested than on average, the largest amo\hyph{}unt of time is spent on debugging input and output procedures.
+The author's personal experience with university-level programming suggested than on average, the largest amount of time is spent on debugging input and output procedures.
 The second-largest amount is usually dedicated to inventing test cases for the code.
 The actual writing of the substantive part of the code only comes third.
 
 It is known that SICP had been intended as a deliberately created introductory course. The author assumed that a large part of the syllabus would be dedicated to solving the two most common difficulties described above.
 This turned out to not be the case.
 Rather than solving them, SICP just goes around, enforcing a very rigid standard on the input data instead.
-This allowed for formatting the ready-to-submit coursework solution as a single file with prose, code blocks, input blocks, and figures interleaved. (A so-called "notebook" format.) 
+This allowed for formatting the ready-to-submit coursework solution as a single file with prose, code blocks, input blocks, and figures interleaved. (A so-called ``notebook" format.) 
 
-The "slightly schizophrenic" characteristic comes from the need to find a balance between the two "more realistic" mental models of student behaviour. One would be representing a "lazy" student, who would be only willing to work enough to get a passing score. This model would be responsible for saving time and choosing the tools that would possess the least possible incompatibility with the assessment mechanism. The other would be the model of an "eager" student, who would be willing to study the material as deep as possible, possibly never finishing the course, and would be responsible for the quality of learning and for choosing the best tools available.
+The ``slightly schizophrenic" characteristic comes from the need to find a balance between the two ``more realistic" mental models of student behaviour. One would be representing a ``lazy" student, who would be only willing to work enough to get a passing score. This model would be responsible for saving time and choosing the tools that would possess the least possible incompatibility with the assessment mechanism. The other would be the model of an ``eager" student, who would be willing to study the material as deep as possible, possibly never finishing the course, and would be responsible for the quality of learning and for choosing the best tools available.
 
-Let us try to imagine being an "ideal student", a mixture of the two models described above, and make the decisions as if the imaginary student would be doing them.
-Informally this can be summarised as "I will learn every tool that is required to get the job done to the extent needed to get the job done, but not the slightest bit more".
+Let us try to imagine being an ``ideal student", a mixture of the two models described above, and make the decisions as if the imaginary student would be doing them.
+Informally this can be summarised as ``I will learn every tool that is required to get the job done to the extent needed to get the job done, but not the slightest bit more".
 
 *** The tools
 
 The final choice of tools turned out to be the following:
+
+#+latex: \bigskip
 
 - chibi-scheme :: as the scheme implementation
   - srfi-159 :: as a petty-printing tool
@@ -386,12 +393,19 @@ The final choice of tools turned out to be the following:
 - PlantUML :: as the principal diagramming language
 - TikZ + luaLaTeX :: as the secondary diagramming language
 - Graphviz :: as a tertiary diagramming language
-- ImageMagick :: as the engine behind the "picture language" chapter
+- ImageMagick :: as the engine behind the ``picture language" chapter
 - git :: as the main version control tool
 - GNU diff, bash, grep :: as the tools for simple text manipulation
+#+latex: \vspace{-5mm}
+#+begin_export latex
+\begin{figure}[H]
+\caption{List of tools required to solve SICP}
+\end{figure}
+#+end_export
+
 
 *chibi-scheme* is virtually the only scheme system cla\hyph{}iming to support the last scheme standard, r7rs-large (Red Edition), so there was no other choice.
-This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought, responsible for creating various partly-compliant sch\hyph{}eme systems.
+This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought, responsible for creating various partly-compliant scheme systems.
 Several libraries (three of which standardised, and three of which not) were required for the completeness of the solution.
 Effectively, it is not possible to solve all the exercises using _only_ the standardised part of the scheme language.
 Even Scheme combined with standardised extensions is not enough.
@@ -410,10 +424,10 @@ Almost all operating systems support applications executing other applications.
 
 *PlantUML* is a text-based implementation of the international standard of software visualisation diagrams. 
 The syntax is straightforward and well documented.
-The Plant\hyph{}UML-Emacs interface exists and is relatively reliable.
+The PlantUML-Emacs interface exists and is relatively reliable.
 The textual representation conveys the hacker spirit and supports easy version control.
 UML almost totally dominates the software visualisation market, and almost every university programming degree includes it to some extent.
-It seemed therefore very natural to (where the problem permitted) solve the "diagramming" problems of the SICP with the industry-standard compliant diagrams.
+It seemed therefore very natural to (where the problem permitted) solve the ``diagramming" problems of the SICP with the industry-standard compliant diagrams.
 
 *Graphviz* was used in an attempt to use another industry standard for solving diagramming problems not supported by the UML.
 The ~dot~ package benefits from being fully machine-parsable and context-independent even more than UML. However, it turned out to be not as convenient as expected. 
@@ -433,10 +447,10 @@ The reasons for choosing not a very popular language were the following:
 
 *GNU Unix Utilities* the author did not originally intend to use, but ~diff~ turned out to be extremely effective in illustrating the difference between generated code pieces in Chapter 5. Additionally, in some cases, they were used as a universal glue between different programs.
 
-*GNU Emacs*: is de-facto the most popular IDE among scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most "hacker-like" editor.
+*GNU Emacs*: is de-facto the most popular IDE among scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most ``hacker-like" editor.
 It is, perhaps, the most controversial choice, as the most likely IDE to be used by freshmen university students, in general, would be Microsoft Visual Studio.
 Another popular option would be Dr.Racket, which packages a component dedicated to supporting solving SICP problems.
-However, Emacs turned out to be having the most superior support for a "generic Lisp" development, even tho\hyph{}ugh its support for Scheme is not as good as may be desired.
+However, Emacs turned out to be having the most superior support for a ``generic Lisp" development, even though its support for Scheme is not as good as may be desired.
 The decisive victory point ended up being the org-mode (discussed later).
 Informally speaking, entirely buying into the Emacs platform ended up being a substantial mind-expanding experience.
 The learning curve is steep, however.
@@ -444,10 +458,10 @@ The learning curve is steep, however.
 As mentioned above, the main point of this report is to supply the problem execution telemetry for public use. Later sections will elaborate on how data collection on the exercise completion was performed, using org-mode's time tracking facility. The time-tracking data in the section [[*Appendix: Full data on the exercise completion times.]] do not include learning Emacs or org-mode. However, some data were still collected nevertheless:
 
 Reading the Emacs Lisp manual required *10* study sessions of total length 32 hours 40 minutes.
-Additional learning of Emacs *without* reading the manual required 59 hours 14 minutes.
+Additional learning of Emacs _without_ reading the manual required 59 hours 14 minutes.
 
 
-** *Org-mode* as a universal medium for reproducible research
+** Org-mode as a universal medium for reproducible research
 
 Org-mode helps to resolve dependencies between exercises.
 SICP provides an additional challenge (meta-cognitive exercise) in that its problems are highly dependent on one another.
@@ -461,27 +475,27 @@ Org-mode helps package a complete student's work into a single file.
 Imagine a case when a student needs to send his work to the teacher for examination.
 Every additional file that a student sends along with the code is a source of confusion.
 Even proper file naming, though increases readability, requires significant concentration to enforce and demands that the teacher dig into the peculiarities that will become irrelevant the very moment after he signs the work off.
-Things get worse when the teacher has not just to examine the student's work but also to test it.
+Things get worse when the teacher has to not just examine the student's work but also to test it.
 (Which is a typical case with computer science exercises.)
 
 Org-mode can be exported into a format convenient for later revisit.
 Another reason to carefully consider the solution format is the future employability of the students.
-This problem is not unfamiliar to the Arts majors, who have been garnering "portfolios" of their work since ages ago.
-However, the understanding of the importance of a portfolio is still generally lacking among technical students.
-One of the great discussion subjects on a job interview is "what have you done".
+This problem is not unfamiliar to the Arts majors, who have been garnering ``portfolios" of their work since ages ago.
+However, the understanding of the importance of a portfolio is still generally lacking among STEM students.
+One of the great discussion subjects on a job interview is ``what have you already done?".
 Having a portfolio in a form easily presentable on an interview may be of immense help for the interviewee.
 
 A potential employer is almost guaranteed not to have any software or equipment to run the former student's code.
 Even the student himself would probably be lacking the carefully prepared working setup at the interview.
-Therefore, the graduation work should be "stored", or "canned" in an as portable and time-resistant format as possible.
+Therefore, the graduation work should be ``stored", or ``canned" in an as portable and time-resistant format as possible.
 
 Unsurprisingly, the most portable and time-resistant format of practical usage is the plain white paper.
 Ideally, the solution (after being examined by a teacher) should be printable as a report.
 Org-mode can serve this purpose through the PDF export backend.
-Additionally, the comparatively (to the full size of SICP) small amount of work required to turn a solution that is "just enough to pass" into a readable report would be an emotional incentive for the students to carefully post-process their work.
-Naturally, "plain paper" is not a very manageable medium nowadays.
+Additionally, the comparatively (to the full size of SICP) small amount of work required to turn a solution that is ``just enough to pass" into a readable report would be an emotional incentive for the students to carefully post-process their work.
+Naturally, ``plain paper" is not a very manageable medium nowadays.
 The closest, manageable approximation is PDF.
-So the actual "source code" of a solution should be logically and consistently exportable into a PDF file.
+So the actual ``source code" of a solution should be logically and consistently exportable into a PDF file.
 
 People familiar with the work of Donald Knuth will recognise the similarity of org-mode with his WEB system and its web2c implementation.
 Another commonly used WEB-like system is Jupyter Notebook (See [[bib:software_jupyter]]).
@@ -498,41 +512,41 @@ The way org-mode particulars were used is described in the next section, along w
 
 SICP's problems can be roughly classified into the following classes:
 
-- Programming problems in Scheme without input
-- Programming problems in Scheme with input (possibly running other programs)
-- Programming problems in Scheme with graphical output
-- Programming problems in a "low-level language of your choice"
-- Mathematical problems
-- Standard-fitting drawing exercises
-- Non-standard drawing exercises
-- Essays
+- Programming problems in Scheme without input.
+- Programming problems in Scheme with input (possibly running other programs).
+- Programming problems in Scheme with graphical output.
+- Programming problems in a ``low-level language of your choice".
+- Mathematical problems.
+- Standard-fitting drawing exercises.
+- Non-standard drawing exercises.
+- Essays.
 
 Wonderfully absent are the problems of the data analysis kind.
 
-This section will explain how these problems can be solved in a "single document mode". 
+This section will explain how these problems can be solved in a ``single document mode". 
 
 *Essays* is the most straightforward case. The student can just write the answer to the question below the headline corresponding to a problem.
 Org-mode provides several minimal formatting capabilities that are enough to cover all the use cases required.
 
-*Mathematical problems* require that a \TeX system be present on the student machine, and employ org-mode's ability to embed \TeX' mathematics, along with previews, right into the text. The author ended up using almost zero pen-and-paper calculations while doing SICP's mathematical exercises.
+*Mathematical problems* require that a \TeX-system be present on the student machine, and employ org-mode's ability to embed \TeX' mathematics, along with previews, right into the text. The author ended up using almost zero pen-and-paper calculations while doing SICP's mathematical exercises.
 
-*Programming exercises in Scheme* are mostly easily formatted as org-mode "babel-blocks", with the output being pasted right into the document body, and updated as needed.
+*Programming exercises in Scheme* are mostly easily formatted as org-mode ``babel-blocks", with the output being pasted right into the document body, and updated as needed.
 
 *Programming exercises in Scheme with input* require a little bit of work on making them right. It is sometimes not entirely obvious when the input should be interpreted as verbatim text rather than executable code. 
-It turned out to be possible to format all the input data as either "example" or "code" blocks and therefore present all test cases (different inputs) in the same document.
+It turned out to be possible to format all the input data as either ``example" or ``code" blocks, feed them into the recipient blocks via an ``:stdin'' block directive and present all the test cases (different inputs) in the same document.
 
-*Programming exercises in a low-level language* required wrapping the low-level language code into "babel" blocks, and the result of combining those into a "shell" block. 
+*Programming exercises in a low-level language* required wrapping the low-level language code into ``babel" blocks, and the result of combining those into a ``shell" block. 
 This introduces an operating system dependency. However, GNU Unix Utilities are widespread enough to consider this not a limitation.
 
 *Programming exercises with graphical output* turned out to be the trickiest part from the software suite perspective.
 Eventually,  a scheme-system (chibi) dependent wrapper around the ImageMagick graphics manipulation tool was written. 
-Org-mode has a special syntax for the inclusion of graphic files, so the exercise solutions were generating the image files and pasting the inclusion code into the org buffer.
+Org-mode has a special syntax for the inclusion of graphic files, so the exercise solutions were generating the image files and pasting the image inclusion code into the org buffer.
 
 *Standard drawing exercises* illustrate a problem that is extremely widespread, but seldom well understood, perhaps because people aiming to solve it usually do not come from the programming community.
 Indeed, there are several standards on industrial illustrations and diagramming, including UML, ArchiMate, SDL, and various others.
-So wherever possible, the author tried to use a standard diagram to express the answer to the problem.
-The PlantUML language satisfied almost all of the requirements.
-The org-plantuml bridge made it possible to solve these problems in the manner similar to the coding problems -- as "org-babel" blocks.
+Wherever a SICP figure admitted a standard-based representation, the author tried to use it to express the answer to the problem.
+The PlantUML text-based diagramming tool was used most often, as its support for UML proved to be superior to the alternatives.
+The org-plantuml bridge made it possible to solve these problems in the manner similar to the coding problems -- as ``org-babel" blocks.
 
 *Non-standard drawing exercises*, the most prominent of those requiring drawing environment diagrams (debugging interfaces), were significantly more challenging.
 When a prepared mental model (i.e. an established diagramming standard) was absent, that diagram had to be implemented from scratch in an improvised way.
@@ -585,23 +599,23 @@ An example of the outline looks the following:
 #+end_export
 
 When work is clearly divided into parts, and for each unit, its completion status is self-evident, this creates a sense of control in the student. 
-The "degree of completeness of the whole project", available at any moment, provides an important emotion of "getting close to the result with each completed exercise".
+The ``degree of completeness of the whole project", available at any moment, provides an important emotion of "getting close to the result with each completed exercise".
 
 Additional research is needed on how persistent this emotion is in students and how much it depends on the uneven distribution of hardness or the total time consumption.
 There is, however, empirical evidence that even very imprecise self-measured KPIs do positively affect the chance of reaching the goal.
 (See: [[bib:VanWormer2008]]) 
 
-From the author's personal experience, uneven distribution of difficulty in the project leaf is a major demotivating factor.
-However, the real problems we find in the daily life are not evenly hard, and therefore managing an unequal distribution of hardness is a critical meta-cognitive skill. Partitioning of a large task into smaller ones, _not_  in a way suggested by the book may be a way to tackle this problem. Traces of this approach are visible through the "reference" solution PDF.
+From the author's personal experience, uneven distribution of difficulties at the leaf-level tasks is a major demotivating factor.
+However, the real problems we find in the daily life are not evenly hard, and therefore managing an unequal distribution of hardness is a critical meta-cognitive skill. Partitioning of a large task into smaller ones, _not_  in a way suggested by the book may be a way to tackle this problem. Traces of this approach are visible through the ``reference" solution PDF.
 
 The problems were executed almost sequentially.
 The work on the next one was started immediately after the previous one had been finished. 
 
-Out of more than 350 exercises, only 13 were executed out of order (See section [[* Out of order problems and other statistics]]). Sequentiality of problems is essential for proper time accounting because the total time attributed to a problem is the sum of durations of all study sessions between the end of the problem considered and end of the previous one. It is not strictly required for the problem sequence to be identical to the sequence proposed by the book, but it is important that if a problem is postponed, the study sessions corresponding to this problem be somehow removed from the session log. 
+Out of more than 350 exercises, only 13 were executed out of order (See section [[* Out of order problems and other statistics]]). Sequentiality of problems is essential for proper time accounting because the total time attributed to a problem is the sum of durations of all study sessions between the end of the problem considered and end of the previous one. It is not strictly required for the problem sequence to be identical to the sequence proposed by the book, but it is important that if a problem is postponed, the study sessions corresponding to this problem be somehow removed from the session log dataset. 
 
 In this report, the study sessions corresponding to the initial attempts of solving out of order problems were simply ignored. This has not affected the overall statistic much because those sessions were usually short.
 
-This is one of the weakest points of this report. It is generally hard to find motivation for working through a problem set sequentially. SICP does enforce sequentiality for a large share of problems by making the later problems depend on the solutions of the previous ones, but this "dependence coverage" is not complete. 
+Sequentiality is one of the weakest points of this report. It is generally hard to find motivation for working through a problem set sequentially. SICP does enforce sequentiality for a large share of problems by making the later problems depend on the solutions of the previous ones, but this ``dependence coverage" is not complete. 
 
 As the most straightforward workaround, the author may once again suggest dropping the initial attempts of solving the out-of-order problems from the data set entirely. This should be relatively easy to do because the student (arguably) is likely to decide whether to continue solving the problem or to postpone it within one study session. This study session may then be appropriately trimmed.
 
@@ -610,7 +624,7 @@ The author has read the whole book before starting the project. The time on read
 A deliberate effort was spent on avoiding closing a problem at the same time as closing the study session.
 
  The reason for this is to exploit the well-known tricks (See: [[bib:adler_factors_1939]]): 
-- "When you have something undone, it is easier to make yourself start the next session."
+- ``When you have something left undone, it is easier to make yourself start the next session."
 - Even just reading out the description of a problem makes the reader start thinking about how to solve it.
 
 The data comes in two datasets, closely related.
@@ -623,7 +637,7 @@ The data comes in two datasets, closely related.
 #+end_example
 (See [[*Appendix: Full data on the study sessions.][Appendix: Full data on the study sessions.]])
 
-During each study session, the author tried to be as concentrated as possible and only do the activities related to the problem set. These are not limited to just writing the code and tuning the software setup. They include all the "package" of activities leading to the declaration of the problem solved. These include but are not limited to reading or watching additional material, asking questions, fixing bugs in related software, and similar things.
+During each study session, the author tried to be as concentrated as possible and only do the activities related to the problem set. These are not limited to just writing the code and tuning the software setup. They include all the ``package" of activities leading to the declaration of the problem solved. These include but are not limited to reading or watching additional material, asking questions, fixing bugs in related software, and similar things.
 
 Several software problems were discovered in the process of making this solution.
 These problems were reported to the software authors.
@@ -634,45 +648,45 @@ None of the problems eventually prevented the completion of the problem set.
 The author found it very helpful to have a simple dependency resolution tool at his disposal.
 As has been mentioned above, SICP's problems make heavy use of one another.
 It was therefore critical to find a way of code reuse within a single org-mode document.
-Indeed org's WEB-like capabilities (<<noweb>>-links) proved to be sufficient.
+Indeed org's WEB-like capabilities («noweb»-links) proved to be sufficient.
 Noweb-links is a method of verbatim inclusion of a code block into other code blocks.
 In particular, Exercise 5.48 required inclusion of *58* other code blocks into the final solution block.
 Pure copying would not suffice, because as SICP exercises often involve the evaluation of the code written before (in the previous exercises) by the code written during the execution of the current exercise. Therefore, later exercises are likely to expose errors in the earlier exercises' solutions.
 
-#+latex: \raggedbottom
+# +latex: \raggedbottom
 
-#+latex: \pagebreak
+# +latex: \pagebreak
 
 ** Out of order problems and other statistics
 
 The following figure presents some of the aggregated statistics on the solution of the problem set.
 
+#+latex: \bigskip
+
+- *792* hours of the total workload.
+- *2.184* hours mean time spent on solving one problem.
+- *0.96* hours was required for the dataset median problem.
+- *94.73* hours for the hardest problem: writing a scheme interpreter in a low-level language.
+- *652* study sessions.
+- *1.79* study sessions per problem on average.
+- *>78000* lines long .org file (*>2.6* megabytes) (5300 pages in a PDF).
+- *1* median amount of study sessions required to solve a single problem. The difference of almost 2 with the average hints that the few hardest problems required significantly more time than typical ones.
+- *13* problems were solved out of order:
+  - ``Figure 1.1 Tree representation..."
+  - ``Exercise 1.3 Sum of squares."
+  - ``Exercise 1.9 Iterative or recursive?"
+  - ``Exercise 2.45 Split."
+  - ``Exercise 3.69 Triples."
+  - ``Exercise 2.61 Sets as ordered lists."
+  - ``Exercise 4.49 Alyssa's generator."
+  - ``Exercise 4.69 Great-grandchildren."
+  - ``Exercise 4.71 Louis' simple queries."
+  - ``Exercise 4.79 Prolog environments."
+  - ``Figure 5.1 Data paths for a Register Machine."
+  - ``Exercise 5.17 Printing labels."
+  - ``Exercise 5.40 Maintaining a compile-time environment."
 #+begin_export latex
 \begin{figure}[H]
-#+end_export
-- *792* hours of the total workload
-- *2.184* hours mean time spent on solving one problem
-- *0.96* hours was required for the dataset median problem
-- *94.73* hours for the hardest problem: writing a scheme interpreter in a low-level language
-- *652* study sessions
-- *1.79* study sessions per problem on average
-- *>78000* lines long .org file (*>2.6* megabytes) (5300 pages in a PDF)
-- *1* median amount of study sessions required to solve a single problem. The difference of almost 2 with the average hints that the few hardest problems required significantly more time than typical ones.
-- *13* problems were solved out of order 
-  - "Figure 1.1 Tree representation..."
-  - "Exercise 1.3 Sum of squares."
-  - "Exercise 1.9 Iterative or recursive?"
-  - "Exercise 2.45 Split."
-  - "Exercise 3.69 Triples."
-  - "Exercise 2.61 Sets as ordered lists."
-  - "Exercise 4.49 Alyssa's generator."
-  - "Exercise 4.69 Great-grandchildren."
-  - "Exercise 4.71 Louis' simple queries."
-  - "Exercise 4.79 Prolog environments."
-  - "Figure 5.1 Data paths for a Register Machine."
-  - "Exercise 5.17 Printing labels."
-  - "Exercise 5.40 Maintaining a compile-time environment."
-#+begin_export latex
 \caption{Aggregated statistic on the problem set execution}
 \end{figure}
 #+end_export
@@ -681,60 +695,139 @@ Thirteen problems were solved out-of-order.
 This means that those problems may have been the trickiest.
 (Although not necessarily the hardest.)
 
-** Time spent on solving the exercises
+#+latex: \raggedbottom
+#+latex: \pagebreak
 
-#+ATTR_LATEX: :width 252pt :float nil
-#+caption: "Days spent per problem"
-[[file:experience-report-days.png]]
+** Ten hardest problems by raw time
 
-The figure depicts the number of days (Y-axis) a problem (enumerated by the X-axis coordinate) was loaded in the author's brain. 
-In simple words, it is the number of days that the state of "trying to solve a problem number X" spanned. This statistic is less tractable than the "high concentration" time presented on the figure in the next section. However, it may nevertheless be useful for encouraging students who get demotivated when spending a long "high concentration" session on a problem with no apparent success. Naturally, most problems are solvable within one session, so for most problems, this metric is one.
+#+latex: \bigskip
 
-The second spike in the distribution can be attributed to the general tiredness of solving such as huge problem set and a need for a break. 
-The correspondent spike on the graph of the study sessions is less prominent.
+#+ATTR_LATEX: :center :environment supertabular :align p{4cm}|p{1cm}|p{0.9cm}|p{0.9cm} :float nil
+| Exercise                                         | Days Spent | Spans Sessions | Minutes Spent |
+|--------------------------------------------------+------------+----------------+---------------|
+| Exercise 2.46 ~make-vect~                        |      2.578 |              5 |           535 |
+| Exercise 4.78 Non-deterministic queries          |      0.867 |              6 |           602 |
+| Exercise 3.28 Primitive or-gate                  |      1.316 |              2 |           783 |
+| Exercise 4.79 Prolog environments                |      4.285 |              5 |           940 |
+| Exercise 3.9 Environment structures              |     21.030 |             10 |          1100 |
+| Exercise 4.77 Lazy queries                       |      4.129 |              9 |          1214 |
+| Exercise 4.5 ~cond~ with arrow                   |     12.765 |              7 |          1252 |
+| Exercise 5.52 Making a compiler for scheme       |     22.975 |             13 |          2359 |
+| Exercise 2.92 Add, mul for different variables   |      4.556 |             11 |          2404 |
+| Exercise 5.51 EC-evaluator in low-level language |     28.962 |             33 |          5684 |
+#+begin_export latex
+\begin{figure}[H]
+\caption{The ten hardest problems}
+\end{figure}
+#+end_export
 
-** Study sessions per problem
+It is hardly unexpected that writing a scheme interpreter in a low-level language (*Exercise 5.51*) turned out to be the most time-consuming problem of all the problem set.
+After all, it implied learning an entirely new language from scratch.
+In the author's case, the low-level language happened to be Fortran 2018.
+Learning Fortran up to the level required is a relatively straightforward, albeit a time-consuming task. 
 
-#+ATTR_LATEX: :width 252pt :float nil
-#+caption: "Study sessions per problem"
-[[file:experience-report-study-sessions.png]]
+The *Exercise 5.52*, a compiler for Scheme, implicitly required that the previous one be solved already, as the runtime support code is shared between these two problems. All the compiled EC-evaluator turned out to be just a single (very long) Fortran function.
 
-A "session" may be called a period of high concentration when the student is actively trying to solve a problem and get the code (or the essay text) written. This graph presents the number of sessions (Y-axis) spend on a problem (enumerated by the X-axis), regardless of the session length.
+The *Exercise 2.29* proves that it is possible to create significantly hard exercises even without introducing the concept of mutation into the curriculum. 
+This problem bears the comment from the SICP authors ``This is not easy!". 
+Indeed the final solution contained more than eight hundred lines of code, involved designing a normalisation algorithm from scratch, and required twenty-five unit tests to ensure consistency.
+It is just a huge task.
 
-When a student goes on a vacation, the problem, presumably, still stays loaded in the student's brain. However, periodic "assaults" in the form of study sessions may be necessary to feed the background work with the new data.
+The *Exercise 4.5* is probably one of those exercises that would benefit most from a Teaching Assistant's help. 
+In fact, the exercise itself is not that hard. 
+The considerable workload comes from the fact that in order to test that the solution is correct, a fully working interpreter is required.
+Therefore, this exercise, in fact, includes reading the whole Chapter 4 and assembling the interpreter.
+Furthermore, the solution involves a lot of list manipulation, which is itself error-prone if using only the functions already provided by SICP.
 
-During vacation time, there should be a spike on the "days per problem" graph, but not the "sessions per problem graph". This can be seen on the first spike in the "days per problem" graph, which has its counterpart on the "sessions per problem" graph. The counterpart is much shorter.
+The *Exercise 4.77* required heavy modification of the codebase that had already been accumulated. It is likely to be the most architecture-intensive exercise of the book, apart from the one requiring a full rewrite of the backtracking engine of Prolog in a non-deterministic evaluator (*Exercise 4.78*). 
+The code is very hard to implement incrementally, and the system is hardly testable until the last bit is finished.
+Furthermore, it required the modification of the lowest-level data structures of the problem domain and modifying all the higher-level functions accordingly.
 
-** Minutes consumed per problem
+The *Exercise 4.79*, is, in fact, an open-ended problem. 
+The author considers it done, but the task is formulated so vaguely that it opens and almost infinite range of possible solutions. This problem can consume an arbitrary amount of time.
 
-#+ATTR_LATEX: :width 252pt :float nil
-#+caption: "Minutes spent per problem"
+The *Exercise 3.9* required implementing a library for drawing environment diagrams. 
+It may seem a trivial thing, as an environment diagram is an expected element of a decent debugger.
+However, the Scheme standard does not include many debugging capabilities.
+Debugging facilities differ among different Scheme implementation, but even those are usually not visual enough to generate the images required by the book.
+There exists an EnvDraw library (and its relatives), but the author failed to embed any of them into easily publishable scheme code.
+It turned out to be more straightforward to implement drawing diagrams as TikZ pictures in embedded \LaTeX-blocks.
+
+The time budget for the *Exercise 3.28* includes the assembly of the whole circuit simulation code into a working system. The time required actually to solve the problem was comparatively short.
+
+The same can be said about the *Exercise 2.46*, which required writing a bridge between a Scheme interpreter and a drawing system. The exercise itself is relatively easy.
+
+To sum up this section, the most laborious exercises in the book are the ones that require a student to:
+- implement language features that are ``assumed to be given";
+- assemble scattered code fragments into a working program;
+- solve problems that have little to no theoretical coverage in the book.
+
+In total the ten most challenging problems account for 280 hours of work which is more than a third of the full problem set workload.
+
+** Minutes spent per problem
+
+#+ATTR_LATEX: :width 245pt :float nil
+#+caption: Minutes spent per problem
 [[./experience-report-minutes-per-problem.png]]
 
 This graph is probably the most representative of the whole problem set.
 As expected, the last few problems turned out to be among the hardest.
 The second part of the course turned out to be more time-consuming than the first one.
 
+
+
+
+** Days spent per problem
+
+The figure depicts the number of days (Y-axis) a problem (enumerated by the X-axis coordinate) was loaded in the author's brain. 
+In simple words, it is the number of days that the state of "trying to solve a problem number X" spanned. 
+
+#+ATTR_LATEX: :width 245pt :float nil
+#+caption: Days spent per problem
+[[file:experience-report-days.png]]
+
+This statistic is less justified than the ``high concentration" time presented on the figure in the next section. However, it may nevertheless be useful for encouraging students who get demotivated when spending a long ``high concentration" session on a problem with no apparent success. Naturally, most problems are solvable within one session, so for most problems, this metric is one.
+
+The second spike in the distribution can be attributed to the general tiredness of solving such as huge problem set and a need for a break. 
+The correspondent spike on the graph of the study sessions is less prominent.
+
+** Study sessions per problem
+
+A ``session" may be called a period of high concentration when the student is actively trying to solve a problem and get the code (or the essay text) written. This graph presents the number of sessions (Y-axis) spend on a problem (enumerated by the X-axis), regardless of the session length.
+
+When a student goes on a vacation, the problem, presumably, still stays loaded in the student's brain. However, periodic ``assaults" in the form of study sessions may be necessary to feed the background work with the new data.
+
+During vacation time, there should be a spike on the ``days per problem" graph, but not the ``sessions per problem graph". This can be seen on the first spike in the ``days per problem" graph, which has its counterpart on the ``sessions per problem" graph. The counterpart is much shorter.
+
+
+#+ATTR_LATEX: :width 245pt :float nil
+#+caption: Study sessions per problem
+[[file:experience-report-study-sessions.png]]
+
+
+
 ** Hardness histogram (linear)
 
-#+ATTR_LATEX: :width 252pt :float nil
-#+caption: "Hardness distribution (linear)"
+The linearly-scaled hardness histogram depicts how many problems (Y-axis) require up to ``bin size" of hours to get solved.
+Naturally, most of the exercises are solvable within one to three hours. 
+
+#+ATTR_LATEX: :width 245pt :float nil
+#+caption: Hardness distribution (linear)
 [[file:experience-report-hardness-histogram-linear.png]]
 
-The linearly-scaled hardness histogram depicts how many problems (Y-axis) require up to "bin size" of hours to get solved.
-Naturally, most of the exercises are solvable within one to three hours. 
 
 ** Hardness histogram (logarithmic)
 
-#+ATTR_LATEX: :width 252pt :float nil
-#+caption: "Hardness distribution (logarithmic)"
-[[file:experience-report-hardness-histogram-logarithmic.png]]
-
-The logarithmically-scaled hardness histogram depicts how many problems (Y-axis) require up to "two to the power of X" of hours to get solved.
+The logarithmic-scaled hardness histogram depicts how many problems (Y-axis) require up to ``two to the power of X" of hours to get solved.
 It is very interesting to observe that the histogram shape resembles a uni-modal distribution.
 It is hard to think of a theoretical foundation on which to base assumptions for the distribution law.
 Prior research, however, may imply that the distribution is log-normal. 
-(See [[bib:crow2018lognormal]]) This observation lets the author wonder whether 
+(See [[bib:crow2018lognormal]])
+
+#+ATTR_LATEX: :width 245pt :float nil
+#+caption: Hardness distribution (logarithmic)
+[[file:experience-report-hardness-histogram-logarithmic.png]]
+
 
 
 * Conclusion and Further Work
@@ -749,14 +842,14 @@ As has been mentioned in the section [[*Out of order problems and other statisti
 In simple words, this is a very long time.
 If a standard working day is assumed to have a length of 8 hours, the complete solution would require 91 day or 14 weeks, or 3.5 months.
 
-In the "Preface to the Second Edition", the authors claim that a redacted version of the course can be covered in one semester.
+In the ``Preface to the Second Edition", the authors claim that a redacted version of the course can be covered in one semester.
 This statement is in agreement with the numbers presented in this report.
 Nevertheless, as the teachers would probably not want to assign every problem in the book to the student, they would need to make a selection based on both the coverage of the course topics and the time consumption. The author hopes that this report can provide an insight into the hardness aspect. 
 
-On the other hand, the author would instead recommend opting into a two-semester course. If the three hardest problems (the low-language ones and the Prolog interpreter) are left over, the course can be fit into two 300-hour modules. Three hundred hours per semester-long course matches the author's experience of studying Partial Differential Equations at the Moscow Institute of Physics and Technology.
+On the other hand, the author would instead recommend opting into a two-semester course. If several hardest problems (i.e. problems discussed in the section [[*Ten hardest problems by raw time][Ten hardest problems by raw time]]) are left out, the course can be fit into two 300-hour modules. Three hundred hours per a semester-long course match the author's experience of studying Partial Differential Equations at the Moscow Institute of Physics and Technology.
 
 Another important consideration is the amount of time required to verify the solution and to write feedback to be given back to the student.
-It is reasonable to assume that marking the solutions and writing feedback would require the same order of magnitude time since every problem solution would have to be visited by the marker. For simplicity, the author assumes that writing feedback would require 72 hours per student.
+It is reasonable to assume that marking the solutions and writing feedback would require the same time (by the order of magnitude) as the time needed to solve the problem set,  since every problem solution would have to be visited by a marker at least once. For simplicity, the author assumes that writing feedback would require 72 hours per student.
 
 This number shall be multiplied by an expected number of students per group, which may vary from an institution to an institution, but can be lower-bounded by 5.
 Therefore the rough estimate would be \(c \cdot 72 \cdot 5 \approx 360\) hours, or 45 full working days (2 months).
@@ -766,7 +859,7 @@ One of the applications of the report may be serving as supporting evidence for 
 
 ** Further work
 
-The field of hardness assessment of the university courses is vast and open.
+The field of hardness assessment of university courses is vast and open.
 As far as the author of this report knows, this is the first exhaustive hardness assessment of a university course.
 (This is not to say that SICP has not been successfully solved in full before.
 Various solutions can be found on many famous Software Forges.)
@@ -778,11 +871,11 @@ On the other hand, this report is just a single point estimate, and therefore ex
 
 The provision of the solution protocol, the software setup and the time-tracking procedure, is deemed by the author to be a valuable contribution.
 
-Professors teaching such a course are encouraged to show this report to their students and suggesting to execute the problem set required along the lines of the protocol.
+Professors teaching such a course are encouraged to show this report to their students and to suggest to execute the problem set required along the lines of the protocol given in it.
 
 Another research direction could possibly be towards the search of the optimal curriculum design beyond the areas covered by SICP. 
 It should not be unexpected if the students decide not to advance further in the course as long as their personal hardness assessment exceeds a certain unknown threshold.
-In other words, the author suspects that at some point, the students may feel the emotion expressed as "I have been solving this for too long, and see little progress; I should stop.". 
+In other words, the author suspects that at some point, the students may feel the emotion expressed as ``I have been solving this for too long, and see little progress; I should stop.". 
 It would be interesting to measure such a threshold and to suggest curriculum design strategies that aim to minimise course drop-out.
 Potentially such strategies may include course breakdown into smaller modules, increasing the penalties associated with dropping out or providing an external willpower source to the students.
 
@@ -804,7 +897,7 @@ Admittedly, out of almost four hundred exercises, the author cannot find a singl
 Every exercise teaches some valuable concept and nudges the student into thinking deeper. 
 
 The course could have been improved in the area of garbage collection and other memory management topics.
-Indeed, the main ~cons~-memory garbage collector is explained with the level of detail sufficient to implement it, but several other parts of the interpreter memory are left without explanation. Very little is said about efficiently storing numbers, strings and other objects.
+Indeed, the main ~cons~-memory garbage collector is explained with the level of detail sufficient to implement it, but several other parts of the interpreter memory model are left without explanation. Very little is said about efficiently storing numbers, strings and other objects.
 
 There is not very much information on a rational process of software development.
 Indeed, this is not a fundamental knowledge, but it would be helpful to undergraduates.
@@ -822,7 +915,7 @@ If the author may, by virtue of personally experiencing this transformative expe
 
  - Deliberately teach students to use TeX, and especially well technically harnessed TeX. This is often considered to be a meta-cognitive exercise to be solved by the students, but the author's personal experience is not reassuring in this aspect. Very few students, and even professionals, end up using TeX efficiently. It took more than *50* hours just to refresh the skill of using \TeX that the author had already learnt before in order to write a thesis.
  - Deliberately teach students to touch-type. This may not be necessary in the regions where tough-typing is included in the standard high school curriculum but is still a major problem in most parts of the world.
- - Deliberately teach students to read software manuals. Indeed, much of the modern software has manuals built-in piece-wise right into the software itself. Often reading the whole manual is not required to perform the task. However, doing the reading at least once (reading ~some~ manual from the first page to the last), is a very enlightening experience, and additionally useful in teaching how to assess the time needed to grasp the skill of using ~a~ piece of software.
+ - Deliberately teach students to read software manuals. Indeed, much of the modern software has manuals built-in piece-wise right into the software itself. Often reading the whole manual is not required to perform the task. However, doing the reading at least once (reading ~some~ manual from the first page to the last), is a very enlightening experience, and additionally useful in teaching how to assess the time needed to grasp the skill of using ~a~ piece of software. Additionally, this experience may help the students to better write manuals for their own software.
  - Teach students to use a timer when doing homework, even if it is not an org-mode timer. A realistic assessment of how much effort things actually take is a paradigm-shifting experience.
 - When writing a book on any subject, start from designing exercises, and afterwards write the text that helps to develop the skills required to solve those. Reading SICP without doing the exercises proved to be almost useless for this project, which was done two years after the first read.
 
@@ -830,7 +923,7 @@ If the author may, by virtue of personally experiencing this transformative expe
 
 This section attempts to provide a complete list of materials used in the process of the problem set solution. It is not to be confused with the list of materials used in the preparation of this Experience Report.
 
-*** Books
+** Books
 
 - Structure and Interpretation of Computer Programs 2nd Ed. ([[bib:Abelson1996]])
 - Structure and Interpretation of Computer Programs 1st Ed. ([[bib:DBLP:books/mit/AbelsonS85]])
@@ -847,7 +940,7 @@ This section attempts to provide a complete list of materials used in the proces
 - Debugging With GDB ([[bib:debugging_with_gdb]])
 - Implementations of Prolog ([[bib:DBLP:books/eh/campbell84/C1984]])
 
-*** Software
+** Software
 - GNU Emacs ([[bib:software_gnu_emacs]])
 - org-mode for Emacs ([[bib:software_org_mode]])
 - chibi-scheme ([[bib:software_chibi_scheme]])
@@ -864,7 +957,7 @@ This section attempts to provide a complete list of materials used in the proces
 \nocite{Schulte:Davison:Dye:Dominik:2011:JSSOBK:v46i03}
 #+end_export
 
-*** Papers
+** Papers
 
 - Revised Report on the Propagator Model ([[bib:radul_2011_propagator]])
 - On Implementing Prolog In Functional Programming ([[bib:DBLP:journals/ngc/Carlsson84]])
@@ -876,7 +969,7 @@ This section attempts to provide a complete list of materials used in the proces
 
 * Appendix: Analysed data on problem difficulty
 
-*** Analysed time consumption
+** Analysed time consumption
 
 #+PLOT: title:"Minutes spent problem" ind:1 deps:(5) Type:2d with:lines file:"./experience-report-minutes-per-problem.png" set:"xlabel 'Problem #'" set:"ylabel 'Minutes spent'"
 #+ATTR_LATEX: :center :environment supertabular :align l|p{4cm}|p{1cm}|p{0.9cm}|p{0.9cm}
@@ -1247,7 +1340,7 @@ This section attempts to provide a complete list of materials used in the proces
 | 363 | Exercise 4.79 prolog environments                            |      4.285 |              5 |           940 |
 #+TBLFM: $1=@#-1
 
-*** Time consumption histogram linear
+** Time consumption histogram linear
 
 #+PLOT: title:"Hardness histogram linear" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-linear.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [hours]'"
 | Bin Lower Bound (Minutes) | N. tasks |
@@ -1284,7 +1377,7 @@ This section attempts to provide a complete list of materials used in the proces
 |                  5151.125 |        1 |
 #+TBLFM: $1=(@#-2)*177.625
 
-*** Time consumption histogram logarithmic
+** Time consumption histogram logarithmic
 
 #+PLOT: title:"Hardness histogram logarithmic" deps:(2) Type:2d with:histograms file:"./experience-report-hardness-histogram-logarithmic.png" set:"ylabel 'Problems in a bin'" set:"xlabel 'Hardness [log(hours)]'"
 | Bin Lower Bound (Minutes) | N. tasks |
@@ -2377,7 +2470,7 @@ The code is directly executable in the org-mode version of the report.
 Interested readers reading the PDF version are advised to consult the 
 org-mode version.
 
-#+begin_src elisp :exports code :wrap example :results none
+#+begin_src elisp :exports code :wrap example :results output
   (require 'org-element)
   (cl-labels (
 
@@ -2834,6 +2927,79 @@ org-mode version.
  (princ (char-to-string ?\))))
  ))
 #+end_src
+
+#+RESULTS:
+#+begin_example
+("Amount of the out-of-order-problems: "("13"
+"Out-of-order problems :"
+(("Exercise 5.40 Compile-time environment" "[2020-03-08 Sun 15:02]" 351)
+ ("Exercise 5.17 Printing labels" "[2020-02-29 Sat 17:43]" 328)
+ ("Figure 5.1 Data paths for a Register Machine" "[2020-02-23 Sun 13:18]" 310)
+ ("Exercise 4.79 Prolog environments" "[2020-05-10 Sun 17:59]" 309)
+ ("Exercise 4.71 Louis' simple queries" "[2020-02-21 Fri 20:56]" 301)
+ ("Exercise 4.69 Great grandchildren" "[2020-02-21 Fri 17:43]" 299)
+ ("Exercise 4.49 Alyssa's generator" "[2020-02-18 Tue 21:51]" 278)
+ ("Exercise 3.69 ~triples~" "[2020-02-17 Mon 20:10]" 214)
+ ("Exercise 2.61 Sets as ordered lists" "[2019-09-26 Thu 21:44]" 109)
+ ("Exercise 2.45 ~split~" "[2019-09-24 Tue 01:37]" 93)
+ ("Exercise 1.9 Iterative or recursive?" "[2019-08-29 Thu 15:14]" 10)
+ ("Exercise 1.3 Sum of squares" "[2020-02-28 Fri 12:01]" 4)
+ ("Figure 1.1 Tree with the values of subcombinations" "[2019-08-20 Tue 14:35]" 1))
+
+"Task summary (completion time):"
+(| Exercise | Days | Sessions | Minutes |
+|- + - + - + - |
+|Exercise 1.1 Interpreter result|1.211|  2|459.000|
+|Exercise 1.2 Prefix form|0.001|  1|2.000|
+|Figure 1.1 Tree with the values of subcombinations|0.007|  1|10.000|)
+
+"Task summary (original-index):"
+(| Exercise | Days | Sessions | Minutes |
+|- + - + - + - |
+|Figure 1.1 Tree with the values of subcombinations|0.007|  1|10.000|
+|Exercise 1.1 Interpreter result|1.211|  2|459.000|
+|Exercise 1.2 Prefix form|0.001|  1|2.000|)
+
+"Hardest 10 problems (raw):"
+(| Exercise | Days | Sessions | Minutes |
+|- + - + - + - |
+|Exercise 2.46 ~make-vect~|2.578|  5|535.000|
+|Exercise 4.78 Non-deterministic queries|0.867|  6|602.000|
+|Exercise 3.28 Primitive or-gate|1.316|  2|783.000|
+|Exercise 4.79 Prolog environments|4.285|  5|940.000|
+|Exercise 3.9 Environment structures|21.030| 10|1100.000|
+|Exercise 4.77 Lazy queries|4.129|  9|1214.000|
+|Exercise 4.5 ~cond~ with arrow|12.765|  7|1252.000|
+|Exercise 5.52 Making a compiler for scheme|22.975| 13|2359.000|
+|Exercise 2.92 Add, mul for different variables|4.556| 11|2404.000|
+|Exercise 5.51 EC-evaluator in low-level language|28.962| 33|5684.000|)
+
+"Hardest 10 problems (sessions):"
+(| Exercise | Days | Sessions | Minutes |
+|- + - + - + - |
+|Exercise 4.79 Prolog environments|4.285|  5|940.000|
+|Exercise 2.85 Dropping a type|3.089|  5|507.000|
+|Exercise 2.46 ~make-vect~|2.578|  5|535.000|
+|Exercise 4.78 Non-deterministic queries|0.867|  6|602.000|
+|Exercise 4.5 ~cond~ with arrow|12.765|  7|1252.000|
+|Exercise 4.77 Lazy queries|4.129|  9|1214.000|
+|Exercise 3.9 Environment structures|21.030| 10|1100.000|
+|Exercise 2.92 Add, mul for different variables|4.556| 11|2404.000|
+|Exercise 5.52 Making a compiler for scheme|22.975| 13|2359.000|
+|Exercise 5.51 EC-evaluator in low-level language|28.962| 33|5684.000|)
+
+"Logarithmic histogram:"
+[2 6 15 41 55 67 85 52 29 5 3 2 1]
+
+"Linear histogram:"
+[301 38 14 2 1 1 2 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+
+"Median hardness:"
+("Exercise 2.8 ~sub-interval~" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 55)
+"Median n-sessions:"
+("Exercise 1.41 Double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 42)
+)
+#+end_example
 
 
 

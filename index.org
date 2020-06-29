@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-06-29 12:03:02 lockywolf>
+# Time-stamp: <2020-06-29 14:34:14 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 # Author    : lockywolf gmail.com
 
@@ -15531,7 +15531,7 @@ to stop using rational numbers entirely and remove them from the numeric
 tower. In principle, rationals can be added as a super-type of polynomials,
 but so far this has not been requested.
 
-Note that the normalization algorithm developed in the Exercise 2.92 is still
+Note that the normalization algorithm developed in the Exercise p2.92 is still
 hooked into the system, even though it would only be used for the case when
 the "inner" and "outer" polynomials are of the same variable.
 
