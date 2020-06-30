@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-06-30 20:17:53 lockywolf>
+# Time-stamp: <2020-06-30 21:39:58 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -114,7 +114,7 @@
 
 #+begin_abstract
 This report is written as a post-mortem of a project that has,
-perhaps been the most extensive personal project of the author: creating a complete and wholesome solution to one of the most famous programming problem sets in the modern computer science curricula Structure and ``Interpretation of Computer Programs" by Abelson, Sussman and Sussman ([[bib:Abelson1996]]).
+perhaps been the most extensive personal project of the author: creating a complete and wholesome solution to one of the most famous programming problem sets in the modern computer science curricula ``Structure and Interpretation of Computer Programs" by Abelson, Sussman and Sussman.
 
 It measures exactly:
 - How much effort SICP requires (739 hours 19 minutes, eight months, 292 sessions).
@@ -131,13 +131,13 @@ The solution is published online (the source code and pdf file):
 - [[http://gitlab.com/Lockywolf/chibi-sicp]] ([[bib:chibi-sicp]])
 
 It can be applied immediately as:
-- A single-point estimate of the problem set difficulty.
+- A single-point estimate of the SICP problem set difficulty.
 - A class handout aimed at increasing students' motivation for study.
 - A data source for a study of learning patterns among adult professionals aiming at continuing education.
 - An ``almost ready" protocol for a convenient problem set solution procedure, which produces artefacts that can be later used as a student portfolio. 
 - An ``almost ready", and ``almost convenient" protocol for measuring time consumption of almost any problem set expressable in a digital form.
 
-Additionally, time tracking data analysis be reproduced
+Additionally, time tracking data analysis can be reproduced
 interactively in the org-mode version of this report.
 (See: [[*Appendix: Emacs Lisp code for data analysis][Appendix: Emacs Lisp code for data analysis]])
 
@@ -145,7 +145,8 @@ interactively in the org-mode version of this report.
 
 
 \maketitle
-
+\raggedbottom
+\pagebreak
 
 * Introduction
 
@@ -244,7 +245,7 @@ This was done in order to ``be able to reproduce the material contained in the b
 
 *** A faithful imitation of the university experience
 
-One common objection to the undertaken endeavour may be the following. In most universities (if not all), it is not necessary to solve all exercises in order to complete a course. This is often true, and especially true for mathematics-related courses (where problem books usually contain several times more exercises than reasonably cover the course content). The author, however, considers SICP exercises not to be an example of such a problem set. The exercises cover the course material with minimal overlap, and the author even had to add several himself.
+One common objection to the undertaken endeavour may be the following. In most universities (if not all), it is not necessary to solve all exercises in order to complete a course. This is often true, and especially true for mathematics-related courses (where problem books usually contain several times more exercises than reasonably cover the course content). The author, however, considers SICP exercises not to be an example of such a problem set. The exercises cover the course material with minimal overlap, and the author even considered adding several himself.
 
 Another objection would be that a self-study experience cannot faithfully imitate a university experience at all because a university course contains tutorials and demonstrations as crucial points. Problem-solving methods are ``cooked" by teaching assistants and delivered to the students in a personalised manner on those tutorials. 
 
@@ -255,6 +256,9 @@ Furthermore, many students choose not to attend classes at all either because of
 Moreover, prior research suggests that the pedagogical effect of class attendance on the top quartile (by grade) of the students is low. ([[bib:St_Clair_1999_a_case_agains_compulsory_class_attendance_policies_in_higher_education]] and [[bib:Kooker:1975:Changes_in_grade_distributions_associated_with_changes_in_class_attendance_policies]])
 
 For those student groups that benefit most from tutorials, this report (if given as a recommended reading on the first class) may serve as additional evidence in favour of attendance.
+
+Additionally, nothing seems to preclude recording videos of tutorials and providing them as a supplementary material at the subsequent deliveries of the course.
+The lack of interactivity may be compensated by a large amount of the material accumulated through many years and a well-functioning query system. 
 
 *** Meta-cognitive exercises
 
@@ -292,10 +296,10 @@ From the author's *personal experience*:
 
 - The [[irc:irc.freenode.org/#scheme][#scheme Freenode channel]] was used as a place to ask questions in real-time. #emacs was also useful.
 - http://StackOverflow.com was used to ask asynchronous questions.
-- The scheme community wiki http://community.schemewiki.org was used as reference material.
-- The author emailed some prominent members of the scheme community with unsolicited questions.
-- The author was reporting errors in the documents generated by the scheme community process.
-- The author was asking for help on the Chibi-scheme mailing list.
+- The Scheme Community Wiki http://community.schemewiki.org was used as reference material.
+- The author emailed some prominent members of the Scheme community with unsolicited questions.
+- The author was reporting errors in the documents generated by the Scheme community process.
+- The author was asking for help on the Chibi-Scheme mailing list.
 - There was also some help from the Open Data Science Slack chat.
 - There was also some help from the Closed-Circles data science community.
 - There was also some help from the rulinux@confe\hyph{}rence.jabber.ru community.
@@ -335,11 +339,11 @@ Therefore, those were chosen to be representative of the kinds of figures _not_ 
 The list of re-drawn figures:
 - 1.1 Tree representation, showing the value of each sub-combination.
 - 1.2 Procedural decomposition of the sqrt program.
-- 1.3 A linear recursive process for computing.
+- 1.3 A linear recursive process.
 - 2.2 Box-and-pointer representation of ~(cons 1 2)~.
 - 2.8 A solution to the eight-queens puzzle.
 - 3.32 The integral procedure viewed as a signal-processing system.
-- 3.36 A series RLC circuit.
+- 3.36 An RLC circuit.
 - 5.1 Data paths for a Register Machine.
 - 5.2 Controller for a GCD Machine.
 
@@ -349,11 +353,11 @@ The list of re-drawn figures:
 
 When starting the project, the author already possessed a PhD in Informatics, although not an engineering one.
 This gave an advantage over a first-year undergraduate student.
-However, to a large extent, the author still resembled a newbie, as he never before used a proudly functional programming language, and had never used any programmer's editor other than Notepad++. Another noticeable difference was the skill of typing fast without looking at a keyboard (so-called touch-typing). This skill is already taught at some U.S. high schools but is still not considered mandatory all over the world.  
+However, to a large extent, the author still resembled a newbie, as he never before used a proudly functional programming language, and had never used any programmer's editor other than Notepad++. Another noticeable difference was the skill of typing fast without looking at a keyboard (so-called touch-typing). This skill is already taught at some U.S.A. high schools but is still not considered mandatory all over the world.  
 
 *NOTE:* All of this report is _heavily_ dependent on the fact that the author learned how to ``touch type", and can do it relatively fast. Without the skill of fast touch-typing, almost all of the measurements are meaningless, and the choice of tools may seem counter-intuitive or even arbitrary. 
 
-The goal I had was slightly schizophrenic, in the sense that the intention was to model (reenact) an ``idealised" student, that is the one that does not exist, in the sense that the author decided to:
+The goal the author had was slightly schizophrenic, in the sense that the intention was to model (reenact) an ``idealised" student, that is the one that does not exist, in the sense that the author decided to:
 
 - Perform all exercises honestly, no matter how hard they be or how much time they take.
 - Solve all exercises without cheating. Although that did not restrict consulting other people's solution when this did not involve direct copying.
@@ -370,7 +374,8 @@ The actual writing of the substantive part of the code only comes third.
 It is known that SICP had been intended as a deliberately created introductory course. The author assumed that a large part of the syllabus would be dedicated to solving the two most common difficulties described above.
 This turned out to not be the case.
 Rather than solving them, SICP just goes around, enforcing a very rigid standard on the input data instead.
-This allowed for formatting the ready-to-submit coursework solution as a single file with prose, code blocks, input blocks, and figures interleaved. (A so-called ``notebook" format.) 
+
+While not originally designed for such a treatment, this approach greatly simplified formatting the ready-to-submit coursework solution as a single file with prose, code blocks, input blocks, and figures interleaved. (A so-called ``notebook" format.) 
 
 The ``slightly schizophrenic" characteristic comes from the need to find a balance between the two ``more realistic" mental models of student behaviour. One would be representing a ``lazy" student, who would be only willing to work enough to get a passing score. This model would be responsible for saving time and choosing the tools that would possess the least possible incompatibility with the assessment mechanism. The other would be the model of an ``eager" student, who would be willing to study the material as deep as possible, possibly never finishing the course, and would be responsible for the quality of learning and for choosing the best tools available.
 
@@ -383,7 +388,7 @@ The final choice of tools turned out to be the following:
 
 #+latex: \bigskip
 
-- chibi-scheme :: as the scheme implementation
+- Chibi-Scheme :: as the scheme implementation
   - srfi-159 :: as a petty-printing tool
   - srfi-27 :: as a random bits library
   - srfi-18 :: as a threading library
@@ -410,10 +415,10 @@ The final choice of tools turned out to be the following:
 #+end_export
 
 
-*chibi-scheme* is virtually the only scheme system cla\hyph{}iming to support the last scheme standard, r7rs-large (Red Edition), so there was no other choice.
-This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought, responsible for creating various partly-compliant scheme systems.
+*Chibi-Scheme* was virtually the only scheme system claiming to fully support the latest Scheme standard, r7rs-large (Red Edition), so there was no other choice.
+This is especially true when imagining a student unwilling to go deeper into the particular curiosities of various schools of thought, responsible for creating various partly-compliant Scheme systems.
 Several libraries (three of which standardised, and three of which not) were required for the completeness of the solution.
-Effectively, it is not possible to solve all the exercises using _only_ the standardised part of the scheme language.
+Effectively, it is not possible to solve all the exercises using _only_ the standardised part of the Scheme language.
 Even Scheme combined with standardised extensions is not enough.
 However, only one non-standard library was strictly required: ~(chibi process)~, which served as a bridge between Scheme and the graphics toolkit. 
 
@@ -423,8 +428,8 @@ However, practice often demonstrates that students still too often graduate with
 Git was chosen because it is, arguably, the most widely used version control system.
 
 *ImageMagick* turned out to be the easiest way to draw images consisting of simple straight lines.
-There is still no standard way to connect scheme applications to applications written in other languages.
-Therefore, by the principle of minimal extension, ImageMagick was chosen, as it required ~just a single~ non-standard scheme procedure.
+There is still no standard way to connect Scheme applications to applications written in other languages.
+Therefore, by the principle of minimal extension, ImageMagick was chosen, as it required ~just a single~ non-standard Scheme procedure.
 Moreover, this procedure (a simple synchronous application call) is likely to be the most standard interoperability primitive invented.
 Almost all operating systems support applications executing other applications.
 
@@ -453,7 +458,7 @@ The reasons for choosing not a very popular language were the following:
 
 *GNU Unix Utilities* the author did not originally intend to use, but ~diff~ turned out to be extremely effective in illustrating the difference between generated code pieces in Chapter 5. Additionally, in some cases, they were used as a universal glue between different programs.
 
-*GNU Emacs*: is de-facto the most popular IDE among scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most ``hacker-like" editor.
+*GNU Emacs*: is de-facto the most popular IDE among Scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most ``hacker-like" editor.
 It is, perhaps, the most controversial choice, as the most likely IDE to be used by freshmen university students, in general, would be Microsoft Visual Studio.
 Another popular option would be Dr.Racket, which packages a component dedicated to supporting solving SICP problems.
 However, Emacs turned out to be having the most superior support for a ``generic Lisp" development, even though its support for Scheme is not as good as may be desired.
@@ -545,7 +550,7 @@ It turned out to be possible to format all the input data as either ``example" o
 This introduces an operating system dependency. However, GNU Unix Utilities are widespread enough to consider this not a limitation.
 
 *Programming exercises with graphical output* turned out to be the trickiest part from the software suite perspective.
-Eventually,  a scheme-system (chibi) dependent wrapper around the ImageMagick graphics manipulation tool was written. 
+Eventually,  a Scheme-system (chibi) dependent wrapper around the ImageMagick graphics manipulation tool was written. 
 Org-mode has a special syntax for the inclusion of graphic files, so the exercise solutions were generating the image files and pasting the image inclusion code into the org buffer.
 
 *Standard drawing exercises* illustrate a problem that is extremely widespread, but seldom well understood, perhaps because people aiming to solve it usually do not come from the programming community.
@@ -672,7 +677,7 @@ The following figure presents some of the aggregated statistics on the solution 
 - *792* hours of the total workload.
 - *2.184* hours mean time spent on solving one problem.
 - *0.96* hours was required for the dataset median problem.
-- *94.73* hours for the hardest problem: writing a scheme interpreter in a low-level language.
+- *94.73* hours for the hardest problem: writing a Scheme interpreter in a low-level language.
 - *652* study sessions.
 - *1.79* study sessions per problem on average.
 - *>78000* lines long .org file (*>2.6* megabytes) (5300 pages in a PDF).
@@ -718,7 +723,7 @@ This means that those problems may have been the trickiest.
 | Exercise 3.9 Environment structures              |     21.030 |             10 |          1100 |
 | Exercise 4.77 Lazy queries                       |      4.129 |              9 |          1214 |
 | Exercise 4.5 ~cond~ with arrow                   |     12.765 |              7 |          1252 |
-| Exercise 5.52 Making a compiler for scheme       |     22.975 |             13 |          2359 |
+| Exercise 5.52 Making a compiler for Scheme       |     22.975 |             13 |          2359 |
 | Exercise 2.92 Add, mul for different variables   |      4.556 |             11 |          2404 |
 | Exercise 5.51 EC-evaluator in low-level language |     28.962 |             33 |          5684 |
 #+begin_export latex
@@ -727,7 +732,7 @@ This means that those problems may have been the trickiest.
 \end{figure}
 #+end_export
 
-It is hardly unexpected that writing a scheme interpreter in a low-level language (*Exercise 5.51*) turned out to be the most time-consuming problem of all the problem set.
+It is hardly unexpected that writing a Scheme interpreter in a low-level language (*Exercise 5.51*) turned out to be the most time-consuming problem of all the problem set.
 After all, it implied learning an entirely new language from scratch.
 In the author's case, the low-level language happened to be Fortran 2018.
 Learning Fortran up to the level required is a relatively straightforward, albeit a time-consuming task. 
@@ -756,7 +761,7 @@ The *Exercise 3.9* required implementing a library for drawing environment diagr
 It may seem a trivial thing, as an environment diagram is an expected element of a decent debugger.
 However, the Scheme standard does not include many debugging capabilities.
 Debugging facilities differ among different Scheme implementation, but even those are usually not visual enough to generate the images required by the book.
-There exists an EnvDraw library (and its relatives), but the author failed to embed any of them into easily publishable scheme code.
+There exists an EnvDraw library (and its relatives), but the author failed to embed any of them into easily publishable Scheme code.
 It turned out to be more straightforward to implement drawing diagrams as TikZ pictures in embedded \LaTeX-blocks.
 
 The time budget for the *Exercise 3.28* includes the assembly of the whole circuit simulation code into a working system. The time required actually to solve the problem was comparatively short.
@@ -949,7 +954,7 @@ This section attempts to provide a complete list of materials used in the proces
 ** Software
 - GNU Emacs. ([[bib:software_gnu_emacs]])
 - Org-mode for Emacs. ([[bib:software_org_mode]])
-- Chibi-scheme. ([[bib:software_chibi_scheme]])
+- Chibi-Scheme. ([[bib:software_chibi_scheme]])
 - MIT/GNU Scheme [For running schelog and for portability checks]. ([[bib:software_mit_scheme]])
 - Geiser. ([[bib:software_geiser]])
 - GNU Debugger (GDB). ([[bib:software_gnu_gdb]])
@@ -1105,7 +1110,7 @@ This section attempts to provide a complete list of materials used in the proces
 | 122 | Exercise 2.75 make-from-mag-ang message passing               |      0.019 |              1 |            28 |
 | 123 | Exercise 2.76 types or functions?                             |      0.003 |              1 |             5 |
 | 124 | Exercise 2.77 generic-algebra-magnitude                       |      0.772 |              3 |           190 |
-| 125 | Exercise 2.78 Ordinary numbers for scheme                     |      0.212 |              2 |            67 |
+| 125 | Exercise 2.78 Ordinary numbers for Scheme                     |      0.212 |              2 |            67 |
 | 126 | Exercise 2.79 generic-equality                                |      1.786 |              2 |            28 |
 | 127 | Exercise 2.80 Generic arithmetic zero?                        |      0.056 |              1 |            80 |
 | 128 | Exercise 2.81 coercion to-itself                              |      0.749 |              3 |           330 |
@@ -1250,7 +1255,7 @@ This section attempts to provide a complete list of materials used in the proces
 | 267 | Exercise 4.38 Logical puzzle - Not same floor                 |      0.027 |              1 |            39 |
 | 268 | Exercise 4.39 Order of restrictions                           |      0.003 |              1 |             5 |
 | 269 | Exercise 4.40 People to floor assignment                      |      0.019 |              1 |            28 |
-| 270 | Exercise 4.41 Ordinary scheme to solve the problem            |      0.072 |              1 |           103 |
+| 270 | Exercise 4.41 Ordinary Scheme to solve the problem            |      0.072 |              1 |           103 |
 | 271 | Exercise 4.42 The liars puzzle                                |      0.503 |              1 |            81 |
 | 272 | Exercise 4.43 Problematical Recreations                       |      0.052 |              1 |            75 |
 | 273 | Exercise 4.44 Nondeterministic eight queens                   |      0.074 |              1 |           106 |
@@ -1342,7 +1347,7 @@ This section attempts to provide a complete list of materials used in the proces
 | 359 | Exercise 5.50 Compiling the metacircular evaluator            |      0.007 |              1 |            10 |
 | 360 | Exercise 4.78 non-deterministic queries                       |      0.867 |              6 |           602 |
 | 361 | Exercise 5.51 Translating the EC-evaluator into a low-level   |     28.962 |             33 |          5684 |
-| 362 | Exercise 5.52 Making a compiler for scheme                    |     22.975 |             13 |          2359 |
+| 362 | Exercise 5.52 Making a compiler for Scheme                    |     22.975 |             13 |          2359 |
 | 363 | Exercise 4.79 prolog environments                             |      4.285 |              5 |           940 |
 #+TBLFM: $1=@#-1
 
@@ -1989,7 +1994,7 @@ Exercise 2.76 Types or functions?
 [2019-10-11 Fri 21:29]
 Exercise 2.77 Generic algebra magnitude
 [2019-10-12 Sat 16:01]
-Exercise 2.78 Ordinary numbers for scheme
+Exercise 2.78 Ordinary numbers for Scheme
 [2019-10-12 Sat 21:06]
 Exercise 2.79 Generic equality
 [2019-10-14 Mon 15:58]
@@ -2277,7 +2282,7 @@ Exercise 4.39 Order of restrictions
 [2020-02-17 Mon 22:01]
 Exercise 4.40 People to floor assignment
 [2020-02-17 Mon 22:29]
-Exercise 4.41 Ordinary scheme floor problem
+Exercise 4.41 Ordinary Scheme floor problem
 [2020-02-18 Tue 00:12]
 Exercise 4.42 The liars puzzle
 [2020-02-18 Tue 12:16]
@@ -2463,7 +2468,7 @@ Exercise 5.50 Compiling the metacircular evaluator
 [2020-03-14 Sat 15:52]
 Exercise 5.51 EC-evaluator in low-level language
 [2020-04-13 Mon 11:45]
-Exercise 5.52 Making a compiler for scheme
+Exercise 5.52 Making a compiler for Scheme
 [2020-05-06 Wed 11:09]
 #+end_src
 
@@ -2976,7 +2981,7 @@ org-mode version.
 |Exercise 3.9 Environment structures|21.030| 10|1100.000|
 |Exercise 4.77 Lazy queries|4.129|  9|1214.000|
 |Exercise 4.5 ~cond~ with arrow|12.765|  7|1252.000|
-|Exercise 5.52 Making a compiler for scheme|22.975| 13|2359.000|
+|Exercise 5.52 Making a compiler for Scheme|22.975| 13|2359.000|
 |Exercise 2.92 Add, mul for different variables|4.556| 11|2404.000|
 |Exercise 5.51 EC-evaluator in low-level language|28.962| 33|5684.000|)
 
@@ -2991,7 +2996,7 @@ org-mode version.
 |Exercise 4.77 Lazy queries|4.129|  9|1214.000|
 |Exercise 3.9 Environment structures|21.030| 10|1100.000|
 |Exercise 2.92 Add, mul for different variables|4.556| 11|2404.000|
-|Exercise 5.52 Making a compiler for scheme|22.975| 13|2359.000|
+|Exercise 5.52 Making a compiler for Scheme|22.975| 13|2359.000|
 |Exercise 5.51 EC-evaluator in low-level language|28.962| 33|5684.000|)
 
 "Logarithmic histogram:"
