@@ -1,7 +1,7 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-06-29 14:34:14 lockywolf>
+# Time-stamp: <2020-07-01 21:44:27 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
-# Author    : lockywolf gmail.com
+#+Author:  lockywolf gmail.com
 
 #+STARTUP: inlineimages
 #+STARTUP: latexpreview

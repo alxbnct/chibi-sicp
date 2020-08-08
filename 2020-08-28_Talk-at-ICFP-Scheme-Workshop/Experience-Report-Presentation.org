@@ -1,0 +1,113 @@
+# Time-stamp: <2020-08-08 19:08:45 lockywolf> -*- mode: org; -*-
+#+LATEX_CLASS: beamer
+#+LATEX_CLASS_OPTIONS: [presentation, CJK, compress]
+#+OPTIONS: H:2 toc:t num:f
+#+BEAMER_THEME: Singapore
+#+BEAMER_HEADER: \setbeamertemplate{navigation symbols}{}
+#+BEAMER_HEADER: \subject{\texttt{Time management in teaching programming}}
+
+#+DESCRIPTION: This presentation is written in org-mode for Emacs.
+#+DESCRIPTION: These slides are a substrate for a video presentation.
+#+KEYWORDS:    sicp, scheme, programming, literate programming, functional programming, emacs, tikz, tex, latex, icfp, report, lisp, org-mode, uml, plantuml
+#+STARTUP: beamer
+#+author: Vladimir Nikishkin \newline \texttt{<lockywolf gmail.com>}
+#+date: @@beamer:\texttt{<@@2020-08-28 Tue 21:09 GMT+8>@@beamer:}@@
+#+subtitle: The International Conference on Functional Programming co-located Scheme Workshop presentation on the technical report.
+#+title: Solving SICP: And Experience Report on Solving the World's Most Famous Programming Problem Set
+
+#+begin_export beamer
+\pgfdeclareimage[height=0.5cm]{my-banner}{2017-Avatar-Cross-Lockywolf-Plain.jpg}
+\logo{\pgfuseimage{my-banner}}
+\setbeamercolor{background canvas}{bg=}
+#+end_export
+
+* Introduction. Task and Tools.
+
+** What is SICP and why solve it?
+
+*** Picture                                                           :BMCOL:
+    :PROPERTIES:
+    :BEAMER_col: 0.45
+    :END:
+
+[[file:bookwheel.jpg]]
+
+*** Key                                                               :BMCOL:
+    :PROPERTIES:
+    :BEAMER_col: 0.45
+    :END:
+- Structure and Interpretation of Computer Programs.
+- By Harold Abelson, Gerald J. Sussman and Julie Sussman.
+- 883 pages.
+- 353 problems.
+- No official solution.
+- Difficulty unknown.
+- Still cannot be solved portably.
+
+** Who is this report for?
+
+- Teachers.
+- Teaching Assistants.
+- Self-learners.
+- Students.
+- Time-management enthusiasts.
+- Curriculum designers.
+
+** Who I am. (Bias adjustment.)
+
+- Professional MATLAB developer.
+- PhD in Computer Science Theory.
+- MSc in Machine Learning.
+- BSc in Mathematics and Physics.
+- Studied C, C++, Python.
+
+** What is perfect coursework solution artefact?
+
+- Plain text.
+- Version controlled.
+- Useful years later.
+- Useful on any machine.
+- Used as a portfolio.
+- Searchable.
+- Verifiable.
+
+** Which tools I used in the end.
+
+* The Execution Process.
+
+** Solving problems with babel.
+
+** Graphical example.
+
+** Compiling the report.
+
+** Measuring time.
+
+** Motivational tricks.
+
+* The Data and the Analysis.
+
+** Statistics from outside org.
+
+** Data analysis with Emacs Lisp.
+
+** Data demonstration.
+
+** Statistics graphs.
+
+* Results and Conclusion.
+
+** Hard problems to discuss.
+
+** By-products of the work.
+
+** Applications and Further Work.
+
+** Review.
+
+** Personal 1 minute.
+
+** TODO Credits.
+
+Contacts, gitlab, Patreon.
+
