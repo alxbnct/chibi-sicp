@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-08-10 00:47:37 lockywolf>
+# Time-stamp: <2020-08-11 00:05:36 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -991,7 +991,11 @@ This section attempts to provide a complete list of materials used in the proces
 For the code used to generate the tables in the following sections, see:  
 [[*Appendix: Emacs Lisp code for data analysis][Appendix: Emacs Lisp code for data analysis]].
 ** Analysed time consumption
-#+PLOT: title:"Minutes spent problem" ind:1 deps:(5) Type:2d with:lines file:"./experience-report-minutes-per-problem.png" set:"xlabel 'Problem #'" set:"ylabel 'Minutes spent'"
+
+
+# +PLOT: title:"Number of study sessions" ind:1 deps:(4) Type:2d with:lines file:"./experience-report-study-sessions.png" set:"xlabel 'Problem #'" set:"ylabel 'Sessions'"
+# +PLOT: title:"Days spent per problem" ind:1 deps:(3) Type:2d with:lines file:"./experience-report-days.png" set:"xlabel 'Problem #'" set:"ylabel 'Days'"
+#+PLOT: title:"Minutes spent per problem" ind:1 deps:(5) Type:2d with:lines file:"./experience-report-minutes-per-problem.png" set:"xlabel 'Problem #'" set:"ylabel 'Minutes'"
 #+ATTR_LATEX: :center :environment supertabular :align l|p{3.5cm}|p{1cm}|p{0.9cm}|p{0.9cm}
 |  No | Exercise Name                                                 | Days Spent | Spans Sessions | Minutes Spent |
 |-----+---------------------------------------------------------------+------------+----------------+---------------|

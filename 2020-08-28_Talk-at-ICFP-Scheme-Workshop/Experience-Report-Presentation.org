@@ -1,4 +1,4 @@
-# Time-stamp: <2020-08-10 13:37:21 lockywolf> -*- mode: org; -*-
+# Time-stamp: <2020-08-10 23:40:00 lockywolf> -*- mode: org; -*-
 #+LATEX_CLASS: beamer
 #+LATEX_CLASS_OPTIONS: [presentation, CJK, compress,aspectratio=169]
 #+OPTIONS: H:2 toc:t num:f
@@ -8,6 +8,7 @@
 #+BEAMER_HEADER: \pgfdeclareimage[height=0.5cm]{my-banner}{2017-Avatar-Cross-Lockywolf-Plain.jpg}
 #+BEAMER_HEADER: \logo{\pgfuseimage{my-banner}}
 #+beamer_header: \usepackage{pgfpages}
+#+beamer_header: \usepackage{supertabular}
 #+BEAMER_HEADER: \usefonttheme{structurebold}
 #+BEAMER_HEADER: \setbeameroption{show notes on second screen=bottom}
 #+DESCRIPTION: This presentation is written in org-mode for Emacs.
@@ -428,15 +429,140 @@ rnote over p2: acquired
 
 * The Data and the Analysis.
 
-** Statistics from org-timers.
+** Measured data examples.
 
+*** Session statistic                                               :B_block:
+   :PROPERTIES:
+   :BEAMER_env: block
+   :END:
 
+#+attr_latex: :basicstyle \tiny\ttfamily
+#+begin_src elisp
+  [2020-05-10 Sun 14:39]-[2020-05-10 Sun 18:00] => 3:21
+  [2020-05-09 Sat 19:13]-[2020-05-09 Sat 22:13] => 3:00
+  [2020-05-09 Sat 09:34]-[2020-05-09 Sat 14:34] => 5:00
+  ...
+#+end_src
+
+*** Problem statistic.                                              :B_block:
+   :PROPERTIES:
+   :BEAMER_env: block
+   :END:
+
+#+begin_src elisp
+Figure 1.1 Tree with the values of subcombinations
+[2019-08-20 Tue 14:35]
+Exercise 1.1 Interpreter result
+[2019-08-20 Tue 14:23]
+Exercise 1.2 Prefix form
+[2019-08-20 Tue 14:25]
+...
+#+end_src 
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+Problem statistic is indicative.
+I first solved the Exercises 1.1 and 1.2, and then turned to the Figure 1.1.
+But it is displayed earlier, because it is earlier in the book.
 
 ** Data analysis with Emacs Lisp.
 
-** Data demonstration.
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
 
-** Statistics graphs.
+**** Emacs Lisp for analysis                                        :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.45
+   :BEAMER_env: block
+   :END:
+
+#+attr_latex: :options basicstyle=\scriptsize\ttfamily,upquote=true,numbers=left,emph={cl-labels,seq-concatenate},emphstyle=\color{red},frame=leftline
+#+begin_src elisp :exports code
+(require 'org-element)
+(cl-labels (
+ ; lexical-defun
+(decorate-orgtable (tbl)
+  (seq-concatenate
+   'string
+   "("
+"| Exercise| Days| Sessions| Minutes|" 
+(char-to-string ?\n)
+"|- + - + - + - |"
+(format-orgtable tbl)
+")")
+)
+; lexical-defun
+(format-orgtable (list-of-lists) ...
+#+end_src
+
+**** Problem summaries                                              :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.5
+   :BEAMER_env: block
+   :END:
+#+beamer: \vspace{0.26cm}
+#+beamer: \scriptsize
+#+ATTR_LATEX: :center :environment supertabular :align |l|p{3.0cm}|p{0.6cm}|p{0.6cm}|p{0.6cm}|
+|----|--------------------------------------|------------|----------------|---------------|
+| No | Exercise Name                        | Days Spent | Spans Sessions | Minutes Spent |
+|----|--------------------------------------|------------|----------------|---------------|
+|  1 | Exercise 1.1 Interpreter result      |      1.211 |              2 |           459 |
+|  2 | Exercise 1.2 Prefix form             |      0.001 |              1 |             2 |
+|  3 | Figure 1.1 Tree representation       |      0.007 |              1 |            10 |
+|  4 | Exercise 1.4 Compound expressions    |      0.003 |              1 |             4 |
+|  5 | Exercise 1.5 Ben's test              |      0.008 |              1 |            11 |
+|  6 | Exercise 1.6 If is a special form    |      0.969 |              2 |           118 |
+|  7 | Exercise 1.7 Good enough?            |      0.949 |              3 |           436 |
+
+
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+- This is called ``Reproducible Research''.
+- seq-* functions help elisp be like scheme.
+- cl-labels are like lexical defuns.
+
+
+** Data demonstration.
+   :PROPERTIES:
+   :beamer_opt: shrink=20
+   :END:
+
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** col1                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.45
+   :END:
+
+[[file:experience-report-days.png]]
+
+[[file:experience-report-study-sessions.png]]
+
+**** col2                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.45
+   :END:
+
+[[file:experience-report-minutes-per-problem.png]]
+
+[[file:experience-report-hardness-histogram-logarithmic.png]]
+
+** Statistics.
 
 * Results and Conclusion.
 
