@@ -1,11 +1,15 @@
-# Time-stamp: <2020-08-08 19:08:45 lockywolf> -*- mode: org; -*-
+# Time-stamp: <2020-08-10 13:37:21 lockywolf> -*- mode: org; -*-
 #+LATEX_CLASS: beamer
-#+LATEX_CLASS_OPTIONS: [presentation, CJK, compress]
+#+LATEX_CLASS_OPTIONS: [presentation, CJK, compress,aspectratio=169]
 #+OPTIONS: H:2 toc:t num:f
 #+BEAMER_THEME: Singapore
 #+BEAMER_HEADER: \setbeamertemplate{navigation symbols}{}
 #+BEAMER_HEADER: \subject{\texttt{Time management in teaching programming}}
-
+#+BEAMER_HEADER: \pgfdeclareimage[height=0.5cm]{my-banner}{2017-Avatar-Cross-Lockywolf-Plain.jpg}
+#+BEAMER_HEADER: \logo{\pgfuseimage{my-banner}}
+#+beamer_header: \usepackage{pgfpages}
+#+BEAMER_HEADER: \usefonttheme{structurebold}
+#+BEAMER_HEADER: \setbeameroption{show notes on second screen=bottom}
 #+DESCRIPTION: This presentation is written in org-mode for Emacs.
 #+DESCRIPTION: These slides are a substrate for a video presentation.
 #+KEYWORDS:    sicp, scheme, programming, literate programming, functional programming, emacs, tikz, tex, latex, icfp, report, lisp, org-mode, uml, plantuml
@@ -16,18 +20,18 @@
 #+title: Solving SICP: And Experience Report on Solving the World's Most Famous Programming Problem Set
 
 #+begin_export beamer
-\pgfdeclareimage[height=0.5cm]{my-banner}{2017-Avatar-Cross-Lockywolf-Plain.jpg}
-\logo{\pgfuseimage{my-banner}}
-\setbeamercolor{background canvas}{bg=}
 #+end_export
 
 * Introduction. Task and Tools.
 
-** What is SICP and why solve it?
+** What is SICP and why solve it?                                  :B_column:
+   :PROPERTIES:
+   :BEAMER_env: column
+   :END:
 
 *** Picture                                                           :BMCOL:
     :PROPERTIES:
-    :BEAMER_col: 0.45
+    :BEAMER_col: 0.35
     :END:
 
 [[file:bookwheel.jpg]]
@@ -36,58 +40,397 @@
     :PROPERTIES:
     :BEAMER_col: 0.45
     :END:
-- Structure and Interpretation of Computer Programs.
-- By Harold Abelson, Gerald J. Sussman and Julie Sussman.
-- 883 pages.
-- 353 problems.
-- No official solution.
-- Difficulty unknown.
-- Still cannot be solved portably.
+- Structure and Interpretation of Computer Programs
+- By Harold Abelson, Gerald J. Sussman and Julie Sussman
+- 883 pages
+- 353 problems
+- No official solution
+- Difficulty unknown
+- Still cannot be run/solved portably
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+In this talk I want to speak about a very famous book by two very famous MIT professors.
+It is called ``Structure and Interpretation of Computer Programs''.
 
 ** Who is this report for?
 
-- Teachers.
-- Teaching Assistants.
-- Self-learners.
-- Students.
-- Time-management enthusiasts.
-- Curriculum designers.
+*** Providers                                                       :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :BEAMER_COL: 0.45
+    :END:
 
-** Who I am. (Bias adjustment.)
+- Teachers
+- Teaching Assistants
+- Curriculum designers
 
-- Professional MATLAB developer.
-- PhD in Computer Science Theory.
-- MSc in Machine Learning.
-- BSc in Mathematics and Physics.
-- Studied C, C++, Python.
+*** Listeners                                                       :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :BEAMER_COL: 0.45
+    :END:
+
+- Students
+- Time-management enthusiasts
+- Self-learners
 
 ** What is perfect coursework solution artefact?
 
-- Plain text.
-- Version controlled.
-- Useful years later.
-- Useful on any machine.
-- Used as a portfolio.
-- Searchable.
-- Verifiable.
+- Version controlled
+- Useful years later
+- Useful on any machine
+- Used as a portfolio
+- Searchable
+- Easily checked
 
-** Which tools I used in the end.
+** Which tools I ended up using.
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** An Ideal Student                                               :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.35
+   :BEAMER_env: block
+   :END:
+
+- Study everything, but nothing above the required curriculum.
+- Try to follow the ``Free Software Way''.
+- Try to use the tools available in 1996. (Within reason.)
+
+**** Software                                                       :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.45
+   :BEAMER_env: block
+   :END:
+
+ - Emacs
+ - org-mode (babel)
+ - Chibi-Scheme
+ - GNU Fortran
+ - TikZ
+ - PlantUML
+ - git
+
+
+
+** Who I was at the beginning.
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** CV                                                            :B_column:
+     :PROPERTIES:
+     :BEAMER_COL: 0.45
+     :END:
+ - Professional MATLAB developer
+ - PhD in Computer Science Theory
+ - MSc in Machine Learning
+ - BSc in Mathematics and Physics
+ - Studied ~C, C++, Python~
+
+**** Scheme                                                        :B_column:
+     :PROPERTIES:
+     :BEAMER_COL: 0.45
+     :END:
+ - No experience with Scheme
+ - No experience with UML
+ - Little experience with TikZ
+ - Some experience with \TeX
+ - Some experience with ~Emacs/org~
+
+
+
 
 * The Execution Process.
 
 ** Solving problems with babel.
 
-** Graphical example.
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
 
-** Compiling the report.
+**** Code                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.80
+   :END:
 
-** Measuring time.
+#+attr_latex: :environment semiverbatim
+#+begin_example
+ * SICP \alert{[385/404]}
+ ** Chapter 1: Building abstractions ... \alert{[57/61]}
+ *** \structure{DONE} Exercise 1.1 Interpreter result
+     CLOSED:{\color{green!50!black} [2019-08-20 Tue 14:23]} ...
+ *** \structure{DONE} Exercise 1.2 Prefix form
+     CLOSED:{\color{green!50!black} [2019-08-20 Tue 14:25]}
+  {\color{orange!50!black}#+begin_src scheme :exports both :results value}
+   (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5))))) 
+      (* 3 (- 6 2) (- 2 7)))
+  {\color{orange!50!black}#+end_src}
 
-** Motivational tricks.
+  {\color{orange!50!black}#+RESULTS:}
+  : -37/150
+#+end_example
+
+**** Minimap                                                        :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.20
+   :END:
+
+[[file:buffer_minimap_babel_slide.png]]
+
+** Graphical example with TikZ. (Figure 1.2)
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** Code                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.45
+   :BEAMER_env: block
+   :END:
+
+
+#+name: figure-1-2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1200
+#+header: :fit yes :headers '("\\usepackage{tikz}")
+#+header: :buffer on
+#+begin_src latex :results value graphics file :exports code :file pic-graphical-example-with-tikz.png
+\usetikzlibrary{trees}
+\begin{minipage}{6cm}
+\begin{tikzpicture}[color=black]
+\node {sqrt} % root
+  child { node {sqrt-iter}
+child[sibling distance=3cm] 
+{ node{ good-enough }
+child[sibling distance=1cm] 
+{ node { square } }
+child[sibling distance=1cm] 
+{ node { abs } } }
+child { node{ improve }
+child { node { average } } } };
+\end{tikzpicture}
+\end{minipage}
+#+end_src
+
+
+**** Result                                                         :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.45
+   :BEAMER_env: block
+   :END:
+
+
+#+name: figure-1-2
+#+header: :imagemagick yes :iminoptions -density 300 :imoutoptions -geometry 1200
+#+header: :fit yes :headers '("\\usepackage{tikz}")
+#+header: :buffer on
+#+begin_src latex :results value graphics file :exports results :file pic-graphical-example-with-tikz.png
+\usetikzlibrary{trees}
+\begin{minipage}{6cm}
+\begin{tikzpicture}[color=black]
+\node {sqrt} % root
+  child { node {sqrt-iter}
+                  child[sibling distance=3cm] { node{ good-enough }
+                          child[sibling distance=1cm] { node { \vphantom{b}square } }
+                          child[sibling distance=1cm] { node { abs\vphantom{q} } } }
+                  child { node{ improve }
+                          child { node { average\vphantom{b} } } } };
+\end{tikzpicture}
+\end{minipage}
+#+end_src
+
+** Graphical example with PlantUML. (Exercise 3.46)
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** Code                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.5
+   :BEAMER_env: column
+   :END:
+
+#+attr_beamer: :basicstyle \ttfamily\tiny
+#+begin_src plantuml :exports code :file exercise-3-46.png
+@startuml
+skinparam monochrome true
+control "  Process 1   " as p1
+entity "   Mutex   " as m
+control "  Process 2   "  as p2
+rnote over m: false
+p1 -> m: test-and-set!
+p2 -> m: test-and-set!
+rnote over m: set-car! cell true
+rnote over m: set-car! cell true
+rnote over m: true
+m -> p1: false
+m -> p2: false
+rnote over p1: acquired
+rnote over p2: acquired
+@enduml
+#+end_src
+
+
+**** Result                                                         :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.3
+   :BEAMER_env: column
+   :END:
+
+#+begin_src plantuml :exports results :file exercise-3-46.png
+@startuml
+skinparam monochrome true
+control "  Process 1   " as p1
+
+entity "   Mutex   " as m
+control "  Process 2   "  as p2
+rnote over m: false
+p1 -> m: test-and-set!
+p2 -> m: test-and-set!
+rnote over m: set-car! cell true
+rnote over m: set-car! cell true
+rnote over m: true
+m -> p1: false
+m -> p2: false
+rnote over p1: acquired
+rnote over p2: acquired
+
+@enduml
+#+end_src
+
+#+RESULTS:
+[[file:exercise-3-46.png]]
+
+
+** How to measure progress and motivate yourself.                 :B_columns:
+
+*** col
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** Measures                                                 :B_block:BMCOL:
+     :PROPERTIES:
+     :BEAMER_col: 0.45
+     :BEAMER_env: block
+     :END:
+
+ - Make a tree-like TODO-list
+ - Count study sessions
+ - Measure problem difficulty
+ - Measure problem spanning days
+ - Is there a way to measure creativeness?
+
+#+begin_src plantuml :export results :file measures-breakdown.png
+ @startwbs
+ skinparam monochrome true
+ * SICP [363/363]
+ ** Chapter 1 [47/47]
+ *** Section 1 ...
+ ** Chapter 2 [98/98]
+ *** DONE Problem 2.2 
+ @endwbs
+#+end_src
+#+ATTR_LATEX: :height 2.5cm
+#+RESULTS:
+[[file:measures-breakdown.png]]
+
+**** Motivation                                               :B_block:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: block
+     :BEAMER_col: 0.45
+     :END:
+
+ - Leave problems undone between sessions
+ - Read problems in advance
+ - Fight distractions (I failed)
+ - Work chunking (pomodoro) did not work for me
+
+#+beamer: \vspace{0.1cm}
+
+#+attr_latex: :height 2.3cm
+[[file:timer_stopwatch_flat-2442462_1280.png]]
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+- In high school we cross out the tasks as they appear in a problem set.
+- We feel better as things progress.
+- Measuring problem difficulty requires sequentiality.
+- Org can be compiled into a wbs-chart (not implemented)
+
+- Noise can be fought with headphones.
+- Pomodoro did not work because I could not fit problems in chunks reasonably.
+
+** Looking for help.
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+**** Sources                                                        :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.5
+   :BEAMER_env: block
+   :END:
+
+- Timely help is vital
+- Many experts still use IRC
+- Don't neglect everything else
+- Ignore rudeness
+- Modern messengers make it hard to mine memories
+- Videos work better at the very end of the course
+
+**** Measures                                                       :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.5
+   :BEAMER_env: block
+   :END:
+
+- 28 Chibi-Scheme emails
+- 16 Emacs and Fortran emails
+- 20 org emails
+- 3 emails to experts
+- 16 documentation emails (+ dead link reports)
+- 2394 ~#scheme~ IRC chat messages
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+- I didn't manage to collect and reprocess memory from modern messengers.
+- The videos are like "ahh, that's what they actually meant by what they said."
 
 * The Data and the Analysis.
 
-** Statistics from outside org.
+** Statistics from org-timers.
+
+
 
 ** Data analysis with Emacs Lisp.
 

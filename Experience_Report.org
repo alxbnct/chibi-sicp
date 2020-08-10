@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-07-23 08:51:34 lockywolf>
+# Time-stamp: <2020-08-10 00:47:37 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -389,7 +389,7 @@ The idea of two different types of motivation is to some extent similar to the "
 
 Let us try to imagine being an ``ideal student", a mixture of the two models described above, and make the decisions as if the imaginary student would be doing them.
 Informally this can be summarised as ``I will learn every tool that is required to get the job done to the extent needed to get the job done, but not the slightest bit more".
-(There exist far more sophisticated models of student behaviour, most of them mathematical, see e.g. [[bib:hlosta:2018:modelling_student_online_behaviour_in_a_virtual_learning_environment]],however, a simple mental model was deemed sufficient in this particular case.)
+(There exist far more sophisticated models of student behaviour, most of them mathematical, see e.g. [[bib:hlosta:2018:modelling_student_online_behaviour_in_a_virtual_learning_environment]], however, a simple mental model was deemed sufficient in this particular case.)
 
 *** The tools
 
@@ -503,7 +503,7 @@ Things get worse when the teacher has not just to examine the student's work, bu
 Org-mode can be exported into a format convenient for later revisits.
 Another reason to carefully consider the solution format is the students' future employability.
 This problem is not unfamiliar to the Arts majors, who have been collecting and arranging ``portfolios" of their work for a long time.
-However, STEM students generally do not understanding the importance of a portfolio.
+However, STEM students generally do not understand the importance of a portfolio.
 A prominent discussion topic in job interviews is, ``What have you already done?".
 Having a portfolio, in a form easily presentable during an interview, may be immensely helpful to the interviewee.
 

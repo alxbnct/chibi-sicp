@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-07-01 21:44:27 lockywolf>
+# Time-stamp: <2020-08-10 00:14:07 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 #+Author:  lockywolf gmail.com
 
@@ -5060,7 +5060,7 @@ turned out to be less fit for this problem.
 
 #+begin_src plantuml :exports both :file figure-2-2.png
 @startdot
-  digraph sicp2_2 {
+digraph sicp2_2 {
     node [shape=none];
     source [label=""];
 
@@ -5084,7 +5084,7 @@ turned out to be less fit for this problem.
 @enddot
 #+end_src
 
-#+RESULTS:
+#+RESULTS[af93a2badd6d6ea4179dd3b5132ed8ce84f69df1]:
 [[file:figure-2-2.png]]
 
 
