@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-08-10 00:14:07 lockywolf>
+# Time-stamp: <2020-11-03 16:14:04 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 #+Author:  lockywolf gmail.com
 
@@ -98,7 +98,7 @@ Nonstandard functions used in SICP:
 - (parallel-execute) :: implementable with (srfi 18)
 - (test-and-set!) :: implementable with (srfi 18)
 - (cons-stream) :: implementable using (syntax-rules) from r7rs
--  :: 
+-  
 
 
 #+begin_src shell :results output

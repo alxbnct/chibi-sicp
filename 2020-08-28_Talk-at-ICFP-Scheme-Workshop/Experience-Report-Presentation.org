@@ -1,4 +1,4 @@
-# Time-stamp: <2020-08-10 23:40:00 lockywolf> -*- mode: org; -*-
+# Time-stamp: <2020-08-16 10:52:13 lockywolf> -*- mode: org; -*-
 #+LATEX_CLASS: beamer
 #+LATEX_CLASS_OPTIONS: [presentation, CJK, compress,aspectratio=169]
 #+OPTIONS: H:2 toc:t num:f
@@ -16,9 +16,9 @@
 #+KEYWORDS:    sicp, scheme, programming, literate programming, functional programming, emacs, tikz, tex, latex, icfp, report, lisp, org-mode, uml, plantuml
 #+STARTUP: beamer
 #+author: Vladimir Nikishkin \newline \texttt{<lockywolf gmail.com>}
-#+date: @@beamer:\texttt{<@@2020-08-28 Tue 21:09 GMT+8>@@beamer:}@@
-#+subtitle: The International Conference on Functional Programming co-located Scheme Workshop presentation on the technical report.
-#+title: Solving SICP: And Experience Report on Solving the World's Most Famous Programming Problem Set
+#+date: @@beamer:\texttt{<@@2020-08-28 Tue>@@beamer:}@@
+#+subtitle: Scheme Workshop 2020 \newline (The International Conference on Functional Programming)
+#+title: Solving SICP: An Experience Report on Solving the World's Most Famous Programming Problem Set
 
 #+begin_export beamer
 #+end_export
@@ -56,6 +56,14 @@
 
 In this talk I want to speak about a very famous book by two very famous MIT professors.
 It is called ``Structure and Interpretation of Computer Programs''.
+This book, as well as the course it is associated with, are considered among the most unconventional among the programming courses to day.
+(Although HTDP rivals it.)
+It is _still_ unconventional, even though 35 years have passed, and it would be reasonable to expect that the techniques considered innovative would become an everyday norm.
+This hasn't happened to the extend expected. 
+Why?
+To find out why, and also to become a better programmer, was my aim at the start of the project.
+I once heard that those who passed SICP are among the best programmers in the world.
+
 
 ** Who is this report for?
 
@@ -69,6 +77,9 @@ It is called ``Structure and Interpretation of Computer Programs''.
 - Teaching Assistants
 - Curriculum designers
 
+#+attr_latex: :width 0.25\textwidth
+[[file:who-is-for-teacher-Noun_Project_teacher_icon_690952_cc.png]]
+
 *** Listeners                                                       :B_block:
     :PROPERTIES:
     :BEAMER_env: block
@@ -79,7 +90,27 @@ It is called ``Structure and Interpretation of Computer Programs''.
 - Time-management enthusiasts
 - Self-learners
 
+#+attr_latex: :width 0.25\textwidth
+[[file:who-is-for-student-600px-Student_(example).svg.png]]
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+I hope that this report can be useful to people who deal with computer science education in their daily life.
+Curricula are seldom a subject of independent scrutiny, and the two parties taking part in the education process are likely to suspect each other of dishonesty.
+Therefore, having an independent assessment that can be trusted will happen to be a valuable contribution.
+This is especially valid now, when there is an increasing trend on making education a more remote and a more solitary process.
+Furthermore, it is also becoming increasingly computerised, so both parties can get some benefit from that, if knowing how to.
+
+
 ** What is perfect coursework solution artefact?
+
+*** col1                                                              :BMCOL:
+    :PROPERTIES:
+    :BEAMER_col: 0.5
+    :END:
 
 - Version controlled
 - Useful years later
@@ -87,6 +118,32 @@ It is called ``Structure and Interpretation of Computer Programs''.
 - Used as a portfolio
 - Searchable
 - Easily checked
+
+*** col1
+    :PROPERTIES:
+    :BEAMER_col: 0.30
+    :END:
+
+[[file:ideal-format-book-ebook.jpeg]]
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+Naturally, paper is still the most commonly used result of education.
+In a better case, the paper is written by the students, and they remember a bit by writing.
+In a worse case, it is handed out to the students by a lecturer, and kept as a memory of the good old days.
+Students are usually not prepared for the university educational process, and don't know how to behave in order to make this time the most useful.
+As a consequence, most of the work done by the students during studies becomes worthless right after a deserved mark is written into the transcript.
+However, if approached open-mindedly, at least two possible applications for the work done in a learning time can be thought of.
+Firstly, university knowledge can be processed into a "canned brain food" for later queries.
+Secondly, the coursework and/or lectures can be formatted as a piece of portfolio to be presented to an interviewer at a job position.
+It's a shame that students are seldom told that before their first lectures.
+I tried to imagine what a "perfect coursework submisstion format" should be.
+It should retain the consistency, time and machine independence of a book.
+But at the same time, it should be searchable, version-controlled and runnable.
+A so-called "notebook" format similar to Jupyter thus appeared.
 
 ** Which tools I ended up using.
 
@@ -120,6 +177,17 @@ It is called ``Structure and Interpretation of Computer Programs''.
  - PlantUML
  - git
 
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+- Of course, TikZ and PlantUML did not exist in 1985.
+- Chibi-Scheme also did not exist.
+- Scheme existed, obviously, in the form of r4rs. Now we have r7rs.
+- TikZ could have been METAPOST.
+- git could have been RCS. It is a shame that people still cannot use git while at uni.
+- PlantUML did not exist, but I find it very useful to be able to adapt SICP's illustrations to standard diagrams.
 
 
 ** Who I was at the beginning.
@@ -150,8 +218,14 @@ It is called ``Structure and Interpretation of Computer Programs''.
  - Some experience with \TeX
  - Some experience with ~Emacs/org~
 
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
 
-
+- I am giving this information so that people who are consulting the solution be able to rescale the difficulty to themselves or the target audience.
+- Initially I thought that having certain programming experience should make me solve SICP's problem set noticeably faster than a newbie would. Doesn't seem to be the case.
+- Full time employment meant that I only had weekends and evenings for work. Still, students usually have classes and other courses.
 
 * The Execution Process.
 
@@ -191,6 +265,20 @@ It is called ``Structure and Interpretation of Computer Programs''.
    :END:
 
 [[file:buffer_minimap_babel_slide.png]]
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+This is an example of how the solution looked like.
+On the right you can see the file's minimap.
+On the left, there is a typical example of two solved problems.
+As I mentioned, a "notebook format" had to be found.
+It is called "org-mode".
+Look at the code block and the result.
+An instant benefit, which eventually served as a main substance of this report, is automatic gathering of measure.
+In particular, progress, completion time, and session start and finish time stamps (in  a separate file).
 
 ** Graphical example with TikZ. (Figure 1.2)
 
@@ -255,6 +343,19 @@ child { node { average } } } };
 \end{tikzpicture}
 \end{minipage}
 #+end_src
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+TikZ is quite verbose.
+I used tikz when the exercises required drawing something.
+I also redrew several figures with Tikz, as I wanted to be able to reproduce the book's narrative in my own classes (if/when I am going to give them).
+Where possible, I tried to use more specific drawing tools.
+Note, I did _not_ use TikZ for the "Functional Drawing", the so-called "Picture Language" part of SICP. 
+For it I had to implements my own library, using Imagemagick.
+
 
 ** Graphical example with PlantUML. (Exercise 3.46)
 
@@ -321,6 +422,19 @@ rnote over p2: acquired
 #+RESULTS:
 [[file:exercise-3-46.png]]
 
+
+*** Notes                                                            :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+PlantUML's biggest drawback is that its syntax is ugly and fragile.
+However, the team behind it is working on improving the tool, and it seems that they are learning in the process.
+UML is not an as pathetic thing as it is usually thought.
+Standard tools for code visualisation are certainly worth considering.
+On the other hand, environment diagrams, or essentially debugging interfaces, had to be drawn with TikZ.
+Which I find amusing.
+Such a feature is still not possible to implement portably.
 
 ** How to measure progress and motivate yourself.                 :B_columns:
 
@@ -400,7 +514,7 @@ rnote over p2: acquired
    :END:
 
 - Timely help is vital
-- Many experts still use IRC
+- Many experts still use IRC (Internet Relay Chat)
 - Don't neglect everything else
 - Ignore rudeness
 - Modern messengers make it hard to mine memories
@@ -426,6 +540,10 @@ rnote over p2: acquired
 
 - I didn't manage to collect and reprocess memory from modern messengers.
 - The videos are like "ahh, that's what they actually meant by what they said."
+- In general, seeing "how much I have already done!" and "there is a limited amount of things to do" is a great feeling that makes you get back to work.
+- IRC is still a useful tool.
+- But the modern ones are still better to not be neglected.
+- Communication is important, and getting questions answered fast is a great thing.
 
 * The Data and the Analysis.
 
@@ -467,6 +585,11 @@ Exercise 1.2 Prefix form
 Problem statistic is indicative.
 I first solved the Exercises 1.1 and 1.2, and then turned to the Figure 1.1.
 But it is displayed earlier, because it is earlier in the book.
+
+Solving problems has a little bit of robustness to non-sequentiality.
+In general, SICP tries to enforce sequentiality by making problems depend on one another, and this gives the noweb-like features of SICP a great value.
+
+Having time tracking data in a machine-accessible format made it possible to do the analysis.
 
 ** Data analysis with Emacs Lisp.
 
@@ -530,13 +653,55 @@ But it is displayed earlier, because it is earlier in the book.
 - This is called ``Reproducible Research''.
 - seq-* functions help elisp be like scheme.
 - cl-labels are like lexical defuns.
+- The ten problems on the right are the example of the table that the code generates, and the table can be further analyzed by Emacs Lisp.
+- The three measures are "raw time", "wall clock time" and "total days in memory".
+- They all are not totally dependent.
+- It is possible to offload some thinking into the unconscious.
+- It is easier to return to the work when you have something undone.
+- Problems were never ended at the same time as sessions.
 
 
 ** Data demonstration.
    :PROPERTIES:
-   :beamer_opt: shrink=20
+   :beamer_opt: shrink=30
+   :END:
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
    :END:
 
+**** col1                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.5
+   :END:
+
+[[file:experience-report-days.png]]
+[[file:experience-report-study-sessions.png]]
+**** col2                                                           :B_block:
+   :PROPERTIES:
+   :BEAMER_COL: 0.5
+   :END:
+[[file:experience-report-minutes-per-problem.png]]
+[[file:experience-report-hardness-histogram-logarithmic.png]]
+
+*** Notes                                                            :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+Not really readable graphs depict the distribution of the three measures of the dataset.
+Problems that take more days than sessions are essentially the days when I needed a holiday.
+But students also have holidays.
+Why exactly the problem set obeys a log-normal distribution?
+The two most difficult problems take most of the time.
+To me it would mean that those have to be broken into smaller bits.
+Even though is says "translate scheme to a low-level language line by line", the runtime support is huge, and not very well explained in SICP.
+Input-output is not explained at all.
+This is not what students usually do in the university, but perhaps it is not such a bad thing.
+
+
+** Statistics and ten hardest problems.
 
 *** cols
    :PROPERTIES:
@@ -546,37 +711,236 @@ But it is displayed earlier, because it is earlier in the book.
 
 **** col1                                                           :B_block:
    :PROPERTIES:
-   :BEAMER_COL: 0.45
+   :BEAMER_COL: 0.5
    :END:
-
-[[file:experience-report-days.png]]
-
-[[file:experience-report-study-sessions.png]]
+#+beamer: \scriptsize
+- *729* hours total work duration.
+- *2.184* hours mean time spent on solving one problem.
+- *0.96* hours was required for the dataset median problem.
+- *94.73* hours for the hardest problem: writing a Scheme interpreter in a low-level language.
+- *652* study sessions.
+- *1.79* study sessions per problem on average.
+- *1* median number of study sessions required to solve a single problem.
+- *>78000*-lines long .org file (*>2.6* megabytes) (5300 pages in a PDF).
+- *13* problems were solved out of order.
 
 **** col2                                                           :B_block:
    :PROPERTIES:
-   :BEAMER_COL: 0.45
+   :BEAMER_COL: 0.6
    :END:
+#+beamer: \vspace{-0.15cm}
+#+beamer: \scriptsize
+#+ATTR_LATEX: :environment supertabular :align p{4cm}|p{0.7cm}|p{0.5cm}|p{0.5cm}
+| Exercise                                          |   Days | Sessions | Minutes |
+|---------------------------------------------------+--------+----------+---------|
+| Exercise 2.46 ~make-vect~.                        |  2.578 |        5 |     535 |
+| Exercise 4.78 Non-deterministic queries.          |  0.867 |        6 |     602 |
+| Exercise 3.28 Primitive or-gate.                  |  1.316 |        2 |     783 |
+| Exercise 4.79 Prolog environments.                |  4.285 |        5 |     940 |
+| Exercise 3.9 Environment structures.              |  21.03 |       10 |    1100 |
+| Exercise 4.77 Lazy queries.                       |  4.129 |        9 |    1214 |
+| Exercise 4.5 ~cond~ with arrow.                   | 12.765 |        7 |    1252 |
+| Exercise 5.52 Making a compiler for Scheme.       | 22.975 |       13 |    2359 |
+| Exercise 2.92 Add, mul for different variables.   |  4.556 |       11 |    2404 |
+| Exercise 5.51 EC-evaluator in low-level language. | 28.962 |       33 |    5684 |
 
-[[file:experience-report-minutes-per-problem.png]]
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
 
-[[file:experience-report-hardness-histogram-logarithmic.png]]
+- make-vect -- writing the whole picture language
+- non-deterministic -- whole rewrite
+- primitive or-gate -- assemble a simulator
+- prolog-env -- open-ended
+- environment structures -- TikZ
+- lazy-queries -- a large architectural piece
+- cond with arrow -- assemble a metacircular evaluator
+- scheme compiler -- huge
+- add+mul different variables -- huge work with normalization
+- ec-evaluator -- learning fortran
 
-** Statistics.
+- Three working months (>700 hours)
 
 * Results and Conclusion.
 
-** Hard problems to discuss.
-
 ** By-products of the work.
+   :PROPERTIES:
+   :beamer_opt: squeeze
+   :END:
+
+**** col1                                                           :B_block:
+     :PROPERTIES:
+     :BEAMER_COL: 0.6
+     :END:
+
+ - ~STk~ *resurrected*, thanks to Eric Gallesio
+ - ~psd~ *resurrected* on github, thanks to Pertti Kellomaki
+ - *4 bugs* in ~gfortran~ fixed (1 critical)
+ - *2 bugs* in ~Chibi-Scheme~ fixed
+ - a few small *bugs* in ~Emacs~ found/mitigated
+ - *SRFI-203* (Picture Language) -- draft
+ - ``complete'' solution to SICP in pdf
+ - Scheme Workshop *report*
+ - *SRFI-2??* (SICP prerequisites) -- pre-draft
+ - Yet another scheme *interpreter* (~schemetran~)
+
+(SRFIs are Scheme Requests for Implementation.)
+
+**** col1                                                           :B_block:
+     :PROPERTIES:
+     :BEAMER_COL: 0.4
+     :END:
+
+ [[file:by-products-lambda-from-wiki.png]]
+
+*** Note                                                             :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+This project gave birth to a healthy amount of by-products.
+The most universally useful is probably the bug fix in gnu fortran, which I used for the last two exercises.
+Twice I got a remark from old software writers that "software never dies".
+I didn't manage to port PSD to a modern Emacs, but this probably can be done eventually.
+
+Let's talk about portability.
+Even though SICP is believed to be a book about scheme, it is still not possible to finish it with a scheme system supporting only the base standard, even if it is r7rs.
+The critical points are multi-threading, randomness, and most prominently, graphics.
+I think that this is a drawback, and should be addressed.
+I already submitted an srfi on the most unportable part.
+The second, one on the parts that are implementable with the help of other SRFIs, is in the plans.
 
 ** Applications and Further Work.
 
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+
+**** Applications                                                   :B_block:
+     :PROPERTIES:
+     :BEAMER_env: block
+     :BEAMER_COL: 0.45
+     :END:
+
+- Teachers :: monitor dropout
+- Teachers :: make marking simpler
+- Students :: make portfolios
+- Students :: monitor work
+- Designers :: make coursework templates
+- Designers :: get feedback
+
+**** *We Need More Data!*                                           :B_block:
+     :PROPERTIES:
+     :BEAMER_COL: 0.45
+     :BEAMER_env: block
+     :END:
+
+- Get more data points for SICP!
+- Behavioural analysis of the existing data.
+- Measure other course work! 
+- Profile-guided optimisation.
+- Social/cloud service.
+- Effort tracking? (e.g. window switching)
+
+*** Notes                                                            :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+On this slide I want to once again restate that for me this project can be seen as a model according to which university coursework could be considered.
+Having an established notion of a "standard coursework" would allow to calibrate one's own perception.
+Am I late or ahead?
+Do I have enough time scheduled for the work?
+Where am I in the process.
+How do I recall the learned topics in the future?
+
+Same things apply to the teachers, only regarding their students.
+In addition, it may be mildly nice for the teachers to have an example of a "well-done coursework" that can be shown to the students.
+Obviously, a single-point estimate is not very good.
+Teachers have a power over their student, at least in the form of exposing them to the existence of this report.
+
 ** Review.
 
-** Personal 1 minute.
+*** col1                                                              :BMCOL:
+    :PROPERTIES:
+    :BEAMER_col: 0.4
+    :END:
 
-** TODO Credits.
+[[file:SICP_cover.png]]
 
-Contacts, gitlab, Patreon.
+*** col2                                                              :BMCOL:
+    :PROPERTIES:
+    :BEAMER_col: 0.5
+    :END:
 
+- A full year of work. (Three months of raw time.)
+- Fitting SICP into one semester seems hard.
+- Almost no superfluous topics.
+- Several subjects are omitted.
+- Many by-products.
+- Lots of software is buggy.
+- Learning requires audacity.
+- Computer-assisted learning goes smoother.
+
+*** Notes                                                            :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+This course is hard.
+Can I say that it is needlessly hard?
+It certainly requires spending a lot of time on learning things that are not even mentioned in the book.
+In fact, the book looks more like a companion to the MIT course than a standalone work.
+I hope that the SRFIs and this Report can compensate for that a little bit, and help those trying to solve SICP in the future by sawing off the sharp corners.
+All of this took roughly one year, including the Report and the SRFIs.
+Learning while being employed is certainly possible, but hard.
+Computing models presented in SICP seem not obsolete.
+?
+
+** Credits.                                                       :B_columns:
+
+*** cols
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :beamer_opt: t
+   :END:
+
+
+**** Contacts                                                 :B_block:BMCOL:
+     :PROPERTIES:
+     :BEAMER_col: 0.5
+     :BEAMER_env: block
+     :END:
+
+ - \url{http://gitlab.com/Lockywolf}
+ - \url{http://lockywolf.wordpress.com}
+ - ~lockywolf at gmail.com~
+ - \url{https://t.me/unobvious}
+ - \url{http://lockywolf.net}
+ - \href{https://paypal.me/independentresearch}{https://paypal.me/independentresearch}
+
+**** Thank you                                                      :B_block:
+     :PROPERTIES:
+     :BEAMER_col: 0.5
+     :BEAMER_env: block
+     :END:
+
+ - John Cowan
+ - Alex Shinn
+ - Eli Zaretskii
+ - Patrick Volkerding
+ - evets @ \url{stackoverflow}
+ - ~irc.freenode.net/#scheme~ contributors
+ - all my friends and relatives
+
+*** Notes                                                            :B_note:
+    :PROPERTIES:
+    :BEAMER_env: note
+    :END:
+
+I want to say thank you to the ~#scheme~ freenode channel users.
+Personal thank you to the people responsible for the scheme standard development, for the implementation development, for Emacs development, Fortran developers, Slackware developers.

@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-08-11 00:05:36 lockywolf>
+# Time-stamp: <2020-08-11 00:12:17 lockywolf>
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
@@ -932,7 +932,7 @@ However, the author, as a willing student, would like to see a narrativised over
 If the author may, by virtue of personally experiencing this transformative experience, give a few suggestions to university curriculum designers, they would be the following:
 
  - Deliberately teach students to use TeX, and especially well technically harnessed TeX (using a professional text editor, additional supportive software, such as syntax checkers, linters, and documentation lookup systems). 
-This is often considered to be a meta-cognitive exercise to be solved by the students, but the author's personal experience is not reassuring in this aspect. Very few students, and even professionals, use TeX efficiently. It took more than *50* hours just to refresh the skill of using \TeX that the author had already learnt, in order to write a thesis.
+This is often considered to be a meta-cognitive exercise to be solved by the students, but the author's personal experience is not reassuring in this aspect. Very few students, and even professionals, use TeX efficiently. It took more than *50* hours just to refresh the skill of using \TeX{} that the author had already learnt, in order to write a thesis.
  - Deliberately teach students to touch-type. This may not be necessary in the regions where touch-typing is included in the standard high school curriculum, but poor touch-typing skills are still a major problem in most parts of the world.
  - Deliberately teach students to read software manuals. Indeed, much modern software has manuals built-in piece-wise right into the software itself. Often reading the whole manual is not required to perform the task. However, doing the reading at least once (i.e. reading ~some~ manual from the first page to the last), is a very enlightening experience, and additionally useful in teaching how to assess the time needed to grasp the skill of using ~a~ piece of software. As a by-product, this experience may help the students to write better manuals for their own software.
  - Teach students to use a timer when doing homework, even if it is not an org-mode timer. A realistic assessment of how much effort things actually take is a paradigm-shifting experience.
