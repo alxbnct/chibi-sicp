@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2020-11-03 16:14:04 lockywolf>
+# Time-stamp: <2021-01-10 22:36:47 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 #+Author:  lockywolf gmail.com
 
@@ -60649,7 +60649,7 @@ try-again
 
 
 ** Chapter 5: Computing with Register Machines [54/54]
-*** 5.1 Designing Register Machinese [8/8]
+*** 5.1 Designing Register Machines [8/8]
 **** DONE Figure 5.1 Data paths for a Register Machine
      CLOSED: [2020-02-23 Sun 13:18]
 
