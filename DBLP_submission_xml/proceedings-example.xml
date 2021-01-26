@@ -3,37 +3,42 @@
 <?xml-stylesheet type="text/xsl" href="dblpsubmission.xsl" ?>
 <dblpsubmission>
   <proceedings>
-    <!-- <key>scheme</key> -->
-    <editor>Baptiste Saleil</editor>
+    <key>journals/corr/abs-2101-06759</key>
+   <!-- <key>conf/icfp/2020scheme</key> -->
+   <editor>Baptiste Saleil</editor>
     <editor>Michaed D. Adams</editor>
     <title>Proceedings of the 2020 Scheme and Functional Programming Workshop</title>
     <publisher>University of Michigan</publisher>
     <year>2021</year>
-    <!-- <ee>https://www.eecs.umich.edu/eecs/etc/research/techreports/cse_tr/database/reports.cgi?21</ee> -->
+ 
     <!-- <isbn type="print"> no isbn </isbn> -->
     <!-- <doi>no doi</doi> -->
+    <!-- <url>https://www.eecs.umich.edu/eecs/etc/research/techreports/cse_tr/database/reports.cgi?21</url> -->
+    <!-- <ee>https://www.eecs.umich.edu/eecs/etc/research/techreports/cse_tr/database/reports.cgi?21</ee> -->
     <conf>
       <acronym>SW</acronym>
       <number>2020</number>
       <location>Online, Virtual Event</location>
       <date>August 20-28, 2020</date>
-<url>https://icfp20.sigplan.org/home/scheme-2020</url>
+      <url>https://icfp20.sigplan.org/home/scheme-2020</url>
 
-    <partof>International Conference on Functional Programming </partof>
+      <partof> International Conference on Functional Programming </partof>
     </conf>
     <series>
-      <key>conf/icfp/2020scheme</key>
+      <key>streams/conf/icfp</key>
       <title>Scheme and Functional Programming Workshop</title>
-<number>2020</number>
+      <number>2020</number>
 
     </series>
     <toc>
+      
       <section>Invited Talks</section>
       <publ>
         <author>Martin Henz</author>
         <author>Tobias Wrigstad</author>
         <title>SICP JS: Ketchup on Caviar?</title>
         <pages>1-1</pages> 
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
       <publ>
@@ -41,6 +46,7 @@
         <author>Jonah Fleishhacker</author>
         <title>21st Century Lisp in Academic Research and Pedagogy</title>
         <pages>2-2</pages> 
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
       <section>Main</section>
@@ -50,20 +56,14 @@
         <author>Eric Eide</author>
         <title>Clotho: A Racket Library for Parametric Randomness</title>
         <pages>3-13</pages> 
-        <!-- <doi>no</doi> -->
-      </publ>
-      <publ>
-        <author>Pierce Darragh</author>
-        <author>William Gallard Hatch</author>
-        <author>Eric Eide</author>
-        <title>Clotho: A Racket Library for Parametric Randomness</title>
-        <pages>3-13</pages> 
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
       <publ>
         <author>Vladimir Nikishkin</author>
         <title>Solving SICP: An Experience Report on Solving the World’s Most Famous Programming Problem Set</title>
         <pages>14-50</pages> 
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
       <publ>
@@ -71,6 +71,7 @@
         <author>Marc Feeley</author>
         <title>Running Scheme On Bare Metal (Experience Report)</title>
         <pages>51-65</pages> 
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
       <publ>
@@ -85,6 +86,7 @@
         <author>Hidehiko Masuhara</author>
         <title>On Teaching Type Systems as Macros (Lightning Talk)</title>
         <pages>77-77</pages> 
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
       <publ>
@@ -94,15 +96,16 @@
         <title>Designing a Programming Environment Based on the Program Design Recipe (Lightening Talk)</title>
         <pages>78-78</pages> 
         <!-- <doi>no</doi> -->
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
       </publ>
       <publ>
         <author>Julien Lepiller</author>
         <title>Programming with Petri Nets to Reason about
 Concurrency</title>
-        <pages>79-79</pages> 
+        <pages>79-79</pages>
+        <ee>https://www.eecs.umich.edu/techreports/cse/2021/CSE-TR-001-21.pdf</ee>
         <!-- <doi>no</doi> -->
       </publ>
-
 
     </toc>
   </proceedings>
