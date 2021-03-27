@@ -1,5 +1,5 @@
 # -*- mode: org; -*-
-# Time-stamp: <2021-02-09 17:54:06 lockywolf>
+# Time-stamp: <2021-02-13 13:24:57 lockywolf>
 #+BLOG: wordpress
 #+POSTID: 428
 #+date: 2021-02-08 Mon 9:30
@@ -585,9 +585,10 @@ TODO-заголовок -- это специальный вид заголовк
       (* 3 (- 6 2) (- 2 7)))
   #+end_src
 
-  [fuzzy]Results
+  #+RESULTS:
   : -37/150
  ...
+
 #+end_example
 #+begin_export latex
 \caption{Пример файла решебника}

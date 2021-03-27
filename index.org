@@ -1,5 +1,5 @@
 # -*- mode: org; geiser-scheme-implementation: chibi; geiser-autodoc--inhibit: t; -*-
-# Time-stamp: <2021-01-10 22:36:47 lockywolf>
+# Time-stamp: <2021-03-27 18:17:34 lockywolf>
 # Created   : [2019-08-18 Sun 20:11]
 #+Author:  lockywolf gmail.com
 
@@ -3569,6 +3569,8 @@ interpreter switches to an exact representation, but meh, this result is good.
 *** DONE Exercise 1.30 Iterative sum
     CLOSED: [2019-09-03 Tue 11:19]
 
+<2021-03-27 Sat> This solution has a bug! ~term~ is not called! Below is the solution (courtesy of Shengyi Wang) that is correct.
+
 #+begin_src scheme :exports both :results value scalar code
   (define (inc x) (+ x 1))
   (define (identity x) x)
@@ -3584,6 +3586,23 @@ interpreter switches to an exact representation, but meh, this result is good.
 #+end_src
 
 #+RESULTS[8ea6a66307ad3db576b0c2ce2dcef390a42aebf2]:
+#+begin_src scheme
+55
+#+end_src
+
+#+begin_src scheme :exports both :results value scalar code
+(define (inc x) (+ x 1))
+(define (identity x) x)
+(define (sum term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ (term a) result))))
+(iter a 0))
+(sum identity 1 inc 10)
+#+end_src
+
+#+RESULTS[66312a0ffa4c985999658c069ee31add8407f637]:
 #+begin_src scheme
 55
 #+end_src

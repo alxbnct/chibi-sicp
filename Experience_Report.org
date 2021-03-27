@@ -1,14 +1,22 @@
 # -*- mode: org; -*-
-# Time-stamp: <2020-08-11 00:12:17 lockywolf>
+# Time-stamp: <2021-02-13 13:24:23 lockywolf>
+#+BLOG: wordpress
+#+POSTID: 428
+#+date: 2021-02-08 Mon 9:30
 # Created   : [2020-05-11 Mon 21:01]
 # Author    : lockywolf gmail.com
 #+AUTHOR: Vladimir Nikishkin
+#+TITLE: Solving SICP
+#+category: development,
+#+tags: science, computer-literacy, computers, engineering, lisp, scheme, software, 
+
 #+STARTUP: inlineimages
 #+STARTUP: latexpreview
 #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
 #+HTML_MATHJAX: cancel.js noErrors.js
-#+OPTIONS: tex:imagemagick
+# +OPTIONS: tex:imagemagick
 #+OPTIONS: toc:nil
+#+LANGUAGE: en
 #+LATEX_CLASS: acmart
 # +LATEX_CLASS_OPTIONS: [letterpaper]
 #+latex_header: \usepackage{float}
@@ -20,7 +28,7 @@
 # the safeinputenc option to biblatex seems to be dangerous, but I had to use it for (R) to be displayed. 
 # be careful
 #+latex_header: \usepackage[backend=biber,style=ACM-Reference-Format,backref=true,citestyle=authoryear,safeinputenc]{biblatex}
-#+latex_header: \addbibresource{/home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib.bib}
+#+latex_header: \addbibresource{bibliography-bib.bib}
 #+latex_header: \setdefaultlanguage[variant=british]{english}
 #+latex_header: \defcounter{biburlnumpenalty}{1}
 
@@ -30,8 +38,9 @@
 #+latex_header: %  \ifcategory{badbreaks}
 #+latex_header: %    {\defcounter{biburlnumpenalty}{9}}
 #+latex_header: %    {}}
-#+bibliography: /home/lockywolf/GDrive_vladimir_nikishkin_AT_phystech_edu/BibTeX_Bibliography/bibliography-bib
+# test  hardlinks 1
 
+#+begin_export latex
 \title{Solving SICP}
 \settopmatter{printfolios}
 \subtitle{An Experience Report on Solving the World's Most Famous Programming Problem Set}
@@ -113,13 +122,14 @@
 \ccsdesc[500]{Software and its engineering~Abstraction, modeling and modularity}
 \ccsdesc[500]{Software and its engineering~Software architectures}
 
+#+end_export
+
 #+latex: \def\hyph{-\penalty0\hskip0pt\relax}
 
 #+begin_abstract
 This report is written as a post-mortem of a project that has,
 perhaps, been the author's most extensive personal project: creating a complete and comprehensive solution to one of the most famous programming problem sets in the modern computer science curriculum 
-\citetitle{Abelson1996}
- by \citeauthor{Abelson1996}.
+"Structure and Interpretation of Computer Programs", by Abelson, Sussman, and Sussman (cite:Abelson1996).
 
 It measures exactly:
 - How much effort SICP requires (729 hours 19 minutes (over eight months), 292 sessions).
@@ -133,20 +143,22 @@ It suggests:
 - Several improvements, on the social side, to any kind of teaching process.
 
 The solution is published online (the source code and pdf file):
-- [[http://gitlab.com/Lockywolf/chibi-sicp]] ([[bib:chibi-sicp]])
+- [[http://gitlab.com/Lockywolf/chibi-sicp]] ([[cite:chibi-sicp]])
 
 This report (and the data in the appendix) can be applied immediately as:
 - A single-point estimate of the SICP problem set difficulty.
 - A class handout aimed at increasing students' motivation to study.
 - A data source for a study of learning patterns among adult professionals aiming for continuing education.
-- An ``almost ready" protocol for a convenient problem-set solution procedure, which produces artefacts that can be later used as a student portfolio. 
-- An ``almost ready", and ``almost convenient" protocol for measuring time consumption of almost any problem set expressible in a digital form.
+- An "almost ready" protocol for a convenient problem-set solution procedure, which produces artefacts that can be later used as a student portfolio. 
+- An "almost ready", and "almost convenient" protocol for measuring time consumption of almost any problem set expressible in a digital form.
 
 Additionally, a time-tracking data analysis can be reproduced
 interactively in the org-mode version of this report.
 (See: [[*Appendix: Emacs Lisp code for data analysis][Appendix: Emacs Lisp code for data analysis]])
 
 #+end_abstract
+
+@@html:<!--more Read full paper-->@@
 
 #+begin_export latex
 \maketitle
@@ -160,14 +172,14 @@ Programming language textbooks are not a frequent object of study, as
 they are expected to convey existing knowledge. However, teaching
 practitioners, when they face the task of designing a computer science
 curriculum for their teaching institution, have to base their decisions
-on something. An ``ad-hoc" teaching method, primarily based on studying
+on something. An "ad-hoc" teaching method, primarily based on studying
 some particular programming language fashionable at the time of
 selection, is still a popular choice. 
 
 There have been attempts to approach course design
-with more rigour. The ``Structure and Interpretation of Computer Programs" was created as a result of such an attempt. SICP was
+with more rigour. The "Structure and Interpretation of Computer Programs" was created as a result of such an attempt. SICP was
 revolutionary for its time, and perhaps can be still considered
-revolutionary nowadays. Twenty years later, this endeavour was analysed by Felleisen in a paper ``Structure and Interpretation of Computer Science Curriculum" ([[bib:sicsc]]). He then reflected upon the benefits and drawbacks of the ~deliberately designed~ syllabus from a pedagogical standpoint. He proposed what he believes to be a pedagogically superior successor to the first generation of ~deliberate~ curriculum. (See: ``How to Design Programs" (\emph{HTDP}) [[bib:felleisen2018how]])
+revolutionary nowadays. Twenty years later, this endeavour was analysed by Felleisen in a paper "Structure and Interpretation of Computer Science Curriculum" ([[cite:sicsc]]). He then reflected upon the benefits and drawbacks of the ~deliberately designed~ syllabus from a pedagogical standpoint. He proposed what he believes to be a pedagogically superior successor to the first generation of ~deliberate~ curriculum. (See: "How to Design Programs" (@@latex:\emph{@@HTDP@@latex:}@@) [[cite:felleisen2018how]])
 
 Leaving aside the pedagogical quality of the textbook (as the author is not a practising teacher), this report touches a different (and seldom considered!) aspect of a computer science (and in general, any
 other subject's) curriculum. That is,precisely, how much work is required to pass a particular course. 
@@ -201,7 +213,7 @@ following principles:
 
  1. Be complete.
  2. Be a reasonably realistic model of a solution process as if executed by the intended audience of the course -- that is, freshman university students with little programming experience.
- 3. Be done in a ``fully digital", ``digitally native" form.
+ 3. Be done in a "fully digital", "digitally native" form.
  4. Be measurable.
 
 These principles need an explanation. 
@@ -213,11 +225,11 @@ These principles need an explanation.
 The author considers completeness to be an essential property of every
 execution of a teaching syllabus.
 
-In simple words, what does it mean ``to pass a course" or ``to learn a subject" at all?
-How exactly can one formalise the statement ``I know calculus"?
-Even simpler, what allows a student to say ``I have learnt everything that was expected in a university course on calculus"? 
+In simple words, what does it mean "to pass a course" or "to learn a subject" at all?
+How exactly can one formalise the statement "I know calculus"?
+Even simpler, what allows a student to say "I have learnt everything that was expected in a university course on calculus"? 
 
-It would be a good idea to survey teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person ``knows a subject".
+It would be a good idea to survey teachers, students, employers, politicians and random members of the community to establish what it means _for them_ that a person "knows a subject".
 
 Following are some potential answers to these questions:
 
@@ -229,9 +241,9 @@ Following are some potential answers to these questions:
 - Attending a prescribed number of teaching sessions (lectures or tutorials).
 - Reading a prescribed amount of prescribed reading material.
 
-Any combination of these can also be chosen to signify the ``mastering" of a subject, but the course designer is then met with a typical goal-attainment, multi-objective optimisation problem ([[bib:Gembicki_1975]]); such problems are still usually solved by reducing the multiple goals to a single, engineered goal.
+Any combination of these can also be chosen to signify the "mastering" of a subject, but the course designer is then met with a typical goal-attainment, multi-objective optimisation problem ([[cite:Gembicki_1975]]); such problems are still usually solved by reducing the multiple goals to a single, engineered goal.
 
-Looking at the list above from a ``Martian point of view" ([[bib:berne:1973:what_do_you_say_after_you_say_hello]]), we will see that all the goals listed above are reducible to a single ``completing coursework" goal. ``Completing coursework" is not reducible to any of those specific sub-goals in general, so the ``engineered goal" may take the shape of a tree-structured problem set (task/subtask). ``Engineered" tasks may include attending tutorials, watching videos and writing feedback.
+Looking at the list above from a "Martian point of view" ([[cite:berne:1973:what_do_you_say_after_you_say_hello]]), we will see that all the goals listed above are reducible to a single "completing coursework" goal. "Completing coursework" is not reducible to any of those specific sub-goals in general, so the "engineered goal" may take the shape of a tree-structured problem set (task/subtask). "Engineered" tasks may include attending tutorials, watching videos and writing feedback.
 
 Moreover, thinking realistically, doing coursework often is the only way
 that a working professional can study without altogether abandoning
@@ -239,27 +251,27 @@ her job.
 
 Therefore, choosing a computer science textbook that is known primarily for the problem set that comes with it, even more than for the actual text of the material, was a natural choice.
 
-However, that is not enough, because even though ``just solving all of the exercises" may be the most measurable and the most necessary learning outcome, is it sufficient?
+However, that is not enough, because even though "just solving all of the exercises" may be the most measurable and the most necessary learning outcome, is it sufficient?
 
-As the author intended to ``grasp the skill" rather than just ``pass the exercises", he initially considered inventing additional exercises to cover parts of the course material not covered by the original problem set.
+As the author intended to "grasp the skill" rather than just "pass the exercises", he initially considered inventing additional exercises to cover parts of the course material not covered by the original problem set.
 
-For practical reasons (in order for the measured data to reflect the original book's exercises), in the ``reference solution" referred to in this report's bibliography, the reader will not find exercises that are not a part of the original problem set.
+For practical reasons (in order for the measured data to reflect the original book's exercises), in the "reference solution" referred to in this report's bibliography, the reader will not find exercises that are not a part of the original problem set.
 
 The author, however, re-drew several figures from the book, representing those types of figures that are not required to be drawn by any of the exercises.
 
-This was done in order to ``be able to reproduce the material contained in the book from scratch at a later date". This was done only for the cases for which the author considered the already available exercises insufficient. The additional figures did not demand a large enough amount of working time to change the total difficulty estimate noticeably.
+This was done in order to "be able to reproduce the material contained in the book from scratch at a later date". This was done only for the cases for which the author considered the already available exercises insufficient. The additional figures did not demand a large enough amount of working time to change the total difficulty estimate noticeably.
 
 *** A faithful imitation of the university experience
 
 One common objection to the undertaken endeavour may be the following. In most universities (if not all), it is not necessary to solve all exercises in order to complete a course. This is often true, and especially true for mathematics-related courses (whose problem books usually contain several times more exercises than reasonably cover the course content). The author, however, considers SICP exercises not to be an example of such a problem set. The exercises cover the course material with minimal overlap, and the author even considered adding several more for the material that the exercises did not fully cover.
 
-Another objection would be that a self-study experience cannot faithfully imitate a university experience at all because a university course contains tutorials and demonstrations as crucial elements. Problem-solving methods are ``cooked" by teaching assistants and delivered to the students in a personalised manner in those tutorials. 
+Another objection would be that a self-study experience cannot faithfully imitate a university experience at all because a university course contains tutorials and demonstrations as crucial elements. Problem-solving methods are "cooked" by teaching assistants and delivered to the students in a personalised manner in those tutorials. 
 
 This is indeed a valid argument. However, teaching assistants may not necessarily come from a relevant background; they are often recruited from an available pool and not explicitly trained. For such cases, the present report may serve as a crude estimate of the time needed for the teaching assistants to prepare for the tutorials.
 
 Furthermore, many students choose not to attend classes at all either because they are over-confident, or due to high workload. For these groups, this report may serve similarly as a crude estimate. 
 
-Moreover, prior research suggests that the learning outcome effect of class attendance on the top quartile (by grade) of the students is low. ([[bib:St_Clair_1999_a_case_agains_compulsory_class_attendance_policies_in_higher_education]] and [[bib:Kooker:1975:Changes_in_grade_distributions_associated_with_changes_in_class_attendance_policies]])
+Moreover, prior research suggests that the learning outcome effect of class attendance on the top quartile (by grade) of the students is low. ([[cite:St_Clair_1999_a_case_agains_compulsory_class_attendance_policies_in_higher_education]] and [[cite:Kooker:1975:Changes_in_grade_distributions_associated_with_changes_in_class_attendance_policies]])
 
 For the student groups that benefit most from tutorials, this report (if given as a recommended reading for the first lesson) may serve as additional evidence in favour of attendance.
 
@@ -275,8 +287,8 @@ In particular, a student has no other choice than to trust the teacher on the ch
 A student will likely mimic the teacher's choice of tools used for the execution of a solution.
 
 The main point of the previous paragraph is that teaching is not only the process of data transmission.
-It is also the process of metadata transmission, the development of meta-cognitive skills. (See [[bib:Ku2010]])
-Therefore, meta-cognitive challenges, although they may very well be valuable contributions to the student's ``thinking abilities", deserve their own share of consideration when preparing a course.
+It is also the process of metadata transmission, the development of meta-cognitive skills. (See [[cite:Ku2010]])
+Therefore, meta-cognitive challenges, although they may very well be valuable contributions to the student's "thinking abilities", deserve their own share of consideration when preparing a course.
 
 Examples of meta-cognitive challenges include:
 
@@ -314,9 +326,9 @@ In the author's *personal experience*:
 - There was also some help from the http://www.dxdy.ru scientific forum.
 - There was also some help from the Haskell self-study group in Telegram.
 
-It should be noted that out of those communities, only the Open Data Science community, and a small Haskell community reside in ``fashionable" communication systems.
+It should be noted that out of those communities, only the Open Data Science community, and a small Haskell community reside in "fashionable" communication systems.
 
-The summary of the community interaction is under the ``meta-cognitive" exercises section because the skill of finding people who can help you with your problems is one of the most useful soft skills and one of the hardest to teach.
+The summary of the community interaction is under the "meta-cognitive" exercises section because the skill of finding people who can help you with your problems is one of the most useful soft skills and one of the hardest to teach.
 Moreover, the very people who _can_ and _may_ answer questions are, in most situations, not at all obliged to do so, so soliciting an answer from non-deliberately-cooperating people is another cognitive exercise that is worth covering explicitly in a lecture.
 
 Repeating the main point of the previous paragraph in other words: human communities consist of rude people. Naturally, no-one can force anyone to bear rudeness, but no-one can force anyone to be polite, either.
@@ -364,13 +376,13 @@ However, to a large extent, the author still resembled a newbie, as he never bef
 
 *NOTE:* This whole report depends _heavily_ on the fact that the author had learnt how to touch-type, and can do it relatively quickly. Without the skill of fast touch-typing, almost all of the measurements are meaningless, and the choice of tools may seem counter-intuitive or even arbitrary. 
 
-The goal the author had was slightly ambiguous, in the sense that the intention was to model (reenact) an ``idealised" student, that is the one that does not exist, in the sense that the author decided to:
+The goal the author had was slightly ambiguous, in the sense that the intention was to model (reenact) an "idealised" student, that is the one that does not exist, in the sense that the author decided to:
 
 - Perform all exercises honestly, no matter how hard they be or how much time they take.
 - Solve all exercises without cheating; this did not prohibit consulting other people's solutions without direct copying.
 - Try to use the tools that may have been available at the disposal of the students in 1987, although possibly the most recent versions.
-- Try to follow the ``Free Software/Open Source/Unix-way" approach as loosely formulated by well-known organisations, as closely as possible. 
-- Try to prepare a ``problem set solution" in a format that may be potentially presentable to a university teacher in charge of accepting or rejecting it.
+- Try to follow the "Free Software/Open Source/Unix-way" approach as loosely formulated by well-known organisations, as closely as possible. 
+- Try to prepare a "problem set solution" in a format that may be potentially presentable to a university teacher in charge of accepting or rejecting it.
 
 While the first three principles turned out to be almost self-fulfilling, the last one turned out to be more involved.
 
@@ -382,14 +394,14 @@ It is known that SICP had been intended as a deliberately created introductory c
 This assumption turned out to not be the case.
 Rather than solving them, SICP just goes around them, enforcing a very rigid standard on the input data instead.
 
-While not originally designed for such a treatment, SICP's approach greatly simplified formatting the ready-to-submit coursework solution as a single file with prose, code blocks, input blocks, and figures interleaved (a so-called ``notebook" format.) 
+While not originally designed for such a treatment, SICP's approach greatly simplified formatting the ready-to-submit coursework solution as a single file with prose, code blocks, input blocks, and figures interleaved (a so-called "notebook" format.) 
 
-The ambiguity characteristic comes from the need to find a balance between the two ``more realistic" mental models of student behaviour. One would be representing a ``lazy" student, who would be only willing to work enough to get a passing score. This model would be responsible for saving time and choosing the tools that would possess the least possible incompatibility with the assessment mechanism. The other would be the model of an ``eager" student, who would be willing to study the material as deeply as possible, possibly never finishing the course, and would be responsible for the quality of learning and for choosing the best tools available. 
-The idea of two different types of motivation is to some extent similar to the "Theory X and theory Y" approach proposed by McGregor ([[bib:mcgregor:1960:theory_x_and_theory_y]]).
+The ambiguity characteristic comes from the need to find a balance between the two "more realistic" mental models of student behaviour. One would be representing a "lazy" student, who would be only willing to work enough to get a passing score. This model would be responsible for saving time and choosing the tools that would possess the least possible incompatibility with the assessment mechanism. The other would be the model of an "eager" student, who would be willing to study the material as deeply as possible, possibly never finishing the course, and would be responsible for the quality of learning and for choosing the best tools available. 
+The idea of two different types of motivation is to some extent similar to the "Theory X and theory Y" approach proposed by McGregor ([[cite:mcgregor:1960:theory_x_and_theory_y]]).
 
-Let us try to imagine being an ``ideal student", a mixture of the two models described above, and make the decisions as if the imaginary student would be doing them.
-Informally this can be summarised as ``I will learn every tool that is required to get the job done to the extent needed to get the job done, but not the slightest bit more".
-(There exist far more sophisticated models of student behaviour, most of them mathematical, see e.g. [[bib:hlosta:2018:modelling_student_online_behaviour_in_a_virtual_learning_environment]], however, a simple mental model was deemed sufficient in this particular case.)
+Let us try to imagine being an "ideal student", a mixture of the two models described above, and make the decisions as if the imaginary student would be doing them.
+Informally this can be summarised as "I will learn every tool that is required to get the job done to the extent needed to get the job done, but not the slightest bit more".
+(There exist far more sophisticated models of student behaviour, most of them mathematical, see e.g. [[cite:hlosta:2018:modelling_student_online_behaviour_in_a_virtual_learning_environment]], however, a simple mental model was deemed sufficient in this particular case.)
 
 *** The tools
 
@@ -413,7 +425,7 @@ The final choice of tools turned out to be the following:
 - PlantUML :: as the principal diagramming language
 - TikZ + luaLaTeX :: as the secondary diagramming language
 - Graphviz :: as a tertiary diagramming language
-- ImageMagick :: as the engine behind the ``picture language" chapter
+- ImageMagick :: as the engine behind the "picture language" chapter
 - git :: as the main version control tool
 - GNU diff, bash, grep :: as the tools for simple text manipulation
 #+latex: \vspace{-5mm}
@@ -446,7 +458,7 @@ The syntax is straightforward and well documented.
 The PlantUML-Emacs interface exists and is relatively reliable.
 The textual representation conveys the hacker spirit and supports easy version control.
 UML almost totally dominates the software visualisation market, and almost every university programming degree includes it to some extent.
-It seemed, therefore very natural (where the problem permitted) to solve the ``diagramming" problems of the SICP with the industry-standard compliant diagrams.
+It seemed, therefore very natural (where the problem permitted) to solve the "diagramming" problems of the SICP with the industry-standard compliant diagrams.
 
 *Graphviz* was used in an attempt to use another industry standard for solving diagramming problems not supported by the UML.
 The ~dot~ package benefits from being fully machine-parsable and context-independent even more than UML. However, it turned out to be not as convenient as expected. 
@@ -466,10 +478,10 @@ The reasons for choosing this not very popular language were:
 
 *GNU Unix Utilities* the author did not originally intend to use these, but ~diff~ turned out to be extremely effective for illustrating the differences between generated code pieces in Chapter 5. Additionally, in some cases, they were used as a universal glue between different programs.
 
-*GNU Emacs* is, de facto, the most popular IDE among Scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most ``hacker-like" editor.
+*GNU Emacs* is, de facto, the most popular IDE among Scheme users, the IDE used by the Free Software Foundation founders, likely the editor used when writing SICP, also likely to be chosen by an aspiring freshman to be the most "hacker-like" editor.
 It is, perhaps, the most controversial choice, as the most likely IDE to be used by freshmen university students, in general, would be Microsoft Visual Studio.
 Another popular option would be Dr.Racket, which packages a component dedicated to supporting solving SICP problems.
-However, Emacs turned out to be having the best support for a ``generic Lisp" development, even though its support for Scheme is not as good as may be desired.
+However, Emacs turned out to be having the best support for a "generic Lisp" development, even though its support for Scheme is not as good as may be desired.
 The decisive victory point ended up being the org-mode (discussed later).
 Informally speaking, entirely buying into the Emacs platform ended up being a substantial mind-expanding experience.
 The learning curve is steep, however.
@@ -491,7 +503,7 @@ Sheer copying would not just blow up the solution files immensely and make searc
 it would also make it extremely hard to propagate the fixes to the bugs discovered by later usages back into the earlier solutions.
 
 People familiar with the work of Donald Knuth will recognise the similarity of org-mode with his WEB system and its web2c implementation.
-Another commonly used WEB-like system is Jupyter Notebook (See [[bib:software_jupyter]]).
+Another commonly used WEB-like system is Jupyter Notebook (See [[cite:software_jupyter]]).
 
 Org-mode helps package a complete student's work into a single file.
 Imagine a case in which student needs to send his work to the teacher for examination.
@@ -502,21 +514,21 @@ Things get worse when the teacher has not just to examine the student's work, bu
 
 Org-mode can be exported into a format convenient for later revisits.
 Another reason to carefully consider the solution format is the students' future employability.
-This problem is not unfamiliar to the Arts majors, who have been collecting and arranging ``portfolios" of their work for a long time.
+This problem is not unfamiliar to the Arts majors, who have been collecting and arranging "portfolios" of their work for a long time.
 However, STEM students generally do not understand the importance of a portfolio.
-A prominent discussion topic in job interviews is, ``What have you already done?".
+A prominent discussion topic in job interviews is, "What have you already done?".
 Having a portfolio, in a form easily presentable during an interview, may be immensely helpful to the interviewee.
 
 A potential employer is almost guaranteed not to have any software or equipment to run the former student's code.
 Even the student himself would probably lack a carefully prepared working setup at the interview.
-Therefore, the graduation work should be ``stored", or ``canned" in a format as portable and time-resistant as possible.
+Therefore, the graduation work should be "stored", or "canned" in a format as portable and time-resistant as possible.
 
 Unsurprisingly, the most portable and time-resistant format for practical use is plain white paper.
 Ideally, the solution (after being examined by a teacher) should be printable as a report.
-Additionally, the comparatively (in relation to the full size of SICP) small amount of work required to turn a solution that is ``just enough to pass" into a readable report would be an emotional incentive for the students to carefully post-process their work.
-Naturally, ``plain paper" is not a very manageable medium nowadays.
+Additionally, the comparatively (in relation to the full size of SICP) small amount of work required to turn a solution that is "just enough to pass" into a readable report would be an emotional incentive for the students to carefully post-process their work.
+Naturally, "plain paper" is not a very manageable medium nowadays.
 The closest manageable approximation is PDF.
-So, the actual ``source code" of a solution should be logically and consistently exportable into a PDF file.
+So, the actual "source code" of a solution should be logically and consistently exportable into a PDF file.
 Org-mode can serve this purpose through the PDF export backend.
 
 Org-mode has an almost unimaginable number of use cases.
@@ -534,7 +546,7 @@ SICP's problems can be roughly classified into the following classes:
 - Programming problems in Scheme without input.
 - Programming problems in Scheme with input (possibly running other programs).
 - Programming problems in Scheme with graphical output.
-- Programming problems in a ``low-level language of your choice".
+- Programming problems in a "low-level language of your choice".
 - Mathematical problems.
 - Standard-fitting drawing exercises.
 - Non-standard drawing exercises.
@@ -542,19 +554,19 @@ SICP's problems can be roughly classified into the following classes:
 
 Wonderfully absent are the problems of the data analysis kind.
 
-This section will explain how these classes of problem can be solved in a ``single document mode". 
+This section will explain how these classes of problem can be solved in a "single document mode". 
 
 *Essays* is the most straightforward case. The student can just write the answer to the question below the heading corresponding to a problem.
 Org-mode provides several minimal formatting capabilities that are enough to cover all the use cases required.
 
 *Mathematical problems* require that a \TeX-system be present on the student machine, and employ org-mode's ability to embed \TeX' mathematics, along with previews, directly into the text. The author ended up conducting almost zero pen-and-paper calculations while doing SICP's mathematical exercises.
 
-*Programming exercises in Scheme* are mostly easily formatted as org-mode ``babel-blocks", with the output being pasted directly into the document body, and updated as needed.
+*Programming exercises in Scheme* are mostly easily formatted as org-mode "babel-blocks", with the output being pasted directly into the document body, and updated as needed.
 
 *Programming exercises in Scheme with input* require a little bit of effort to make them work correctly. It is sometimes not entirely obvious whether the input should be interpreted as verbatim text, or as executable code. 
-Ultimately, it turned out to be possible to format all the input data as either ``example" or ``code" blocks, feed them into the recipient blocks via an ``:stdin'' block directive and present all the test cases (different inputs) and test results (corresponding outputs) in the same document.
+Ultimately, it turned out to be possible to format all the input data as either "example" or "code" blocks, feed them into the recipient blocks via an ":stdin'' block directive and present all the test cases (different inputs) and test results (corresponding outputs) in the same document.
 
-*Programming exercises in a low-level language* required wrapping the low-level language code into ``babel" blocks, and the result of combining those into a ``shell" block. 
+*Programming exercises in a low-level language* required wrapping the low-level language code into "babel" blocks, and the result of combining those into a "shell" block. 
 This introduces an operating system dependency. However, GNU Unix Utilities are widespread enough to consider this not a limitation.
 
 *Programming exercises with graphical output* turned out to be the trickiest part from the software suite perspective.
@@ -565,7 +577,7 @@ Org-mode has a special syntax for the inclusion of graphic files, so the exercis
 Indeed, there are several standard visual conventions for industrial illustrations and diagramming, including UML, ArchiMate, SDL, and various others.
 Wherever a SICP figure admitted a standard-based representation, the author tried to use that standard to express the answer to the problem.
 The PlantUML code-driven diagramming tool was used most often, as its support for UML proved to be superior to the alternatives.
-The org-plantuml bridge made it possible to solve these problems in the manner similar to the coding problems -- as ``org-babel" blocks. 
+The org-plantuml bridge made it possible to solve these problems in the manner similar to the coding problems -- as "org-babel" blocks. 
 
 *Non-standard drawing exercises*, the most prominent of those requiring drawing environment diagrams (debugging interfaces), were significantly more challenging.
 When a prepared mental model (i.e. an established diagramming standard) was absent, that diagram had to be implemented from scratch in an improvised way.
@@ -618,14 +630,14 @@ An example of the outline looks the following:
 #+end_export
 
 When work is clearly divided into parts and, for each unit, its completion status is self-evident, the visibility of completeness creates a sense of control in the student. 
-The ``degree of completeness of the whole project", available at any moment, provides an important emotional experience of ``getting close to the result with each completed exercise".
+The "degree of completeness of the whole project", available at any moment, provides an important emotional experience of "getting close to the result with each completed exercise".
 
 Additional research is needed on how persistent this emotion is in students and how much it depends on the uneven distribution of difficulty or the total time consumption.
 There is, however, empirical evidence that even very imprecise, self-measured KPIs do positively affect the chance of reaching the goal.
-(See: [[bib:VanWormer2008]]) 
+(See: [[cite:VanWormer2008]]) 
 
 From the author's personal experience, uneven distribution of difficulties at the leaf-level tasks is a major demotivating factor.
-However, the real problems we find in daily life are not of consistent difficulty, and therefore managing an uneven distribution of difficulty is a critical meta-cognitive skill. Partitioning a large task into smaller ones (_not necessarily_ in the way suggested by the book) may be a way to tackle this problem. Traces of this approach are visible through the ``reference" solution PDF.
+However, the real problems we find in daily life are not of consistent difficulty, and therefore managing an uneven distribution of difficulty is a critical meta-cognitive skill. Partitioning a large task into smaller ones (_not necessarily_ in the way suggested by the book) may be a way to tackle this problem. Traces of this approach are visible through the "reference" solution PDF.
 
 The problems were executed almost sequentially.
 Work on the subsequent problem was started immediately after the previous problem had been finished. 
@@ -634,7 +646,7 @@ Out of more than 350 exercises, only 13 were executed out of order (See section 
 
 In this report, study sessions corresponding to the initial attempts of solving out of order problems were simply ignored. This has not affected the overall duration measures much because those sessions were usually short.
 
-Sequentiality is one of the weakest points of this report. It is generally hard to find motivation to work through a problem set sequentially. SICP does enforce sequentiality for a large share of problems by making the later problems depend on solutions of the previous ones, but this ``dependence coverage" is not complete. 
+Sequentiality is one of the weakest points of this report. It is generally hard to find motivation to work through a problem set sequentially. SICP does enforce sequentiality for a large share of problems by making the later problems depend on solutions of the previous ones, but this "dependence coverage" is not complete. 
 
 As the most straightforward workaround, the author may once again suggest dropping the initial attempts of solving the out-of-order problems from the data set entirely. This should be relatively easy to do because the student (arguably) is likely to decide whether to continue solving the problem or to postpone it within one study session. This study session may then be appropriately trimmed.
 
@@ -642,8 +654,8 @@ The author read the whole book before starting the project. The time to read the
 
 A deliberate effort was spent on avoiding closing a problem at the same time as closing the study session.
 
- The reason for this is to exploit the well-known tricks (See: [[bib:adler_factors_1939]]): 
-- ``When you have something left undone, it is easier to make yourself start the next session."
+ The reason for this is to exploit the well-known tricks (See: [[cite:adler_factors_1939]]): 
+- "When you have something left undone, it is easier to make yourself start the next session."
 - Even just reading out the description of a problem makes the reader start thinking about how to solve it.
 
 The data come in two datasets, closely related.
@@ -656,7 +668,7 @@ The data come in two datasets, closely related.
 #+end_example
 (See [[*Appendix: Full data on the study sessions.][Appendix: Full data on the study sessions.]])
 
-During each study session, the author tried to concentrate as much as possible, and to do only the activities related to the problem set. These are not limited to just writing the code and tuning the software setup. They include the whole ``package" of activities leading to the declaration of the problem solved. These include, but are not limited to, reading or watching additional material, asking questions, fixing bugs in related software, and similar activities.
+During each study session, the author tried to concentrate as much as possible, and to do only the activities related to the problem set. These are not limited to just writing the code and tuning the software setup. They include the whole "package" of activities leading to the declaration of the problem solved. These include, but are not limited to, reading or watching additional material, asking questions, fixing bugs in related software, and similar activities.
 
 Several software problems were discovered in the process of making this solution.
 These problems were reported to the software authors.
@@ -691,19 +703,19 @@ The following figure presents some of the aggregated measurements on solving of 
 - *>78000*-lines long .org file (*>2.6* megabytes) (5300 pages in a PDF).
 - *1* median number of study sessions required to solve a single problem. The difference of almost 2 with the average hints that the few hardest problems required significantly more time than typical ones.
 - *13* problems were solved out of order:
-  - ``Figure 1.1 Tree representation..."
-  - ``Exercise 1.3 Sum of squares."
-  - ``Exercise 1.9 Iterative or recursive?"
-  - ``Exercise 2.45 Split."
-  - ``Exercise 3.69 Triples."
-  - ``Exercise 2.61 Sets as ordered lists."
-  - ``Exercise 4.49 Alyssa's generator."
-  - ``Exercise 4.69 Great-grandchildren."
-  - ``Exercise 4.71 Louis' simple queries."
-  - ``Exercise 4.79 Prolog environments."
-  - ``Figure 5.1 Data paths for a Register Machine."
-  - ``Exercise 5.17 Printing labels."
-  - ``Exercise 5.40 Maintaining a compile-time environment."
+  - "Figure 1.1 Tree representation..."
+  - "Exercise 1.3 Sum of squares."
+  - "Exercise 1.9 Iterative or recursive?"
+  - "Exercise 2.45 Split."
+  - "Exercise 3.69 Triples."
+  - "Exercise 2.61 Sets as ordered lists."
+  - "Exercise 4.49 Alyssa's generator."
+  - "Exercise 4.69 Great-grandchildren."
+  - "Exercise 4.71 Louis' simple queries."
+  - "Exercise 4.79 Prolog environments."
+  - "Figure 5.1 Data paths for a Register Machine."
+  - "Exercise 5.17 Printing labels."
+  - "Exercise 5.40 Maintaining a compile-time environment."
 #+begin_export latex
 \begin{figure}[H]
 \caption{Aggregated measures of problem set execution}
@@ -748,7 +760,7 @@ Learning Fortran up to the level required is a relatively straightforward, albei
 *Exercise 5.52*, a compiler for Scheme, implicitly required that the previous exercise be solved already, as the runtime support code is shared between these two problems. All of the compiled EC-evaluator turned out to be just a single (very long) Fortran function.
 
 *Exercise 2.29* proves that it is possible to create significantly difficult exercises even without introducing the concept of mutation into the curriculum. 
-This problem bears the comment from the SICP authors, ``This is not easy!". 
+This problem bears the comment from the SICP authors, "This is not easy!". 
 Indeed, the final solution contained more than eight hundred lines of code, involved designing an expression normalisation algorithm from scratch, and required twenty-five unit tests to ensure consistency.
 It is just a huge task.
 
@@ -777,7 +789,7 @@ The time spent on *Exercise 3.28* includes the assembly of the whole circuit sim
 The same can be said about *Exercise 2.46*, which required writing a bridge between a Scheme interpreter and a drawing system. The exercise itself is relatively easy.
 
 To sum up this section, the most laborious exercises in the book are the ones that require a student to:
-- implement language features that are ``assumed to be given";
+- implement language features that are "assumed to be given";
 - assemble scattered code fragments into a working program;
 - solve problems that have little to no theoretical coverage in the book.
 
@@ -799,9 +811,9 @@ The second part of the course turned out to be more time-consuming than the firs
 ** Days spent per problem
 
 The figure depicts the number of days (Y-axis) a problem (enumerated by the X-axis coordinate) was loaded in the author's brain. 
-In simple words, it is the number of days that the state of ``trying to solve a problem number X" spanned. 
+In simple words, it is the number of days that the state of "trying to solve a problem number X" spanned. 
 
-This measure is less justified than the ``high concentration" time presented on the figure in the previous section. However, it may nevertheless be useful for encouraging students who get demotivated when spending a long ``high concentration" session on a problem with no apparent success. Naturally, most (but not all) problems are solvable within one session (one day).
+This measure is less justified than the "high concentration" time presented on the figure in the previous section. However, it may nevertheless be useful for encouraging students who get demotivated when spending a long "high concentration" session on a problem with no apparent success. Naturally, most (but not all) problems are solvable within one session (one day).
 
 #+ATTR_LATEX: :width 245pt :float nil
 #+caption: Days spent per problem
@@ -816,15 +828,15 @@ The corresponding spike on the graph of the study sessions is less prominent.
 #+caption: Study sessions per problem
 [[file:experience-report-study-sessions.png]]
 
-A ``session" may be defined as a period of high concentration when the student is actively trying to solve a problem and get the code (or essay) written. This graph presents the number of sessions (Y-axis) spent on each problem (enumerated by the X-axis), regardless of the session length.
+A "session" may be defined as a period of high concentration when the student is actively trying to solve a problem and get the code (or essay) written. This graph presents the number of sessions (Y-axis) spent on each problem (enumerated by the X-axis), regardless of the session length.
 
-When a student goes on a vacation, the problem, presumably, remains loaded in the student's brain. However, periodic ``assaults" in the form of study sessions may be necessary to feed the subconscious processing with the new data.
+When a student goes on a vacation, the problem, presumably, remains loaded in the student's brain. However, periodic "assaults" in the form of study sessions may be necessary to feed the subconscious processing with the new data.
 
-During vacation time, there should be a spike on the ``days per problem" graph, but not the ``sessions per problem graph". This can be seen on the second spike in the ``days per problem" graph, which has its counterpart on the ``sessions per problem" graph. The counterpart is much shorter.
+During vacation time, there should be a spike on the "days per problem" graph, but not the "sessions per problem graph". This can be seen on the second spike in the "days per problem" graph, which has its counterpart on the "sessions per problem" graph. The counterpart is much shorter.
 
 ** Difficulty histogram (linear)
 
-The linearly-scaled difficulty histogram depicts how many problems (Y-axis) require up to ``bin size" hours for solution.
+The linearly-scaled difficulty histogram depicts how many problems (Y-axis) require up to "bin size" hours for solution.
 Naturally, most of the exercises are solvable within one to three hours. 
 
 #+ATTR_LATEX: :width 245pt :float nil
@@ -838,7 +850,7 @@ The logarithmically-scaled difficulty histogram depicts how many problems (Y-axi
 It is very interesting to observe that the histogram shape resembles a uni-modal distribution.
 It is hard to think of a theoretical foundation on which to base assumptions for the distribution law.
 Prior research, however, may imply that the distribution is log-normal. 
-(See [[bib:crow2018lognormal]])
+(See [[cite:crow2018lognormal]])
 
 
 #+ATTR_LATEX: :width 245pt :float nil
@@ -891,13 +903,13 @@ Professors teaching such a course are encouraged to show this report to their st
 
 Another research direction could be towards finding an optimal curriculum design beyond the areas covered by SICP. 
 It should not be unexpected if the students decide not to advance further in the course as long as their personal difficulty assessment exceeds a certain unknown threshold.
-In other words, the author suspects that, at some point, the students may feel an emotion that may be expressed as, ``I have been solving this for too long, and see little progress; I should stop."
+In other words, the author suspects that, at some point, the students may feel an emotion that may be expressed as, "I have been solving this for too long, and see little progress; I should stop."
 
 It would be interesting to measure such a threshold and to suggest curriculum design strategies that aim to minimise course drop-out.
 Such strategies may include attempts at hooking into students' intrinsic motivation (and proper measurements of the execution process may provide an insight on where it is hidden), as well as better designing an extrinsic motivation toolset (e.g. finding better KPIs for rewards and penalties, and proper measures should be helpful in this approach as well).
 
 It would be interesting to observe whether the students who follow the protocol (and see their progress after each session) are more or less likely to drop the course than those who do not. 
-This could constitute a test of intrinsic motivation in line with the self-determination theory of Deci and Ryan (see [[bib:ryan:2017:self_determination_theory]]).
+This could constitute a test of intrinsic motivation in line with the self-determination theory of Deci and Ryan (see [[cite:ryan:2017:self_determination_theory]]).
 
 Another important direction may be the development and formalisation of coursework submission formats, in order to facilitate further collection of similar data on this or other problem sets.
 
@@ -945,46 +957,46 @@ This section attempts to provide a complete list of materials used in the proces
 
 ** Books
 
-- Structure and Interpretation of Computer Programs 2nd Ed. ([[bib:Abelson1996]])
-- Structure and Interpretation of Computer Programs 1st Ed. ([[bib:DBLP:books/mit/AbelsonS85]])
-- Modern Fortran Explained 2018. ([[bib:Metcalf_2018_fortran]])
-- Revised\(^7\) Report on Algorithmic Language Scheme. ([[bib:shinn2013revised]])
-- Logic Programming: A Classified Bibliography. ([[bib:Balbin_1985_logic_programming_bibliography]])
-- Chibi-Scheme Manual. ([[bib:chibi_manual]])
-- TikZ Manual. ([[bib:tikz_manual]])
-- PlantUML Manual. ([[bib:plantuml_manual]])
-- UML Weekend Crash Course. ([[bib:pender2002uml]])
-- GNU Emacs Manual. ([[bib:stallman_emacs_manual]])
-- GNU Emacs Lisp Reference Manual. ([[bib:emacs_lisp_manual]])
-- GNU Emacs Org-Mode Manual. ([[bib:Dominik2010orgmode]])
-- Debugging With GDB. ([[bib:debugging_with_gdb]])
-- Implementations of Prolog. ([[bib:DBLP:books/eh/campbell84/C1984]])
+- Structure and Interpretation of Computer Programs 2nd Ed. ([[cite:Abelson1996]])
+- Structure and Interpretation of Computer Programs 1st Ed. ([[cite:DBLP:books_mit_AbelsonS85]])
+- Modern Fortran Explained 2018. ([[cite:Metcalf_2018_fortran]])
+- Revised\(^7\) Report on Algorithmic Language Scheme. ([[cite:shinn2013revised]])
+- Logic Programming: A Classified Bibliography. ([[cite:Balbin_1985_logic_programming_bibliography]])
+- Chibi-Scheme Manual. ([[cite:chibi_manual]])
+- TikZ Manual. ([[cite:tikz_manual]])
+- PlantUML Manual. ([[cite:plantuml_manual]])
+- UML Weekend Crash Course. ([[cite:pender2002uml]])
+- GNU Emacs Manual. ([[cite:stallman_emacs_manual]])
+- GNU Emacs Lisp Reference Manual. ([[cite:emacs_lisp_manual]])
+- GNU Emacs Org-Mode Manual. ([[cite:Dominik2010orgmode]])
+- Debugging With GDB. ([[cite:debugging_with_gdb]])
+- Implementations of Prolog. ([[cite:DBLP_books_eh_campbell84_C1984]])
 
 ** Software
-- GNU Emacs. ([[bib:software_gnu_emacs]])
-- Org-mode for Emacs. ([[bib:software_org_mode]])
-- Chibi-Scheme. ([[bib:software_chibi_scheme]])
-- MIT/GNU Scheme. [For for portability checks]. ([[bib:software_mit_scheme]])
-- Geiser. ([[bib:software_geiser]])
-- GNU Debugger (GDB). ([[bib:software_gnu_gdb]])
-- luaLaTeX/TeX Live. ([[bib:software_tex_texlive]])
-- TikZ/PGF. ([[bib:software_tex_tikz]])
-- PlantUML. ([[bib:software_plantuml]])
-- Graphviz. ([[bib:software_graphviz]])
-- Slackware Linux 14.2-current. ([[bib:software_slackware_linux]])
+- GNU Emacs. ([[cite:software_gnu_emacs]])
+- Org-mode for Emacs. ([[cite:software_org_mode]])
+- Chibi-Scheme. ([[cite:software_chibi_scheme]])
+- MIT/GNU Scheme. [For for portability checks]. ([[cite:software_mit_scheme]])
+- Geiser. ([[cite:software_geiser]])
+- GNU Debugger (GDB). ([[cite:software_gnu_gdb]])
+- luaLaTeX/TeX Live. ([[cite:software_tex_texlive]])
+- TikZ/PGF. ([[cite:software_tex_tikz]])
+- PlantUML. ([[cite:software_plantuml]])
+- Graphviz. ([[cite:software_graphviz]])
+- Slackware Linux 14.2-current. ([[cite:software_slackware_linux]])
 
-#+begin_export latex
-\nocite{Schulte:Davison:Dye:Dominik:2011:JSSOBK:v46i03}
-#+end_export
+
+#+latex: \nocite{Schulte:Davison:Dye:Dominik:2011:JSSOBK:v46i03}
 
 ** Papers
 
-- Revised Report on the Propagator Model. ([[bib:radul_2011_propagator]])
-- On Implementing Prolog In Functional Programming. ([[bib:DBLP:journals/ngc/Carlsson84]])
-- eu-Prolog, Reference Manual. ([[bib:kohlbecker1984eu]])
+- Revised Report on the Propagator Model. ([[cite:radul_2011_propagator]])
+- On Implementing Prolog In Functional Programming. ([[cite:DBLPjournals_ngc_Carlsson84]])
+- eu-Prolog, Reference Manual. ([[cite:kohlbecker1984eu]])
 
 
-\printbibliography
+#+bibliography: bibliography-bib plain limit:t
+#+latex: \printbibliography
 
 
 * Appendix: Analysed data on problem difficulty
@@ -1434,315 +1446,315 @@ The earliest time stamp also marks the beginning of the whole project.
 
 #+attr_latex: :left
 #+name: study-sessions-data
-#+begin_src elisp
-  [2020-05-10 Sun 14:39]-[2020-05-10 Sun 18:00]|3:21
-  [2020-05-09 Sat 19:13]-[2020-05-09 Sat 22:13]|3:00
-  [2020-05-09 Sat 09:34]-[2020-05-09 Sat 14:34]|5:00
-  [2020-05-08 Fri 21:45]-[2020-05-08 Fri 23:17]|1:32
-  [2020-05-08 Fri 18:30]-[2020-05-08 Fri 21:18]|2:48
-  [2020-05-06 Wed 10:12]-[2020-05-06 Wed 11:09]|0:57
-  [2020-05-05 Tue 12:11]-[2020-05-06 Wed 00:00]|11:49
-  [2020-05-04 Mon 18:20]-[2020-05-05 Tue 00:30]|6:10
-  [2020-05-04 Mon 14:02]-[2020-05-04 Mon 17:43]|3:41
-  [2020-05-03 Sun 21:03]-[2020-05-03 Sun 22:02]|0:59
-  [2020-04-30 Thu 09:28]-[2020-04-30 Thu 11:23]|1:55
-  [2020-04-29 Wed 20:00]-[2020-04-29 Wed 23:25]|3:25
-  [2020-04-28 Tue 22:55]-[2020-04-29 Wed 00:11]|1:16
-  [2020-04-28 Tue 21:00]-[2020-04-28 Tue 22:50]|1:50
-  [2020-04-27 Mon 20:09]-[2020-04-27 Mon 22:09]|2:00
-  [2020-04-26 Sun 20:10]-[2020-04-26 Sun 23:52]|3:42
-  [2020-04-21 Tue 11:01]-[2020-04-21 Tue 12:26]|1:25
-  [2020-04-13 Mon 11:40]-[2020-04-13 Mon 11:55]|0:15
-  [2020-04-11 Sat 11:50]-[2020-04-11 Sat 15:50]|4:00
-  [2020-04-10 Fri 09:50]-[2020-04-10 Fri 14:26]|4:36
-  [2020-04-09 Thu 19:50]-[2020-04-09 Thu 23:10]|3:20
-  [2020-04-09 Thu 09:55]-[2020-04-09 Thu 13:00]|3:05
-  [2020-04-08 Wed 22:50]-[2020-04-08 Wed 23:55]|1:05
-  [2020-04-08 Wed 18:30]-[2020-04-08 Wed 21:11]|2:41
-  [2020-04-08 Wed 09:15]-[2020-04-08 Wed 12:15]|3:00
-  [2020-04-07 Tue 20:46]-[2020-04-07 Tue 23:37]|2:51
-  [2020-04-07 Tue 09:41]-[2020-04-07 Tue 11:57]|2:16
-  [2020-04-06 Mon 18:58]-[2020-04-06 Mon 21:20]|2:22
-  [2020-04-06 Mon 12:09]-[2020-04-06 Mon 14:15]|2:06
-  [2020-04-05 Sun 11:30]-[2020-04-05 Sun 15:11]|3:41
-  [2020-04-04 Sat 22:08]-[2020-04-04 Sat 22:45]|0:37
-  [2020-04-04 Sat 17:54]-[2020-04-04 Sat 20:50]|2:56
-  [2020-04-04 Sat 17:24]-[2020-04-04 Sat 17:41]|0:17
-  [2020-04-04 Sat 15:15]-[2020-04-04 Sat 16:10]|0:55
-  [2020-04-03 Fri 20:22]-[2020-04-03 Fri 22:21]|1:59
-  [2020-04-01 Wed 13:05]-[2020-04-01 Wed 15:05]|2:00
-  [2020-03-29 Sun 13:05]-[2020-03-29 Sun 22:05]|9:00
-  [2020-03-28 Sat 13:04]-[2020-03-28 Sat 22:04]|9:00
-  [2020-03-26 Thu 20:20]-[2020-03-26 Thu 23:33]|3:13
-  [2020-03-26 Thu 10:43]-[2020-03-26 Thu 14:39]|3:56
-  [2020-03-24 Tue 20:00]-[2020-03-24 Tue 23:50]|3:50
-  [2020-03-24 Tue 09:10]-[2020-03-24 Tue 12:34]|3:24
-  [2020-03-23 Mon 19:56]-[2020-03-23 Mon 23:06]|3:10
-  [2020-03-23 Mon 10:23]-[2020-03-23 Mon 13:23]|3:00
-  [2020-03-23 Mon 09:06]-[2020-03-23 Mon 10:56]|1:50
-  [2020-03-22 Sun 18:46]-[2020-03-22 Sun 22:45]|3:59
-  [2020-03-22 Sun 12:45]-[2020-03-22 Sun 13:46]|1:01
-  [2020-03-21 Sat 19:07]-[2020-03-21 Sat 21:35]|2:28
-  [2020-03-17 Tue 19:11]-[2020-03-17 Tue 22:11]|3:00
-  [2020-03-15 Sun 09:10]-[2020-03-15 Sun 12:41]|3:31
-  [2020-03-14 Sat 23:01]-[2020-03-14 Sat 23:54]|0:53
-  [2020-03-14 Sat 20:46]-[2020-03-14 Sat 23:01]|2:15
-  [2020-03-14 Sat 20:39]-[2020-03-14 Sat 20:46]|0:07
-  [2020-03-14 Sat 17:23]-[2020-03-14 Sat 20:39]|3:16
-  [2020-03-14 Sat 12:00]-[2020-03-14 Sat 15:53]|3:53
-  [2020-03-13 Fri 20:01]-[2020-03-13 Fri 23:01]|3:00
-  [2020-03-13 Fri 09:20]-[2020-03-13 Fri 11:58]|2:38
-  [2020-03-12 Thu 20:30]-[2020-03-12 Thu 23:29]|2:59
-  [2020-03-11 Wed 12:12]-[2020-03-11 Wed 13:18]|1:06
-  [2020-03-11 Wed 10:45]-[2020-03-11 Wed 11:09]|0:24
-  [2020-03-11 Wed 09:15]-[2020-03-11 Wed 10:45]|1:30
-  [2020-03-10 Tue 20:22]-[2020-03-11 Wed 00:09]|3:47
-  [2020-03-10 Tue 09:08]-[2020-03-10 Tue 13:44]|4:36
-  [2020-03-09 Mon 22:28]-[2020-03-09 Mon 23:32]|1:04
-  [2020-03-09 Mon 09:08]-[2020-03-09 Mon 11:59]|2:51
-  [2020-03-08 Sun 18:30]-[2020-03-08 Sun 21:29]|2:59
-  [2020-03-08 Sun 16:51]-[2020-03-08 Sun 18:08]|1:17
-  [2020-03-08 Sun 13:50]-[2020-03-08 Sun 15:36]|1:46
-  [2020-03-08 Sun 11:56]-[2020-03-08 Sun 13:28]|1:32
-  [2020-03-07 Sat 18:00]-[2020-03-07 Sat 21:36]|3:36
-  [2020-03-07 Sat 11:35]-[2020-03-07 Sat 16:09]|4:34
-  [2020-03-06 Fri 17:37]-[2020-03-06 Fri 21:48]|4:11
-  [2020-03-06 Fri 13:11]-[2020-03-06 Fri 14:16]|1:05
-  [2020-03-06 Fri 09:42]-[2020-03-06 Fri 12:39]|2:57
-  [2020-03-05 Thu 16:54]-[2020-03-05 Thu 21:34]|4:40
-  [2020-03-05 Thu 08:58]-[2020-03-05 Thu 13:24]|4:26
-  [2020-03-04 Wed 19:51]-[2020-03-04 Wed 22:51]|3:00
-  [2020-03-04 Wed 11:33]-[2020-03-04 Wed 12:31]|0:58
-  [2020-03-04 Wed 09:32]-[2020-03-04 Wed 11:01]|1:29
-  [2020-03-03 Tue 19:13]-[2020-03-03 Tue 21:46]|2:33
-  [2020-03-03 Tue 12:20]-[2020-03-03 Tue 14:58]|2:38
-  [2020-03-03 Tue 09:13]-[2020-03-03 Tue 11:57]|2:44
-  [2020-03-02 Mon 18:30]-[2020-03-02 Mon 18:50]|0:20
-  [2020-03-02 Mon 12:01]-[2020-03-02 Mon 14:43]|2:42
-  [2020-03-02 Mon 09:02]-[2020-03-02 Mon 11:30]|2:28
-  [2020-03-01 Sun 19:07]-[2020-03-01 Sun 21:25]|2:18
-  [2020-03-01 Sun 17:50]-[2020-03-01 Sun 18:41]|0:51
-  [2020-03-01 Sun 11:09]-[2020-03-01 Sun 15:15]|4:06
-  [2020-02-29 Sat 21:30]-[2020-02-29 Sat 22:16]|0:46
-  [2020-02-29 Sat 12:48]-[2020-02-29 Sat 19:17]|6:29
-  [2020-02-28 Fri 20:21]-[2020-02-28 Fri 23:10]|2:49
-  [2020-02-28 Fri 18:26]-[2020-02-28 Fri 19:22]|0:56
-  [2020-02-28 Fri 11:55]-[2020-02-28 Fri 12:02]|0:07
-  [2020-02-27 Thu 09:20]-[2020-02-27 Thu 10:57]|1:37
-  [2020-02-26 Wed 20:47]-[2020-02-26 Wed 23:44]|2:57
-  [2020-02-26 Wed 12:07]-[2020-02-26 Wed 13:40]|1:33
-  [2020-02-26 Wed 09:29]-[2020-02-26 Wed 11:00]|1:31
-  [2020-02-25 Tue 19:18]-[2020-02-25 Tue 22:51]|3:33
-  [2020-02-25 Tue 09:01]-[2020-02-25 Tue 10:42]|1:41
-  [2020-02-24 Mon 19:23]-[2020-02-25 Tue 00:15]|4:52
-  [2020-02-24 Mon 13:00]-[2020-02-24 Mon 13:36]|0:36
-  [2020-02-24 Mon 10:08]-[2020-02-24 Mon 12:39]|2:31
-  [2020-02-23 Sun 19:20]-[2020-02-23 Sun 20:48]|1:28
-  [2020-02-23 Sun 12:52]-[2020-02-23 Sun 16:45]|3:53
-  [2020-02-22 Sat 21:35]-[2020-02-23 Sun 00:25]|2:50
-  [2020-02-22 Sat 19:59]-[2020-02-22 Sat 21:03]|1:04
-  [2020-02-22 Sat 12:20]-[2020-02-22 Sat 18:35]|6:15
-  [2020-02-21 Fri 20:55]-[2020-02-22 Sat 00:30]|3:35
-  [2020-02-21 Fri 17:30]-[2020-02-21 Fri 18:51]|1:21
-  [2020-02-21 Fri 10:40]-[2020-02-21 Fri 16:40]|6:00
-  [2020-02-20 Thu 17:00]-[2020-02-20 Thu 23:33]|6:33
-  [2020-02-20 Thu 14:43]-[2020-02-20 Thu 15:08]|0:25
-  [2020-02-20 Thu 10:05]-[2020-02-20 Thu 13:54]|3:49
-  [2020-02-19 Wed 21:35]-[2020-02-20 Thu 00:36]|3:01
-  [2020-02-19 Wed 19:50]-[2020-02-19 Wed 21:30]|1:40
-  [2020-02-19 Wed 13:34]-[2020-02-19 Wed 18:15]|4:41
-  [2020-02-19 Wed 11:10]-[2020-02-19 Wed 13:34]|2:24
-  [2020-02-18 Tue 21:05]-[2020-02-19 Wed 00:27]|3:22
-  [2020-02-18 Tue 19:02]-[2020-02-18 Tue 20:13]|1:11
-  [2020-02-18 Tue 16:58]-[2020-02-18 Tue 18:36]|1:38
-  [2020-02-18 Tue 10:55]-[2020-02-18 Tue 15:21]|4:26
-  [2020-02-17 Mon 19:20]-[2020-02-18 Tue 00:12]|4:52
-  [2020-02-17 Mon 15:20]-[2020-02-17 Mon 18:00]|2:40
-  [2020-02-17 Mon 14:17]-[2020-02-17 Mon 15:09]|0:52
-  [2020-02-16 Sun 21:21]-[2020-02-17 Mon 00:52]|3:31
-  [2020-02-16 Sun 20:03]-[2020-02-16 Sun 20:14]|0:11
-  [2020-02-16 Sun 19:00]-[2020-02-16 Sun 19:30]|0:30
-  [2020-02-16 Sun 16:06]-[2020-02-16 Sun 18:38]|2:32
-  [2020-02-16 Sun 12:59]-[2020-02-16 Sun 14:37]|1:38
-  [2020-02-16 Sun 10:30]-[2020-02-16 Sun 12:22]|1:52
-  [2020-02-15 Sat 22:10]-[2020-02-15 Sat 23:52]|1:42
-  [2020-02-15 Sat 21:01]-[2020-02-15 Sat 21:50]|0:49
-  [2020-02-15 Sat 15:03]-[2020-02-15 Sat 18:34]|3:31
-  [2020-02-14 Fri 18:53]-[2020-02-15 Sat 04:33]|9:40
-  [2020-02-13 Thu 16:15]-[2020-02-13 Thu 17:21]|1:06
-  [2020-02-13 Thu 00:12]-[2020-02-13 Thu 01:45]|1:33
-  [2020-02-12 Wed 18:36]-[2020-02-12 Wed 22:30]|3:54
-  [2020-02-12 Wed 13:16]-[2020-02-12 Wed 14:55]|1:39
-  [2020-02-12 Wed 08:37]-[2020-02-12 Wed 12:20]|3:43
-  [2020-02-11 Tue 18:51]-[2020-02-11 Tue 21:54]|3:03
-  [2020-02-11 Tue 04:30]-[2020-02-11 Tue 08:09]|3:39
-  [2020-02-10 Mon 06:42]-[2020-02-10 Mon 07:28]|0:46
-  [2020-02-06 Thu 15:42]-[2020-02-06 Thu 22:08]|6:26
-  [2020-02-01 Sat 15:05]-[2020-02-01 Sat 15:36]|0:31
-  [2020-01-23 Thu 17:06]-[2020-01-23 Thu 18:51]|1:45
-  [2020-01-22 Wed 20:53]-[2020-01-22 Wed 21:05]|0:12
-  [2020-01-22 Wed 13:40]-[2020-01-22 Wed 20:20]|6:40
-  [2020-01-21 Tue 15:33]-[2020-01-21 Tue 16:57]|1:24
-  [2020-01-17 Fri 19:13]-[2020-01-17 Fri 23:00]|3:47
-  [2020-01-11 Sat 10:56]-[2020-01-11 Sat 18:24]|7:28
-  [2020-01-10 Fri 22:20]-[2020-01-10 Fri 23:56]|1:36
-  [2020-01-10 Fri 09:40]-[2020-01-10 Fri 13:20]|3:40
-  [2020-01-09 Thu 20:10]-[2020-01-09 Thu 22:15]|2:05
-  [2020-01-09 Thu 08:50]-[2020-01-09 Thu 09:55]|1:05
-  [2020-01-08 Wed 19:21]-[2020-01-09 Thu 00:42]|5:21
-  [2020-01-08 Wed 09:20]-[2020-01-08 Wed 18:12]|8:52
-  [2020-01-07 Tue 16:31]-[2020-01-07 Tue 18:31]|2:00
-  [2020-01-07 Tue 08:55]-[2020-01-07 Tue 12:49]|3:54
-  [2020-01-06 Mon 22:30]-[2020-01-06 Mon 23:31]|1:01
-  [2020-01-06 Mon 09:20]-[2020-01-06 Mon 11:56]|2:36
-  [2020-01-04 Sat 20:25]-[2020-01-04 Sat 21:09]|0:44
-  [2020-01-04 Sat 09:37]-[2020-01-04 Sat 13:22]|3:45
-  [2020-01-03 Fri 21:13]-[2020-01-03 Fri 23:59]|2:46
-  [2020-01-03 Fri 18:13]-[2020-01-03 Fri 19:13]|1:00
-  [2020-01-03 Fri 12:08]-[2020-01-03 Fri 14:12]|2:04
-  [2020-01-02 Thu 09:35]-[2020-01-02 Thu 11:58]|2:23
-  [2019-12-29 Sun 02:12]-[2019-12-29 Sun 05:42]|3:30
-  [2019-12-26 Thu 16:59]-[2019-12-26 Thu 19:51]|2:52
-  [2019-12-23 Mon 05:03]-[2019-12-23 Mon 05:31]|0:28
-  [2019-12-23 Mon 03:02]-[2019-12-23 Mon 04:03]|1:01
-  [2019-12-22 Sun 16:51]-[2019-12-22 Sun 18:40]|1:49
-  [2019-12-21 Sat 19:23]-[2019-12-22 Sun 00:19]|4:56
-  [2019-12-20 Fri 14:10]-[2019-12-20 Fri 17:11]|3:01
-  [2019-12-19 Thu 23:20]-[2019-12-19 Thu 23:38]|0:18
-  [2019-12-18 Wed 10:47]-[2019-12-18 Wed 12:47]|2:00
-  [2019-12-09 Mon 10:47]-[2019-12-09 Mon 13:21]|2:34
-  [2019-12-08 Sun 17:47]-[2019-12-09 Sun 00:28]|6:41
-  [2019-12-07 Sat 16:07]-[2019-12-07 Sat 23:15]|7:08
-  [2019-12-06 Fri 19:04]-[2019-12-06 Fri 20:54]|1:50
-  [2019-12-04 Wed 18:06]-[2019-12-05 Thu 00:42]|6:36
-  [2019-12-04 Wed 12:36]-[2019-12-04 Wed 13:05]|0:29
-  [2019-12-03 Tue 22:18]-[2019-12-03 Tue 23:27]|1:09
-  [2019-12-03 Tue 21:21]-[2019-12-03 Tue 22:18]|0:57
-  [2019-12-03 Tue 12:40]-[2019-12-03 Tue 15:25]|2:45
-  [2019-12-02 Mon 20:06]-[2019-12-02 Mon 23:30]|3:24
-  [2019-12-01 Sun 22:07]-[2019-12-02 Mon 01:06]|2:59
-  [2019-12-01 Sun 18:59]-[2019-12-01 Sun 19:59]|1:00
-  [2019-11-30 Sat 14:19]-[2019-11-30 Sat 15:15]|0:56
-  [2019-11-29 Fri 20:07]-[2019-11-29 Fri 21:24]|1:17
-  [2019-11-29 Fri 11:51]-[2019-11-29 Fri 12:10]|0:19
-  [2019-11-28 Thu 09:30]-[2019-11-28 Thu 15:00]|5:30
-  [2019-11-26 Tue 09:15]-[2019-11-26 Tue 12:57]|3:42
-  [2019-11-25 Mon 10:35]-[2019-11-25 Mon 13:02]|2:27
-  [2019-11-20 Wed 12:08]-[2019-11-20 Wed 14:29]|2:21
-  [2019-11-20 Wed 09:25]-[2019-11-20 Wed 11:32]|2:07
-  [2019-11-19 Tue 11:45]-[2019-11-19 Tue 14:42]|2:57
-  [2019-11-13 Wed 20:52]-[2019-11-13 Wed 22:25]|1:33
-  [2019-11-12 Tue 19:47]-[2019-11-12 Tue 21:14]|1:27
-  [2019-11-12 Tue 09:30]-[2019-11-12 Tue 11:49]|2:19
-  [2019-11-11 Mon 21:03]-[2019-11-11 Mon 23:03]|2:00
-  [2019-11-10 Sun 21:45]-[2019-11-10 Sun 23:25]|1:40
-  [2019-10-31 Thu 09:20]-[2019-10-31 Thu 11:07]|1:47
-  [2019-10-30 Wed 10:35]-[2019-10-30 Wed 13:55]|3:20
-  [2019-10-29 Tue 22:35]-[2019-10-30 Wed 00:13]|1:38
-  [2019-10-29 Tue 09:33]-[2019-10-29 Tue 11:33]|2:00
-  [2019-10-28 Mon 21:52]-[2019-10-29 Tue 00:14]|2:22
-  [2019-10-28 Mon 18:23]-[2019-10-28 Mon 19:23]|1:00
-  [2019-10-28 Mon 09:07]-[2019-10-28 Mon 15:10]|6:03
-  [2019-10-27 Sun 20:44]-[2019-10-28 Mon 00:48]|4:04
-  [2019-10-27 Sun 14:17]-[2019-10-27 Sun 15:42]|1:25
-  [2019-10-27 Sun 12:15]-[2019-10-27 Sun 13:33]|1:18
-  [2019-10-26 Sat 13:53]-[2019-10-26 Sat 14:10]|0:17
-  [2019-10-26 Sat 10:15]-[2019-10-26 Sat 10:58]|0:43
-  [2019-10-25 Fri 15:12]-[2019-10-25 Fri 17:55]|2:43
-  [2019-10-25 Fri 09:10]-[2019-10-25 Fri 09:59]|0:49
-  [2019-10-24 Thu 22:23]-[2019-10-25 Fri 00:05]|1:42
-  [2019-10-24 Thu 18:45]-[2019-10-24 Thu 21:21]|2:36
-  [2019-10-24 Thu 09:03]-[2019-10-24 Thu 10:47]|1:44
-  [2019-10-23 Wed 21:24]-[2019-10-24 Wed 23:49]|2:25
-  [2019-10-23 Wed 09:09]-[2019-10-23 Wed 10:55]|1:46
-  [2019-10-22 Tue 22:35]-[2019-10-23 Wed 00:13]|1:33
-  [2019-10-22 Tue 19:10]-[2019-10-22 Tue 21:38]|2:28
-  [2019-10-22 Tue 09:18]-[2019-10-22 Tue 12:02]|2:44
-  [2019-10-21 Mon 23:39]-[2019-10-21 Mon 23:49]|0:10
-  [2019-10-21 Mon 17:23]-[2019-10-21 Mon 18:28]|1:05
-  [2019-10-21 Mon 09:05]-[2019-10-21 Mon 13:58]|4:53
-  [2019-10-20 Sun 23:27]-[2019-10-21 Mon 00:00]|0:33
-  [2019-10-20 Sun 19:32]-[2019-10-20 Sun 20:23]|0:51
-  [2019-10-20 Sun 12:55]-[2019-10-20 Sun 14:45]|1:50
-  [2019-10-19 Sat 19:25]-[2019-10-19 Sat 20:45]|1:20
-  [2019-10-19 Sat 16:12]-[2019-10-19 Sat 18:47]|2:35
-  [2019-10-17 Thu 19:18]-[2019-10-17 Thu 22:55]|3:37
-  [2019-10-17 Thu 09:30]-[2019-10-17 Thu 11:42]|2:12
-  [2019-10-16 Wed 14:52]-[2019-10-16 Wed 14:59]|0:07
-  [2019-10-16 Wed 09:08]-[2019-10-16 Wed 10:08]|1:00
-  [2019-10-15 Tue 22:35]-[2019-10-15 Tue 23:30]|0:55
-  [2019-10-15 Tue 19:30]-[2019-10-15 Tue 21:40]|2:10
-  [2019-10-15 Tue 09:10]-[2019-10-15 Tue 12:56]|3:46
-  [2019-10-14 Mon 19:51]-[2019-10-14 Mon 23:10]|3:19
-  [2019-10-14 Mon 15:57]-[2019-10-14 Mon 17:23]|1:26
-  [2019-10-12 Sat 20:05]-[2019-10-12 Sat 21:33]|1:28
-  [2019-10-12 Sat 15:56]-[2019-10-12 Sat 16:07]|0:11
-  [2019-10-12 Sat 10:31]-[2019-10-12 Sat 12:31]|2:00
-  [2019-10-11 Fri 19:55]-[2019-10-11 Fri 22:34]|2:39
-  [2019-10-11 Fri 17:55]-[2019-10-11 Fri 19:28]|1:33
-  [2019-10-11 Fri 14:35]-[2019-10-11 Fri 14:47]|0:12
-  [2019-10-11 Fri 09:10]-[2019-10-11 Fri 11:10]|2:00
-  [2019-10-10 Thu 20:26]-[2019-10-10 Thu 21:48]|1:22
-  [2019-10-10 Thu 17:26]-[2019-10-10 Thu 19:40]|2:14
-  [2019-10-10 Thu 12:15]-[2019-10-10 Thu 14:37]|2:22
-  [2019-10-10 Thu 08:50]-[2019-10-10 Thu 11:29]|2:39
-  [2019-10-09 Wed 20:16]-[2019-10-09 Wed 20:55]|0:39
-  [2019-10-09 Wed 16:46]-[2019-10-09 Wed 17:55]|1:09
-  [2019-10-09 Wed 11:27]-[2019-10-09 Wed 13:38]|2:11
-  [2019-09-29 Sun 17:01]-[2019-09-29 Sun 17:23]|0:22
-  [2019-09-27 Fri 08:56]-[2019-09-27 Fri 10:20]|1:24
-  [2019-09-26 Thu 21:25]-[2019-09-26 Thu 23:38]|2:13
-  [2019-09-25 Wed 21:55]-[2019-09-25 Wed 22:18]|0:23
-  [2019-09-25 Wed 12:20]-[2019-09-25 Wed 15:22]|3:02
-  [2019-09-25 Wed 09:20]-[2019-09-25 Wed 11:25]|2:05
-  [2019-09-24 Tue 22:10]-[2019-09-24 Tue 23:16]|1:06
-  [2019-09-24 Tue 12:05]-[2019-09-24 Tue 13:49]|1:44
-  [2019-09-24 Tue 01:17]-[2019-09-24 Tue 02:15]|0:58
-  [2019-09-23 Mon 21:26]-[2019-09-23 Mon 22:57]|1:31
-  [2019-09-22 Sun 14:52]-[2019-09-22 Sun 18:51]|3:59
-  [2019-09-21 Sat 16:50]-[2019-09-21 Sat 17:55]|1:05
-  [2019-09-21 Sat 12:31]-[2019-09-21 Sat 15:44]|3:13
-  [2019-09-20 Fri 22:05]-[2019-09-21 Sat 00:05]|2:00
-  [2019-09-20 Fri 14:38]-[2019-09-20 Fri 17:20]|2:42
-  [2019-09-20 Fri 11:42]-[2019-09-20 Fri 12:48]|1:06
-  [2019-09-19 Thu 21:14]-[2019-09-20 Fri 00:33]|3:19
-  [2019-09-19 Thu 09:15]-[2019-09-19 Thu 11:14]|1:59
-  [2019-09-18 Wed 20:55]-[2019-09-18 Wed 23:25]|2:30
-  [2019-09-17 Tue 22:05]-[2019-09-17 Tue 22:56]|0:51
-  [2019-09-14 Sat 14:20]-[2019-09-14 Sat 16:57]|2:37
-  [2019-09-12 Thu 09:31]-[2019-09-12 Thu 10:36]|1:05
-  [2019-09-11 Wed 22:40]-[2019-09-12 Thu 01:41]|3:01
-  [2019-09-11 Wed 12:11]-[2019-09-11 Wed 15:16]|3:05
-  [2019-09-11 Wed 09:19]-[2019-09-11 Wed 11:49]|2:30
-  [2019-09-10 Tue 20:60]-[2019-09-10 Tue 23:35]|2:35
-  [2019-09-10 Tue 16:30]-[2019-09-10 Tue 19:35]|3:05
-  [2019-09-10 Tue 14:30]-[2019-09-10 Tue 14:41]|0:11
-  [2019-09-10 Tue 10:27]-[2019-09-10 Tue 11:27]|1:00
-  [2019-09-09 Mon 09:29]-[2019-09-09 Mon 12:45]|3:16
-  [2019-09-08 Sun 23:07]-[2019-09-09 Mon 00:46]|1:39
-  [2019-09-08 Sun 15:10]-[2019-09-08 Sun 21:07]|5:57
-  [2019-09-06 Fri 12:05]-[2019-09-06 Fri 13:40]|1:35
-  [2019-09-04 Wed 20:01]-[2019-09-04 Wed 23:19]|3:18
-  [2019-09-04 Wed 17:01]-[2019-09-04 Wed 20:00]|2:59
-  [2019-09-04 Wed 09:12]-[2019-09-04 Wed 12:12]|3:00
-  [2019-09-03 Tue 19:40]-[2019-09-04 Wed 01:20]|5:40
-  [2019-09-03 Tue 11:12]-[2019-09-03 Tue 14:46]|3:34
-  [2019-09-03 Tue 10:00]-[2019-09-03 Tue 10:39]|0:39
-  [2019-09-02 Mon 19:55]-[2019-09-03 Tue 00:00]|4:05
-  [2019-09-02 Mon 09:53]-[2019-09-02 Mon 13:37]|3:44
-  [2019-09-01 Sun 19:10]-[2019-09-02 Mon 00:46]|5:36
-  [2019-08-31 Sat 11:21]-[2019-08-31 Sat 11:44]|0:23
-  [2019-08-30 Fri 19:21]-[2019-08-30 Fri 23:49]|4:28
-  [2019-08-30 Fri 15:21]-[2019-08-30 Fri 16:11]|0:50
-  [2019-08-29 Thu 14:10]-[2019-08-29 Thu 15:16]|1:06
-  [2019-08-25 Sun 14:15]-[2019-08-25 Sun 21:55]|7:40
-  [2019-08-22 Thu 15:01]-[2019-08-22 Thu 19:39]|4:38
-  [2019-08-22 Thu 09:12]-[2019-08-22 Thu 13:30]|4:18
-  [2019-08-21 Wed 21:15]-[2019-08-22 Thu 00:17]|3:02
-  [2019-08-21 Wed 12:21]-[2019-08-21 Wed 14:39]|2:18
-  [2019-08-20 Tue 10:57]-[2019-08-20 Tue 15:04]|4:07
-  [2019-08-19 Mon 09:19]-[2019-08-19 Mon 13:32]|4:13
-#+end_src
+#+BEGIN_SRC elisp
+[2020-05-10 Sun 14:39]-[2020-05-10 Sun 18:00]|3:21
+[2020-05-09 Sat 19:13]-[2020-05-09 Sat 22:13]|3:00
+[2020-05-09 Sat 09:34]-[2020-05-09 Sat 14:34]|5:00
+[2020-05-08 Fri 21:45]-[2020-05-08 Fri 23:17]|1:32
+[2020-05-08 Fri 18:30]-[2020-05-08 Fri 21:18]|2:48
+[2020-05-06 Wed 10:12]-[2020-05-06 Wed 11:09]|0:57
+[2020-05-05 Tue 12:11]-[2020-05-06 Wed 00:00]|11:49
+[2020-05-04 Mon 18:20]-[2020-05-05 Tue 00:30]|6:10
+[2020-05-04 Mon 14:02]-[2020-05-04 Mon 17:43]|3:41
+[2020-05-03 Sun 21:03]-[2020-05-03 Sun 22:02]|0:59
+[2020-04-30 Thu 09:28]-[2020-04-30 Thu 11:23]|1:55
+[2020-04-29 Wed 20:00]-[2020-04-29 Wed 23:25]|3:25
+[2020-04-28 Tue 22:55]-[2020-04-29 Wed 00:11]|1:16
+[2020-04-28 Tue 21:00]-[2020-04-28 Tue 22:50]|1:50
+[2020-04-27 Mon 20:09]-[2020-04-27 Mon 22:09]|2:00
+[2020-04-26 Sun 20:10]-[2020-04-26 Sun 23:52]|3:42
+[2020-04-21 Tue 11:01]-[2020-04-21 Tue 12:26]|1:25
+[2020-04-13 Mon 11:40]-[2020-04-13 Mon 11:55]|0:15
+[2020-04-11 Sat 11:50]-[2020-04-11 Sat 15:50]|4:00
+[2020-04-10 Fri 09:50]-[2020-04-10 Fri 14:26]|4:36
+[2020-04-09 Thu 19:50]-[2020-04-09 Thu 23:10]|3:20
+[2020-04-09 Thu 09:55]-[2020-04-09 Thu 13:00]|3:05
+[2020-04-08 Wed 22:50]-[2020-04-08 Wed 23:55]|1:05
+[2020-04-08 Wed 18:30]-[2020-04-08 Wed 21:11]|2:41
+[2020-04-08 Wed 09:15]-[2020-04-08 Wed 12:15]|3:00
+[2020-04-07 Tue 20:46]-[2020-04-07 Tue 23:37]|2:51
+[2020-04-07 Tue 09:41]-[2020-04-07 Tue 11:57]|2:16
+[2020-04-06 Mon 18:58]-[2020-04-06 Mon 21:20]|2:22
+[2020-04-06 Mon 12:09]-[2020-04-06 Mon 14:15]|2:06
+[2020-04-05 Sun 11:30]-[2020-04-05 Sun 15:11]|3:41
+[2020-04-04 Sat 22:08]-[2020-04-04 Sat 22:45]|0:37
+[2020-04-04 Sat 17:54]-[2020-04-04 Sat 20:50]|2:56
+[2020-04-04 Sat 17:24]-[2020-04-04 Sat 17:41]|0:17
+[2020-04-04 Sat 15:15]-[2020-04-04 Sat 16:10]|0:55
+[2020-04-03 Fri 20:22]-[2020-04-03 Fri 22:21]|1:59
+[2020-04-01 Wed 13:05]-[2020-04-01 Wed 15:05]|2:00
+[2020-03-29 Sun 13:05]-[2020-03-29 Sun 22:05]|9:00
+[2020-03-28 Sat 13:04]-[2020-03-28 Sat 22:04]|9:00
+[2020-03-26 Thu 20:20]-[2020-03-26 Thu 23:33]|3:13
+[2020-03-26 Thu 10:43]-[2020-03-26 Thu 14:39]|3:56
+[2020-03-24 Tue 20:00]-[2020-03-24 Tue 23:50]|3:50
+[2020-03-24 Tue 09:10]-[2020-03-24 Tue 12:34]|3:24
+[2020-03-23 Mon 19:56]-[2020-03-23 Mon 23:06]|3:10
+[2020-03-23 Mon 10:23]-[2020-03-23 Mon 13:23]|3:00
+[2020-03-23 Mon 09:06]-[2020-03-23 Mon 10:56]|1:50
+[2020-03-22 Sun 18:46]-[2020-03-22 Sun 22:45]|3:59
+[2020-03-22 Sun 12:45]-[2020-03-22 Sun 13:46]|1:01
+[2020-03-21 Sat 19:07]-[2020-03-21 Sat 21:35]|2:28
+[2020-03-17 Tue 19:11]-[2020-03-17 Tue 22:11]|3:00
+[2020-03-15 Sun 09:10]-[2020-03-15 Sun 12:41]|3:31
+[2020-03-14 Sat 23:01]-[2020-03-14 Sat 23:54]|0:53
+[2020-03-14 Sat 20:46]-[2020-03-14 Sat 23:01]|2:15
+[2020-03-14 Sat 20:39]-[2020-03-14 Sat 20:46]|0:07
+[2020-03-14 Sat 17:23]-[2020-03-14 Sat 20:39]|3:16
+[2020-03-14 Sat 12:00]-[2020-03-14 Sat 15:53]|3:53
+[2020-03-13 Fri 20:01]-[2020-03-13 Fri 23:01]|3:00
+[2020-03-13 Fri 09:20]-[2020-03-13 Fri 11:58]|2:38
+[2020-03-12 Thu 20:30]-[2020-03-12 Thu 23:29]|2:59
+[2020-03-11 Wed 12:12]-[2020-03-11 Wed 13:18]|1:06
+[2020-03-11 Wed 10:45]-[2020-03-11 Wed 11:09]|0:24
+[2020-03-11 Wed 09:15]-[2020-03-11 Wed 10:45]|1:30
+[2020-03-10 Tue 20:22]-[2020-03-11 Wed 00:09]|3:47
+[2020-03-10 Tue 09:08]-[2020-03-10 Tue 13:44]|4:36
+[2020-03-09 Mon 22:28]-[2020-03-09 Mon 23:32]|1:04
+[2020-03-09 Mon 09:08]-[2020-03-09 Mon 11:59]|2:51
+[2020-03-08 Sun 18:30]-[2020-03-08 Sun 21:29]|2:59
+[2020-03-08 Sun 16:51]-[2020-03-08 Sun 18:08]|1:17
+[2020-03-08 Sun 13:50]-[2020-03-08 Sun 15:36]|1:46
+[2020-03-08 Sun 11:56]-[2020-03-08 Sun 13:28]|1:32
+[2020-03-07 Sat 18:00]-[2020-03-07 Sat 21:36]|3:36
+[2020-03-07 Sat 11:35]-[2020-03-07 Sat 16:09]|4:34
+[2020-03-06 Fri 17:37]-[2020-03-06 Fri 21:48]|4:11
+[2020-03-06 Fri 13:11]-[2020-03-06 Fri 14:16]|1:05
+[2020-03-06 Fri 09:42]-[2020-03-06 Fri 12:39]|2:57
+[2020-03-05 Thu 16:54]-[2020-03-05 Thu 21:34]|4:40
+[2020-03-05 Thu 08:58]-[2020-03-05 Thu 13:24]|4:26
+[2020-03-04 Wed 19:51]-[2020-03-04 Wed 22:51]|3:00
+[2020-03-04 Wed 11:33]-[2020-03-04 Wed 12:31]|0:58
+[2020-03-04 Wed 09:32]-[2020-03-04 Wed 11:01]|1:29
+[2020-03-03 Tue 19:13]-[2020-03-03 Tue 21:46]|2:33
+[2020-03-03 Tue 12:20]-[2020-03-03 Tue 14:58]|2:38
+[2020-03-03 Tue 09:13]-[2020-03-03 Tue 11:57]|2:44
+[2020-03-02 Mon 18:30]-[2020-03-02 Mon 18:50]|0:20
+[2020-03-02 Mon 12:01]-[2020-03-02 Mon 14:43]|2:42
+[2020-03-02 Mon 09:02]-[2020-03-02 Mon 11:30]|2:28
+[2020-03-01 Sun 19:07]-[2020-03-01 Sun 21:25]|2:18
+[2020-03-01 Sun 17:50]-[2020-03-01 Sun 18:41]|0:51
+[2020-03-01 Sun 11:09]-[2020-03-01 Sun 15:15]|4:06
+[2020-02-29 Sat 21:30]-[2020-02-29 Sat 22:16]|0:46
+[2020-02-29 Sat 12:48]-[2020-02-29 Sat 19:17]|6:29
+[2020-02-28 Fri 20:21]-[2020-02-28 Fri 23:10]|2:49
+[2020-02-28 Fri 18:26]-[2020-02-28 Fri 19:22]|0:56
+[2020-02-28 Fri 11:55]-[2020-02-28 Fri 12:02]|0:07
+[2020-02-27 Thu 09:20]-[2020-02-27 Thu 10:57]|1:37
+[2020-02-26 Wed 20:47]-[2020-02-26 Wed 23:44]|2:57
+[2020-02-26 Wed 12:07]-[2020-02-26 Wed 13:40]|1:33
+[2020-02-26 Wed 09:29]-[2020-02-26 Wed 11:00]|1:31
+[2020-02-25 Tue 19:18]-[2020-02-25 Tue 22:51]|3:33
+[2020-02-25 Tue 09:01]-[2020-02-25 Tue 10:42]|1:41
+[2020-02-24 Mon 19:23]-[2020-02-25 Tue 00:15]|4:52
+[2020-02-24 Mon 13:00]-[2020-02-24 Mon 13:36]|0:36
+[2020-02-24 Mon 10:08]-[2020-02-24 Mon 12:39]|2:31
+[2020-02-23 Sun 19:20]-[2020-02-23 Sun 20:48]|1:28
+[2020-02-23 Sun 12:52]-[2020-02-23 Sun 16:45]|3:53
+[2020-02-22 Sat 21:35]-[2020-02-23 Sun 00:25]|2:50
+[2020-02-22 Sat 19:59]-[2020-02-22 Sat 21:03]|1:04
+[2020-02-22 Sat 12:20]-[2020-02-22 Sat 18:35]|6:15
+[2020-02-21 Fri 20:55]-[2020-02-22 Sat 00:30]|3:35
+[2020-02-21 Fri 17:30]-[2020-02-21 Fri 18:51]|1:21
+[2020-02-21 Fri 10:40]-[2020-02-21 Fri 16:40]|6:00
+[2020-02-20 Thu 17:00]-[2020-02-20 Thu 23:33]|6:33
+[2020-02-20 Thu 14:43]-[2020-02-20 Thu 15:08]|0:25
+[2020-02-20 Thu 10:05]-[2020-02-20 Thu 13:54]|3:49
+[2020-02-19 Wed 21:35]-[2020-02-20 Thu 00:36]|3:01
+[2020-02-19 Wed 19:50]-[2020-02-19 Wed 21:30]|1:40
+[2020-02-19 Wed 13:34]-[2020-02-19 Wed 18:15]|4:41
+[2020-02-19 Wed 11:10]-[2020-02-19 Wed 13:34]|2:24
+[2020-02-18 Tue 21:05]-[2020-02-19 Wed 00:27]|3:22
+[2020-02-18 Tue 19:02]-[2020-02-18 Tue 20:13]|1:11
+[2020-02-18 Tue 16:58]-[2020-02-18 Tue 18:36]|1:38
+[2020-02-18 Tue 10:55]-[2020-02-18 Tue 15:21]|4:26
+[2020-02-17 Mon 19:20]-[2020-02-18 Tue 00:12]|4:52
+[2020-02-17 Mon 15:20]-[2020-02-17 Mon 18:00]|2:40
+[2020-02-17 Mon 14:17]-[2020-02-17 Mon 15:09]|0:52
+[2020-02-16 Sun 21:21]-[2020-02-17 Mon 00:52]|3:31
+[2020-02-16 Sun 20:03]-[2020-02-16 Sun 20:14]|0:11
+[2020-02-16 Sun 19:00]-[2020-02-16 Sun 19:30]|0:30
+[2020-02-16 Sun 16:06]-[2020-02-16 Sun 18:38]|2:32
+[2020-02-16 Sun 12:59]-[2020-02-16 Sun 14:37]|1:38
+[2020-02-16 Sun 10:30]-[2020-02-16 Sun 12:22]|1:52
+[2020-02-15 Sat 22:10]-[2020-02-15 Sat 23:52]|1:42
+[2020-02-15 Sat 21:01]-[2020-02-15 Sat 21:50]|0:49
+[2020-02-15 Sat 15:03]-[2020-02-15 Sat 18:34]|3:31
+[2020-02-14 Fri 18:53]-[2020-02-15 Sat 04:33]|9:40
+[2020-02-13 Thu 16:15]-[2020-02-13 Thu 17:21]|1:06
+[2020-02-13 Thu 00:12]-[2020-02-13 Thu 01:45]|1:33
+[2020-02-12 Wed 18:36]-[2020-02-12 Wed 22:30]|3:54
+[2020-02-12 Wed 13:16]-[2020-02-12 Wed 14:55]|1:39
+[2020-02-12 Wed 08:37]-[2020-02-12 Wed 12:20]|3:43
+[2020-02-11 Tue 18:51]-[2020-02-11 Tue 21:54]|3:03
+[2020-02-11 Tue 04:30]-[2020-02-11 Tue 08:09]|3:39
+[2020-02-10 Mon 06:42]-[2020-02-10 Mon 07:28]|0:46
+[2020-02-06 Thu 15:42]-[2020-02-06 Thu 22:08]|6:26
+[2020-02-01 Sat 15:05]-[2020-02-01 Sat 15:36]|0:31
+[2020-01-23 Thu 17:06]-[2020-01-23 Thu 18:51]|1:45
+[2020-01-22 Wed 20:53]-[2020-01-22 Wed 21:05]|0:12
+[2020-01-22 Wed 13:40]-[2020-01-22 Wed 20:20]|6:40
+[2020-01-21 Tue 15:33]-[2020-01-21 Tue 16:57]|1:24
+[2020-01-17 Fri 19:13]-[2020-01-17 Fri 23:00]|3:47
+[2020-01-11 Sat 10:56]-[2020-01-11 Sat 18:24]|7:28
+[2020-01-10 Fri 22:20]-[2020-01-10 Fri 23:56]|1:36
+[2020-01-10 Fri 09:40]-[2020-01-10 Fri 13:20]|3:40
+[2020-01-09 Thu 20:10]-[2020-01-09 Thu 22:15]|2:05
+[2020-01-09 Thu 08:50]-[2020-01-09 Thu 09:55]|1:05
+[2020-01-08 Wed 19:21]-[2020-01-09 Thu 00:42]|5:21
+[2020-01-08 Wed 09:20]-[2020-01-08 Wed 18:12]|8:52
+[2020-01-07 Tue 16:31]-[2020-01-07 Tue 18:31]|2:00
+[2020-01-07 Tue 08:55]-[2020-01-07 Tue 12:49]|3:54
+[2020-01-06 Mon 22:30]-[2020-01-06 Mon 23:31]|1:01
+[2020-01-06 Mon 09:20]-[2020-01-06 Mon 11:56]|2:36
+[2020-01-04 Sat 20:25]-[2020-01-04 Sat 21:09]|0:44
+[2020-01-04 Sat 09:37]-[2020-01-04 Sat 13:22]|3:45
+[2020-01-03 Fri 21:13]-[2020-01-03 Fri 23:59]|2:46
+[2020-01-03 Fri 18:13]-[2020-01-03 Fri 19:13]|1:00
+[2020-01-03 Fri 12:08]-[2020-01-03 Fri 14:12]|2:04
+[2020-01-02 Thu 09:35]-[2020-01-02 Thu 11:58]|2:23
+[2019-12-29 Sun 02:12]-[2019-12-29 Sun 05:42]|3:30
+[2019-12-26 Thu 16:59]-[2019-12-26 Thu 19:51]|2:52
+[2019-12-23 Mon 05:03]-[2019-12-23 Mon 05:31]|0:28
+[2019-12-23 Mon 03:02]-[2019-12-23 Mon 04:03]|1:01
+[2019-12-22 Sun 16:51]-[2019-12-22 Sun 18:40]|1:49
+[2019-12-21 Sat 19:23]-[2019-12-22 Sun 00:19]|4:56
+[2019-12-20 Fri 14:10]-[2019-12-20 Fri 17:11]|3:01
+[2019-12-19 Thu 23:20]-[2019-12-19 Thu 23:38]|0:18
+[2019-12-18 Wed 10:47]-[2019-12-18 Wed 12:47]|2:00
+[2019-12-09 Mon 10:47]-[2019-12-09 Mon 13:21]|2:34
+[2019-12-08 Sun 17:47]-[2019-12-09 Sun 00:28]|6:41
+[2019-12-07 Sat 16:07]-[2019-12-07 Sat 23:15]|7:08
+[2019-12-06 Fri 19:04]-[2019-12-06 Fri 20:54]|1:50
+[2019-12-04 Wed 18:06]-[2019-12-05 Thu 00:42]|6:36
+[2019-12-04 Wed 12:36]-[2019-12-04 Wed 13:05]|0:29
+[2019-12-03 Tue 22:18]-[2019-12-03 Tue 23:27]|1:09
+[2019-12-03 Tue 21:21]-[2019-12-03 Tue 22:18]|0:57
+[2019-12-03 Tue 12:40]-[2019-12-03 Tue 15:25]|2:45
+[2019-12-02 Mon 20:06]-[2019-12-02 Mon 23:30]|3:24
+[2019-12-01 Sun 22:07]-[2019-12-02 Mon 01:06]|2:59
+[2019-12-01 Sun 18:59]-[2019-12-01 Sun 19:59]|1:00
+[2019-11-30 Sat 14:19]-[2019-11-30 Sat 15:15]|0:56
+[2019-11-29 Fri 20:07]-[2019-11-29 Fri 21:24]|1:17
+[2019-11-29 Fri 11:51]-[2019-11-29 Fri 12:10]|0:19
+[2019-11-28 Thu 09:30]-[2019-11-28 Thu 15:00]|5:30
+[2019-11-26 Tue 09:15]-[2019-11-26 Tue 12:57]|3:42
+[2019-11-25 Mon 10:35]-[2019-11-25 Mon 13:02]|2:27
+[2019-11-20 Wed 12:08]-[2019-11-20 Wed 14:29]|2:21
+[2019-11-20 Wed 09:25]-[2019-11-20 Wed 11:32]|2:07
+[2019-11-19 Tue 11:45]-[2019-11-19 Tue 14:42]|2:57
+[2019-11-13 Wed 20:52]-[2019-11-13 Wed 22:25]|1:33
+[2019-11-12 Tue 19:47]-[2019-11-12 Tue 21:14]|1:27
+[2019-11-12 Tue 09:30]-[2019-11-12 Tue 11:49]|2:19
+[2019-11-11 Mon 21:03]-[2019-11-11 Mon 23:03]|2:00
+[2019-11-10 Sun 21:45]-[2019-11-10 Sun 23:25]|1:40
+[2019-10-31 Thu 09:20]-[2019-10-31 Thu 11:07]|1:47
+[2019-10-30 Wed 10:35]-[2019-10-30 Wed 13:55]|3:20
+[2019-10-29 Tue 22:35]-[2019-10-30 Wed 00:13]|1:38
+[2019-10-29 Tue 09:33]-[2019-10-29 Tue 11:33]|2:00
+[2019-10-28 Mon 21:52]-[2019-10-29 Tue 00:14]|2:22
+[2019-10-28 Mon 18:23]-[2019-10-28 Mon 19:23]|1:00
+[2019-10-28 Mon 09:07]-[2019-10-28 Mon 15:10]|6:03
+[2019-10-27 Sun 20:44]-[2019-10-28 Mon 00:48]|4:04
+[2019-10-27 Sun 14:17]-[2019-10-27 Sun 15:42]|1:25
+[2019-10-27 Sun 12:15]-[2019-10-27 Sun 13:33]|1:18
+[2019-10-26 Sat 13:53]-[2019-10-26 Sat 14:10]|0:17
+[2019-10-26 Sat 10:15]-[2019-10-26 Sat 10:58]|0:43
+[2019-10-25 Fri 15:12]-[2019-10-25 Fri 17:55]|2:43
+[2019-10-25 Fri 09:10]-[2019-10-25 Fri 09:59]|0:49
+[2019-10-24 Thu 22:23]-[2019-10-25 Fri 00:05]|1:42
+[2019-10-24 Thu 18:45]-[2019-10-24 Thu 21:21]|2:36
+[2019-10-24 Thu 09:03]-[2019-10-24 Thu 10:47]|1:44
+[2019-10-23 Wed 21:24]-[2019-10-24 Wed 23:49]|2:25
+[2019-10-23 Wed 09:09]-[2019-10-23 Wed 10:55]|1:46
+[2019-10-22 Tue 22:35]-[2019-10-23 Wed 00:13]|1:33
+[2019-10-22 Tue 19:10]-[2019-10-22 Tue 21:38]|2:28
+[2019-10-22 Tue 09:18]-[2019-10-22 Tue 12:02]|2:44
+[2019-10-21 Mon 23:39]-[2019-10-21 Mon 23:49]|0:10
+[2019-10-21 Mon 17:23]-[2019-10-21 Mon 18:28]|1:05
+[2019-10-21 Mon 09:05]-[2019-10-21 Mon 13:58]|4:53
+[2019-10-20 Sun 23:27]-[2019-10-21 Mon 00:00]|0:33
+[2019-10-20 Sun 19:32]-[2019-10-20 Sun 20:23]|0:51
+[2019-10-20 Sun 12:55]-[2019-10-20 Sun 14:45]|1:50
+[2019-10-19 Sat 19:25]-[2019-10-19 Sat 20:45]|1:20
+[2019-10-19 Sat 16:12]-[2019-10-19 Sat 18:47]|2:35
+[2019-10-17 Thu 19:18]-[2019-10-17 Thu 22:55]|3:37
+[2019-10-17 Thu 09:30]-[2019-10-17 Thu 11:42]|2:12
+[2019-10-16 Wed 14:52]-[2019-10-16 Wed 14:59]|0:07
+[2019-10-16 Wed 09:08]-[2019-10-16 Wed 10:08]|1:00
+[2019-10-15 Tue 22:35]-[2019-10-15 Tue 23:30]|0:55
+[2019-10-15 Tue 19:30]-[2019-10-15 Tue 21:40]|2:10
+[2019-10-15 Tue 09:10]-[2019-10-15 Tue 12:56]|3:46
+[2019-10-14 Mon 19:51]-[2019-10-14 Mon 23:10]|3:19
+[2019-10-14 Mon 15:57]-[2019-10-14 Mon 17:23]|1:26
+[2019-10-12 Sat 20:05]-[2019-10-12 Sat 21:33]|1:28
+[2019-10-12 Sat 15:56]-[2019-10-12 Sat 16:07]|0:11
+[2019-10-12 Sat 10:31]-[2019-10-12 Sat 12:31]|2:00
+[2019-10-11 Fri 19:55]-[2019-10-11 Fri 22:34]|2:39
+[2019-10-11 Fri 17:55]-[2019-10-11 Fri 19:28]|1:33
+[2019-10-11 Fri 14:35]-[2019-10-11 Fri 14:47]|0:12
+[2019-10-11 Fri 09:10]-[2019-10-11 Fri 11:10]|2:00
+[2019-10-10 Thu 20:26]-[2019-10-10 Thu 21:48]|1:22
+[2019-10-10 Thu 17:26]-[2019-10-10 Thu 19:40]|2:14
+[2019-10-10 Thu 12:15]-[2019-10-10 Thu 14:37]|2:22
+[2019-10-10 Thu 08:50]-[2019-10-10 Thu 11:29]|2:39
+[2019-10-09 Wed 20:16]-[2019-10-09 Wed 20:55]|0:39
+[2019-10-09 Wed 16:46]-[2019-10-09 Wed 17:55]|1:09
+[2019-10-09 Wed 11:27]-[2019-10-09 Wed 13:38]|2:11
+[2019-09-29 Sun 17:01]-[2019-09-29 Sun 17:23]|0:22
+[2019-09-27 Fri 08:56]-[2019-09-27 Fri 10:20]|1:24
+[2019-09-26 Thu 21:25]-[2019-09-26 Thu 23:38]|2:13
+[2019-09-25 Wed 21:55]-[2019-09-25 Wed 22:18]|0:23
+[2019-09-25 Wed 12:20]-[2019-09-25 Wed 15:22]|3:02
+[2019-09-25 Wed 09:20]-[2019-09-25 Wed 11:25]|2:05
+[2019-09-24 Tue 22:10]-[2019-09-24 Tue 23:16]|1:06
+[2019-09-24 Tue 12:05]-[2019-09-24 Tue 13:49]|1:44
+[2019-09-24 Tue 01:17]-[2019-09-24 Tue 02:15]|0:58
+[2019-09-23 Mon 21:26]-[2019-09-23 Mon 22:57]|1:31
+[2019-09-22 Sun 14:52]-[2019-09-22 Sun 18:51]|3:59
+[2019-09-21 Sat 16:50]-[2019-09-21 Sat 17:55]|1:05
+[2019-09-21 Sat 12:31]-[2019-09-21 Sat 15:44]|3:13
+[2019-09-20 Fri 22:05]-[2019-09-21 Sat 00:05]|2:00
+[2019-09-20 Fri 14:38]-[2019-09-20 Fri 17:20]|2:42
+[2019-09-20 Fri 11:42]-[2019-09-20 Fri 12:48]|1:06
+[2019-09-19 Thu 21:14]-[2019-09-20 Fri 00:33]|3:19
+[2019-09-19 Thu 09:15]-[2019-09-19 Thu 11:14]|1:59
+[2019-09-18 Wed 20:55]-[2019-09-18 Wed 23:25]|2:30
+[2019-09-17 Tue 22:05]-[2019-09-17 Tue 22:56]|0:51
+[2019-09-14 Sat 14:20]-[2019-09-14 Sat 16:57]|2:37
+[2019-09-12 Thu 09:31]-[2019-09-12 Thu 10:36]|1:05
+[2019-09-11 Wed 22:40]-[2019-09-12 Thu 01:41]|3:01
+[2019-09-11 Wed 12:11]-[2019-09-11 Wed 15:16]|3:05
+[2019-09-11 Wed 09:19]-[2019-09-11 Wed 11:49]|2:30
+[2019-09-10 Tue 20:60]-[2019-09-10 Tue 23:35]|2:35
+[2019-09-10 Tue 16:30]-[2019-09-10 Tue 19:35]|3:05
+[2019-09-10 Tue 14:30]-[2019-09-10 Tue 14:41]|0:11
+[2019-09-10 Tue 10:27]-[2019-09-10 Tue 11:27]|1:00
+[2019-09-09 Mon 09:29]-[2019-09-09 Mon 12:45]|3:16
+[2019-09-08 Sun 23:07]-[2019-09-09 Mon 00:46]|1:39
+[2019-09-08 Sun 15:10]-[2019-09-08 Sun 21:07]|5:57
+[2019-09-06 Fri 12:05]-[2019-09-06 Fri 13:40]|1:35
+[2019-09-04 Wed 20:01]-[2019-09-04 Wed 23:19]|3:18
+[2019-09-04 Wed 17:01]-[2019-09-04 Wed 20:00]|2:59
+[2019-09-04 Wed 09:12]-[2019-09-04 Wed 12:12]|3:00
+[2019-09-03 Tue 19:40]-[2019-09-04 Wed 01:20]|5:40
+[2019-09-03 Tue 11:12]-[2019-09-03 Tue 14:46]|3:34
+[2019-09-03 Tue 10:00]-[2019-09-03 Tue 10:39]|0:39
+[2019-09-02 Mon 19:55]-[2019-09-03 Tue 00:00]|4:05
+[2019-09-02 Mon 09:53]-[2019-09-02 Mon 13:37]|3:44
+[2019-09-01 Sun 19:10]-[2019-09-02 Mon 00:46]|5:36
+[2019-08-31 Sat 11:21]-[2019-08-31 Sat 11:44]|0:23
+[2019-08-30 Fri 19:21]-[2019-08-30 Fri 23:49]|4:28
+[2019-08-30 Fri 15:21]-[2019-08-30 Fri 16:11]|0:50
+[2019-08-29 Thu 14:10]-[2019-08-29 Thu 15:16]|1:06
+[2019-08-25 Sun 14:15]-[2019-08-25 Sun 21:55]|7:40
+[2019-08-22 Thu 15:01]-[2019-08-22 Thu 19:39]|4:38
+[2019-08-22 Thu 09:12]-[2019-08-22 Thu 13:30]|4:18
+[2019-08-21 Wed 21:15]-[2019-08-22 Thu 00:17]|3:02
+[2019-08-21 Wed 12:21]-[2019-08-21 Wed 14:39]|2:18
+[2019-08-20 Tue 10:57]-[2019-08-20 Tue 15:04]|4:07
+[2019-08-19 Mon 09:19]-[2019-08-19 Mon 13:32]|4:13
+#+END_SRC
 
 
 * Appendix: Full data on the exercise completion times.
@@ -1756,7 +1768,7 @@ completion time of the previous one. For the first exercise, the beginning
 time is [2019-08-19 Mon 09:19]. 
 
 #+name: completion-times-data
-#+begin_src elisp
+#+BEGIN_SRC elisp
 Figure 1.1 Tree with the values of subcombinations
 [2019-08-20 Tue 14:35]
 Exercise 1.1 Interpreter result
@@ -2483,7 +2495,7 @@ Exercise 5.51 EC-evaluator in low-level language
 [2020-04-13 Mon 11:45]
 Exercise 5.52 Making a compiler for Scheme
 [2020-05-06 Wed 11:09]
-#+end_src
+#+END_SRC
 
 
 
@@ -2495,7 +2507,7 @@ Interested readers reading the PDF version are advised to consult the
 org-mode version.
 
 #+latex: \lstset{upquote=true}
-#+begin_src elisp :exports code :wrap example :results output
+#+BEGIN_SRC elisp
   (require 'org-element)
   (cl-labels (
 
@@ -2950,83 +2962,19 @@ org-mode version.
           problems-sorted-by-nsessions))
  (princ (char-to-string ?\))))
  ))
-#+end_src
-
-#+RESULTS:
-#+begin_example
-("Amount of the out-of-order-problems: "("13"
-"Out-of-order problems :"
-(("Exercise 5.40 Compile-time environment" "[2020-03-08 Sun 15:02]" 351)
- ("Exercise 5.17 Printing labels" "[2020-02-29 Sat 17:43]" 328)
- ("Figure 5.1 Data paths for a Register Machine" "[2020-02-23 Sun 13:18]" 310)
- ("Exercise 4.79 Prolog environments" "[2020-05-10 Sun 17:59]" 309)
- ("Exercise 4.71 Louis' simple queries" "[2020-02-21 Fri 20:56]" 301)
- ("Exercise 4.69 Great grandchildren" "[2020-02-21 Fri 17:43]" 299)
- ("Exercise 4.49 Alyssa's generator" "[2020-02-18 Tue 21:51]" 278)
- ("Exercise 3.69 ~triples~" "[2020-02-17 Mon 20:10]" 214)
- ("Exercise 2.61 Sets as ordered lists" "[2019-09-26 Thu 21:44]" 109)
- ("Exercise 2.45 ~split~" "[2019-09-24 Tue 01:37]" 93)
- ("Exercise 1.9 Iterative or recursive?" "[2019-08-29 Thu 15:14]" 10)
- ("Exercise 1.3 Sum of squares" "[2020-02-28 Fri 12:01]" 4)
- ("Figure 1.1 Tree with the values of subcombinations" "[2019-08-20 Tue 14:35]" 1))
-
-"Task summary (completion time):"
-(| Exercise | Days | Sessions | Minutes |
-|- + - + - + - |
-|Exercise 1.1 Interpreter result|1.211|  2|459.000|
-|Exercise 1.2 Prefix form|0.001|  1|2.000|
-|Figure 1.1 Tree with the values of subcombinations|0.007|  1|10.000|)
-
-"Task summary (original-index):"
-(| Exercise | Days | Sessions | Minutes |
-|- + - + - + - |
-|Figure 1.1 Tree with the values of subcombinations|0.007|  1|10.000|
-|Exercise 1.1 Interpreter result|1.211|  2|459.000|
-|Exercise 1.2 Prefix form|0.001|  1|2.000|)
-
-"Hardest 10 problems (raw):"
-(| Exercise | Days | Sessions | Minutes |
-|- + - + - + - |
-|Exercise 2.46 ~make-vect~|2.578|  5|535.000|
-|Exercise 4.78 Non-deterministic queries|0.867|  6|602.000|
-|Exercise 3.28 Primitive or-gate|1.316|  2|783.000|
-|Exercise 4.79 Prolog environments|4.285|  5|940.000|
-|Exercise 3.9 Environment structures|21.030| 10|1100.000|
-|Exercise 4.77 Lazy queries|4.129|  9|1214.000|
-|Exercise 4.5 ~cond~ with arrow|12.765|  7|1252.000|
-|Exercise 5.52 Making a compiler for Scheme|22.975| 13|2359.000|
-|Exercise 2.92 Add, mul for different variables|4.556| 11|2404.000|
-|Exercise 5.51 EC-evaluator in low-level language|28.962| 33|5684.000|)
-
-"Hardest 10 problems (sessions):"
-(| Exercise | Days | Sessions | Minutes |
-|- + - + - + - |
-|Exercise 4.79 Prolog environments|4.285|  5|940.000|
-|Exercise 2.85 Dropping a type|3.089|  5|507.000|
-|Exercise 2.46 ~make-vect~|2.578|  5|535.000|
-|Exercise 4.78 Non-deterministic queries|0.867|  6|602.000|
-|Exercise 4.5 ~cond~ with arrow|12.765|  7|1252.000|
-|Exercise 4.77 Lazy queries|4.129|  9|1214.000|
-|Exercise 3.9 Environment structures|21.030| 10|1100.000|
-|Exercise 2.92 Add, mul for different variables|4.556| 11|2404.000|
-|Exercise 5.52 Making a compiler for Scheme|22.975| 13|2359.000|
-|Exercise 5.51 EC-evaluator in low-level language|28.962| 33|5684.000|)
-
-"Logarithmic histogram:"
-[2 6 15 41 55 67 85 52 29 5 3 2 1]
-
-"Linear histogram:"
-[301 38 14 2 1 1 2 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
-
-"Median difficulty:"
-("Exercise 2.8 ~sub-interval~" :spent-time-calendar-days 0.12361111111111112 :spans-sessions 1 :spent-time-net-minutes 58.0 :original-index 55)
-"Median n-sessions:"
-("Exercise 1.41 Double-double" :spent-time-calendar-days 0.010416666666666666 :spans-sessions 1 :spent-time-net-minutes 15.0 :original-index 42)
-)
-#+end_example
+#+END_SRC
 
 
 
 
-* Table of Contents
+# * COMMENT Table of Contents
+#+TOC: headlines 3
 #+latex: \tableofcontents
+
+# ./experience-report-minutes-per-problem.png http://lockywolf.files.wordpress.com/2021/02/experience-report-minutes-per-problem.png
+
+# experience-report-days.png http://lockywolf.files.wordpress.com/2021/02/experience-report-days-1.png
+# experience-report-study-sessions.png http://lockywolf.files.wordpress.com/2021/02/experience-report-study-sessions.png
+
+# experience-report-hardness-histogram-linear.png http://lockywolf.files.wordpress.com/2021/02/experience-report-hardness-histogram-linear.png
+# experience-report-hardness-histogram-logarithmic.png http://lockywolf.files.wordpress.com/2021/02/experience-report-hardness-histogram-logarithmic.png
